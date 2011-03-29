@@ -1,0 +1,2 @@
+class Celluloid::Actor
+end
