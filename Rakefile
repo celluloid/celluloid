@@ -12,13 +12,14 @@ require 'rake'
 require 'jeweler'
 Jeweler::Tasks.new do |gem|
   # gem is a Gem::Specification... see http://docs.rubygems.org/read/chapter/20 for more options
-  gem.name = "celluloid"
-  gem.homepage = "http://github.com/tarcieri/celluloid"
-  gem.license = "MIT"
-  gem.summary = %Q{TODO: one-line summary of your gem}
-  gem.description = %Q{TODO: longer description of your gem}
-  gem.email = "tony@medioh.com"
-  gem.authors = ["Tony Arcieri"]
+  gem.name        = "celluloid"
+  gem.homepage    = "http://github.com/tarcieri/celluloid"
+  gem.license     = "MIT"
+  gem.summary     = "Ruby concurrency made easy! Or at least, easier..."
+  gem.description = "Celluloid is a Ruby concurrency framework inspired by Erlang's gen_server"
+  gem.email       = "tony@medioh.com"
+  gem.authors     = ["Tony Arcieri"]
+  
   # Include your dependencies below. Runtime dependencies are required when using your gem,
   # and development dependencies are only needed for development (ie running rake tasks, tests, etc)
   #  gem.add_runtime_dependency 'jabber4r', '> 0.1'
