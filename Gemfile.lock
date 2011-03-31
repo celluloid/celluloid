@@ -18,7 +18,7 @@ GEM
     rspec-mocks (2.5.0)
 
 PLATFORMS
-  java
+  ruby
 
 DEPENDENCIES
   bundler (~> 1.0.0)
