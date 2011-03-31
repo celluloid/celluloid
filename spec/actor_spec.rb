@@ -2,7 +2,9 @@ require 'spec_helper'
 
 describe Celluloid::Actor do
   before do
-    class MyActor < Celluloid::Actor
+    class MyActor
+      include Celluloid::Actor
+      
       def initialize(name)
         @name = name
       end
@@ -14,7 +16,7 @@ describe Celluloid::Actor do
   end
   
   it "handles synchronous calls" do
-    actor = MyActor.new "Troy McClure"
+    actor = MyActor.spawn "Troy McClure"
     actor.greet.should == "Hi, I'm Troy McClure"
   end
 end
