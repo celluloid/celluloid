@@ -5,3 +5,4 @@ module Celluloid
 end
 
 require 'celluloid/actor'
+require 'celluloid/waker'
