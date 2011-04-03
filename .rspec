@@ -1,1 +1,3 @@
---color --format documentation
+--color 
+--format documentation 
+--backtrace
