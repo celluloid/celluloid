@@ -5,4 +5,7 @@ module Celluloid
 end
 
 require 'celluloid/actor'
+require 'celluloid/actor_proxy'
+require 'celluloid/mailbox'
 require 'celluloid/waker'
+require 'celluloid/core_ext'
