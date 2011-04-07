@@ -10,6 +10,14 @@ module Celluloid
     
     def method_missing(meth, *args, &block)
       our_mailbox = Thread.current.celluloid_mailbox
+      
+      # bang methods are async calls
+      if meth.to_s.match(/!$/) 
+        unbanged_meth = meth.to_s.sub(/!$/, '')
+        @actor_mailbox << [:cast, our_mailbox, unbanged_meth, args, block]
+        return # casts are async and return immediately
+      end
+      
       @actor_mailbox << [:call, our_mailbox, meth, args, block]
       message = our_mailbox.receive
       type = message[0]

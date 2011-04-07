@@ -38,6 +38,9 @@ module Celluloid
           _, caller, meth, args, block = message
           result = send meth, *args, &block
           caller << [:reply, result]
+        when :cast
+          _, _, meth, args, block = message
+          send meth, *args, &block
         else
           raise "don't know how to handle #{type.inspect} messages!"
         end
