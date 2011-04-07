@@ -24,7 +24,11 @@ module Celluloid
       
       case type
       when :reply
-        message[1]
+        if message[1] == :value # success!
+          message[2]
+        else
+          raise message[2] # fail!
+        end
       else
         raise "don't know how to handle #{type.inspect} messages!"
       end

@@ -24,6 +24,14 @@ describe Celluloid::Actor do
     actor.greet.should == "Hi, I'm Troy McClure"
   end
   
+  it "raises NoMethodError when a nonexistent method is called" do
+    actor = MyActor.spawn "Billy Bob Thornton"
+    
+    proc do
+      actor.the_method_that_wasnt_there
+    end.should raise_exception(NoMethodError)
+  end
+  
   it "handles asynchronous calls (a.k.a. 'casts')" do
     actor = MyActor.spawn "Troy McClure"
     actor.change_name! "Charlie Sheen"

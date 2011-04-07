@@ -36,8 +36,13 @@ module Celluloid
         case type
         when :call
           _, caller, meth, args, block = message
-          result = send meth, *args, &block
-          caller << [:reply, result]
+          
+          begin
+            result = send meth, *args, &block
+            caller << [:reply, :value, result]
+          rescue NoMethodError => ex
+            caller << [:reply, :error, ex]
+          end
         when :cast
           _, _, meth, args, block = message
           send meth, *args, &block
