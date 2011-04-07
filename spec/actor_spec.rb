@@ -32,7 +32,7 @@ describe Celluloid::Actor do
     end.should raise_exception(NoMethodError)
   end
   
-  it "handles asynchronous calls (a.k.a. 'casts')" do
+  it "handles asynchronous calls" do
     actor = MyActor.spawn "Troy McClure"
     actor.change_name! "Charlie Sheen"
     actor.greet.should == "Hi, I'm Charlie Sheen"    

@@ -31,21 +31,17 @@ module Celluloid
     def __process_messages
       while true # instead of loop, for speed!
         message = @celluloid_mailbox.receive
-        type = message[0]
         
-        case type
-        when :call
-          _, caller, meth, args, block = message
-          
+        case message
+        when SyncCall
           begin
-            result = send meth, *args, &block
-            caller << [:reply, :value, result]
-          rescue NoMethodError => ex
-            caller << [:reply, :error, ex]
+            result = send message.method, *message.arguments, &message.block
+            message.caller << SuccessResponse.new(result)
+          rescue NoMethodError => exception
+            message.caller << ErrorResponse.new(exception)
           end
-        when :cast
-          _, _, meth, args, block = message
-          send meth, *args, &block
+        when AsyncCall
+          send message.method, *message.arguments, &message.block
         else
           raise "don't know how to handle #{type.inspect} messages!"
         end

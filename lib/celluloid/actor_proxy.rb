@@ -14,23 +14,20 @@ module Celluloid
       # bang methods are async calls
       if meth.to_s.match(/!$/) 
         unbanged_meth = meth.to_s.sub(/!$/, '')
-        @actor_mailbox << [:cast, our_mailbox, unbanged_meth, args, block]
+        @actor_mailbox << AsyncCall.new(our_mailbox, unbanged_meth, args, block)
         return # casts are async and return immediately
       end
       
-      @actor_mailbox << [:call, our_mailbox, meth, args, block]
-      message = our_mailbox.receive
-      type = message[0]
+      @actor_mailbox << SyncCall.new(our_mailbox, meth, args, block)
+      response = our_mailbox.receive
       
-      case type
-      when :reply
-        if message[1] == :value # success!
-          message[2]
-        else
-          raise message[2] # fail!
-        end
+      case response
+      when SuccessResponse
+        response.value
+      when ErrorResponse
+        raise response.value
       else
-        raise "don't know how to handle #{type.inspect} messages!"
+        raise "don't know how to handle #{response.class} messages!"
       end
     end
   end

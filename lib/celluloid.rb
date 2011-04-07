@@ -6,6 +6,8 @@ end
 
 require 'celluloid/actor'
 require 'celluloid/actor_proxy'
+require 'celluloid/calls'
 require 'celluloid/mailbox'
+require 'celluloid/responses'
 require 'celluloid/waker'
 require 'celluloid/core_ext'
