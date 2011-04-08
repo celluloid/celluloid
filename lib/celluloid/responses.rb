@@ -3,7 +3,7 @@ module Celluloid
   class Response
     attr_reader :value
     
-    def initialize(value)
+    def initialize(call, value)
       @value = value
     end
   end

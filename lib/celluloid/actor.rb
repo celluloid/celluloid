@@ -30,20 +30,20 @@ module Celluloid
     # Process incoming messages
     def __process_messages
       while true # instead of loop, for speed!
-        message = @celluloid_mailbox.receive
+        call = @celluloid_mailbox.receive
         
-        case message
+        case call
         when SyncCall
           begin
-            result = send message.method, *message.arguments, &message.block
-            message.caller << SuccessResponse.new(result)
+            result = send call.method, *call.arguments, &call.block
+            call.caller << SuccessResponse.new(call, result)
           rescue NoMethodError => exception
-            message.caller << ErrorResponse.new(exception)
+            call.caller << ErrorResponse.new(call, exception)
           end
         when AsyncCall
-          send message.method, *message.arguments, &message.block
+          send call.method, *call.arguments, &call.block
         else
-          raise "don't know how to handle #{type.inspect} messages!"
+          raise "don't know how to handle #{call.class} messages!"
         end
       end
     rescue Exception => ex
