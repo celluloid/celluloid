@@ -23,7 +23,12 @@ module Celluloid
       
       Thread.new do
         Thread.current[:celluloid_mailbox] = @celluloid_mailbox
-        __process_messages
+        
+        begin
+          __process_messages
+        rescue Exception => ex
+          __handle_crash(ex)
+        end
       end
     end
     
@@ -31,25 +36,8 @@ module Celluloid
     def __process_messages
       while true # instead of loop, for speed!
         call = @celluloid_mailbox.receive
-        meth = call.method
-        
-        case call
-        when SyncCall
-          if respond_to? meth
-            result = send meth, *call.arguments, &call.block
-            call.caller << SuccessResponse.new(call, result)
-          else 
-            exception = NoMethodError.new("undefined method `#{meth}' for #{self.inspect}")
-            call.caller << ErrorResponse.new(call, exception)
-          end
-        when AsyncCall
-          send call.method, *call.arguments, &call.block
-        else
-          raise "don't know how to handle #{call.class} messages!"
-        end
+        call.dispatch(self)
       end
-    rescue Exception => ex
-      __handle_crash(ex)
     end
     
     # Handle any exceptions that occur within a running actor
