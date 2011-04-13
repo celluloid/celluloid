@@ -21,15 +21,15 @@ module Celluloid
       # Call the object's normal initialize method
       initialize(*args, &block)
       
-      Thread.new do
-        Thread.current[:celluloid_mailbox] = @celluloid_mailbox
-        
-        begin
-          __process_messages
-        rescue Exception => ex
-          __handle_crash(ex)
-        end
-      end
+      Thread.new { __run_actor }
+    end
+    
+    # Run the actor
+    def __run_actor
+      Thread.current[:celluloid_mailbox] = @celluloid_mailbox
+      __process_messages
+    rescue Exception => ex
+      __handle_crash(ex)
     end
     
     # Process incoming messages
