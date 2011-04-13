@@ -13,4 +13,10 @@ describe Celluloid::Registry do
     Celluloid::Actor[:marilyn] = Marilyn.spawn
     Celluloid::Actor[:marilyn].sing_for("Mr. President").should == "o/~ Happy birthday, Mr. President"
   end
+  
+  it "refuses to register non-Actors" do
+    proc do
+      Celluloid::Actor[:impostor] = Object.new
+    end.should raise_error(ArgumentError)
+  end
 end

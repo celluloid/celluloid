@@ -6,6 +6,11 @@ module Celluloid
     
     # Register an Actor
     def []=(name, actor)
+      actor_singleton = class << actor; self; end
+      unless actor_singleton.ancestors.include?(Celluloid::ActorProxy)
+        raise ArgumentError, "not an actor"
+      end
+      
       @@registry_lock.synchronize do
         @@registry[name.to_sym] = actor
       end
