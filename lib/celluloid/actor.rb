@@ -31,13 +31,15 @@ module Celluloid
     def __process_messages
       while true # instead of loop, for speed!
         call = @celluloid_mailbox.receive
+        meth = call.method
         
         case call
         when SyncCall
-          begin
-            result = send call.method, *call.arguments, &call.block
+          if respond_to? meth
+            result = send meth, *call.arguments, &call.block
             call.caller << SuccessResponse.new(call, result)
-          rescue NoMethodError => exception
+          else 
+            exception = NoMethodError.new("undefined method `#{meth}' for #{self.inspect}")
             call.caller << ErrorResponse.new(call, exception)
           end
         when AsyncCall
