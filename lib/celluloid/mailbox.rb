@@ -29,5 +29,10 @@ module Celluloid
       
       message
     end
+    
+    # Inspect the contents of the Mailbox
+    def inspect
+      "#<Celluloid::Mailbox[#{@messages.map { |m| m.inspect }.join(', ')}]>"
+    end
   end
 end
