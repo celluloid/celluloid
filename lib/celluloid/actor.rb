@@ -1,3 +1,5 @@
+require 'set'
+
 module Celluloid
   # Actors are Celluloid's concurrency primitive. They're implemented as
   # normal Ruby objects wrapped in threads which communicate with asynchronous
@@ -11,7 +13,32 @@ module Celluloid
         actor = allocate
         actor.__initialize_actor(*args, &block)
         
-        ActorProxy.new(actor) 
+        proxy = ActorProxy.new(actor)
+        actor.instance_variable_set(:@celluloid_proxy, proxy) # FIXME: hax! :(
+        proxy
+      end
+    end
+    
+    # Instance methods added as part of the public actor API
+    module InstanceMethods
+      # Link this actor to another, allowing it to crash or react to errors
+      def link(actor)
+        actor.notify_link(@celluloid_proxy)
+        self.notify_link(actor)
+      end
+      
+      def notify_link(actor)
+        @celluloid_links_lock.synchronize do
+          @celluloid_links << actor
+        end
+        actor
+      end
+      
+      # Is this actor linked to another?
+      def linked_to?(actor)
+        @celluloid_links_lock.synchronize do
+          @celluloid_links.include? actor
+        end
       end
     end
     
@@ -20,7 +47,10 @@ module Celluloid
       # Actor-specific initialization
       def __initialize_actor(*args, &block)
         @celluloid_mailbox = Mailbox.new
-      
+        
+        @celluloid_links = Set.new
+        @celluloid_links_lock = Mutex.new
+              
         # Call the object's normal initialize method
         initialize(*args, &block)
       
@@ -51,6 +81,7 @@ module Celluloid
   
     def self.included(klass)
       klass.extend ClassMethods
+      klass.send :include, InstanceMethods
       klass.send :include, InternalMethods
     end
   end
