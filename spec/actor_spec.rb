@@ -38,12 +38,16 @@ describe Celluloid::Actor do
     actor.greet.should == "Hi, I'm Charlie Sheen"    
   end
   
-  it "links to other actors" do
-    kevin   = MyActor.spawn "Kevin Bacon" # Some six degrees action here
-    charlie = MyActor.spawn "Charlie Sheen"
-    
-    kevin.link charlie
-    kevin.linked_to?(charlie).should be_true
-    charlie.linked_to?(kevin).should be_true
+  context :linking do
+    before do
+      @kevin   = MyActor.spawn "Kevin Bacon" # Some six degrees action here
+      @charlie = MyActor.spawn "Charlie Sheen"
+    end
+  
+    it "links to other actors" do    
+      @kevin.link @charlie
+      @kevin.linked_to?(@charlie).should be_true
+      @charlie.linked_to?(@kevin).should be_true
+    end
   end
 end
