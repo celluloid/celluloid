@@ -27,9 +27,22 @@ module Celluloid
         self.notify_link(actor)
       end
       
+      # Remove links to another actor
+      def unlink(actor)
+        actor.notify_unlink(@celluloid_proxy)
+        self.notify_unlink(actor)
+      end
+      
       def notify_link(actor)
         @celluloid_links_lock.synchronize do
           @celluloid_links << actor
+        end
+        actor
+      end
+      
+      def notify_unlink(actor)
+        @celluloid_links_lock.synchronize do
+          @celluloid_links.delete actor
         end
         actor
       end

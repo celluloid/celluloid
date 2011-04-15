@@ -49,5 +49,13 @@ describe Celluloid::Actor do
       @kevin.linked_to?(@charlie).should be_true
       @charlie.linked_to?(@kevin).should be_true
     end
+    
+    it "unlinks from other actors" do
+      @kevin.link @charlie
+      @kevin.unlink @charlie
+      
+      @kevin.linked_to?(@charlie).should be_false
+      @charlie.linked_to?(@kevin).should be_false
+    end
   end
 end
