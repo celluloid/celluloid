@@ -1,4 +1,41 @@
+require 'set'
+
 module Celluloid
+  # Thread safe storage of inter-actor links
+  class Links
+    def initialize
+      @links = Set.new
+      @lock  = Mutex.new
+    end
+    
+    def <<(actor)
+      @lock.synchronize do
+        @links << actor
+      end
+      actor
+    end
+    
+    def include?(actor)
+      @lock.synchronize do
+        @links.include? actor
+      end
+    end
+    
+    def delete(actor)
+      @lock.synchronize do
+        @links.delete actor
+      end
+      actor
+    end
+    
+    def inspect
+      @lock.synchronize do
+        links = @links.to_a.map { |l| "#{l.class}:#{l.object_id}" }.join(',')
+        "#<Celluloid::Links[#{links}]>"
+      end
+    end
+  end
+  
   # Support for linking actors together so they can crash or react to errors
   module Linking
     # Link this actor to another, allowing it to crash or react to errors
@@ -14,24 +51,16 @@ module Celluloid
     end
     
     def notify_link(actor)
-      @celluloid_links_lock.synchronize do
-        @celluloid_links << actor
-      end
-      actor
+      @celluloid_links << actor
     end
     
     def notify_unlink(actor)
-      @celluloid_links_lock.synchronize do
-        @celluloid_links.delete actor
-      end
-      actor
+      @celluloid_links.delete actor
     end
     
     # Is this actor linked to another?
     def linked_to?(actor)
-      @celluloid_links_lock.synchronize do
-        @celluloid_links.include? actor
-      end
+      @celluloid_links.include? actor
     end
   end
 end

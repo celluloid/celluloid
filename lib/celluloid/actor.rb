@@ -1,5 +1,3 @@
-require 'set'
-
 module Celluloid
   # Actors are Celluloid's concurrency primitive. They're implemented as
   # normal Ruby objects wrapped in threads which communicate with asynchronous
@@ -24,9 +22,7 @@ module Celluloid
       # Actor-specific initialization
       def __initialize_actor(*args, &block)
         @celluloid_mailbox = Mailbox.new
-        
-        @celluloid_links = Set.new
-        @celluloid_links_lock = Mutex.new
+        @celluloid_links   = Links.new
               
         # Call the object's normal initialize method
         initialize(*args, &block)
