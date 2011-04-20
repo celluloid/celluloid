@@ -48,7 +48,13 @@ module Celluloid
     
       # Handle any exceptions that occur within a running actor
       def __handle_crash(ex)
-        puts "*** #{self.class} CRASH: #{ex.class}: #{ex.to_s}\n#{ex.backtrace.join("\n")}"
+        __log_error(ex)
+      end
+      
+      # Log errors when an actor crashes
+      # FIXME: This should probably thunk to a real logger
+      def __log_error(ex)
+        puts "!!! CRASH #{self.class}: #{ex.class}: #{ex.to_s}\n#{ex.backtrace.join("\n")}"
       end
     end
   

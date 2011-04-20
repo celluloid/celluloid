@@ -11,13 +11,25 @@ module Celluloid
   # Synchronous calls wait for a response
   class SyncCall < Call
     def dispatch(obj)
-      if obj.respond_to? @method
-        result = obj.send @method, *@arguments, &@block
-        @caller << SuccessResponse.new(self, result)
-      else 
+      unless obj.respond_to? @method
         exception = NoMethodError.new("undefined method `#{@method}' for #{obj.inspect}")
         @caller << ErrorResponse.new(self, exception)
+        return
       end
+      
+      begin
+        result = obj.send @method, *@arguments, &@block
+      rescue Exception => exception
+        # Exceptions that occur during synchronous calls are reraised in the
+        # context of the caller
+        @caller << ErrorResponse.new(self, exception)
+        
+        # They should also crash the actor where they occurred
+        raise ex
+      end
+          
+      @caller << SuccessResponse.new(self, result)
+      true
     end
   end
   

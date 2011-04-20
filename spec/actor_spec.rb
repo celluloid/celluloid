@@ -16,6 +16,11 @@ describe Celluloid::Actor do
       def greet
         "Hi, I'm #{@name}"
       end
+      
+      class Crash < StandardError; end
+      def crash
+        raise Crash, "the MyActor#crash method was called"
+      end
     end
   end
   
@@ -31,6 +36,14 @@ describe Celluloid::Actor do
       actor.the_method_that_wasnt_there
     end.should raise_exception(NoMethodError)
   end
+  
+  it "reraises exceptions which occur during synchronous calls in the caller" do
+    actor = MyActor.spawn "James Dean" # is this in bad taste?
+    
+    proc do
+      actor.crash
+    end.should raise_exception(MyActor::Crash)
+  end 
   
   it "handles asynchronous calls" do
     actor = MyActor.spawn "Troy McClure"
