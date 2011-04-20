@@ -25,7 +25,7 @@ module Celluloid
         @caller << ErrorResponse.new(self, exception)
         
         # They should also crash the actor where they occurred
-        raise ex
+        raise exception
       end
           
       @caller << SuccessResponse.new(self, result)
