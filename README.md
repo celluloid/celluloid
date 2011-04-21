@@ -2,7 +2,7 @@ Celluloid
 =========
 
 > "I thought of objects being like biological cells and/or individual 
-> computers on a network, only able to communicate with messages"
+> computers on a network, only able to communicate with messages"  
 > _--Alan Kay, creator of Smalltalk, on the meaning of "object oriented programming"_
 
 Celluloid is a concurrent object framework for Ruby inspired by Erlang and the
