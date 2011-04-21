@@ -13,10 +13,10 @@ module Celluloid
       # Create a new actor
       def spawn(*args, &block)
         actor = allocate
-        actor.__initialize_actor(*args, &block)
-        
+        actor.__initialize_actor
         proxy = ActorProxy.new(actor)
-        actor.instance_variable_set(:@celluloid_proxy, proxy) # FIXME: hax! :(
+        actor.__start_actor(proxy, *args, &block)
+        
         proxy
       end
       
@@ -32,13 +32,19 @@ module Celluloid
       def __initialize_actor(*args, &block)
         @celluloid_mailbox = Mailbox.new
         @celluloid_links   = Links.new
-              
+      end
+      
+      # Start the actor, calling its normal initialize method then creating a
+      # new thread for it to run inside of
+      def __start_actor(proxy, *args, &block)
+        @celluloid_proxy = proxy
+        
         # Call the object's normal initialize method
         initialize(*args, &block)
       
         Thread.new { __run_actor }
       end
-    
+          
       # Run the actor
       def __run_actor
         Thread.current[:celluloid_mailbox] = @celluloid_mailbox
