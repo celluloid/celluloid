@@ -7,6 +7,7 @@ end
 require 'celluloid/actor'
 require 'celluloid/actor_proxy'
 require 'celluloid/calls'
+require 'celluloid/events'
 require 'celluloid/linking'
 require 'celluloid/mailbox'
 require 'celluloid/registry'

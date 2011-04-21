@@ -4,6 +4,7 @@ describe Celluloid::Actor do
   before do
     class MyActor
       include Celluloid::Actor
+      attr_reader :name
       
       def initialize(name)
         @name = name
@@ -52,7 +53,7 @@ describe Celluloid::Actor do
   end
   
   context :linking do
-    before do
+    before :each do
       @kevin   = MyActor.spawn "Kevin Bacon" # Some six degrees action here
       @charlie = MyActor.spawn "Charlie Sheen"
     end
@@ -69,6 +70,34 @@ describe Celluloid::Actor do
       
       @kevin.linked_to?(@charlie).should be_false
       @charlie.linked_to?(@kevin).should be_false
+    end
+    
+    it "traps exit messages from other actors" do
+      class Boss # like a boss
+        include Celluloid::Actor
+        trap_exit :lambaste_subordinate
+        
+        def initialize(name)
+          @name = name
+          @subordinate_lambasted = false
+        end
+        
+        def subordinate_lambasted?; @subordinate_lambasted; end
+        
+        def lambaste_subordinate(actor, reason)
+          @subordinate_lambasted = true
+        end
+      end
+      
+      chuck = Boss.spawn "Chuck Lorre"
+      chuck.link @charlie
+      
+      proc do
+        @charlie.crash
+      end.should raise_exception(MyActor::Crash)
+      
+      sleep 0.1 # hax to prevent a race between exit handling and the next call
+      chuck.should be_subordinate_lambasted
     end
   end
 end

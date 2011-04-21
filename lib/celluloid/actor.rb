@@ -6,7 +6,11 @@ module Celluloid
     attr_reader :celluloid_mailbox
     
     # Methods added to classes which include Celluloid::Actor
-    module ClassMethods  
+    module ClassMethods
+      # Retrieve the exit handler method for this class
+      attr_reader :exit_handler
+      
+      # Create a new actor
       def spawn(*args, &block)
         actor = allocate
         actor.__initialize_actor(*args, &block)
@@ -15,6 +19,11 @@ module Celluloid
         actor.instance_variable_set(:@celluloid_proxy, proxy) # FIXME: hax! :(
         proxy
       end
+      
+      # Trap errors from actors we're linked to when they exit
+      def trap_exit(callback)
+        @exit_handler = callback.to_sym
+      end      
     end
     
     # Internal methods not intended as part of the public API
@@ -41,13 +50,40 @@ module Celluloid
       # Process incoming messages
       def __process_messages
         while true # instead of loop, for speed!
-          call = @celluloid_mailbox.receive
+          begin
+            call = @celluloid_mailbox.receive
+          rescue ExitEvent => event
+            __handle_exit(event)
+            retry
+          end
+            
           call.dispatch(self)
         end
       end
+      
+      # Handle exit events received by this actor
+      def __handle_exit(exit_event)
+        exit_handler = self.class.exit_handler
+        raise exit_event.reason unless exit_handler
+        
+        send exit_handler, exit_event.actor, exit_event.reason
+      end
     
       # Handle any exceptions that occur within a running actor
-      def __handle_crash(ex)
+      def __handle_crash(exception)
+        @celluloid_mailbox.cleanup
+        __log_error(exception)
+        
+        # Report the exit event to all actors we're linked to
+        exit_event = ExitEvent.new(@celluloid_proxy, exception)
+        
+        # Propagate the error to all linked actors
+        @celluloid_links.each do |actor|
+          actor.celluloid_mailbox.system_event exit_event
+        end
+        
+        Thread.current.exit
+      rescue Exception => ex
         __log_error(ex)
       end
       

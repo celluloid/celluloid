@@ -12,9 +12,27 @@ module Celluloid
     def <<(message)
       @lock.synchronize do
         @messages << message
-        @waker.signal
+        
+        begin
+          @waker.signal
+        rescue WakerError
+          # Silently fail if messages are sent to dead actors
+        end
       end
-      
+      nil
+    end
+    
+    # Add a high-priority system event to the Mailbox
+    def system_event(event)
+      @lock.synchronize do
+        @messages.unshift event
+        
+        begin
+          @waker.signal
+        rescue Celluloid::WakerError
+          # Silently fail if messages are sent to dead actors
+        end
+      end
       nil
     end
     
@@ -27,7 +45,13 @@ module Celluloid
         message = @messages.shift
       end
       
+      raise message if message.is_a?(Celluloid::SystemEvent)
       message
+    end
+    
+    # Cleanup any IO objects this Mailbox may be using
+    def cleanup
+      @waker.cleanup
     end
     
     # Inspect the contents of the Mailbox

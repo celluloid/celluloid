@@ -3,6 +3,8 @@ require 'set'
 module Celluloid
   # Thread safe storage of inter-actor links
   class Links
+    include Enumerable
+    
     def initialize
       @links = Set.new
       @lock  = Mutex.new
@@ -26,6 +28,12 @@ module Celluloid
         @links.delete actor
       end
       actor
+    end
+    
+    def each(&block)
+      @lock.synchronize do
+        @links.each(&block)
+      end
     end
     
     def inspect

@@ -3,9 +3,11 @@ module Celluloid
   # dispatches calls and casts to normal Ruby objects which are running inside
   # of their own threads.
   class ActorProxy
+    attr_reader :celluloid_mailbox
+    
     def initialize(actor)
       @actor = actor
-      @actor_mailbox = actor.celluloid_mailbox
+      @celluloid_mailbox = actor.celluloid_mailbox
     end
     
     def method_missing(meth, *args, &block)
@@ -14,11 +16,11 @@ module Celluloid
       # bang methods are async calls
       if meth.to_s.match(/!$/) 
         unbanged_meth = meth.to_s.sub(/!$/, '')
-        @actor_mailbox << AsyncCall.new(our_mailbox, unbanged_meth, args, block)
+        @celluloid_mailbox << AsyncCall.new(our_mailbox, unbanged_meth, args, block)
         return # casts are async and return immediately
       end
       
-      @actor_mailbox << SyncCall.new(our_mailbox, meth, args, block)
+      @celluloid_mailbox << SyncCall.new(our_mailbox, meth, args, block)
       response = our_mailbox.receive
       
       case response
