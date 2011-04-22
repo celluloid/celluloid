@@ -77,8 +77,8 @@ module Celluloid
     
       # Handle any exceptions that occur within a running actor
       def __handle_crash(exception)
-        @celluloid_mailbox.cleanup
         __log_error(exception)
+        @celluloid_mailbox.cleanup
         
         # Report the exit event to all actors we're linked to
         exit_event = ExitEvent.new(@celluloid_proxy, exception)
@@ -87,16 +87,16 @@ module Celluloid
         @celluloid_links.each do |actor|
           actor.celluloid_mailbox.system_event exit_event
         end
-        
+      rescue Exception => handler_exception
+        __log_error(handler_exception, "/!\\ EXCEPTION IN ERROR HANDLER /!\\")
+      ensure
         Thread.current.exit
-      rescue Exception => ex
-        __log_error(ex)
       end
       
       # Log errors when an actor crashes
       # FIXME: This should probably thunk to a real logger
-      def __log_error(ex)
-        puts "!!! CRASH #{self.class}: #{ex.class}: #{ex.to_s}\n#{ex.backtrace.join("\n")}"
+      def __log_error(ex, prefix = "!!! CRASH")
+        puts "#{prefix} #{self.class}: #{ex.class}: #{ex.to_s}\n#{ex.backtrace.join("\n")}"
       end
     end
   
