@@ -13,13 +13,18 @@ module Celluloid
     def signal
       @sender << "\0" # the payload doesn't matter. each byte is a signal
       nil
-    rescue IOError, Errno::EPIPE
+    rescue IOError, Errno::EPIPE, Errno::EBADF
       raise WakerError, "waker is already dead"
     end
     
     # Wait for another thread to signal this Waker
     def wait
-      @receiver.read(1)
+      begin
+        @receiver.read(1)
+      rescue IOError
+        raise WakerError, "signal endpoint closed (due to system shutdown?)"
+      end  
+        
       nil
     end
     
@@ -30,8 +35,8 @@ module Celluloid
     
     # Clean up the IO objects associated with this waker
     def cleanup
-      @receiver.close
-      @sender.close
+      @receiver.close rescue nil
+      @sender.close rescue nil
       nil
     end
   end
