@@ -10,6 +10,8 @@ Actor model. Celluloid gives you thread-backed objects that run concurrently,
 providing the simplicity of Ruby objects for the most common use cases, but
 also the ability to call methods _asynchronously_, allowing the receiver to do
 things in the background while the caller carries on with its business.
+These concurrent objects are called "actors". Actors are somewhere in between
+the kind of object you're typically used to working with and a network service.
 
 Usage
 -----
