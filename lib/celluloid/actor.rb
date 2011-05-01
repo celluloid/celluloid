@@ -53,6 +53,14 @@ module Celluloid
       end
     end
     
+    # Instance methods added to the public API
+    module InstanceMethods
+      # Is this object functioning as an actor?
+      def actor?
+        !!@celluloid_mailbox
+      end
+    end
+    
     # Internal methods not intended as part of the public API
     module InternalMethods
       # Actor-specific initialization and startup
@@ -125,6 +133,7 @@ module Celluloid
   
     def self.included(klass)
       klass.extend ClassMethods
+      klass.send :include, InstanceMethods
       klass.send :include, InternalMethods
       klass.send :include, Linking
     end

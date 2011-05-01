@@ -52,6 +52,14 @@ describe Celluloid::Actor do
     actor.greet.should == "Hi, I'm Charlie Sheen"    
   end
   
+  it "knows when it's running as an actor" do
+    obj = MyActor.new "I'm an object"
+    obj.actor?.should be_false
+    
+    actor = MyActor.spawn "Troy McClure"
+    actor.actor?.should be_true
+  end
+  
   context :linking do
     before :each do
       @kevin   = MyActor.spawn "Kevin Bacon" # Some six degrees action here
