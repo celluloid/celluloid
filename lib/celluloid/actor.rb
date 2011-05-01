@@ -35,6 +35,18 @@ module Celluloid
         proxy
       end
       
+      # Create a supervisor which ensures an instance of an actor will restart
+      # an actor if it fails
+      def supervise(*args, &block)
+        Celluloid::Supervisor.supervise(self, *args, &block)
+      end
+      
+      # Create a supervisor which ensures an instance of an actor will restart
+      # an actor if it fails, and keep the actor registered under a given name
+      def supervise_as(name, *args, &block)
+        Celluloid::Supervisor.supervise_as(name, self, *args, &block)
+      end
+      
       # Trap errors from actors we're linked to when they exit
       def trap_exit(callback)
         @exit_handler = callback.to_sym

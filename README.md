@@ -38,7 +38,7 @@ If you call Sheen.new, you'll wind up with a plain old Ruby object. To
 create a concurrent object instead of a regular one, use Sheen.spawn:
 
     >> charlie = Sheen.spawn "Charlie Sheen"
-     => #<Celluloid::ActorProxy(Sheen:0x00000100a312d0)>
+     => #<Celluloid::Actor(Sheen:0x00000100a312d0)>
     >> charlie.set_status "winning!"
      => "winning!" 
     >> charlie.report
@@ -76,9 +76,46 @@ exceptions will crash the receiver, and making an asynchronous call to a
 crashed object will not raise an error.
 
 However, you can still handle errors created by asynchronous calls using a
-special feature of Celluloid called _linking_. More documentation on that
-coming soon!
+special features of Celluloid called _supervisors_ and _linking_.
 
+Supervisors
+-----------
+
+You may be familiar with tools like Monit or God which keep an eye on your
+applications and restart them when they crash. Celluloid supervisors work in
+a similar fashion, except instead of monitoring applications, they monitor
+individual actors and restart them when they crash.
+
+To supervise an actor, start it with the _supervise_ method. Using the Sheen
+class from the example above:
+
+    >> supervisor = Sheen.supervise "Charlie Sheen"
+     => #<Celluloid::Supervisor(Sheen) "Charlie Sheen">
+ 
+This created a new Celluloid::Supervisor actor, and also created a new Sheen
+actor, giving its initialize method the argument "Charlie Sheen". The 
+_supervise_ method has the same method signature as _spawn_. However, rather
+than returning the newly created actor, _supervise_ returns the supervisor.
+To retrieve the actor that the supervisor is currently using, use the
+Celluloid::Supervisor#actor method:
+
+    >> supervisor = Sheen.supervise "Charlie Sheen"
+     => #<Celluloid::Supervisor(Sheen) "Charlie Sheen">
+    >> charlie = supervisor.actor
+     => #<Celluloid::Actor(Sheen:0x00000100a312d0)>
+     
+Supervisors can also automatically put actors into the actor _registry_ using
+the supervise_as method:
+
+    >> Sheen.supervise_as :charlie, "Charlie Sheen"
+     => #<Celluloid::Supervisor(Sheen) "Charlie Sheen">
+    >> charlie = Celluloid::Actor[:charlie]
+     => #<Celluloid::Actor(Sheen:0x00000100a312d0)>
+ 
+In this case, the supervisor will ensure that an actor of the Sheen class,
+created using the given arguments, is aways available by calling
+Celluloid::Actor[:charlie]. More information about the actor registry coming soon!
+ 
 Contributing to Celluloid
 -------------------------
  

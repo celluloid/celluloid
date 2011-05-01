@@ -1,3 +1,5 @@
+require 'thread'
+
 module Celluloid
   # The Registry allows us to refer to specific actors by human-meaningful names
   module Registry

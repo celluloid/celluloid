@@ -1,4 +1,5 @@
 require 'set'
+require 'thread'
 
 module Celluloid
   # Thread safe storage of inter-actor links

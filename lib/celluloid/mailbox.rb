@@ -1,3 +1,5 @@
+require 'thread'
+
 module Celluloid
   # Actors communicate with asynchronous messages. Messages are buffered in
   # Mailboxes until Actors can act upon them.
