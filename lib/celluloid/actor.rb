@@ -13,10 +13,8 @@ module Celluloid
       # Create a new actor
       def spawn(*args, &block)
         actor = allocate
-        actor.__initialize_actor
-        proxy = ActorProxy.new(actor)
-        actor.__start_actor(proxy, *args, &block)
-        
+        proxy = actor.__start_actor
+        proxy.send(:initialize, *args, &block)
         proxy
       end
       
@@ -28,26 +26,21 @@ module Celluloid
     
     # Internal methods not intended as part of the public API
     module InternalMethods
-      # Actor-specific initialization
-      def __initialize_actor(*args, &block)
+      # Actor-specific initialization and startup
+      def __start_actor(*args, &block)
         @celluloid_mailbox = Mailbox.new
         @celluloid_links   = Links.new
-      end
-      
-      # Start the actor, calling its normal initialize method then creating a
-      # new thread for it to run inside of
-      def __start_actor(proxy, *args, &block)
-        @celluloid_proxy = proxy
+        @celluloid_proxy   = ActorProxy.new(self)
+        @celluloid_thread  = Thread.new do
+          Thread.current[:celluloid_mailbox] = @celluloid_mailbox
+          __run_actor
+        end
         
-        # Call the object's normal initialize method
-        initialize(*args, &block)
-      
-        Thread.new { __run_actor }
+        @celluloid_proxy
       end
-          
+                
       # Run the actor
       def __run_actor
-        Thread.current[:celluloid_mailbox] = @celluloid_mailbox
         __process_messages
       rescue Exception => ex
         __handle_crash(ex)
