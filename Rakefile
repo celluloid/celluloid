@@ -16,7 +16,7 @@ Jeweler::Tasks.new do |gem|
   gem.homepage    = "http://github.com/tarcieri/celluloid"
   gem.license     = "MIT"
   gem.summary     = "Ruby concurrency made easy! Or at least, easier..."
-  gem.description = "Celluloid is a thread-based Ruby concurrency framework inspired by the Actor Model"
+  gem.description = "Celluloid is a concurrent object framework inspired by the Actor Model"
   gem.email       = "tony@medioh.com"
   gem.authors     = ["Tony Arcieri"]
   
