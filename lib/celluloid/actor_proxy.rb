@@ -28,6 +28,11 @@ module Celluloid
     end
     def dead?; not alive?; end
     
+    def inspect
+      return "#<Celluloid::Actor(#{@actor.class}:0x#{@actor.object_id.to_s(16)}) dead>" if dead?
+      __call :inspect
+    end
+    
     # method_missing black magic to call bang predicate methods asynchronously
     def method_missing(meth, *args, &block)
       # bang methods are async calls

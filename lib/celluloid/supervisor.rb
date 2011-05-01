@@ -30,5 +30,11 @@ module Celluloid
     def restart_actor(actor, reason)
       start_actor
     end
+    
+    def inspect
+      str = "#<Celluloid::Supervisor(#{@klass})"
+      str << " " << @args.map { |arg| arg.inspect }.join(' ') unless @args.empty?
+      str << ">"
+    end
   end
 end

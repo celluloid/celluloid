@@ -38,7 +38,7 @@ If you call Sheen.new, you'll wind up with a plain old Ruby object. To
 create a concurrent object instead of a regular one, use Sheen.spawn:
 
     >> charlie = Sheen.spawn "Charlie Sheen"
-     => #<Celluloid::Actor(Sheen:0x00000100a312d0)>
+     => #<Celluloid::Actor(Sheen:0x00000100a312d0) @name="Charlie Sheen">
     >> charlie.set_status "winning!"
      => "winning!" 
     >> charlie.report

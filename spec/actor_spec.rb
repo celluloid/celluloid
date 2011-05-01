@@ -60,6 +60,13 @@ describe Celluloid::Actor do
     actor.actor?.should be_true
   end
   
+  it "inspects properly" do
+    actor = MyActor.spawn "Troy McClure"
+    actor.inspect.should match(/Celluloid::Actor\(MyActor/)
+    actor.inspect.should include('@name="Troy McClure"')
+    actor.inspect.should_not include("@celluloid")
+  end
+  
   context :linking do
     before :each do
       @kevin   = MyActor.spawn "Kevin Bacon" # Some six degrees action here

@@ -59,6 +59,20 @@ module Celluloid
       def actor?
         !!@celluloid_mailbox
       end
+      
+      def inspect
+        return super unless actor?
+        str = "#<Celluloid::Actor(#{self.class}:0x#{self.object_id.to_s(16)})"
+        
+        ivars = []
+        instance_variables.each do |ivar|
+          next if ivar[/^@celluloid/]
+          ivars << "#{ivar}=#{instance_variable_get(ivar).inspect}"
+        end
+        
+        str << " " << ivars.join(' ') unless ivars.empty?      
+        str << ">"
+      end
     end
     
     # Internal methods not intended as part of the public API
