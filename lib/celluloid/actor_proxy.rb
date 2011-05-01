@@ -39,7 +39,13 @@ module Celluloid
       if meth.to_s.match(/!$/) 
         unbanged_meth = meth.to_s.sub(/!$/, '')
         our_mailbox = Thread.current.celluloid_mailbox
-        @celluloid_mailbox << AsyncCall.new(our_mailbox, unbanged_meth, args, block)
+        
+        begin
+          @celluloid_mailbox << AsyncCall.new(our_mailbox, unbanged_meth, args, block)
+        rescue MailboxError
+          raise DeadActorError, "attempted to call a dead actor"
+        end
+        
         return # casts are async and return immediately
       end
       
@@ -50,7 +56,12 @@ module Celluloid
     def __call(meth, *args, &block)
       our_mailbox = Thread.current.celluloid_mailbox
       
-      @celluloid_mailbox << SyncCall.new(our_mailbox, meth, args, block)
+      begin
+        @celluloid_mailbox << SyncCall.new(our_mailbox, meth, args, block)
+      rescue MailboxError
+        raise DeadActorError, "attempted to call a dead actor"
+      end
+      
       response = our_mailbox.receive
       
       case response

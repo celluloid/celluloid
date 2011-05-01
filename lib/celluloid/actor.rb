@@ -2,6 +2,9 @@ module Celluloid
   # Raised when trying to do Actor-like things outside Actor-space
   class NotActorError < StandardError; end
   
+  # Raised when we're asked to do something to a dead actor
+  class DeadActorError < StandardError; end
+  
   # Actors are Celluloid's concurrency primitive. They're implemented as
   # normal Ruby objects wrapped in threads which communicate with asynchronous
   # messages. The implementation is inspired by Erlang's gen_server

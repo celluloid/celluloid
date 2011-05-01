@@ -1,6 +1,8 @@
 require 'thread'
 
 module Celluloid
+  class MailboxError < StandardError; end # you can't message the dead
+  
   # Actors communicate with asynchronous messages. Messages are buffered in
   # Mailboxes until Actors can act upon them.
   class Mailbox
@@ -14,14 +16,11 @@ module Celluloid
     def <<(message)
       @lock.synchronize do
         @messages << message
-        
-        begin
-          @waker.signal
-        rescue WakerError
-          # Silently fail if messages are sent to dead actors
-        end
+        @waker.signal
       end
       nil
+    rescue WakerError
+      raise MailboxError, "dead recipient"
     end
     
     # Add a high-priority system event to the Mailbox

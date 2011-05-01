@@ -44,7 +44,29 @@ describe Celluloid::Actor do
     proc do
       actor.crash
     end.should raise_exception(MyActor::Crash)
-  end 
+  end
+  
+  context "DeadActorError" do
+    before do
+      @actor = MyActor.spawn "James Dean"
+      @actor.crash rescue nil
+      sleep 0.1 # hax to prevent a race :(
+      # FIXME: really need to get rid of above hax. DeadActorError is useless
+      # if deadlocks can still occur
+    end
+    
+    it "raises DeadActorError if methods are synchronously called on a dead actor" do
+      proc do
+        @actor.greet
+      end.should raise_exception(Celluloid::DeadActorError)
+    end
+    
+    it "raises DeadActorError if methods are asynchronously called on a dead actor" do
+      proc do
+        @actor.greet!
+      end.should raise_exception(Celluloid::DeadActorError)
+    end
+  end
   
   it "handles asynchronous calls" do
     actor = MyActor.spawn "Troy McClure"
