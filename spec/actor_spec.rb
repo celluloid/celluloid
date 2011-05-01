@@ -20,7 +20,7 @@ describe Celluloid::Actor do
       
       class Crash < StandardError; end
       def crash
-        raise Crash, "the MyActor#crash method was called"
+        raise Crash, "the spec purposely crashed me :("
       end
     end
   end

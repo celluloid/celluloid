@@ -32,7 +32,7 @@ module Celluloid
         
         begin
           @waker.signal
-        rescue Celluloid::WakerError
+        rescue WakerError
           # Silently fail if messages are sent to dead actors
         end
       end
@@ -50,6 +50,9 @@ module Celluloid
       
       raise message if message.is_a?(Celluloid::SystemEvent)
       message
+    rescue Celluloid::WakerError
+      cleanup # force cleanup of the mailbox
+      raise MailboxError, "mailbox cleanup called during receive"
     end
     
     # Cleanup any IO objects this Mailbox may be using
