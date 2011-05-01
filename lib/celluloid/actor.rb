@@ -1,9 +1,12 @@
 module Celluloid
+  # Raised when trying to do Actor-like things outside Actor-space
+  class NotActorError < StandardError; end
+  
   # Actors are Celluloid's concurrency primitive. They're implemented as
   # normal Ruby objects wrapped in threads which communicate with asynchronous
   # messages. The implementation is inspired by Erlang's gen_server
   module Actor
-    attr_reader :celluloid_mailbox
+    attr_reader :celluloid_mailbox, :celluloid_thread
     
     # Methods added to classes which include Celluloid::Actor
     module ClassMethods
@@ -18,10 +21,24 @@ module Celluloid
         proxy
       end
       
+      # Create a new actor and link to the current one
+      def spawn_link(*args, &block)
+        current_actor = Thread.current[:celluloid_actor]
+        raise NotActorError, "can't link outside actor context" unless current_actor
+        
+        # FIXME: this is a bit repetitive with the code above
+        actor = allocate
+        proxy = actor.__start_actor
+        current_actor.link actor
+        proxy.send(:initialize, *args, &block)
+        
+        proxy
+      end
+      
       # Trap errors from actors we're linked to when they exit
       def trap_exit(callback)
         @exit_handler = callback.to_sym
-      end      
+      end
     end
     
     # Internal methods not intended as part of the public API
@@ -32,6 +49,7 @@ module Celluloid
         @celluloid_links   = Links.new
         @celluloid_proxy   = ActorProxy.new(self)
         @celluloid_thread  = Thread.new do
+          Thread.current[:celluloid_actor]   = self
           Thread.current[:celluloid_mailbox] = @celluloid_mailbox
           __run_actor
         end

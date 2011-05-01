@@ -23,6 +23,11 @@ module Celluloid
       __call :methods, include_ancestors
     end
     
+    def alive?
+      @actor.celluloid_thread.alive?
+    end
+    def dead?; not alive?; end
+    
     # method_missing black magic to call bang predicate methods asynchronously
     def method_missing(meth, *args, &block)
       # bang methods are async calls
