@@ -31,6 +31,11 @@ module Celluloid
       @caller << SuccessResponse.new(self, result)
       true
     end
+    
+    def cleanup
+      exception = DeadActorError.new("attempted to call a dead actor")
+      @caller << ErrorResponse.new(self, exception)
+    end
   end
   
   # Asynchronous calls don't wait for a response

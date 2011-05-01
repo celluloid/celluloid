@@ -43,7 +43,10 @@ module Celluloid
         begin
           @celluloid_mailbox << AsyncCall.new(our_mailbox, unbanged_meth, args, block)
         rescue MailboxError
-          raise DeadActorError, "attempted to call a dead actor"
+          # Silently swallow asynchronous calls to dead actors. There's no way
+          # to reliably generate DeadActorErrors for async calls, so users of
+          # async calls should find other ways to deal with actors dying
+          # during an async call (i.e. linking/supervisors)
         end
         
         return # casts are async and return immediately

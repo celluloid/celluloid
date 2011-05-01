@@ -5,13 +5,14 @@ module Celluloid
   # Works like a ConditionVariable, except it's implemented as an IO object so
   # that it can be multiplexed alongside other IO objects.
   class Waker
+    PAYLOAD = "\0" # the payload doesn't matter. each byte is a signal
     def initialize
       @receiver, @sender = IO.pipe
     end
     
     # Wakes up the thread that is waiting for this Waker
     def signal
-      @sender << "\0" # the payload doesn't matter. each byte is a signal
+      @sender << PAYLOAD
       nil
     rescue IOError, Errno::EPIPE, Errno::EBADF
       raise WakerError, "waker is already dead"
@@ -19,13 +20,10 @@ module Celluloid
     
     # Wait for another thread to signal this Waker
     def wait
-      begin
-        @receiver.read(1)
-      rescue IOError
-        raise WakerError, "signal endpoint closed (due to system shutdown?)"
-      end  
-        
-      nil
+        byte = @receiver.read(1)
+        raise WakerError, "can't wait on a dead waker" unless byte == PAYLOAD
+    rescue IOError
+        raise WakerError, "can't wait on a dead waker"
     end
     
     # Return the IO object which will be readable when this Waker is signaled

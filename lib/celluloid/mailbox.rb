@@ -6,6 +6,8 @@ module Celluloid
   # Actors communicate with asynchronous messages. Messages are buffered in
   # Mailboxes until Actors can act upon them.
   class Mailbox
+    include Enumerable
+    
     def initialize
       @messages = []
       @lock  = Mutex.new
@@ -52,12 +54,26 @@ module Celluloid
     
     # Cleanup any IO objects this Mailbox may be using
     def cleanup
-      @waker.cleanup
+      @lock.synchronize do
+        @waker.cleanup
+        @messages.each { |msg| msg.cleanup if msg.respond_to? :cleanup }
+        @messages.clear
+      end
+    end
+    
+    # Cast to an array
+    def to_a
+      @lock.synchronize { @messages.dup }
+    end
+    
+    # Iterate through the mailbox
+    def each(&block)
+      to_a.each(&block)
     end
     
     # Inspect the contents of the Mailbox
     def inspect
-      "#<Celluloid::Mailbox[#{@messages.map { |m| m.inspect }.join(', ')}]>"
+      "#<Celluloid::Mailbox[#{map { |m| m.inspect }.join(', ')}]>"
     end
   end
 end
