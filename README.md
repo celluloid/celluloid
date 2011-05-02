@@ -208,9 +208,10 @@ objects, one for James himself and one for Little Bastard, his car:
     end
     
 If you take a look in JamesDean#initialize, you'll notice that to create an
-instance of PorcheSpider, James is calling the spawn_link method. This method
-works similarly to _spawn_, except it combines _spawn_ and _link_ into a
-single call.
+instance of PorcheSpider, James is calling the spawn_link method.
+
+This method works similarly to _spawn_, except it combines _spawn_ and _link_ 
+into a single call.
 
 Now what happens if we repeat the same scenario with Elizabeth Taylor watching
 for James Dean's crash?
