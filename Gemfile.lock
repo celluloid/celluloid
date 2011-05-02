@@ -1,3 +1,8 @@
+PATH
+  remote: .
+  specs:
+    celluloid (0.0.0)
+
 GEM
   remote: http://rubygems.org/
   specs:
@@ -23,5 +28,6 @@ PLATFORMS
 
 DEPENDENCIES
   bundler (~> 1.0.0)
+  celluloid!
   jeweler (~> 1.5.2)
   rspec (>= 2.3.0)
