@@ -4,11 +4,11 @@ module Celluloid
   # of their own threads.
   class ActorProxy
     # FIXME: not nearly enough methods are delegated here
-    attr_reader :celluloid_mailbox
+    attr_reader :mailbox
     
     def initialize(actor)
       @actor = actor
-      @celluloid_mailbox = actor.celluloid_mailbox
+      @mailbox = actor.mailbox
     end
     
     def send(meth, *args, &block)
@@ -38,10 +38,10 @@ module Celluloid
       # bang methods are async calls
       if meth.to_s.match(/!$/) 
         unbanged_meth = meth.to_s.sub(/!$/, '')
-        our_mailbox = Thread.current.celluloid_mailbox
+        our_mailbox = Thread.current.mailbox
         
         begin
-          @celluloid_mailbox << AsyncCall.new(our_mailbox, unbanged_meth, args, block)
+          @mailbox << AsyncCall.new(our_mailbox, unbanged_meth, args, block)
         rescue MailboxError
           # Silently swallow asynchronous calls to dead actors. There's no way
           # to reliably generate DeadActorErrors for async calls, so users of
@@ -57,10 +57,10 @@ module Celluloid
     
     # Make a synchronous call to the actor we're proxying to
     def __call(meth, *args, &block)
-      our_mailbox = Thread.current.celluloid_mailbox
+      our_mailbox = Thread.current.mailbox
       
       begin
-        @celluloid_mailbox << SyncCall.new(our_mailbox, meth, args, block)
+        @mailbox << SyncCall.new(our_mailbox, meth, args, block)
       rescue MailboxError
         raise DeadActorError, "attempted to call a dead actor"
       end

@@ -9,7 +9,7 @@ module Celluloid
   # normal Ruby objects wrapped in threads which communicate with asynchronous
   # messages. The implementation is inspired by Erlang's gen_server
   module Actor
-    attr_reader :celluloid_mailbox, :celluloid_thread
+    attr_reader :mailbox, :celluloid_thread
     
     # Methods added to classes which include Celluloid::Actor
     module ClassMethods
@@ -60,7 +60,7 @@ module Celluloid
     module InstanceMethods
       # Is this object functioning as an actor?
       def actor?
-        !!@celluloid_mailbox
+        !!@mailbox
       end
       
       def inspect
@@ -82,12 +82,12 @@ module Celluloid
     module InternalMethods
       # Actor-specific initialization and startup
       def __start_actor(*args, &block)
-        @celluloid_mailbox = Mailbox.new
+        @mailbox = Mailbox.new
         @celluloid_links   = Links.new
         @celluloid_proxy   = ActorProxy.new(self)
         @celluloid_thread  = Thread.new do
           Thread.current[:celluloid_actor]   = self
-          Thread.current[:celluloid_mailbox] = @celluloid_mailbox
+          Thread.current[:mailbox] = @mailbox
           __run_actor
         end
         
@@ -105,7 +105,7 @@ module Celluloid
       def __process_messages
         while true # instead of loop, for speed!
           begin
-            call = @celluloid_mailbox.receive
+            call = @mailbox.receive
           rescue ExitEvent => event
             __handle_exit(event)
             retry
@@ -126,14 +126,14 @@ module Celluloid
       # Handle any exceptions that occur within a running actor
       def __handle_crash(exception)
         __log_error(exception)
-        @celluloid_mailbox.cleanup
+        @mailbox.cleanup
         
         # Report the exit event to all actors we're linked to
         exit_event = ExitEvent.new(@celluloid_proxy, exception)
         
         # Propagate the error to all linked actors
         @celluloid_links.each do |actor|
-          actor.celluloid_mailbox.system_event exit_event
+          actor.mailbox.system_event exit_event
         end
       rescue Exception => handler_exception
         __log_error(handler_exception, "/!\\ EXCEPTION IN ERROR HANDLER /!\\")
