@@ -89,7 +89,8 @@ module Celluloid
       def __start_actor(*args, &block)
         @mailbox = Mailbox.new
         @links   = Links.new
-        @celluloid_proxy   = ActorProxy.new(self)
+        @celluloid_proxy = ActorProxy.new(self, @mailbox)
+        
         @thread  = Thread.new do
           Thread.current[:actor]   = self
           Thread.current[:mailbox] = @mailbox

@@ -6,9 +6,8 @@ module Celluloid
     # FIXME: not nearly enough methods are delegated here
     attr_reader :mailbox
     
-    def initialize(actor)
-      @actor = actor
-      @mailbox = actor.mailbox
+    def initialize(actor, mailbox)
+      @actor, @mailbox = actor, mailbox
     end
     
     def send(meth, *args, &block)
