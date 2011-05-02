@@ -26,7 +26,7 @@ module Celluloid
       
       # Create a new actor and link to the current one
       def spawn_link(*args, &block)
-        current_actor = Thread.current[:celluloid_actor]
+        current_actor = Thread.current[:actor]
         raise NotActorError, "can't link outside actor context" unless current_actor
         
         # FIXME: this is a bit repetitive with the code above
@@ -91,7 +91,7 @@ module Celluloid
         @celluloid_links   = Links.new
         @celluloid_proxy   = ActorProxy.new(self)
         @thread  = Thread.new do
-          Thread.current[:celluloid_actor]   = self
+          Thread.current[:actor]   = self
           Thread.current[:mailbox] = @mailbox
           __run_actor
         end
