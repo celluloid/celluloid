@@ -24,13 +24,12 @@ module Celluloid
     end
     
     def alive?
-      @actor.celluloid_thread.alive?
+      @actor.alive?
     end
-    def dead?; not alive?; end
     
     def inspect
-      return "#<Celluloid::Actor(#{@actor.class}:0x#{@actor.object_id.to_s(16)}) dead>" if dead?
-      __call :inspect
+      return __call :inspect if alive?
+      "#<Celluloid::Actor(#{@actor.class}:0x#{@actor.object_id.to_s(16)}) dead>"
     end
     
     # method_missing black magic to call bang predicate methods asynchronously

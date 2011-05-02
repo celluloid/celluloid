@@ -9,7 +9,7 @@ module Celluloid
   # normal Ruby objects wrapped in threads which communicate with asynchronous
   # messages. The implementation is inspired by Erlang's gen_server
   module Actor
-    attr_reader :mailbox, :celluloid_thread
+    attr_reader :mailbox
     
     # Methods added to classes which include Celluloid::Actor
     module ClassMethods
@@ -63,6 +63,11 @@ module Celluloid
         !!@mailbox
       end
       
+      # Is this actor alive?
+      def alive?
+        @thread.alive?
+      end
+      
       def inspect
         return super unless actor?
         str = "#<Celluloid::Actor(#{self.class}:0x#{self.object_id.to_s(16)})"
@@ -85,7 +90,7 @@ module Celluloid
         @mailbox = Mailbox.new
         @celluloid_links   = Links.new
         @celluloid_proxy   = ActorProxy.new(self)
-        @celluloid_thread  = Thread.new do
+        @thread  = Thread.new do
           Thread.current[:celluloid_actor]   = self
           Thread.current[:mailbox] = @mailbox
           __run_actor

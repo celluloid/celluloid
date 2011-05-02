@@ -34,7 +34,7 @@ describe Celluloid::Supervisor do
       subordinate.crack_the_whip
     end.should raise_exception(SubordinateDead)
     sleep 0.1 # hax to prevent race :(
-    subordinate.should be_dead
+    subordinate.should_not be_alive
     
     new_subordinate = supervisor.actor
     new_subordinate.should_not == subordinate
@@ -53,7 +53,7 @@ describe Celluloid::Supervisor do
       subordinate.crack_the_whip
     end.should raise_exception(SubordinateDead)
     sleep 0.1 # hax to prevent race :(
-    subordinate.should be_dead
+    subordinate.should_not be_alive
     
     new_subordinate = Celluloid::Actor[:subordinate]
     new_subordinate.should_not == subordinate
@@ -69,7 +69,7 @@ describe Celluloid::Supervisor do
       subordinate.crack_the_whip
     end.should raise_exception(SubordinateDead)
     sleep 0.1 # hax to prevent race :(
-    subordinate.should be_dead
+    subordinate.should_not be_alive
     
     new_subordinate = supervisor.actor
     new_subordinate.should_not == subordinate
@@ -85,7 +85,7 @@ describe Celluloid::Supervisor do
       subordinate.crack_the_whip
     end.should raise_exception(SubordinateDead)
     sleep 0.1 # hax to prevent race :(
-    subordinate.should be_dead
+    subordinate.should_not be_alive
     
     new_subordinate = supervisor.actor
     new_subordinate.should_not == subordinate
