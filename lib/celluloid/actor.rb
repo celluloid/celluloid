@@ -74,7 +74,7 @@ module Celluloid
         
         ivars = []
         instance_variables.each do |ivar|
-          next if ivar[/^@celluloid/]
+          next if %w(@mailbox @links @proxy @thread).include? ivar.to_s
           ivars << "#{ivar}=#{instance_variable_get(ivar).inspect}"
         end
         
@@ -89,7 +89,7 @@ module Celluloid
       def __start_actor(*args, &block)
         @mailbox = Mailbox.new
         @links   = Links.new
-        @celluloid_proxy = ActorProxy.new(self, @mailbox)
+        @proxy   = ActorProxy.new(self, @mailbox)
         
         @thread  = Thread.new do
           Thread.current[:actor]   = self
@@ -97,7 +97,7 @@ module Celluloid
           __run_actor
         end
         
-        @celluloid_proxy
+        @proxy
       end
                 
       # Run the actor
@@ -135,7 +135,7 @@ module Celluloid
         @mailbox.cleanup
         
         # Report the exit event to all actors we're linked to
-        exit_event = ExitEvent.new(@celluloid_proxy, exception)
+        exit_event = ExitEvent.new(@proxy, exception)
         
         # Propagate the error to all linked actors
         @links.each do |actor|
