@@ -175,8 +175,7 @@ James' crash notifications get sent to her:
      => #<Celluloid::Actor(JamesDean:0x11b8)> 
     >> james.drive_little_bastard!
      => nil 
-    Oh no! #<Celluloid::Actor(JamesDean:0x11b8) dead> has died because of a 
-    JamesDean::CarInMyLaneError
+    Oh no! #<Celluloid::Actor(JamesDean:0x11b8) dead> has died because of a JamesDean::CarInMyLaneError
 
 Elizabeth called the _link_ method to receive crash events from James. Because
 Elizabeth was linked to James, when James crashed, James' exit message was
