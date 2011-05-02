@@ -88,7 +88,7 @@ module Celluloid
       # Actor-specific initialization and startup
       def __start_actor(*args, &block)
         @mailbox = Mailbox.new
-        @celluloid_links   = Links.new
+        @links   = Links.new
         @celluloid_proxy   = ActorProxy.new(self)
         @thread  = Thread.new do
           Thread.current[:actor]   = self
@@ -137,7 +137,7 @@ module Celluloid
         exit_event = ExitEvent.new(@celluloid_proxy, exception)
         
         # Propagate the error to all linked actors
-        @celluloid_links.each do |actor|
+        @links.each do |actor|
           actor.mailbox.system_event exit_event
         end
       rescue Exception => handler_exception

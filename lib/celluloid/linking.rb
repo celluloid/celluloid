@@ -60,16 +60,16 @@ module Celluloid
     end
     
     def notify_link(actor)
-      @celluloid_links << actor
+      @links << actor
     end
     
     def notify_unlink(actor)
-      @celluloid_links.delete actor
+      @links.delete actor
     end
     
     # Is this actor linked to another?
     def linked_to?(actor)
-      @celluloid_links.include? actor
+      @links.include? actor
     end
   end
 end
