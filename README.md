@@ -119,7 +119,7 @@ Celluloid::Actor[:charlie]. The first argument to supervise_as is the name
 you'd like the newly created actor to be registered under. The remaining
 arguments are passed to initialize just like you called _new_ or _spawn_.
 
-More information about the actor registry coming soon!
+See the "Registry" section below for more information on the actor registry
 
 Linking
 -------
@@ -245,6 +245,29 @@ subsystem will be restarted by the supervisor in a clean state.
 
 If, for any reason, you've linked to an actor and want to sever the link,
 there's a corresponding _unlink_ method to remove links between actors.
+
+Registry
+--------
+
+Celluloid lets you register actors so you can refer to them symbolically.
+You can register Actors using Celluloid::Actor[]:
+
+    >> james = JamesDean.spawn
+     => #<Celluloid::Actor(JamesDean:0x80c27ce0)> 
+    >> Celluloid::Actor[:james] = james
+     => #<Celluloid::Actor(JamesDean:0x80c27ce0)> 
+    >> Celluloid::Actor[:james]
+     => #<Celluloid::Actor(JamesDean:0x80c27ce0)> 
+
+The Celluloid::Actor constant acts as a hash, allowing you to register actors
+under the name of your choosing, and access actors by name rather than
+reference. This is important because actors may crash. If you're attempting to
+reference an actor explicitly by storing it in a variable, you may be holding
+onto a reference to a crashed copy of that actor, rather than talking to a
+working, freshly-restarted version.
+
+The main use of the registry is for interfacing with actors that are
+automatically restarted by supervisors when they crash.
  
 Contributing to Celluloid
 -------------------------
