@@ -56,14 +56,17 @@ module Celluloid
     # Make a synchronous call to the actor we're proxying to
     def __call(meth, *args, &block)
       our_mailbox = Thread.current.mailbox
+      call = SyncCall.new(our_mailbox, meth, args, block)
       
       begin
-        @mailbox << SyncCall.new(our_mailbox, meth, args, block)
+        @mailbox << call
       rescue MailboxError
         raise DeadActorError, "attempted to call a dead actor"
       end
       
-      response = our_mailbox.receive
+      response = our_mailbox.receive do |msg|
+        msg.is_a? Response and msg.call == call
+      end
       
       case response
       when SuccessResponse
