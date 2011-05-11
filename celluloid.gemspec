@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Tony Arcieri"]
-  s.date = %q{2011-05-02}
+  s.date = %q{2011-05-11}
   s.description = %q{Celluloid is a concurrent object framework inspired by the Actor Model}
   s.email = %q{tony@medioh.com}
   s.extra_rdoc_files = [
@@ -33,6 +33,7 @@ Gem::Specification.new do |s|
     "lib/celluloid/calls.rb",
     "lib/celluloid/core_ext.rb",
     "lib/celluloid/events.rb",
+    "lib/celluloid/future.rb",
     "lib/celluloid/linking.rb",
     "lib/celluloid/mailbox.rb",
     "lib/celluloid/registry.rb",
@@ -40,6 +41,8 @@ Gem::Specification.new do |s|
     "lib/celluloid/supervisor.rb",
     "lib/celluloid/waker.rb",
     "spec/actor_spec.rb",
+    "spec/future_spec.rb",
+    "spec/mailbox_spec.rb",
     "spec/registry_spec.rb",
     "spec/spec_helper.rb",
     "spec/supervisor_spec.rb",
@@ -52,6 +55,8 @@ Gem::Specification.new do |s|
   s.summary = %q{Ruby concurrency made easy! Or at least, easier...}
   s.test_files = [
     "spec/actor_spec.rb",
+    "spec/future_spec.rb",
+    "spec/mailbox_spec.rb",
     "spec/registry_spec.rb",
     "spec/spec_helper.rb",
     "spec/supervisor_spec.rb",
