@@ -15,3 +15,5 @@ require 'celluloid/registry'
 require 'celluloid/responses'
 require 'celluloid/supervisor'
 require 'celluloid/waker'
+
+require 'celluloid/future'
