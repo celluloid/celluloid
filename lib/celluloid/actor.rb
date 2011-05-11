@@ -5,6 +5,16 @@ module Celluloid
   # Raised when we're asked to do something to a dead actor
   class DeadActorError < StandardError; end
   
+  # Raised when the caller makes an error that shouldn't crash this actor
+  class AbortError < StandardError
+    attr_reader :cause
+    
+    def initialize(cause)
+      @cause = cause
+      super "caused by #{cause.inspect}: #{cause.to_s}"
+    end
+  end
+  
   # Actors are Celluloid's concurrency primitive. They're implemented as
   # normal Ruby objects wrapped in threads which communicate with asynchronous
   # messages. The implementation is inspired by Erlang's gen_server
@@ -66,6 +76,11 @@ module Celluloid
       # Is this actor alive?
       def alive?
         @thread.alive?
+      end
+      
+      # Raise an exception in caller context, but stay running
+      def abort(cause)
+        raise AbortError.new(cause)
       end
       
       def inspect

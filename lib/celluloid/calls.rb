@@ -19,6 +19,11 @@ module Celluloid
       
       begin
         result = obj.send @method, *@arguments, &@block
+      rescue AbortError => exception
+        # Aborting indicates a protocol error on the part of the caller
+        # It should crash the caller, but the exception isn't reraised
+        @caller << ErrorResponse.new(self, exception.cause)
+        return
       rescue Exception => exception
         # Exceptions that occur during synchronous calls are reraised in the
         # context of the caller
@@ -42,6 +47,9 @@ module Celluloid
   class AsyncCall < Call
     def dispatch(obj)
       obj.send(@method, *@arguments, &@block) if obj.respond_to? @method
+    rescue AbortError
+      # Swallow aborted async calls, as they indicate the caller made a mistake
+      # FIXME: this should probably get logged
     end
   end
 end

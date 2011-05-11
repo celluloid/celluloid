@@ -22,6 +22,10 @@ describe Celluloid::Actor do
       def crash
         raise Crash, "the spec purposely crashed me :("
       end
+      
+      def crash_with_abort(reason)
+        abort Crash.new(reason)
+      end
     end
   end
   
@@ -44,6 +48,16 @@ describe Celluloid::Actor do
     proc do
       actor.crash
     end.should raise_exception(MyActor::Crash)
+  end
+  
+  it "raises exceptions in the caller when abort is called, but keeps running" do
+    actor = MyActor.spawn "Al Pacino"
+    
+    proc do
+      actor.crash_with_abort MyActor::Crash.new("You die motherfucker!")
+    end.should raise_exception(MyActor::Crash)
+    
+    actor.should be_alive
   end
   
   it "raises DeadActorError if methods are synchronously called on a dead actor" do
