@@ -40,19 +40,34 @@ module Celluloid
     end
     
     # Receive a message from the Mailbox
-    def receive
-      @waker.wait
-      
+    def receive(&block)
       message = nil
-      @lock.synchronize do
-        message = @messages.shift
-      end
       
-      raise message if message.is_a?(Celluloid::SystemEvent)
+      begin
+        @waker.wait
+        message = locate(&block)
+        raise message if message.is_a?(Celluloid::SystemEvent)
+      end while message.nil?
+        
       message
     rescue Celluloid::WakerError
       cleanup # force cleanup of the mailbox
       raise MailboxError, "mailbox cleanup called during receive"
+    end
+    
+    # Locate and remove a message from the mailbox which matches the given filter
+    def locate
+      @lock.synchronize do
+        if block_given?
+          index = @messages.index do |msg|
+            yield(msg) || msg.is_a?(Celluloid::SystemEvent)
+          end
+        
+          @messages.slice!(index, 1).first if index
+        else
+          @messages.shift
+        end
+      end
     end
     
     # Cleanup any IO objects this Mailbox may be using
