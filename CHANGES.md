@@ -1,4 +1,4 @@
-0.1.0
+0.0.2
 -----
 * Remove self-referential dependency in gemspec
 
