@@ -2,7 +2,6 @@ PATH
   remote: .
   specs:
     celluloid (0.0.1)
-      celluloid
 
 GEM
   remote: http://rubygems.org/
