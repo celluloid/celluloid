@@ -55,8 +55,6 @@ Gem::Specification.new do |s|
   s.rubygems_version = %q{1.6.2}
   s.summary = %q{Ruby concurrency made easy! Or at least, easier...}
   s.test_files = [
-    "examples/ring.rb",
-    "examples/simple_pmap.rb",
     "spec/actor_spec.rb",
     "spec/future_spec.rb",
     "spec/mailbox_spec.rb",
