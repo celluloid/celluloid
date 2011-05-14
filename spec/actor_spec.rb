@@ -73,9 +73,17 @@ describe Celluloid::Actor do
     end.should raise_exception(Celluloid::DeadActorError)
   end
   
-  it "knows the current actor" do
-    actor = MyActor.spawn "Roger Daltrey"
-    actor.this_actor.should == actor
+  context "current_actor" do
+    it "knows the current actor" do
+      actor = MyActor.spawn "Roger Daltrey"
+      actor.this_actor.should == actor
+    end
+  
+    it "raises NotActorError if called outside an actor" do
+      proc do
+        Celluloid.current_actor
+      end.should raise_exception(Celluloid::NotActorError)
+    end
   end
   
   it "handles asynchronous calls" do
