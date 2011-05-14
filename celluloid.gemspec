@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{celluloid}
-  s.version = "0.0.3"
+  s.version = "0.1.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Tony Arcieri"]
-  s.date = %q{2011-05-11}
+  s.date = %q{2011-05-13}
   s.description = %q{Celluloid is a concurrent object framework inspired by the Actor Model}
   s.email = %q{tony@medioh.com}
   s.extra_rdoc_files = [
@@ -55,6 +55,8 @@ Gem::Specification.new do |s|
   s.rubygems_version = %q{1.6.2}
   s.summary = %q{Ruby concurrency made easy! Or at least, easier...}
   s.test_files = [
+    "examples/ring.rb",
+    "examples/simple_pmap.rb",
     "spec/actor_spec.rb",
     "spec/future_spec.rb",
     "spec/mailbox_spec.rb",
