@@ -73,19 +73,6 @@ describe Celluloid::Actor do
     end.should raise_exception(Celluloid::DeadActorError)
   end
   
-  context "current_actor" do
-    it "knows the current actor" do
-      actor = MyActor.spawn "Roger Daltrey"
-      actor.this_actor.should == actor
-    end
-  
-    it "raises NotActorError if called outside an actor" do
-      proc do
-        Celluloid.current_actor
-      end.should raise_exception(Celluloid::NotActorError)
-    end
-  end
-  
   it "handles asynchronous calls" do
     actor = MyActor.spawn "Troy McClure"
     actor.change_name! "Charlie Sheen"
@@ -100,11 +87,32 @@ describe Celluloid::Actor do
     actor.actor?.should be_true
   end
   
+  it "terminates" do
+    obj = MyActor.spawn "Arnold Schwarzenegger"
+    obj.should be_alive
+    obj.terminate
+    sleep 0.1 # hax
+    obj.should_not be_alive
+  end
+  
   it "inspects properly" do
     actor = MyActor.spawn "Troy McClure"
     actor.inspect.should match(/Celluloid::Actor\(MyActor/)
     actor.inspect.should include('@name="Troy McClure"')
     actor.inspect.should_not include("@celluloid")
+  end
+  
+  context :current_actor do
+    it "knows the current actor" do
+      actor = MyActor.spawn "Roger Daltrey"
+      actor.this_actor.should == actor
+    end
+  
+    it "raises NotActorError if called outside an actor" do
+      proc do
+        Celluloid.current_actor
+      end.should raise_exception(Celluloid::NotActorError)
+    end
   end
   
   context :linking do

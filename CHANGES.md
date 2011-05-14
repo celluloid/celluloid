@@ -1,6 +1,6 @@
 0.1.0
 -----
-
+* Terminate actors with MyActor#terminate
 * Obtain current actor with Celluloid.current_actor
 
 0.0.3
@@ -9,5 +9,4 @@
 
 0.0.1
 -----
-
 * Initial release

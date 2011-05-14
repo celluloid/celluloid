@@ -91,6 +91,11 @@ module Celluloid
         raise AbortError.new(cause)
       end
       
+      # Terminate this actor
+      def terminate
+        @running = false
+      end
+      
       def inspect
         return super unless actor?
         str = "#<Celluloid::Actor(#{self.class}:0x#{self.object_id.to_s(16)})"
@@ -113,6 +118,7 @@ module Celluloid
         @mailbox = Mailbox.new
         @links   = Links.new
         @proxy   = ActorProxy.new(self, @mailbox)
+        @running = true
         
         @thread  = Thread.new do
           Thread.current[:actor]       = self
@@ -133,7 +139,7 @@ module Celluloid
     
       # Process incoming messages
       def __process_messages
-        while true # instead of loop, for speed!
+        while @running
           begin
             call = @mailbox.receive
           rescue ExitEvent => event
@@ -143,6 +149,8 @@ module Celluloid
             
           call.dispatch(self)
         end
+        
+        __handle_exit ExitEvent.new(@proxy)
       end
       
       # Handle exit events received by this actor

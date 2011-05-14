@@ -31,6 +31,12 @@ module Celluloid
       "#<Celluloid::Actor(#{@actor.class}:0x#{@actor.object_id.to_s(16)}) dead>"
     end
     
+    # Terminate the associated actor
+    def terminate
+      raise DeadActorError, "actor already terminated" unless alive?
+      terminate!
+    end
+    
     # method_missing black magic to call bang predicate methods asynchronously
     def method_missing(meth, *args, &block)
       # bang methods are async calls

@@ -6,7 +6,7 @@ module Celluloid
   class ExitEvent < SystemEvent
     attr_reader :actor, :reason
     
-    def initialize(actor, reason)
+    def initialize(actor, reason = nil)
       @actor, @reason = actor, reason
       super reason.to_s
     end
