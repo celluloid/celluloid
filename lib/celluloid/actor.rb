@@ -156,9 +156,13 @@ module Celluloid
       # Handle exit events received by this actor
       def __handle_exit(exit_event)
         exit_handler = self.class.exit_handler
-        raise exit_event.reason unless exit_handler
+        if exit_handler
+          return send(exit_handler, exit_event.actor, exit_event.reason)
+        end
         
-        send exit_handler, exit_event.actor, exit_event.reason
+        # Reraise exceptions from linked actors
+        # If no reason is given, actor terminated cleanly
+        raise exit_event.reason if exit_event.reason
       end
     
       # Handle any exceptions that occur within a running actor
