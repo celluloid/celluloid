@@ -18,6 +18,10 @@ describe Celluloid::Actor do
         "Hi, I'm #{@name}"
       end
       
+      def this_actor
+        Celluloid.current_actor
+      end
+      
       class Crash < StandardError; end
       def crash
         raise Crash, "the spec purposely crashed me :("
@@ -67,6 +71,11 @@ describe Celluloid::Actor do
     proc do
       actor.greet
     end.should raise_exception(Celluloid::DeadActorError)
+  end
+  
+  it "knows the current actor" do
+    actor = MyActor.spawn "Roger Daltrey"
+    actor.this_actor.should == actor
   end
   
   it "handles asynchronous calls" do

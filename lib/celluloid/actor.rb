@@ -15,6 +15,14 @@ module Celluloid
     end
   end
   
+  # Obtain the currently running actor (if one exists)
+  def self.current_actor
+    actor = Thread.current[:actor_proxy]
+    raise NotActorError, "not in actor scope" unless actor
+    
+    actor
+  end
+  
   # Actors are Celluloid's concurrency primitive. They're implemented as
   # normal Ruby objects wrapped in threads which communicate with asynchronous
   # messages. The implementation is inspired by Erlang's gen_server
@@ -63,7 +71,7 @@ module Celluloid
       # Trap errors from actors we're linked to when they exit
       def trap_exit(callback)
         @exit_handler = callback.to_sym
-      end
+      end      
     end
     
     # Instance methods added to the public API
@@ -107,8 +115,9 @@ module Celluloid
         @proxy   = ActorProxy.new(self, @mailbox)
         
         @thread  = Thread.new do
-          Thread.current[:actor]   = self
-          Thread.current[:mailbox] = @mailbox
+          Thread.current[:actor]       = self
+          Thread.current[:actor_proxy] = @proxy
+          Thread.current[:mailbox]     = @mailbox
           __run_actor
         end
         
