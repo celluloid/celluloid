@@ -87,19 +87,30 @@ describe Celluloid::Actor do
     actor.actor?.should be_true
   end
   
-  it "terminates" do
-    obj = MyActor.spawn "Arnold Schwarzenegger"
-    obj.should be_alive
-    obj.terminate
-    sleep 0.1 # hax
-    obj.should_not be_alive
-  end
-  
   it "inspects properly" do
     actor = MyActor.spawn "Troy McClure"
     actor.inspect.should match(/Celluloid::Actor\(MyActor/)
     actor.inspect.should include('@name="Troy McClure"')
     actor.inspect.should_not include("@celluloid")
+  end
+  
+  context :termination do
+    it "terminates" do
+      actor = MyActor.spawn "Arnold Schwarzenegger"
+      actor.should be_alive
+      actor.terminate
+      sleep 0.1 # hax
+      actor.should_not be_alive
+    end
+    
+    it "raises DeadActorError if called after terminated" do
+      actor = MyActor.spawn "Arnold Schwarzenegger"
+      actor.terminate
+      
+      proc do
+        actor.greet
+      end.should raise_exception(Celluloid::DeadActorError)
+    end
   end
   
   context :current_actor do

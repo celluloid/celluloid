@@ -133,7 +133,7 @@ module Celluloid
       # Run the actor
       def __run_actor
         __process_messages
-        @links.send_event ExitEvent.new(@proxy)
+        __cleanup ExitEvent.new(@proxy)
       rescue Exception => ex
         __handle_crash(ex)
       ensure
@@ -145,8 +145,8 @@ module Celluloid
         while @running
           begin
             call = @mailbox.receive
-          rescue ExitEvent => event
-            __handle_exit(event)
+          rescue ExitEvent => exit_event
+            __handle_exit_event exit_event
             retry
           end
             
@@ -155,7 +155,7 @@ module Celluloid
       end
       
       # Handle exit events received by this actor
-      def __handle_exit(exit_event)
+      def __handle_exit_event(exit_event)
         exit_handler = self.class.exit_handler
         if exit_handler
           return send(exit_handler, exit_event.actor, exit_event.reason)
@@ -169,14 +169,15 @@ module Celluloid
       # Handle any exceptions that occur within a running actor
       def __handle_crash(exception)
         __log_error(exception)
-        @mailbox.cleanup
-        
-        # Report the exit event to all actors we're linked to
-        exit_event = ExitEvent.new(@proxy, exception)
-        
-        @links.send_event exit_event
+        __cleanup ExitEvent.new(@proxy, exception)
       rescue Exception => handler_exception
         __log_error(handler_exception, "/!\\ EXCEPTION IN ERROR HANDLER /!\\")
+      end
+      
+      # Handle cleaning up this actor after it exits
+      def __cleanup(exit_event)
+        @mailbox.cleanup
+        @links.send_event exit_event
       end
       
       # Log errors when an actor crashes
