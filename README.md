@@ -274,7 +274,7 @@ Contributing to Celluloid
  
 * Fork Celluloid on github
 * Make your changes and send me a pull request
-* If I like them I'll merge them and give you commit access
+* If I like them I'll merge them and give you commit access to my repository
 
 Copyright
 ---------
