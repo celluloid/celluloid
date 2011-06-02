@@ -1,9 +1,4 @@
-module Celluloid
-  VERSION = File.read File.expand_path('../../VERSION', __FILE__)
-  
-  def self.version; VERSION; end
-end
-
+require 'celluloid/version'
 require 'celluloid/actor'
 require 'celluloid/actor_proxy'
 require 'celluloid/calls'
@@ -15,5 +10,4 @@ require 'celluloid/registry'
 require 'celluloid/responses'
 require 'celluloid/supervisor'
 require 'celluloid/waker'
-
 require 'celluloid/future'
