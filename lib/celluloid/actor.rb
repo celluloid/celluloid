@@ -183,7 +183,9 @@ module Celluloid
       # Log errors when an actor crashes
       # FIXME: This should probably thunk to a real logger
       def __log_error(ex, prefix = "!!! CRASH")
-        puts "#{prefix} #{self.class}: #{ex.class}: #{ex.to_s}\n#{ex.backtrace.join("\n")}"
+        message = "#{prefix} #{self.class}: #{ex.class}: #{ex.to_s}\n"
+        message << ex.backtrace.join("\n")
+        Celluloid.logger.error message
       end
     end
   

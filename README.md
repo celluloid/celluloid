@@ -268,6 +268,16 @@ working, freshly-restarted version.
 
 The main use of the registry is for interfacing with actors that are
 automatically restarted by supervisors when they crash.
+
+Logging
+-------
+
+By default, Celluloid will log any errors and backtraces from any crashing
+actors to STDOUT. However, if you wish you can use any logger which is
+compatible with the standard Ruby Logger API. For example, if you're using
+Celluloid within a Rails application, you'll probably want to do:
+
+    Celluloid.logger = Rails.logger
  
 Contributing to Celluloid
 -------------------------
