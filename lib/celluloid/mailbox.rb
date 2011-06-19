@@ -11,30 +11,23 @@ module Celluloid
     def initialize
       @messages = []
       @lock  = Mutex.new
-      @waker = Waker.new
+      @condition = ConditionVariable.new
     end
     
     # Add a message to the Mailbox
     def <<(message)
       @lock.synchronize do
         @messages << message
-        @waker.signal
+        @condition.signal
       end
       nil
-    rescue WakerError
-      raise MailboxError, "dead recipient"
     end
     
     # Add a high-priority system event to the Mailbox
     def system_event(event)
       @lock.synchronize do
         @messages.unshift event
-        
-        begin
-          @waker.signal
-        rescue WakerError
-          # Silently fail if messages are sent to dead actors
-        end
+        @condition.signal
       end
       nil
     end
@@ -43,37 +36,34 @@ module Celluloid
     def receive(&block)
       message = nil
       
-      begin
-        @waker.wait
-        message = locate(&block)
-        raise message if message.is_a?(Celluloid::SystemEvent)
-      end while message.nil?
+      @lock.synchronize do
+        begin
+          message = locate(&block)
+          raise message if message.is_a?(Celluloid::SystemEvent)
+          
+          @condition.wait(@lock) unless message
+        end while message.nil?
+      end
         
       message
-    rescue Celluloid::WakerError
-      cleanup # force cleanup of the mailbox
-      raise MailboxError, "mailbox cleanup called during receive"
     end
     
     # Locate and remove a message from the mailbox which matches the given filter
     def locate
-      @lock.synchronize do
-        if block_given?
-          index = @messages.index do |msg|
-            yield(msg) || msg.is_a?(Celluloid::SystemEvent)
-          end
-        
-          @messages.slice!(index, 1).first if index
-        else
-          @messages.shift
+      if block_given?
+        index = @messages.index do |msg|
+          yield(msg) || msg.is_a?(Celluloid::SystemEvent)
         end
+      
+        @messages.slice!(index, 1).first if index
+      else
+        @messages.shift
       end
     end
     
     # Cleanup any IO objects this Mailbox may be using
     def cleanup
       @lock.synchronize do
-        @waker.cleanup
         @messages.each { |msg| msg.cleanup if msg.respond_to? :cleanup }
         @messages.clear
       end
