@@ -12,11 +12,14 @@ module Celluloid
       @messages = []
       @lock  = Mutex.new
       @condition = ConditionVariable.new
+      @dead = false
     end
     
     # Add a message to the Mailbox
     def <<(message)
       @lock.synchronize do
+        raise MailboxError, "dead recipient" if @dead
+        
         @messages << message
         @condition.signal
       end
@@ -26,8 +29,10 @@ module Celluloid
     # Add a high-priority system event to the Mailbox
     def system_event(event)
       @lock.synchronize do
-        @messages.unshift event
-        @condition.signal
+        unless @dead # Silently fail if messages are sent to dead actors
+          @messages.unshift event
+          @condition.signal
+        end
       end
       nil
     end
@@ -37,6 +42,8 @@ module Celluloid
       message = nil
       
       @lock.synchronize do
+        raise MailboxError, "attempted to receive from a dead mailbox" if @dead
+        
         begin
           message = locate(&block)
           raise message if message.is_a?(Celluloid::SystemEvent)
@@ -66,6 +73,7 @@ module Celluloid
       @lock.synchronize do
         @messages.each { |msg| msg.cleanup if msg.respond_to? :cleanup }
         @messages.clear
+        @dead = true
       end
     end
     
