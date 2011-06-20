@@ -63,25 +63,25 @@ describe Celluloid::Actor do
   it "raises NoMethodError when a nonexistent method is called" do
     actor = MyActor.spawn "Billy Bob Thornton"
     
-    proc do
+    expect do
       actor.the_method_that_wasnt_there
-    end.should raise_exception(NoMethodError)
+    end.to raise_exception(NoMethodError)
   end
   
   it "reraises exceptions which occur during synchronous calls in the caller" do
     actor = MyActor.spawn "James Dean" # is this in bad taste?
     
-    proc do
+    expect do
       actor.crash
-    end.should raise_exception(MyActor::Crash)
+    end.to raise_exception(MyActor::Crash)
   end
   
   it "raises exceptions in the caller when abort is called, but keeps running" do
     actor = MyActor.spawn "Al Pacino"
     
-    proc do
+    expect do
       actor.crash_with_abort MyActor::Crash.new("You die motherfucker!")
-    end.should raise_exception(MyActor::Crash)
+    end.to raise_exception(MyActor::Crash)
     
     actor.should be_alive
   end
@@ -90,9 +90,9 @@ describe Celluloid::Actor do
     actor = MyActor.spawn "James Dean"
     actor.crash rescue nil
     
-    proc do
+    expect do
       actor.greet
-    end.should raise_exception(Celluloid::DeadActorError)
+    end.to raise_exception(Celluloid::DeadActorError)
   end
   
   it "handles asynchronous calls" do
@@ -129,9 +129,9 @@ describe Celluloid::Actor do
       actor = MyActor.spawn "Arnold Schwarzenegger"
       actor.terminate
       
-      proc do
+      expect do
         actor.greet
-      end.should raise_exception(Celluloid::DeadActorError)
+      end.to raise_exception(Celluloid::DeadActorError)
     end
   end
   
@@ -142,9 +142,9 @@ describe Celluloid::Actor do
     end
   
     it "raises NotActorError if called outside an actor" do
-      proc do
+      expect do
         Celluloid.current_actor
-      end.should raise_exception(Celluloid::NotActorError)
+      end.to raise_exception(Celluloid::NotActorError)
     end
   end
   
@@ -188,9 +188,9 @@ describe Celluloid::Actor do
       chuck = Boss.spawn "Chuck Lorre"
       chuck.link @charlie
       
-      proc do
+      expect do
         @charlie.crash
-      end.should raise_exception(MyActor::Crash)
+      end.to raise_exception(MyActor::Crash)
       
       sleep 0.1 # hax to prevent a race between exit handling and the next call
       chuck.should be_subordinate_lambasted

@@ -1,9 +1,7 @@
-$LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
-$LOAD_PATH.unshift File.dirname(__FILE__)
+require 'rubygems'
+require 'bundler'
+Bundler.setup
 
-require 'rspec'
 require 'celluloid'
 
-# Requires supporting files with custom matchers and macros, etc,
-# in ./support/ and its subdirectories.
-Dir["#{File.dirname(__FILE__)}/support/**/*.rb"].each {|f| require f}
+Dir['./spec/support/*.rb'].map {|f| require f }

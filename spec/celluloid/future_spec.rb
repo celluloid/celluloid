@@ -15,6 +15,6 @@ describe Celluloid::Future do
     class ExampleError < StandardError; end
     
     future = Celluloid::Future() { raise ExampleError, "oh noes crash!" }
-    proc { future.value }.should raise_exception(ExampleError)
+    expect { future.value }.to raise_exception(ExampleError)
   end
 end

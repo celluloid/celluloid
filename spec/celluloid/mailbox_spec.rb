@@ -17,9 +17,9 @@ describe Celluloid::Mailbox do
   it "raises system events when received" do
     @mailbox.system_event TestEvent.new("example")
     
-    proc do
+    expect do
       @mailbox.receive
-    end.should raise_exception(TestEvent)
+    end.to raise_exception(TestEvent)
   end
   
   it "prioritizes system events over other messages" do
@@ -27,9 +27,9 @@ describe Celluloid::Mailbox do
     @mailbox << :dummy2
     @mailbox.system_event TestEvent.new("example")
     
-    proc do
+    expect do
       @mailbox.receive
-    end.should raise_exception(TestEvent)
+    end.to raise_exception(TestEvent)
   end
   
   it "selectively receives messages with a block" do
