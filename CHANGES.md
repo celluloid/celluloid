@@ -1,7 +1,12 @@
 0.1.0
 -----
+* Fiber-based reentrant actors. Requires Ruby 1.9
+* MyActor.new (where MyActor includes Celluloid::Actor) is now identical to .spawn
 * Terminate actors with MyActor#terminate
 * Obtain current actor with Celluloid.current_actor
+* Configurable logger with Celluloid.logger
+* Synchronization now based on ConditionVariables instead of Celluloid::Waker
+* Determine if you're in actor scope with Celluloid.actor?
 
 0.0.3
 -----
