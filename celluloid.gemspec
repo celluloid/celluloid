@@ -41,13 +41,12 @@ Gem::Specification.new do |s|
     "lib/celluloid/responses.rb",
     "lib/celluloid/supervisor.rb",
     "lib/celluloid/waker.rb",
-    "spec/actor_spec.rb",
-    "spec/future_spec.rb",
-    "spec/mailbox_spec.rb",
-    "spec/registry_spec.rb",
+    "spec/celluloid/actor_spec.rb",
+    "spec/celluloid/future_spec.rb",
+    "spec/celluloid/mailbox_spec.rb",
+    "spec/celluloid/registry_spec.rb",
+    "spec/celluloid/supervisor_spec.rb",
     "spec/spec_helper.rb",
-    "spec/supervisor_spec.rb",
-    "spec/waker_spec.rb"
   ]
   s.homepage = %q{http://github.com/tarcieri/celluloid}
   s.licenses = ["MIT"]
@@ -55,13 +54,12 @@ Gem::Specification.new do |s|
   s.rubygems_version = %q{1.6.2}
   s.summary = %q{Ruby concurrency made easy! Or at least, easier...}
   s.test_files = [
-    "spec/actor_spec.rb",
-    "spec/future_spec.rb",
-    "spec/mailbox_spec.rb",
-    "spec/registry_spec.rb",
+    "spec/celluloid/actor_spec.rb",
+    "spec/celluloid/future_spec.rb",
+    "spec/celluloid/mailbox_spec.rb",
+    "spec/celluloid/registry_spec.rb",
+    "spec/celluloid/supervisor_spec.rb",
     "spec/spec_helper.rb",
-    "spec/supervisor_spec.rb",
-    "spec/waker_spec.rb"
   ]
 
   if s.respond_to? :specification_version then
