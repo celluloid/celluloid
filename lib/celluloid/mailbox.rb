@@ -64,8 +64,8 @@ module Celluloid
       message
     end
     
-    # Cleanup any IO objects this Mailbox may be using
-    def cleanup
+    # Shut down this mailbox and clean up its contents
+    def shutdown
       @lock.synchronize do
         @messages.each { |msg| msg.cleanup if msg.respond_to? :cleanup }
         @messages.clear

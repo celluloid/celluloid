@@ -212,7 +212,7 @@ module Celluloid
       
       # Handle cleaning up this actor after it exits
       def __cleanup(exit_event)
-        @mailbox.cleanup
+        @mailbox.shutdown
         @links.send_event exit_event
       end
       
