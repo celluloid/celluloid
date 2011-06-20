@@ -1,3 +1,6 @@
+require 'thread'
+require 'fiber'
+
 module Celluloid
   # Raised when trying to do Actor-like things outside Actor-space
   class NotActorError < StandardError; end
@@ -121,13 +124,18 @@ module Celluloid
         @running = true
         
         @thread  = Thread.new do
-          Thread.current[:actor]       = self
-          Thread.current[:actor_proxy] = @proxy
-          Thread.current[:mailbox]     = @mailbox
+          __init_thread
           __run_actor
         end
         
         @proxy
+      end
+      
+      # Configure thread locals for the running thread
+      def __init_thread
+        Thread.current[:actor]       = self
+        Thread.current[:actor_proxy] = @proxy
+        Thread.current[:mailbox]     = @mailbox
       end
                 
       # Run the actor
@@ -144,13 +152,24 @@ module Celluloid
       def __process_messages
         while @running
           begin
-            call = @mailbox.receive
+            message = @mailbox.receive
           rescue ExitEvent => exit_event
             __handle_exit_event exit_event
             retry
           end
-            
-          call.dispatch(self)
+          
+          case message
+          when SyncCall
+            fiber = Fiber.new do 
+              __init_thread
+              message.dispatch(self)
+            end
+          
+            fiber.resume
+            __schedule_method message, fiber if fiber.alive?
+          when AsyncCall
+            message.dispatch(self)
+          end # unexpected messages are ignored  
         end
       end
       
