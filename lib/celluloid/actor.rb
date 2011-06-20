@@ -49,6 +49,7 @@ module Celluloid
         proxy.send(:initialize, *args, &block)
         proxy
       end
+      alias_method :new, :spawn
       
       # Create a new actor and link to the current one
       def spawn_link(*args, &block)
@@ -63,6 +64,7 @@ module Celluloid
         
         proxy
       end
+      alias_method :new_link, :spawn_link
       
       # Create a supervisor which ensures an instance of an actor will restart
       # an actor if it fails
@@ -84,11 +86,6 @@ module Celluloid
     
     # Instance methods added to the public API
     module InstanceMethods
-      # Is this object functioning as an actor?
-      def actor?
-        !!@mailbox
-      end
-      
       # Is this actor alive?
       def alive?
         @thread.alive?
@@ -105,7 +102,6 @@ module Celluloid
       end
       
       def inspect
-        return super unless actor?
         str = "#<Celluloid::Actor(#{self.class}:0x#{self.object_id.to_s(16)})"
         
         ivars = []

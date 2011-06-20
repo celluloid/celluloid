@@ -101,14 +101,6 @@ describe Celluloid::Actor do
     actor.greet.should == "Hi, I'm Charlie Sheen"    
   end
   
-  it "knows when it's running as an actor" do
-    obj = MyActor.new "I'm an object"
-    obj.actor?.should be_false
-    
-    actor = MyActor.spawn "Troy McClure"
-    actor.actor?.should be_true
-  end
-  
   it "knows if it's inside actor scope" do
     Celluloid.should_not be_actor
     actor = MyActor.spawn "Troy McClure"
