@@ -26,6 +26,10 @@ module Celluloid
       @actor.alive?
     end
     
+    def to_s
+      __call :to_s
+    end
+    
     def inspect
       return __call :inspect if alive?
       "#<Celluloid::Actor(#{@actor.class}:0x#{@actor.object_id.to_s(16)}) dead>"

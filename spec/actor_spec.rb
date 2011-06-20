@@ -38,6 +38,24 @@ describe Celluloid::Actor do
     actor.greet.should == "Hi, I'm Troy McClure"
   end
   
+  it "handles circular synchronous calls" do
+    class Ponycopter
+      include Celluloid::Actor
+      
+      def greet_by_proxy(actor)
+        actor.greet
+      end
+      
+      def to_s
+        "a ponycopter!"
+      end
+    end
+    
+    ponycopter = Ponycopter.spawn
+    actor = MyActor.spawn ponycopter
+    ponycopter.greet_by_proxy(actor).should == "Hi, I'm a ponycopter!"
+  end
+  
   it "raises NoMethodError when a nonexistent method is called" do
     actor = MyActor.spawn "Billy Bob Thornton"
     
