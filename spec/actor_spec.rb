@@ -22,6 +22,10 @@ describe Celluloid::Actor do
         Celluloid.current_actor
       end
       
+      def run(*args)
+        yield(*args)
+      end
+      
       class Crash < StandardError; end
       def crash
         raise Crash, "the spec purposely crashed me :("
@@ -103,6 +107,14 @@ describe Celluloid::Actor do
     
     actor = MyActor.spawn "Troy McClure"
     actor.actor?.should be_true
+  end
+  
+  it "knows if it's inside actor scope" do
+    Celluloid.should_not be_actor
+    actor = MyActor.spawn "Troy McClure"
+    actor.run do
+      Celluloid.actor?
+    end.should be_true
   end
   
   it "inspects properly" do

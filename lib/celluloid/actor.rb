@@ -18,6 +18,11 @@ module Celluloid
     end
   end
   
+  # Are we currently inside of an actor?
+  def self.actor?
+    !!Thread.current[:actor]
+  end
+  
   # Obtain the currently running actor (if one exists)
   def self.current_actor
     actor = Thread.current[:actor_proxy]
