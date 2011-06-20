@@ -155,6 +155,8 @@ module Celluloid
     
       # Process incoming messages
       def __process_messages
+        pending_calls = {}
+        
         while @running
           begin
             message = @mailbox.receive
@@ -169,15 +171,22 @@ module Celluloid
               __init_thread
               message.dispatch(self)
             end
-          
-            fiber.resume
-            __schedule_method message, fiber if fiber.alive?
+            
+            call = fiber.resume
+            pending_calls[call] = fiber if fiber.alive?
+          when Response
+            fiber = pending_calls.delete(message.call)
+            
+            if fiber
+              call = fiber.resume message 
+              pending_calls[call] = fiber if fiber.alive?
+            end
           when AsyncCall
             message.dispatch(self)
           end # unexpected messages are ignored  
         end
       end
-      
+            
       # Handle exit events received by this actor
       def __handle_exit_event(exit_event)
         exit_handler = self.class.exit_handler

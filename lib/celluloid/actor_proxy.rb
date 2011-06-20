@@ -73,9 +73,15 @@ module Celluloid
       rescue MailboxError
         raise DeadActorError, "attempted to call a dead actor"
       end
-      
-      response = our_mailbox.receive do |msg|
-        msg.is_a? Response and msg.call == call
+
+      if Celluloid.actor?
+        # Yield to the actor scheduler, which resumes us when we get a response
+        response = Fiber.yield(call)
+      else
+        # Otherwise we're inside a normal thread, so block
+        response = our_mailbox.receive do |msg|
+          msg.is_a? Response and msg.call == call
+        end
       end
       
       case response
