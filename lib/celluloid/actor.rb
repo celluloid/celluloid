@@ -161,7 +161,14 @@ module Celluloid
           begin
             message = @mailbox.receive
           rescue ExitEvent => exit_event
-            __handle_exit_event exit_event
+            fiber = Fiber.new do
+              __init_thread
+              __handle_exit_event exit_event
+            end
+            
+            call = fiber.resume
+            pending_calls[call] = fiber if fiber.alive?
+            
             retry
           end
           
