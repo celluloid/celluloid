@@ -1,3 +1,5 @@
+require 'logger'
+
 require 'celluloid/actor'
 require 'celluloid/actor_proxy'
 require 'celluloid/calls'
@@ -7,7 +9,6 @@ require 'celluloid/linking'
 require 'celluloid/mailbox'
 require 'celluloid/registry'
 require 'celluloid/responses'
-require 'celluloid/simple_logger'
 require 'celluloid/supervisor'
 
 require 'celluloid/future'
@@ -17,7 +18,7 @@ module Celluloid
   def self.version; VERSION; end
   
   @@logger_lock = Mutex.new
-  @@logger = SimpleLogger.new
+  @@logger = Logger.new STDERR
 
   def self.logger
     @@logger_lock.synchronize { @@logger }
