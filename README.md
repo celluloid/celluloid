@@ -13,6 +13,17 @@ things in the background while the caller carries on with its business.
 These concurrent objects are called "actors". Actors are somewhere in between
 the kind of object you're typically used to working with and a network service.
 
+Supported Platforms
+-------------------
+
+Celluloid works on Ruby 1.9.2, JRuby 1.6 (in 1.9 mode), and Rubinius 2.0. JRuby
+or Rubinius are the preferred platforms as they support true concurrent threads.
+
+To use JRuby in 1.9 mode, you'll need to pass the "--1.9" command line option
+to the JRuby executable, or set the "JRUBY_OPTS=--1.9" environment variable.
+
+Celluloid works on Rubinius in either 1.8 or 1.9 mode.
+
 Usage
 -----
 
