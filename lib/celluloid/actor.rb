@@ -231,7 +231,7 @@ module Celluloid
       def __log_error(ex, message = "#{self.class} crashed!")
         message << "\n#{ex.class}: #{ex.to_s}\n"
         message << ex.backtrace.join("\n")
-        Celluloid.logger.error message
+        Celluloid.logger.error message if Celluloid.logger
       end
     end
   

@@ -5,7 +5,7 @@ require 'rspec'
 require 'celluloid'
 
 # Squelch the logger (you may want it on for debugging)
-Celluloid.logger = Logger.new("/dev/null")
+#Celluloid.logger = nil
 
 # Requires supporting files with custom matchers and macros, etc,
 # in ./support/ and its subdirectories.
