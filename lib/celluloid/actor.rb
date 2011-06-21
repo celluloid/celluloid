@@ -217,7 +217,7 @@ module Celluloid
         __log_error(exception)
         __cleanup ExitEvent.new(@proxy, exception)
       rescue Exception => handler_exception
-        __log_error(handler_exception, "/!\\ EXCEPTION IN ERROR HANDLER /!\\")
+        __log_error(handler_exception, "ERROR HANDLER CRASHED!")
       end
       
       # Handle cleaning up this actor after it exits
@@ -228,8 +228,8 @@ module Celluloid
       
       # Log errors when an actor crashes
       # FIXME: This should probably thunk to a real logger
-      def __log_error(ex, prefix = "!!! CRASH")
-        message = "#{prefix} #{self.class}: #{ex.class}: #{ex.to_s}\n"
+      def __log_error(ex, message = "#{self.class} crashed!")
+        message << "\n#{ex.class}: #{ex.to_s}\n"
         message << ex.backtrace.join("\n")
         Celluloid.logger.error message
       end
