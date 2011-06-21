@@ -1,12 +1,12 @@
+PATH
+  remote: .
+  specs:
+    celluloid (0.1.0)
+
 GEM
   remote: http://rubygems.org/
   specs:
     diff-lcs (1.1.2)
-    git (1.2.5)
-    jeweler (1.5.2)
-      bundler (~> 1.0.0)
-      git (>= 1.2.5)
-      rake
     rake (0.9.2)
     rspec (2.6.0)
       rspec-core (~> 2.6.0)
@@ -22,6 +22,6 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  bundler (~> 1.0.0)
-  jeweler (~> 1.5.2)
+  celluloid!
+  rake
   rspec (>= 2.3.0)
