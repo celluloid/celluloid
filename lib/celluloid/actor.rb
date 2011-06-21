@@ -1,5 +1,15 @@
 require 'thread'
-require 'fiber'
+
+begin
+  require 'fiber'
+rescue LoadError => ex
+  # If we're on Rubinius, we can still work in 1.8 mode
+  if defined? Rubinius
+    Fiber = Rubinius::Fiber
+  else
+    raise ex
+  end
+end
 
 module Celluloid
   # Raised when trying to do Actor-like things outside Actor-space
