@@ -181,7 +181,7 @@ module Celluloid
           end
           
           case message
-          when SyncCall
+          when Call
             fiber = Fiber.new do 
               __init_thread
               message.dispatch(self)
@@ -196,8 +196,6 @@ module Celluloid
               call = fiber.resume message 
               pending_calls[call] = fiber if fiber.alive?
             end
-          when AsyncCall
-            message.dispatch(self)
           end # unexpected messages are ignored  
         end
       end
