@@ -63,6 +63,10 @@ module Celluloid
       __call(meth, *args, &block)
     end
     
+    #######
+    private
+    #######
+    
     # Make a synchronous call to the actor we're proxying to
     def __call(meth, *args, &block)
       our_mailbox = Thread.current.mailbox

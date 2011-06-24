@@ -59,27 +59,27 @@ module Celluloid
   module Linking
     # Link this actor to another, allowing it to crash or react to errors
     def link(actor)
-      actor.notify_link(@proxy)
+      actor.notify_link(@_proxy)
       self.notify_link(actor)
     end
     
     # Remove links to another actor
     def unlink(actor)
-      actor.notify_unlink(@proxy)
+      actor.notify_unlink(@_proxy)
       self.notify_unlink(actor)
     end
     
     def notify_link(actor)
-      @links << actor
+      @_links << actor
     end
     
     def notify_unlink(actor)
-      @links.delete actor
+      @_links.delete actor
     end
     
     # Is this actor linked to another?
     def linked_to?(actor)
-      @links.include? actor
+      @_links.include? actor
     end
   end
 end

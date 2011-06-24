@@ -1,3 +1,9 @@
+0.1.1
+-----
+
+Add an underscore prefix to all of Celluloid's instance variables so they don't
+clash with user-defined ones.
+
 0.1.0
 -----
 * Fiber-based reentrant actors. Requires Ruby 1.9

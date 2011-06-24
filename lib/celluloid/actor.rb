@@ -45,13 +45,8 @@ module Celluloid
   # normal Ruby objects wrapped in threads which communicate with asynchronous
   # messages. The implementation is inspired by Erlang's gen_server
   module Actor
-    attr_reader :mailbox
-    
     # Methods added to classes which include Celluloid::Actor
     module ClassMethods
-      # Retrieve the exit handler method for this class
-      attr_reader :exit_handler
-      
       # Create a new actor
       def spawn(*args, &block)
         actor = allocate
@@ -68,7 +63,7 @@ module Celluloid
         
         # FIXME: this is a bit repetitive with the code above
         actor = allocate
-        proxy = actor.__start_actor
+        proxy = actor.__start_actor        
         current_actor.link actor
         proxy.send(:initialize, *args, &block)
         
@@ -90,15 +85,21 @@ module Celluloid
       
       # Trap errors from actors we're linked to when they exit
       def trap_exit(callback)
-        @exit_handler = callback.to_sym
+        @_exit_handler = callback.to_sym
       end      
+      
+      # Obtain the exit handler method for this class
+      def exit_handler; @_exit_handler; end
     end
     
     # Instance methods added to the public API
     module InstanceMethods
+      # Obtain the mailbox of this actor
+      def mailbox; @_mailbox; end
+      
       # Is this actor alive?
       def alive?
-        @thread.alive?
+        @_thread.alive?
       end
       
       # Raise an exception in caller context, but stay running
@@ -108,7 +109,7 @@ module Celluloid
       
       # Terminate this actor
       def terminate
-        @running = false
+        @_running = false
       end
       
       def inspect
@@ -116,7 +117,8 @@ module Celluloid
         
         ivars = []
         instance_variables.each do |ivar|
-          next if %w(@mailbox @links @proxy @thread).include? ivar.to_s
+          ivar_name = ivar.to_s.sub(/^@_/, '')
+          next if %w(mailbox links proxy thread running).include? ivar_name
           ivars << "#{ivar}=#{instance_variable_get(ivar).inspect}"
         end
         
@@ -129,30 +131,30 @@ module Celluloid
     module InternalMethods
       # Actor-specific initialization and startup
       def __start_actor(*args, &block)
-        @mailbox = Mailbox.new
-        @links   = Links.new
-        @proxy   = ActorProxy.new(self, @mailbox)
-        @running = true
+        @_mailbox = Mailbox.new
+        @_links   = Links.new
+        @_proxy   = ActorProxy.new(self, @_mailbox)
+        @_running = true
         
-        @thread  = Thread.new do
+        @_thread  = Thread.new do
           __init_thread
           __run_actor
         end
         
-        @proxy
+        @_proxy
       end
       
       # Configure thread locals for the running thread
       def __init_thread
         Thread.current[:actor]       = self
-        Thread.current[:actor_proxy] = @proxy
-        Thread.current[:mailbox]     = @mailbox
+        Thread.current[:actor_proxy] = @_proxy
+        Thread.current[:mailbox]     = @_mailbox
       end
                 
       # Run the actor
       def __run_actor
         __process_messages
-        __cleanup ExitEvent.new(@proxy)
+        __cleanup ExitEvent.new(@_proxy)
       rescue Exception => ex
         __handle_crash(ex)
       ensure
@@ -163,9 +165,9 @@ module Celluloid
       def __process_messages
         pending_calls = {}
         
-        while @running
+        while @_running
           begin
-            message = @mailbox.receive
+            message = @_mailbox.receive
           rescue ExitEvent => exit_event
             fiber = Fiber.new do
               __init_thread
@@ -215,15 +217,15 @@ module Celluloid
       # Handle any exceptions that occur within a running actor
       def __handle_crash(exception)
         __log_error(exception)
-        __cleanup ExitEvent.new(@proxy, exception)
+        __cleanup ExitEvent.new(@_proxy, exception)
       rescue Exception => handler_exception
         __log_error(handler_exception, "ERROR HANDLER CRASHED!")
       end
       
       # Handle cleaning up this actor after it exits
       def __cleanup(exit_event)
-        @mailbox.shutdown
-        @links.send_event exit_event
+        @_mailbox.shutdown
+        @_links.send_event exit_event
       end
       
       # Log errors when an actor crashes
