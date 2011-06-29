@@ -1,0 +1,6 @@
+rvm:
+  - 1.9.2
+  - rbx-2.0
+  - jruby
+
+env: "JRUBY_OPTS=--1.9"
