@@ -45,7 +45,7 @@ module Celluloid
   # normal Ruby objects wrapped in threads which communicate with asynchronous
   # messages. The implementation is inspired by Erlang's gen_server
   module Actor
-    # Methods added to classes which include Celluloid::Actor
+    # Methods added to classes which include Celluloid
     module ClassMethods
       # Create a new actor
       def spawn(*args, &block)
@@ -118,12 +118,26 @@ module Celluloid
         ivars = []
         instance_variables.each do |ivar|
           ivar_name = ivar.to_s.sub(/^@_/, '')
-          next if %w(mailbox links proxy thread running).include? ivar_name
+          next if %w(mailbox links signals proxy thread running).include? ivar_name
           ivars << "#{ivar}=#{instance_variable_get(ivar).inspect}"
         end
         
         str << " " << ivars.join(' ') unless ivars.empty?      
         str << ">"
+      end
+      
+      #
+      # Signals
+      #
+      
+      # Send a signal with the given name to all waiting methods
+      def signal(name, value = nil)
+        @_signals.send name, value
+      end
+      
+      # Wait for the given signal
+      def wait(name)
+        @_signals.wait name
       end
     end
     
@@ -133,6 +147,7 @@ module Celluloid
       def __start_actor(*args, &block)
         @_mailbox = Mailbox.new
         @_links   = Links.new
+        @_signals = Signals.new
         @_proxy   = ActorProxy.new(self, @_mailbox)
         @_running = true
         

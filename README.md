@@ -280,6 +280,41 @@ working, freshly-restarted version.
 The main use of the registry is for interfacing with actors that are
 automatically restarted by supervisors when they crash.
 
+Signaling
+---------
+
+Signaling is an advanced technique similar to condition variables in typical
+multithreaded programming. One method within a concurrent object can suspend
+itself waiting for a particular event, allowing other methods to run. Another
+method can then signal all methods waiting for a particular event, and even
+send them a value in the process:
+
+	class SignalingExample
+	  include Celluloid
+	  attr_reader :signaled
+  
+	  def initialize
+	    @signaled = false
+	  end
+  
+	  def wait_for_signal
+	    value = wait :ponycopter
+	    @signaled = true
+	    value
+	  end
+  
+	  def send_signal(value)
+	    signal :ponycopter, value
+	  end
+	end
+	
+The wait_for_signal method in turn calls a method called "wait". Wait suspends
+the running method until another method of the same object calls the "signal"
+method with the same label.
+
+The send_signal method of this class does just that, signaling "ponycopter"
+with the given value. This value is returned from the original wait call.
+
 Logging
 -------
 

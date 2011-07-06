@@ -10,6 +10,7 @@ require 'celluloid/linking'
 require 'celluloid/mailbox'
 require 'celluloid/registry'
 require 'celluloid/responses'
+require 'celluloid/signals'
 require 'celluloid/supervisor'
 
 require 'celluloid/future'

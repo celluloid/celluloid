@@ -196,4 +196,38 @@ describe Celluloid::Actor do
       chuck.should be_subordinate_lambasted
     end
   end
+  
+  context :signaling do
+    before do
+      class SignalingExample
+        include Celluloid
+        attr_reader :signaled
+        
+        def initialize
+          @signaled = false
+        end
+        
+        def wait_for_signal
+          value = wait :ponycopter
+          @signaled = true
+          value
+        end
+        
+        def send_signal(value)
+          signal :ponycopter, value
+        end
+      end
+    end
+    
+    it "allows methods within the same object to signal each other" do
+      obj = SignalingExample.new
+      obj.signaled.should be_false
+      
+      thread = Thread.new { obj.wait_for_signal }
+      obj.signaled.should be_false
+      
+      obj.send_signal :foobar
+      thread.join.value.should == :foobar
+    end
+  end
 end
