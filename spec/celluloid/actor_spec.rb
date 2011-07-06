@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Celluloid::Actor do
   before do
     class MyActor
-      include Celluloid::Actor
+      include Celluloid
       attr_reader :name
       
       def initialize(name)
@@ -44,7 +44,7 @@ describe Celluloid::Actor do
   
   it "handles circular synchronous calls" do
     class Ponycopter
-      include Celluloid::Actor
+      include Celluloid
       
       def greet_by_proxy(actor)
         actor.greet
@@ -170,7 +170,7 @@ describe Celluloid::Actor do
     
     it "traps exit messages from other actors" do
       class Boss # like a boss
-        include Celluloid::Actor
+        include Celluloid
         trap_exit :lambaste_subordinate
         
         def initialize(name)

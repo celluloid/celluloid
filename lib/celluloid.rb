@@ -25,4 +25,8 @@ module Celluloid
   def self.logger=(logger)
     @@logger_lock.synchronize { @@logger = logger }
   end
+  
+  def self.included(klass)
+    klass.send :include, Actor
+  end
 end

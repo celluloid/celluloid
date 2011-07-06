@@ -1,9 +1,10 @@
 0.1.1
 -----
 
+* Just "include Celluloid" works in lieu of "include Celluloid::Actor"
 * Futures terminate implicitly when their values are obtained
 * Add an underscore prefix to all of Celluloid's instance variables so they don't
-clash with user-defined ones.
+  clash with user-defined ones.
 
 
 0.1.0

@@ -28,10 +28,10 @@ Celluloid works on Rubinius in either 1.8 or 1.9 mode.
 Usage
 -----
 
-To use Celluloid, define a normal Ruby class that includes Celluloid::Actor
+To use Celluloid, define a normal Ruby class that includes Celluloid
 
     class Sheen
-      include Celluloid::Actor
+      include Celluloid
   
       def initialize(name)
         @name = name
@@ -46,10 +46,10 @@ To use Celluloid, define a normal Ruby class that includes Celluloid::Actor
       end
     end
     
-If you call Sheen.new, you'll wind up with a plain old Ruby object. To
-create a concurrent object instead of a regular one, use Sheen.spawn:
+Now when you create new instances of this class, they're actually concurrent
+objects, each running in their own thread:
 
-    >> charlie = Sheen.spawn "Charlie Sheen"
+    >> charlie = Sheen.new "Charlie Sheen"
      => #<Celluloid::Actor(Sheen:0x00000100a312d0) @name="Charlie Sheen">
     >> charlie.set_status "winning!"
      => "winning!" 
@@ -60,10 +60,9 @@ create a concurrent object instead of a regular one, use Sheen.spawn:
     >> charlie.report
      => "Charlie Sheen is asynchronously winning!" 
 
-Calling spawn creates a concurrent object running inside its own thread. You
-can call methods on this concurrent object just like you would any other Ruby
-object. The Sheen#set_status method works exactly like you'd expect, returning
-the last expression evaluated.
+You can call methods on this concurrent object just like you would any other 
+Ruby object. The Sheen#set_status method works exactly like you'd expect,
+returning the last expression evaluated.
 
 However, Celluloid's secret sauce kicks in when you call banged predicate
 methods (i.e. methods ending in !). Even though the Sheen class has no 
@@ -140,7 +139,7 @@ Whenever any unhandled exceptions occur in any of the methods of an actor,
 that actor crashes and dies. Let's start with an example:
 
     class JamesDean
-      include Celluloid::Actor
+      include Celluloid
       class CarInMyLaneError < StandardError; end
       
       def drive_little_bastard
@@ -167,7 +166,7 @@ trap_exit method to be notified of them. Let's look at how a hypothetical
 Elizabeth Taylor object could be notified that James Dean has crashed:
 
     class ElizabethTaylor
-      include Celluloid::Actor
+      include Celluloid
       trap_exit :actor_died
   
       def actor_died(actor, reason)
@@ -198,7 +197,7 @@ if she weren't trapping exits? Let's break James apart into two separate
 objects, one for James himself and one for Little Bastard, his car:
 
     class PorscheSpider
-      include Celluloid::Actor
+      include Celluloid
       class CarInMyLaneError < StandardError; end
   
       def drive_on_route_466
@@ -207,7 +206,7 @@ objects, one for James himself and one for Little Bastard, his car:
     end
     
     class JamesDean
-      include Celluloid::Actor
+      include Celluloid
       
       def initialize
         @little_bastard = PorscheSpider.spawn_link
