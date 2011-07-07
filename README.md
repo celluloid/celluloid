@@ -28,7 +28,7 @@ Celluloid works on Rubinius in either 1.8 or 1.9 mode.
 Usage
 -----
 
-To use Celluloid, define a normal Ruby class that includes Celluloid
+To use Celluloid, define a normal Ruby class that includes Celluloid:
 
     class Sheen
       include Celluloid
@@ -94,9 +94,32 @@ Futures
 
 Futures allow you to request a computation and get the result later. There are
 two types of futures supported by Celluloid: method futures and block futures.
+Method futures work by invoking the _future_ method on an actor. This method
+is analogous to the typical _send_ method in that it takes a method name, 
+followed by an arbitrary number of arguments, and a block. Let's invoke the
+report method from the charlie object used in the above example using a future:
 
+	>> future = charlie.future :report
+	 => #<Celluloid::Future:0x000001009759b8>
+	>> future.value
+	 => "Charlie Sheen is winning!"
 
+The call to charlie.future immediately returns a Celluloid::Future object,
+regardless of how long it takes to execute the "report" method. To obtain
+the result of the call to "report", we call the _value_ method of the
+future object. This call will block until the method call is available.
 
+Futures also allow you to background the computation of any block:
+
+	>> future = Celluloid::Future.new { 2 + 2 }
+	 => #<Celluloid::Future:0x000001008425f0> 
+	>> future.value
+	 => 4 
+
+One thing to be aware of when using futures: always make sure to obtain the
+value of any future you make. Futures create a thread in the background which
+will continue to run until the future's value is obtained. Failing to obtain
+the value of futures you create will leak threads.
 
 Supervisors
 -----------
