@@ -42,6 +42,12 @@ describe Celluloid::Actor do
     actor.greet.should == "Hi, I'm Troy McClure"
   end
   
+  it "handles futures for synchronous calls" do
+    actor = MyActor.spawn "Troy McClure"
+    future = actor.future :greet
+    future.value.should == "Hi, I'm Troy McClure"
+  end
+  
   it "handles circular synchronous calls" do
     class Ponycopter
       include Celluloid

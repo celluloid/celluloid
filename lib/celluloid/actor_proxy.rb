@@ -35,6 +35,11 @@ module Celluloid
       "#<Celluloid::Actor(#{@actor.class}:0x#{@actor.object_id.to_s(16)}) dead>"
     end
     
+    # Create a Celluloid::Future which calls a given method
+    def future(method_name, *args, &block)
+      Celluloid::Future.new { __call method_name, *args, &block }
+    end
+    
     # Terminate the associated actor
     def terminate
       raise DeadActorError, "actor already terminated" unless alive?

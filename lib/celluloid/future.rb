@@ -13,6 +13,7 @@ module Celluloid
     def initialize(*args, &block)
       @lock = Mutex.new
       @value_obtained = false
+      
       @runner = Runner.new(*args, &block)
       @runner.run!
     end
@@ -35,21 +36,23 @@ module Celluloid
     
     # Runner is an internal class which executes the given block/method
     class Runner
-      include Celluloid::Actor
+      include Celluloid
       
       def initialize(*args, &block)
         @args, @block = args, block
       end
 
       def run
-        @called = true
-        @value = @block[*@args]
+        @value = @block.call(*@args)
       rescue Exception => error
         @error = error
+      ensure
+        @called = true
+        signal :finished
       end
 
       def value
-        raise "not run yet" unless @called
+        wait :finished unless @called
         abort @error if @error
         @value
       end

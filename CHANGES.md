@@ -1,6 +1,7 @@
 0.1.1
 -----
 
+* Support for future method calls with MyActor#future
 * Initial signaling support via MyActor#signal and MyActor#wait
 * Just "include Celluloid" works in lieu of "include Celluloid::Actor"
 * Futures terminate implicitly when their values are obtained

@@ -1,20 +1,5 @@
 require 'logger'
 
-require 'celluloid/version'
-require 'celluloid/actor'
-require 'celluloid/actor_proxy'
-require 'celluloid/calls'
-require 'celluloid/core_ext'
-require 'celluloid/events'
-require 'celluloid/linking'
-require 'celluloid/mailbox'
-require 'celluloid/registry'
-require 'celluloid/responses'
-require 'celluloid/signals'
-require 'celluloid/supervisor'
-
-require 'celluloid/future'
-
 module Celluloid    
   @@logger_lock = Mutex.new
   @@logger = Logger.new STDERR
@@ -31,3 +16,18 @@ module Celluloid
     klass.send :include, Actor
   end
 end
+
+require 'celluloid/version'
+require 'celluloid/actor'
+require 'celluloid/actor_proxy'
+require 'celluloid/calls'
+require 'celluloid/core_ext'
+require 'celluloid/events'
+require 'celluloid/linking'
+require 'celluloid/mailbox'
+require 'celluloid/registry'
+require 'celluloid/responses'
+require 'celluloid/signals'
+require 'celluloid/supervisor'
+
+require 'celluloid/future'

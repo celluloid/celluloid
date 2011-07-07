@@ -89,6 +89,15 @@ crashed object will not raise an error.
 However, you can still handle errors created by asynchronous calls using
 two features of Celluloid called _supervisors_ and _linking_.
 
+Futures
+-------
+
+Futures allow you to request a computation and get the result later. There are
+two types of futures supported by Celluloid: method futures and block futures.
+
+
+
+
 Supervisors
 -----------
 
@@ -106,7 +115,7 @@ class from the example above:
  
 This created a new Celluloid::Supervisor actor, and also created a new Sheen
 actor, giving its initialize method the argument "Charlie Sheen". The 
-_supervise_ method has the same method signature as _spawn_. However, rather
+_supervise_ method has the same method signature as _new_. However, rather
 than returning the newly created actor, _supervise_ returns the supervisor.
 To retrieve the actor that the supervisor is currently using, use the
 Celluloid::Supervisor#actor method:
@@ -128,7 +137,7 @@ In this case, the supervisor will ensure that an actor of the Sheen class,
 created using the given arguments, is aways available by calling
 Celluloid::Actor[:charlie]. The first argument to supervise_as is the name
 you'd like the newly created actor to be registered under. The remaining
-arguments are passed to initialize just like you called _new_ or _spawn_.
+arguments are passed to initialize just like you called _new_.
 
 See the "Registry" section below for more information on the actor registry
 
@@ -149,7 +158,7 @@ that actor crashes and dies. Let's start with an example:
     
 Now, let's have James drive Little Bastard and see what happens:
 
-    >> james = JamesDean.spawn
+    >> james = JamesDean.new
      => #<Celluloid::Actor(JamesDean:0x1068)> 
     >> james.drive_little_bastard!
      => nil 
@@ -178,9 +187,9 @@ We've now used the trap_exit method to configure a callback which is invoked
 whenever any linked actors crashed. Now we need to link Elizabeth to James so
 James' crash notifications get sent to her:
 
-    >> james = JamesDean.spawn
+    >> james = JamesDean.new
      => #<Celluloid::Actor(JamesDean:0x11b8)> 
-    >> elizabeth = ElizabethTaylor.spawn
+    >> elizabeth = ElizabethTaylor.new
      => #<Celluloid::Actor(ElizabethTaylor:0x11f0)> 
     >> elizabeth.link james
      => #<Celluloid::Actor(JamesDean:0x11b8)> 
@@ -209,7 +218,7 @@ objects, one for James himself and one for Little Bastard, his car:
       include Celluloid
       
       def initialize
-        @little_bastard = PorscheSpider.spawn_link
+        @little_bastard = PorscheSpider.new_link
       end
       
       def drive_little_bastard
@@ -218,17 +227,17 @@ objects, one for James himself and one for Little Bastard, his car:
     end
     
 If you take a look in JamesDean#initialize, you'll notice that to create an
-instance of PorcheSpider, James is calling the spawn_link method.
+instance of PorcheSpider, James is calling the new_link method.
 
-This method works similarly to _spawn_, except it combines _spawn_ and _link_ 
+This method works similarly to _new_, except it combines _new_ and _link_ 
 into a single call.
 
 Now what happens if we repeat the same scenario with Elizabeth Taylor watching
 for James Dean's crash?
 
-    >> james = JamesDean.spawn
+    >> james = JamesDean.new
      => #<Celluloid::Actor(JamesDean:0x1108) @little_bastard=#<Celluloid::Actor(PorscheSpider:0x10ec)>> 
-    >> elizabeth = ElizabethTaylor.spawn
+    >> elizabeth = ElizabethTaylor.new
      => #<Celluloid::Actor(ElizabethTaylor:0x1144)> 
     >> elizabeth.link james
      => #<Celluloid::Actor(JamesDean:0x1108) @little_bastard=#<Celluloid::Actor(PorscheSpider:0x10ec)>> 
@@ -250,7 +259,7 @@ This allows you to factor your problem into several actors. If an error occurs
 in any of them, it will kill off all actors used in a particular system. In
 general, you'll probably want to have a supervisor start a single actor which
 is in charge of a particular part of your system, and have that actor 
-spawn_link to other actors which are part of the same system. If any error
+new_link to other actors which are part of the same system. If any error
 occurs in any of these actors, all of them will be killed off and the entire
 subsystem will be restarted by the supervisor in a clean state.
 
@@ -263,7 +272,7 @@ Registry
 Celluloid lets you register actors so you can refer to them symbolically.
 You can register Actors using Celluloid::Actor[]:
 
-    >> james = JamesDean.spawn
+    >> james = JamesDean.new
      => #<Celluloid::Actor(JamesDean:0x80c27ce0)> 
     >> Celluloid::Actor[:james] = james
      => #<Celluloid::Actor(JamesDean:0x80c27ce0)> 
