@@ -229,11 +229,11 @@ describe Celluloid::Actor do
       obj = SignalingExample.new
       obj.signaled.should be_false
       
-      thread = Thread.new { obj.wait_for_signal }
+      future = Celluloid::Future.new { obj.wait_for_signal }
       obj.signaled.should be_false
       
       obj.send_signal :foobar
-      thread.join.value.should == :foobar
+      future.value.should == :foobar
     end
   end
 end
