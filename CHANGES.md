@@ -1,4 +1,4 @@
-0.1.1
+0.2.0
 -----
 
 * Support for future method calls with MyActor#future
