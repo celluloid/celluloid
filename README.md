@@ -108,7 +108,10 @@ report method from the charlie object used in the above example using a future:
 The call to charlie.future immediately returns a Celluloid::Future object,
 regardless of how long it takes to execute the "report" method. To obtain
 the result of the call to "report", we call the _value_ method of the
-future object. This call will block until the method call is available.
+future object. This call will block until the value returned from the method 
+call is available (i.e. the method has finished executing). If an exception
+occured during the method call, the call to future.value will reraise the
+same exception.
 
 Futures also allow you to background the computation of any block:
 
