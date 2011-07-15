@@ -87,7 +87,8 @@ exceptions will crash the receiver, and making an asynchronous call to a
 crashed object will not raise an error.
 
 However, you can still handle errors created by asynchronous calls using
-two features of Celluloid called _supervisors_ and _linking_.
+two features of Celluloid called _supervisors_ and _linking_. See the
+corresponding sections below for more information.
 
 Futures
 -------
