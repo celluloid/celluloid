@@ -11,3 +11,8 @@ RSpec::Core::RakeTask.new(:rcov) do |task|
 end
 
 task :default => :spec
+
+desc "Run Celluloid benchmarks"
+task :benchmark do
+  load File.expand_path("../benchmarks/objects.rb", __FILE__)
+end
