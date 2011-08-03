@@ -15,7 +15,7 @@ with its business. These concurrent objects are called "actors". Actors are
 somewhere in between the kind of object you're typically used to working
 with and a network service.
 
-Like Celluloid? [Join the Google Group][http://groups.google.com/group/celluloid-ruby]
+Like Celluloid? [Join the Google Group](http://groups.google.com/group/celluloid-ruby)
 
 Supported Platforms
 -------------------
