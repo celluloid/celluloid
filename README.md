@@ -6,13 +6,16 @@ Celluloid
 > computers on a network, only able to communicate with messages"  
 > _--Alan Kay, creator of Smalltalk, on the meaning of "object oriented programming"_
 
-Celluloid is a concurrent object framework for Ruby inspired by Erlang and the
-Actor model. Celluloid gives you thread-backed objects that run concurrently,
-providing the simplicity of Ruby objects for the most common use cases, but
-also the ability to call methods _asynchronously_, allowing the receiver to do
-things in the background while the caller carries on with its business.
-These concurrent objects are called "actors". Actors are somewhere in between
-the kind of object you're typically used to working with and a network service.
+Celluloid is a concurrent object framework for Ruby inspired by Erlang and
+the Actor model. Celluloid gives you thread-backed objects that run
+concurrently, providing the simplicity of Ruby objects for the most common
+use cases, but also the ability to call methods _asynchronously_, allowing 
+the receiver to do things in the background while the caller carries on 
+with its business. These concurrent objects are called "actors". Actors are
+somewhere in between the kind of object you're typically used to working
+with and a network service.
+
+Like Celluloid? [Join the Google Group][http://groups.google.com/group/celluloid-ruby]
 
 Supported Platforms
 -------------------
