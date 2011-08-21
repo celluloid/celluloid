@@ -24,12 +24,6 @@ module Celluloid
         end
       end
     end
-
-    def log_error(ex, message)
-      message << "\n#{ex.class}: #{ex.to_s}\n"
-      message << ex.backtrace.join("\n")
-      Celluloid.logger.error message if Celluloid.logger
-    end
   end
   
   # Synchronous calls wait for a response
@@ -82,7 +76,6 @@ module Celluloid
     rescue AbortError => ex
       # Swallow aborted async calls, as they indicate the caller made a mistake
       obj.__log_error ex, "#{obj.class}: async call aborted!"
-      log_error ex, 'aborted'
     end
   end
 end
