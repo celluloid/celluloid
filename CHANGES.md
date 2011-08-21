@@ -1,3 +1,8 @@
+0.2.1
+-----
+* Log failed async calls instead of just letting them fail silently
+
+
 0.2.0
 -----
 
