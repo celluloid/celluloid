@@ -6,14 +6,39 @@ module Celluloid
     def initialize(caller, method, arguments, block)
       @caller, @method, @arguments, @block = caller, method, arguments, block
     end
+    
+    def check_signature(obj)
+      unless obj.respond_to? @method
+        raise NoMethodError, "undefined method `#{@method}' for #{obj.inspect}"
+      end
+      
+      arity = obj.method(@method).arity
+      if arity >= 0
+        if arguments.size != arity
+          raise ArgumentError, "wrong number of arguments (#{arguments.size} for #{arity})"
+        end
+      elsif arity < -1
+        mandatory_args = -arity - 1
+        if arguments.size < mandatory_args
+          raise ArgumentError, "wrong number of arguments (#{arguments.size} for #{mandatory_args})"
+        end
+      end
+    end
+
+    def log_error(ex, message)
+      message << "\n#{ex.class}: #{ex.to_s}\n"
+      message << ex.backtrace.join("\n")
+      Celluloid.logger.error message if Celluloid.logger
+    end
   end
   
   # Synchronous calls wait for a response
   class SyncCall < Call
     def dispatch(obj)
-      unless obj.respond_to? @method
-        exception = NoMethodError.new("undefined method `#{@method}' for #{obj.inspect}")
-        @caller << ErrorResponse.new(self, exception)
+      begin
+        check_signature(obj)
+      rescue Exception => ex
+        @caller << ErrorResponse.new(self, ex)
         return
       end
       
@@ -46,10 +71,18 @@ module Celluloid
   # Asynchronous calls don't wait for a response
   class AsyncCall < Call
     def dispatch(obj)
-      obj.send(@method, *@arguments, &@block) if obj.respond_to? @method
-    rescue AbortError
+      begin
+        check_signature(obj)
+      rescue Exception => ex
+        obj.__log_error ex, "#{obj.class}: async call failed!"
+        return
+      end
+      
+      obj.send(@method, *@arguments, &@block)
+    rescue AbortError => ex
       # Swallow aborted async calls, as they indicate the caller made a mistake
-      # FIXME: this should probably get logged
+      obj.__log_error ex, "#{obj.class}: async call aborted!"
+      log_error ex, 'aborted'
     end
   end
 end
