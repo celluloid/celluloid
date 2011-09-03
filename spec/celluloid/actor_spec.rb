@@ -14,6 +14,10 @@ describe Celluloid::Actor do
         @name = new_name
       end
       
+      def change_name_async(new_name)
+        change_name! new_name
+      end
+      
       def greet
         "Hi, I'm #{@name}"
       end
@@ -105,6 +109,12 @@ describe Celluloid::Actor do
     actor = MyActor.spawn "Troy McClure"
     actor.change_name! "Charlie Sheen"
     actor.greet.should == "Hi, I'm Charlie Sheen"    
+  end
+  
+  it "handles asynchronous calls to itself" do
+    actor = MyActor.spawn "Troy McClure"
+    actor.change_name_async "Charlie Sheen"
+    actor.greet.should == "Hi, I'm Charlie Sheen"
   end
   
   it "knows if it's inside actor scope" do

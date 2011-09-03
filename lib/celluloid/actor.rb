@@ -139,6 +139,30 @@ module Celluloid
       def wait(name)
         @_signals.wait name
       end
+      
+      #
+      # Async calls
+      #
+      
+      def method_missing(meth, *args, &block)
+        # bang methods are async calls
+        if meth.to_s.match(/!$/) 
+          unbanged_meth = meth.to_s.sub(/!$/, '')
+
+          begin
+            @_mailbox << AsyncCall.new(@_mailbox, unbanged_meth, args, block)
+          rescue MailboxError
+            # Silently swallow asynchronous calls to dead actors. There's no way
+            # to reliably generate DeadActorErrors for async calls, so users of
+            # async calls should find other ways to deal with actors dying
+            # during an async call (i.e. linking/supervisors)
+          end
+          
+          return # casts are async and return immediately
+        end
+        
+        super
+      end
     end
     
     # Internal methods not intended as part of the public API

@@ -1,7 +1,8 @@
 0.2.1
 -----
 * Log failed async calls instead of just letting them fail silently
-
+* Properly handle arity of synchronous calls
+* Actors can now make async calls to themselves
 
 0.2.0
 -----
