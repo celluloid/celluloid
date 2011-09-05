@@ -32,24 +32,25 @@ module Celluloid
       begin
         check_signature(obj)
       rescue Exception => ex
-        @caller << ErrorResponse.new(self, ex)
+        @caller << ErrorResponse.new(self, AbortError.new(ex))
         return
       end
       
       begin
         result = obj.send @method, *@arguments, &@block
-      rescue AbortError => exception
-        # Aborting indicates a protocol error on the part of the caller
-        # It should crash the caller, but the exception isn't reraised
-        @caller << ErrorResponse.new(self, exception.cause)
-        return
       rescue Exception => exception
         # Exceptions that occur during synchronous calls are reraised in the
         # context of the caller
         @caller << ErrorResponse.new(self, exception)
         
-        # They should also crash the actor where they occurred
-        raise exception
+        if exception.is_a? AbortError
+          # Aborting indicates a protocol error on the part of the caller
+          # It should crash the caller, but the exception isn't reraised
+          return
+        else
+          # Otherwise, it's a bug in this actor and should be reraised
+          raise exception
+        end
       end
           
       @caller << SuccessResponse.new(self, result)

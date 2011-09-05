@@ -60,8 +60,7 @@ module Celluloid
       def spawn_link(*args, &block)
         current_actor = Thread.current[:actor]
         raise NotActorError, "can't link outside actor context" unless current_actor
-        
-        # FIXME: this is a bit repetitive with the code above
+
         actor = allocate
         proxy = actor.__start_actor        
         current_actor.link actor
