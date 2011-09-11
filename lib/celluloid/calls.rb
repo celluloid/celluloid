@@ -32,7 +32,7 @@ module Celluloid
       begin
         check_signature(obj)
       rescue Exception => ex
-        @caller << ErrorResponse.new(self, AbortError.new(ex))
+        respond ErrorResponse.new(self, AbortError.new(ex))
         return
       end
       
@@ -41,7 +41,7 @@ module Celluloid
       rescue Exception => exception
         # Exceptions that occur during synchronous calls are reraised in the
         # context of the caller
-        @caller << ErrorResponse.new(self, exception)
+        respond ErrorResponse.new(self, exception)
         
         if exception.is_a? AbortError
           # Aborting indicates a protocol error on the part of the caller
@@ -52,15 +52,26 @@ module Celluloid
           raise exception
         end
       end
-          
-      @caller << SuccessResponse.new(self, result)
+      
+      respond SuccessResponse.new(self, result)      
       true
     end
     
     def cleanup
       exception = DeadActorError.new("attempted to call a dead actor")
-      @caller << ErrorResponse.new(self, exception)
+      respond ErrorResponse.new(self, exception)
     end
+    
+    #######
+    private
+    #######
+    
+    def respond(message)
+      @caller << message
+    rescue MailboxError
+      # It's possible the caller exited or crashed before we could send a
+      # response to them.
+    end  
   end
   
   # Asynchronous calls don't wait for a response
