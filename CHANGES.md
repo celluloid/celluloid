@@ -1,10 +1,16 @@
-0.2.1
+0.2.2
 -----
 * AbortErrors now reraise in caller scope and get a caller-focused backtrace
 * Log failed async calls instead of just letting them fail silently
 * Properly handle arity of synchronous calls
 * Actors can now make async calls to themselves
 * Resolve crashes that occur when sending responses to exited/dead callers
+
+0.2.1
+-----
+
+* Hack around a bug of an indeterminate cause (2baba3d2)
+* COLON!#@!
 
 0.2.0
 -----
