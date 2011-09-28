@@ -1,5 +1,6 @@
 0.2.2
 -----
+
 * AbortErrors now reraise in caller scope and get a caller-focused backtrace
 * Log failed async calls instead of just letting them fail silently
 * Properly handle arity of synchronous calls
