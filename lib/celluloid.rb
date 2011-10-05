@@ -1,7 +1,5 @@
 require 'logger'
 
-Fiber = Rubinius::Fiber if RUBY_ENGINE == 'rbx'
-
 module Celluloid    
   @@logger_lock = Mutex.new
   @@logger = Logger.new STDERR
