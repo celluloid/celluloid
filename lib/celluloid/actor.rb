@@ -3,13 +3,10 @@ require 'thread'
 begin
   require 'fiber'
 rescue LoadError => ex
-  # If we're on Rubinius, we can still work in 1.8 mode
-  if defined? Rubinius
-    Fiber = Rubinius::Fiber
-  else
-    raise ex
-  end
+  raise ex unless defined? Rubinius
 end
+
+Fiber = Rubinius::Fiber if defined? Rubinius
 
 module Celluloid
   # Don't do Actor-like things outside Actor scope
