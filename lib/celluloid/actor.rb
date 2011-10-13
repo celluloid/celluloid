@@ -28,22 +28,9 @@ module Celluloid
     end
   end
 
-  # Are we currently inside of an actor?
-  def self.actor?
-    !!Thread.current[:actor]
-  end
-
-  # Obtain the currently running actor (if one exists)
-  def self.current_actor
-    actor = Thread.current[:actor_proxy]
-    raise NotActorError, "not in actor scope" unless actor
-
-    actor
-  end
-
   # Actors are Celluloid's concurrency primitive. They're implemented as
   # normal Ruby objects wrapped in threads which communicate with asynchronous
-  # messages. The implementation is inspired by Erlang's gen_server
+  # messages.
   class Actor
     extend Registry
     include Linking
@@ -67,9 +54,6 @@ module Celluloid
         run
       end
     end
-
-    # Thunk for modules which reference #current_actor
-    def current_actor; self; end
 
     # Configure thread locals for the running thread
     def initialize_thread_locals

@@ -48,10 +48,8 @@ module Celluloid
       current_actor = Thread.current[:actor]
       raise NotActorError, "can't link outside actor context" unless current_actor
 
-      actor = Celluloid::Actor.new(allocate)
-      current_actor.link actor
-
-      proxy = actor.proxy
+      proxy = Celluloid::Actor.new(allocate).proxy
+      current_actor.link proxy
       proxy.send(:initialize, *args, &block)
       proxy
     end
@@ -80,14 +78,9 @@ module Celluloid
 
   # Instance methods added to classes which include Celluloid
   module InstanceMethods
-    # Obtain the current actor
-    def current_actor
-      Thread.current[:actor]
-    end
-
     # Is this actor alive?
     def alive?
-      current_actor.alive?
+      Thread.current[:actor].alive?
     end
 
     # Raise an exception in caller context, but stay running
@@ -97,7 +90,7 @@ module Celluloid
 
     # Terminate this actor
     def terminate
-      current_actor.terminate
+      Thread.current[:actor].terminate
     end
 
     def inspect
@@ -112,12 +105,12 @@ module Celluloid
 
     # Send a signal with the given name to all waiting methods
     def signal(name, value = nil)
-      current_actor.signal name, value
+      Thread.current[:actor].signal name, value
     end
 
     # Wait for the given signal
     def wait(name)
-      current_actor.wait name
+      Thread.current[:actor].wait name
     end
 
     # Process async calls via method_missing
@@ -125,9 +118,10 @@ module Celluloid
       # bang methods are async calls
       if meth.to_s.match(/!$/)
         unbanged_meth = meth.to_s.sub(/!$/, '')
+        call = AsyncCall.new(@mailbox, unbanged_meth, args, block)
 
         begin
-          current_actor.mailbox << AsyncCall.new(@mailbox, unbanged_meth, args, block)
+          Thread.current[:actor].mailbox << call
         rescue MailboxError
           # Silently swallow asynchronous calls to dead actors. There's no way
           # to reliably generate DeadActorErrors for async calls, so users of

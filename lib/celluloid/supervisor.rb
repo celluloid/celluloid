@@ -9,11 +9,11 @@ module Celluloid
     attr_reader :actor
     
     def self.supervise(klass, *args, &block)
-      spawn(nil, klass, *args, &block)
+      new(nil, klass, *args, &block)
     end
     
     def self.supervise_as(name, klass, *args, &block)
-      spawn(name, klass, *args, &block)
+      new(name, klass, *args, &block)
     end
     
     def initialize(name, klass, *args, &block)
@@ -22,7 +22,7 @@ module Celluloid
     end
     
     def start_actor
-      @actor = @klass.spawn_link(*@args, &@block)
+      @actor = @klass.new_link(*@args, &@block)
       Celluloid::Actor[@name] = @actor if @name
     end
     

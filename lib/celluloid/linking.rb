@@ -5,12 +5,12 @@ module Celluloid
   # Thread safe storage of inter-actor links
   class Links
     include Enumerable
-    
+
     def initialize
       @links = Set.new
       @lock  = Mutex.new
     end
-    
+
     # Add an actor to the current links
     def <<(actor)
       @lock.synchronize do
@@ -18,14 +18,14 @@ module Celluloid
       end
       actor
     end
-    
+
     # Do links include the given actor?
     def include?(actor)
       @lock.synchronize do
         @links.include? actor
       end
     end
-    
+
     # Remove an actor from the links
     def delete(actor)
       @lock.synchronize do
@@ -33,19 +33,19 @@ module Celluloid
       end
       actor
     end
-    
+
     # Iterate through all links
     def each(&block)
       @lock.synchronize do
         @links.each(&block)
       end
     end
-    
+
     # Send an event message to all actors
     def send_event(event)
       each { |actor| actor.mailbox.system_event event }
     end
-    
+
     # Generate a string representation
     def inspect
       @lock.synchronize do
@@ -54,32 +54,36 @@ module Celluloid
       end
     end
   end
-  
+
   # Support for linking actors together so they can crash or react to errors
   module Linking
     # Link this actor to another, allowing it to crash or react to errors
     def link(actor)
+      current_actor = Thread.current[:actor]
+
       actor.notify_link(current_actor.proxy)
       current_actor.notify_link(actor)
     end
-    
+
     # Remove links to another actor
     def unlink(actor)
+      current_actor = Thread.current[:actor]
+
       actor.notify_unlink(current_actor.proxy)
       current_actor.notify_unlink(actor)
     end
-    
+
     def notify_link(actor)
-      current_actor.links << actor
+      Thread.current[:actor].links << actor
     end
-    
+
     def notify_unlink(actor)
-      current_actor.links.delete actor
+      Thread.current[:actor].links.delete actor
     end
-    
+
     # Is this actor linked to another?
     def linked_to?(actor)
-      current_actor.links.include? actor
+      Thread.current[:actor].links.include? actor
     end
   end
 end
