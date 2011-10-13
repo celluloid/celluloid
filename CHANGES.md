@@ -1,3 +1,7 @@
+0.3.0
+-----
+* Major overhaul of Celluloid::Actor internals (see 25e22cc1)
+
 0.2.2
 -----
 
