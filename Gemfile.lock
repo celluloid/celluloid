@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    celluloid (0.2.1)
+    celluloid (0.2.3)
 
 GEM
   remote: http://rubygems.org/
