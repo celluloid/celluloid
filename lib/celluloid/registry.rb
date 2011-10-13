@@ -25,9 +25,4 @@ module Celluloid
       end
     end
   end
-  
-  # Extend the actor module with the registry methods
-  module Actor
-    extend Registry
-  end
 end

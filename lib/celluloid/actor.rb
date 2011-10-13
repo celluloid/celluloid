@@ -12,13 +12,13 @@ rescue LoadError => ex
 end
 
 module Celluloid
-  # Raised when trying to do Actor-like things outside Actor-space
+  # Don't do Actor-like things outside Actor scope
   class NotActorError < StandardError; end
   
-  # Raised when we're asked to do something to a dead actor
+  # Trying to do something to a dead actor
   class DeadActorError < StandardError; end
   
-  # Raised when the caller makes an error that shouldn't crash this actor
+  # The caller made an error, not the current actor
   class AbortError < StandardError
     attr_reader :cause
     
@@ -44,31 +44,32 @@ module Celluloid
   # Actors are Celluloid's concurrency primitive. They're implemented as
   # normal Ruby objects wrapped in threads which communicate with asynchronous
   # messages. The implementation is inspired by Erlang's gen_server
-  module Actor
+  class Actor
+    extend Registry
+    
     # Methods added to classes which include Celluloid
     module ClassMethods
       # Create a new actor
-      def spawn(*args, &block)
-        actor = allocate
-        proxy = actor.__start_actor
+      def new(*args, &block)
+        proxy = Celluloid::Actor.new(allocate).proxy
         proxy.send(:initialize, *args, &block)
         proxy
       end
-      alias_method :new, :spawn
+      alias_method :spawn, :new
       
       # Create a new actor and link to the current one
-      def spawn_link(*args, &block)
+      def new_link(*args, &block)
         current_actor = Thread.current[:actor]
         raise NotActorError, "can't link outside actor context" unless current_actor
 
-        actor = allocate
-        proxy = actor.__start_actor        
+        actor = Celluloid::Actor.new(allocate)
         current_actor.link actor
-        proxy.send(:initialize, *args, &block)
         
+        proxy = actor.proxy
+        proxy.send(:initialize, *args, &block)
         proxy
       end
-      alias_method :new_link, :spawn_link
+      alias_method :spawn_link, :new_link
       
       # Create a supervisor which ensures an instance of an actor will restart
       # an actor if it fails
@@ -84,21 +85,23 @@ module Celluloid
       
       # Trap errors from actors we're linked to when they exit
       def trap_exit(callback)
-        @_exit_handler = callback.to_sym
+        @exit_handler = callback.to_sym
       end      
       
       # Obtain the exit handler method for this class
-      def exit_handler; @_exit_handler; end
+      def exit_handler; @exit_handler; end
     end
     
     # Instance methods added to the public API
     module InstanceMethods
-      # Obtain the mailbox of this actor
-      def mailbox; @_mailbox; end
-      
+      # Obtain the current actor
+      def current_actor
+        Thread.current[:actor]
+      end
+              
       # Is this actor alive?
       def alive?
-        @_thread.alive?
+        current_actor.alive?
       end
       
       # Raise an exception in caller context, but stay running
@@ -108,17 +111,13 @@ module Celluloid
       
       # Terminate this actor
       def terminate
-        @_running = false
+        current_actor.terminate
       end
       
       def inspect
-        str = "#<Celluloid::Actor(#{self.class}:0x#{self.object_id.to_s(16)})"
-        
-        ivars = []
-        instance_variables.each do |ivar|
-          ivar_name = ivar.to_s.sub(/^@_/, '')
-          next if %w(mailbox links signals proxy thread running).include? ivar_name
-          ivars << "#{ivar}=#{instance_variable_get(ivar).inspect}"
+        str = "#<Celluloid::Actor(#{self.class}:0x#{object_id.to_s(16)})"
+        ivars = instance_variables.map do |ivar|
+          "#{ivar}=#{instance_variable_get(ivar).inspect}"
         end
         
         str << " " << ivars.join(' ') unless ivars.empty?      
@@ -131,12 +130,12 @@ module Celluloid
       
       # Send a signal with the given name to all waiting methods
       def signal(name, value = nil)
-        @_signals.send name, value
+        current_actor.signal name, value
       end
       
       # Wait for the given signal
       def wait(name)
-        @_signals.wait name
+        current_actor.wait name
       end
       
       #
@@ -149,7 +148,7 @@ module Celluloid
           unbanged_meth = meth.to_s.sub(/!$/, '')
 
           begin
-            @_mailbox << AsyncCall.new(@_mailbox, unbanged_meth, args, block)
+            current_actor.mailbox << AsyncCall.new(@mailbox, unbanged_meth, args, block)
           rescue MailboxError
             # Silently swallow asynchronous calls to dead actors. There's no way
             # to reliably generate DeadActorErrors for async calls, so users of
@@ -164,119 +163,147 @@ module Celluloid
       end
     end
     
-    # Internal methods not intended as part of the public API
-    module InternalMethods
-      # Actor-specific initialization and startup
-      def __start_actor(*args, &block)
-        @_mailbox = Mailbox.new
-        @_links   = Links.new
-        @_signals = Signals.new
-        @_proxy   = ActorProxy.new(self, @_mailbox)
-        @_running = true
-        
-        @_thread  = Thread.new do
-          __init_thread
-          __run_actor
-        end
-        
-        @_proxy
-      end
-      
-      # Configure thread locals for the running thread
-      def __init_thread
-        Thread.current[:actor]       = self
-        Thread.current[:actor_proxy] = @_proxy
-        Thread.current[:mailbox]     = @_mailbox
-      end
-                
-      # Run the actor
-      def __run_actor
-        __process_messages
-        __cleanup ExitEvent.new(@_proxy)
-      rescue Exception => ex
-        __handle_crash(ex)
-      ensure
-        Thread.current.exit
-      end
+    #
+    # Celluloid::Actor Instance Methods
+    #
     
-      # Process incoming messages
-      def __process_messages
-        pending_calls = {}
-        
-        while @_running
-          begin
-            message = @_mailbox.receive
-          rescue ExitEvent => exit_event
-            fiber = Fiber.new do
-              __init_thread
-              __handle_exit_event exit_event
-            end
-            
-            call = fiber.resume
-            pending_calls[call] = fiber if fiber.alive?
-            
-            retry
-          end
-          
-          case message
-          when Call
-            fiber = Fiber.new do 
-              __init_thread
-              message.dispatch(self)
-            end
-            
-            call = fiber.resume
-            pending_calls[call] = fiber if fiber.alive?
-          when Response
-            fiber = pending_calls.delete(message.call)
-            
-            if fiber
-              call = fiber.resume message 
-              pending_calls[call] = fiber if fiber.alive?
-            end
-          end # unexpected messages are ignored  
-        end
-      end
-            
-      # Handle exit events received by this actor
-      def __handle_exit_event(exit_event)
-        exit_handler = self.class.exit_handler
-        if exit_handler
-          return send(exit_handler, exit_event.actor, exit_event.reason)
-        end
-        
-        # Reraise exceptions from linked actors
-        # If no reason is given, actor terminated cleanly
-        raise exit_event.reason if exit_event.reason
-      end
+    include Linking
     
-      # Handle any exceptions that occur within a running actor
-      def __handle_crash(exception)
-        __log_error(exception)
-        __cleanup ExitEvent.new(@_proxy, exception)
-      rescue Exception => handler_exception
-        __log_error(handler_exception, "ERROR HANDLER CRASHED!")
-      end
-      
-      # Handle cleaning up this actor after it exits
-      def __cleanup(exit_event)
-        @_mailbox.shutdown
-        @_links.send_event exit_event
-      end
-      
-      # Log errors when an actor crashes
-      def __log_error(ex, message = "#{self.class} crashed!")
-        message << "\n#{ex.class}: #{ex.to_s}\n"
-        message << ex.backtrace.join("\n")
-        Celluloid.logger.error message if Celluloid.logger
+    attr_reader :proxy
+    attr_reader :links
+    attr_reader :mailbox
+    
+    
+    # Wrap the given subject object with an Actor
+    def initialize(subject)
+      @subject  = subject
+      @mailbox = Mailbox.new
+      @links   = Links.new
+      @signals = Signals.new
+      @proxy   = ActorProxy.new(self, @mailbox)
+      @running = true
+        
+      @thread  = Thread.new do
+        initialize_thread_locals
+        run
       end
     end
+    
+    # Thunk for modules which reference #current_actor
+    def current_actor; self; end
+      
+    # Configure thread locals for the running thread
+    def initialize_thread_locals
+      Thread.current[:actor]       = self
+      Thread.current[:actor_proxy] = @proxy
+      Thread.current[:mailbox]     = @mailbox
+    end
+                
+    # Run the actor loop
+    def run
+      process_messages
+      cleanup ExitEvent.new(@proxy)
+    rescue Exception => ex
+      handle_crash(ex)
+    ensure
+      Thread.current.exit
+    end
+    
+    # Is this actor alive?
+    def alive?
+      @thread.alive?
+    end
+    
+    # Terminate this actor
+    def terminate
+      @running = false
+    end
+    
+    # Send a signal with the given name to all waiting methods
+    def signal(name, value = nil)
+      @signals.send name, value
+    end
+    
+    # Wait for the given signal
+    def wait(name)
+      @signals.wait name
+    end
+    
+    #######
+    private
+    #######
+    
+    # Process incoming messages
+    def process_messages
+      pending_calls = {}
+      
+      while @running
+        begin
+          message = @mailbox.receive
+        rescue ExitEvent => exit_event
+          fiber = Fiber.new do
+            initialize_thread_locals
+            handle_exit_event exit_event
+          end
+          
+          call = fiber.resume
+          pending_calls[call] = fiber if fiber.alive?
+          
+          retry
+        end
+        
+        case message
+        when Call
+          fiber = Fiber.new do 
+            initialize_thread_locals
+            message.dispatch(@subject)
+          end
+          
+          call = fiber.resume
+          pending_calls[call] = fiber if fiber.alive?
+        when Response
+          fiber = pending_calls.delete(message.call)
+          
+          if fiber
+            call = fiber.resume message 
+            pending_calls[call] = fiber if fiber.alive?
+          end
+        end # unexpected messages are ignored  
+      end
+    end
+            
+    # Handle exit events received by this actor
+    def handle_exit_event(exit_event)
+      klass = @subject.class
+      exit_handler = klass.exit_handler if klass.respond_to? :exit_handler
+      if exit_handler
+        return @subject.send(exit_handler, exit_event.actor, exit_event.reason)
+      end
+      
+      # Reraise exceptions from linked actors
+      # If no reason is given, actor terminated cleanly
+      raise exit_event.reason if exit_event.reason
+    end
   
-    def self.included(klass)
-      klass.extend ClassMethods
-      klass.send :include, InstanceMethods
-      klass.send :include, InternalMethods
-      klass.send :include, Linking
+    # Handle any exceptions that occur within a running actor
+    def handle_crash(exception)
+      log_error(exception)
+      cleanup ExitEvent.new(@proxy, exception)
+    rescue Exception => handler_exception
+      log_error(handler_exception, "ERROR HANDLER CRASHED!")
+    end
+    
+    # Handle cleaning up this actor after it exits
+    def cleanup(exit_event)
+      @mailbox.shutdown
+      @links.send_event exit_event
+    end
+    
+    # Log errors when an actor crashes
+    def log_error(ex, message = "#{@subject.class} crashed!")
+      message << "\n#{ex.class}: #{ex.to_s}\n"
+      message << ex.backtrace.join("\n")
+      Celluloid.logger.error message if Celluloid.logger
     end
   end
 end

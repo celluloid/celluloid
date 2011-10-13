@@ -5,7 +5,7 @@ describe Celluloid::Supervisor do
     class SubordinateDead < StandardError; end
     
     class Subordinate
-      include Celluloid::Actor
+      include Celluloid
       attr_reader :state
       
       def initialize(state)

@@ -2,7 +2,7 @@ module Celluloid
   # Supervisors are actors that watch over other actors and restart them if
   # they crash
   class Supervisor
-    include Actor
+    include Celluloid
     trap_exit :restart_actor
     
     # Retrieve the actor this supervisor is supervising

@@ -42,12 +42,12 @@ describe Celluloid::Actor do
   end
   
   it "handles synchronous calls" do
-    actor = MyActor.spawn "Troy McClure"
+    actor = MyActor.new "Troy McClure"
     actor.greet.should == "Hi, I'm Troy McClure"
   end
   
   it "handles futures for synchronous calls" do
-    actor = MyActor.spawn "Troy McClure"
+    actor = MyActor.new "Troy McClure"
     future = actor.future :greet
     future.value.should == "Hi, I'm Troy McClure"
   end
@@ -65,13 +65,13 @@ describe Celluloid::Actor do
       end
     end
     
-    ponycopter = Ponycopter.spawn
-    actor = MyActor.spawn ponycopter
+    ponycopter = Ponycopter.new
+    actor = MyActor.new ponycopter
     ponycopter.greet_by_proxy(actor).should == "Hi, I'm a ponycopter!"
   end
   
   it "raises NoMethodError when a nonexistent method is called" do
-    actor = MyActor.spawn "Billy Bob Thornton"
+    actor = MyActor.new "Billy Bob Thornton"
     
     expect do
       actor.the_method_that_wasnt_there
@@ -79,7 +79,7 @@ describe Celluloid::Actor do
   end
   
   it "reraises exceptions which occur during synchronous calls in the caller" do
-    actor = MyActor.spawn "James Dean" # is this in bad taste?
+    actor = MyActor.new "James Dean" # is this in bad taste?
     
     expect do
       actor.crash
@@ -87,7 +87,7 @@ describe Celluloid::Actor do
   end
   
   it "raises exceptions in the caller when abort is called, but keeps running" do
-    actor = MyActor.spawn "Al Pacino"
+    actor = MyActor.new "Al Pacino"
     
     expect do
       actor.crash_with_abort MyActor::Crash.new("You die motherfucker!")
@@ -97,7 +97,7 @@ describe Celluloid::Actor do
   end
   
   it "raises DeadActorError if methods are synchronously called on a dead actor" do
-    actor = MyActor.spawn "James Dean"
+    actor = MyActor.new "James Dean"
     actor.crash rescue nil
     
     expect do
@@ -106,27 +106,27 @@ describe Celluloid::Actor do
   end
   
   it "handles asynchronous calls" do
-    actor = MyActor.spawn "Troy McClure"
+    actor = MyActor.new "Troy McClure"
     actor.change_name! "Charlie Sheen"
     actor.greet.should == "Hi, I'm Charlie Sheen"    
   end
   
   it "handles asynchronous calls to itself" do
-    actor = MyActor.spawn "Troy McClure"
+    actor = MyActor.new "Troy McClure"
     actor.change_name_async "Charlie Sheen"
     actor.greet.should == "Hi, I'm Charlie Sheen"
   end
   
   it "knows if it's inside actor scope" do
     Celluloid.should_not be_actor
-    actor = MyActor.spawn "Troy McClure"
+    actor = MyActor.new "Troy McClure"
     actor.run do
       Celluloid.actor?
     end.should be_true
   end
   
   it "inspects properly" do
-    actor = MyActor.spawn "Troy McClure"
+    actor = MyActor.new "Troy McClure"
     actor.inspect.should match(/Celluloid::Actor\(MyActor/)
     actor.inspect.should include('@name="Troy McClure"')
     actor.inspect.should_not include("@celluloid")
@@ -134,15 +134,15 @@ describe Celluloid::Actor do
   
   context :termination do
     it "terminates" do
-      actor = MyActor.spawn "Arnold Schwarzenegger"
+      actor = MyActor.new "Arnold Schwarzenegger"
       actor.should be_alive
       actor.terminate
-      sleep 0.1 # hax
+      sleep 0.5 # hax
       actor.should_not be_alive
     end
     
     it "raises DeadActorError if called after terminated" do
-      actor = MyActor.spawn "Arnold Schwarzenegger"
+      actor = MyActor.new "Arnold Schwarzenegger"
       actor.terminate
       
       expect do
@@ -153,7 +153,7 @@ describe Celluloid::Actor do
   
   context :current_actor do
     it "knows the current actor" do
-      actor = MyActor.spawn "Roger Daltrey"
+      actor = MyActor.new "Roger Daltrey"
       actor.this_actor.should == actor
     end
   
@@ -166,8 +166,8 @@ describe Celluloid::Actor do
   
   context :linking do
     before :each do
-      @kevin   = MyActor.spawn "Kevin Bacon" # Some six degrees action here
-      @charlie = MyActor.spawn "Charlie Sheen"
+      @kevin   = MyActor.new "Kevin Bacon" # Some six degrees action here
+      @charlie = MyActor.new "Charlie Sheen"
     end
   
     it "links to other actors" do    
@@ -201,7 +201,7 @@ describe Celluloid::Actor do
         end
       end
       
-      chuck = Boss.spawn "Chuck Lorre"
+      chuck = Boss.new "Chuck Lorre"
       chuck.link @charlie
       
       expect do

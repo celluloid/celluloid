@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Celluloid::Registry do
   class Marilyn
-    include Celluloid::Actor
+    include Celluloid
         
     def sing_for(person)
       "o/~ Happy birthday, #{person}"

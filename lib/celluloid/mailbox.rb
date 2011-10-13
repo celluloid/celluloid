@@ -66,11 +66,16 @@ module Celluloid
     
     # Shut down this mailbox and clean up its contents
     def shutdown
+      messages = nil
+      
       @lock.synchronize do
-        @messages.each { |msg| msg.cleanup if msg.respond_to? :cleanup }
-        @messages.clear
+        messages = @messages
+        @messages = []
         @dead = true
       end
+      
+      messages.each { |msg| msg.cleanup if msg.respond_to? :cleanup }      
+      true
     end
     
     # Cast to an array
