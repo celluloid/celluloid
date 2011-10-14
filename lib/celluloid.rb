@@ -7,7 +7,6 @@ module Celluloid
   class << self
     def included(klass)
       klass.send :extend,  ClassMethods
-      klass.send :include, InstanceMethods
       klass.send :include, Linking
     end
 
@@ -76,64 +75,65 @@ module Celluloid
     def exit_handler; @exit_handler; end
   end
 
-  # Instance methods added to classes which include Celluloid
-  module InstanceMethods
-    # Is this actor alive?
-    def alive?
-      Thread.current[:actor].alive?
+  #
+  # Instance methods
+  #
+
+  # Is this actor alive?
+  def alive?
+    Thread.current[:actor].alive?
+  end
+
+  # Raise an exception in caller context, but stay running
+  def abort(cause)
+    raise AbortError.new(cause)
+  end
+
+  # Terminate this actor
+  def terminate
+    Thread.current[:actor].terminate
+  end
+
+  def inspect
+    str = "#<Celluloid::Actor(#{self.class}:0x#{object_id.to_s(16)})"
+    ivars = instance_variables.map do |ivar|
+      "#{ivar}=#{instance_variable_get(ivar).inspect}"
     end
 
-    # Raise an exception in caller context, but stay running
-    def abort(cause)
-      raise AbortError.new(cause)
-    end
+    str << " " << ivars.join(' ') unless ivars.empty?
+    str << ">"
+  end
 
-    # Terminate this actor
-    def terminate
-      Thread.current[:actor].terminate
-    end
+  # Send a signal with the given name to all waiting methods
+  def signal(name, value = nil)
+    Thread.current[:actor].signal name, value
+  end
 
-    def inspect
-      str = "#<Celluloid::Actor(#{self.class}:0x#{object_id.to_s(16)})"
-      ivars = instance_variables.map do |ivar|
-        "#{ivar}=#{instance_variable_get(ivar).inspect}"
+  # Wait for the given signal
+  def wait(name)
+    Thread.current[:actor].wait name
+  end
+
+  # Process async calls via method_missing
+  def method_missing(meth, *args, &block)
+    # bang methods are async calls
+    if meth.to_s.match(/!$/)
+      unbanged_meth = meth.to_s.sub(/!$/, '')
+      call = AsyncCall.new(@mailbox, unbanged_meth, args, block)
+
+      begin
+        Thread.current[:actor].mailbox << call
+      rescue MailboxError
+        # Silently swallow asynchronous calls to dead actors. There's no way
+        # to reliably generate DeadActorErrors for async calls, so users of
+        # async calls should find other ways to deal with actors dying
+        # during an async call (i.e. linking/supervisors)
       end
 
-      str << " " << ivars.join(' ') unless ivars.empty?
-      str << ">"
+      return # casts are async and return immediately
     end
 
-    # Send a signal with the given name to all waiting methods
-    def signal(name, value = nil)
-      Thread.current[:actor].signal name, value
-    end
-
-    # Wait for the given signal
-    def wait(name)
-      Thread.current[:actor].wait name
-    end
-
-    # Process async calls via method_missing
-    def method_missing(meth, *args, &block)
-      # bang methods are async calls
-      if meth.to_s.match(/!$/)
-        unbanged_meth = meth.to_s.sub(/!$/, '')
-        call = AsyncCall.new(@mailbox, unbanged_meth, args, block)
-
-        begin
-          Thread.current[:actor].mailbox << call
-        rescue MailboxError
-          # Silently swallow asynchronous calls to dead actors. There's no way
-          # to reliably generate DeadActorErrors for async calls, so users of
-          # async calls should find other ways to deal with actors dying
-          # during an async call (i.e. linking/supervisors)
-        end
-
-        return # casts are async and return immediately
-      end
-
-      super
-    end
+    super
   end
 end
 
