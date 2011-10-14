@@ -43,7 +43,7 @@ module Celluloid
     # Terminate the associated actor
     def terminate
       raise DeadActorError, "actor already terminated" unless alive?
-      terminate!
+      send :terminate
     end
     
     # method_missing black magic to call bang predicate methods asynchronously
