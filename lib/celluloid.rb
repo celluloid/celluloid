@@ -1,21 +1,14 @@
 require 'logger'
 
 module Celluloid
-  @@logger_lock = Mutex.new
-  @@logger = Logger.new STDERR
+  @logger = Logger.new STDERR
 
   class << self
+    attr_accessor :logger # Thread-safe logger class
+
     def included(klass)
       klass.send :extend,  ClassMethods
       klass.send :include, Linking
-    end
-
-    def logger
-      @@logger_lock.synchronize { @@logger }
-    end
-
-    def logger=(logger)
-      @@logger_lock.synchronize { @@logger = logger }
     end
 
     # Are we currently inside of an actor?

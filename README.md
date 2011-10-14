@@ -369,10 +369,15 @@ Logging
 
 By default, Celluloid will log any errors and backtraces from any crashing
 actors to STDOUT. However, if you wish you can use any logger which is
-compatible with the standard Ruby Logger API. For example, if you're using
-Celluloid within a Rails application, you'll probably want to do:
+duck typed with the standard Ruby Logger API (i.e. it implements the
+#error method). For example, if you're using Celluloid within a Rails
+application, you'll probably want to do:
 
     Celluloid.logger = Rails.logger
+
+The logger class you specify must be thread-safe, although with a logging
+API about the worst you have to worry about with thread safety bugs is
+out-of-order messages in the log.
 
 Implementation and Gotchas
 --------------------------
