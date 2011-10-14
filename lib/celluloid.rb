@@ -114,6 +114,11 @@ module Celluloid
     Thread.current[:actor].wait name
   end
 
+  # Obtain the current_actor
+  def current_actor
+    Celluloid.current_actor
+  end
+
   # Process async calls via method_missing
   def method_missing(meth, *args, &block)
     # bang methods are async calls
