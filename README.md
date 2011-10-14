@@ -444,13 +444,36 @@ better damn well make sure you can share nice, or you shouldn't play with it
 at all.
 
 How do we share nicely? Let's find out by first looking at a thread-unsafe
-version of a class method which references a singleton:
+version of a singleton method:
 
     class Foo
       def self.current
         @foo ||= Foo.new
       end
     end
+
+Seems bad. All threads will share access to the same Foo object, and there's
+also a secondary bug here which means when the object is first being allocated
+and memoized as @foo. The first thread that tries to allocate it may get a
+different version than all the other threads because the memo value it set
+got clobbered by another thread because it's unsynchronized.
+
+What else can we do? It depends on why the library is memoizing. Perhaps the
+Foo object has some kind of setup cost, such as making a network connection,
+and we want to keep it around instead of setting it up and tearing it down
+every time. If that's the case, the simplest thing we can do to make this
+code thread safe is to create a thread-specific memo of the object:
+
+    class Foo
+      def self.current
+        Thread.current[:foo] ||= Foo.new
+      end
+    end
+
+Keep in mind that this will require N Foo objects for N threads. If each
+object is wrapping a network connection, this might be a concern. That said,
+if you see this pattern employed in the singleton methods of a library,
+it's most likely thread safe, provided that Foo doesn't do other wonky things.
 
 Contributing to Celluloid
 -------------------------
