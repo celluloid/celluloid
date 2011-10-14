@@ -1,5 +1,6 @@
 0.3.0
 -----
+* current_actor now an instance method on classes that include Celluloid
 * Major overhaul of Celluloid::Actor internals (see 25e22cc1)
 
 0.2.2
