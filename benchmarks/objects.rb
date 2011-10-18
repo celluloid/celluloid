@@ -10,7 +10,7 @@ class RegularObject
 end
 
 class ConcurrentObject
-  include Celluloid::Actor
+  include Celluloid
   def example; end
 end
 
