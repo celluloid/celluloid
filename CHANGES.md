@@ -2,6 +2,8 @@
 -----
 * "include Celluloid::Actor" no longer supported. Use "include Celluloid"
 * Major overhaul of Celluloid::Actor internals (see 25e22cc1)
+* Actor threads are pooled in Celluloid::Actor::Pool, improving the speed
+  of creating short-lived actors by over 2X
 * Classes that include Celluloid now have a #current_actor instance method
 * Celluloid#async allows actors to make indefinitely blocking calls while
   still responding to messages
