@@ -112,6 +112,15 @@ module Celluloid
     Celluloid.current_actor
   end
 
+  # Perform a blocking or computationally intensive action inside an
+  # asynchronous thread pool, allowing the caller to continue processing other
+  # messages in its mailbox in the meantime
+  def async(&block)
+    # This implementation relies on the present implementation of
+    # Celluloid::Future, which uses a Celluloid::Actor to run the block
+    Celluloid::Future.new(&block).value
+  end
+
   # Process async calls via method_missing
   def method_missing(meth, *args, &block)
     # bang methods are async calls
