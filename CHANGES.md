@@ -1,7 +1,10 @@
 0.3.0
 -----
-* current_actor now an instance method on classes that include Celluloid
+* "include Celluloid::Actor" no longer supported. Use "include Celluloid"
 * Major overhaul of Celluloid::Actor internals (see 25e22cc1)
+* Classes that include Celluloid now have a #current_actor instance method
+* Celluloid#async allows actors to make indefinitely blocking calls while
+  still responding to messages
 
 0.2.2
 -----
