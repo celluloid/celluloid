@@ -5,6 +5,7 @@
 * Classes that include Celluloid now have a #current_actor instance method
 * Celluloid#async allows actors to make indefinitely blocking calls while
   still responding to messages
+* Fix a potential thread safety bug in Thread#mailbox
 
 0.2.2
 -----
