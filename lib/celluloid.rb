@@ -156,5 +156,6 @@ require 'celluloid/responses'
 require 'celluloid/signals'
 
 require 'celluloid/actor'
+require 'celluloid/actor_pool'
 require 'celluloid/supervisor'
 require 'celluloid/future'

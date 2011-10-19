@@ -51,7 +51,8 @@ module Celluloid
       @proxy   = ActorProxy.new(self, @mailbox)
       @running = true
 
-      @thread  = Thread.new do
+      @thread = Pool.get
+      @thread[:queue] << proc do
         initialize_thread_locals
         run
       end
@@ -69,19 +70,21 @@ module Celluloid
       process_messages
       cleanup ExitEvent.new(@proxy)
     rescue Exception => ex
+      @running = false
       handle_crash(ex)
     ensure
-      Thread.current.exit
+      Pool.put @thread
     end
 
     # Is this actor alive?
     def alive?
-      @thread.alive?
+      @running
     end
 
     # Terminate this actor
     def terminate
       @running = false
+      nil
     end
 
     # Send a signal with the given name to all waiting methods
