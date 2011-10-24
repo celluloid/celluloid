@@ -11,7 +11,19 @@ describe Celluloid::TCPServer do
     end
 
     def on_connect(connection)
+      @connection_received = true
+      signal :connection_received
+
       @connections[connection] = true
+    end
+
+    def wait_for_connection
+      unless @connection_received
+        wait :connection_received
+      end
+
+      @connection_received = false
+      true
     end
 
     def connection_count
@@ -25,6 +37,7 @@ describe Celluloid::TCPServer do
     client = nil
     expect do
       client = TCPSocket.open HOST, PORT
+      server.wait_for_connection
     end.to change(server, :connection_count).by(1)
 
     client.close
