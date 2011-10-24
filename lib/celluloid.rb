@@ -161,3 +161,4 @@ require 'celluloid/supervisor'
 require 'celluloid/future'
 
 require 'celluloid/io/waker'
+require 'celluloid/io/mailbox'
