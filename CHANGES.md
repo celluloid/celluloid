@@ -1,6 +1,7 @@
 0.3.0
 -----
 * "include Celluloid::Actor" no longer supported. Use "include Celluloid"
+* New Celluloid::IO module for actors that multiplex IO operations
 * Major overhaul of Celluloid::Actor internals (see 25e22cc1)
 * Actor threads are pooled in Celluloid::Actor::Pool, improving the speed
   of creating short-lived actors by over 2X
