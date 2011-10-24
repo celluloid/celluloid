@@ -26,10 +26,6 @@ require 'spec_helper'
           "Hi, I'm #{@name}"
         end
 
-        def this_actor
-          Celluloid.current_actor
-        end
-
         def run(*args)
           yield(*args)
         end
@@ -158,7 +154,7 @@ require 'spec_helper'
     context :current_actor do
       it "knows the current actor" do
         actor = MyActor.new "Roger Daltrey"
-        actor.this_actor.should == actor
+        actor.current_actor.should == actor
       end
 
       it "raises NotActorError if called outside an actor" do
