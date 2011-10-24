@@ -1,4 +1,4 @@
-shared_context "a Celluloid Actor" do
+shared_context "a Celluloid Actor" do |included_module|
   class ExampleCrash < StandardError; end
 
   let :actor_class do
