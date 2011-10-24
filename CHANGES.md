@@ -1,4 +1,4 @@
-0.3.0
+0.5.0
 -----
 * "include Celluloid::Actor" no longer supported. Use "include Celluloid"
 * New Celluloid::IO module for actors that multiplex IO operations
@@ -9,6 +9,8 @@
 * Celluloid#async allows actors to make indefinitely blocking calls while
   still responding to messages
 * Fix a potential thread safety bug in Thread#mailbox
+* Magically skip ahead a few version numbers to impart the magnitude of this
+  release. It's my versioning scheme and I can do what I wanna.
 
 0.2.2
 -----
