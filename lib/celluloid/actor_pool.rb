@@ -39,6 +39,9 @@ module Celluloid
                 queue.pop.call
               end
             rescue Exception => ex
+              # Rubinius hax
+              raise if defined?(Thread::Die) and ex.is_a? Thread::Die
+
               message = "Celluloid::Actor::Pool internal failure:\n"
               message << "#{ex.class}: #{ex.to_s}\n"
               message << ex.backtrace.join("\n")
