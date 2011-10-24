@@ -23,7 +23,7 @@ module Celluloid
       def wait
           byte = @receiver.read(1)
           raise DeadWakerError, "can't wait on a dead waker" unless byte == PAYLOAD
-      rescue IOError
+      rescue IOError, RuntimeError
           raise DeadWakerError, "can't wait on a dead waker"
       end
 

@@ -160,5 +160,4 @@ require 'celluloid/actor_pool'
 require 'celluloid/supervisor'
 require 'celluloid/future'
 
-require 'celluloid/io/waker'
-require 'celluloid/io/mailbox'
+require 'celluloid/io'

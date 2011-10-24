@@ -45,7 +45,7 @@ module Celluloid
     # Wrap the given subject object with an Actor
     def initialize(subject)
       @subject  = subject
-      @mailbox = Mailbox.new
+      @mailbox = initialize_mailbox
       @links   = Links.new
       @signals = Signals.new
       @proxy   = ActorProxy.new(self, @mailbox)
@@ -56,6 +56,14 @@ module Celluloid
         initialize_thread_locals
         run
       end
+    end
+
+    # Create the mailbox for this actor
+    #
+    # This implemententation is intended to be overridden in special-case
+    # subclasses of Celluloid::Actor which use a custom mailbox
+    def initialize_mailbox
+      Mailbox.new
     end
 
     # Configure thread locals for the running thread

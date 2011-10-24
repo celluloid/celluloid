@@ -49,8 +49,8 @@ module Celluloid
 
         message
       rescue DeadWakerError
-        cleanup # force cleanup of the mailbox
-        raise MailboxError, "mailbox cleanup called during receive"
+        shutdown # force shutdown of the mailbox
+        raise MailboxError, "mailbox shutdown called during receive"
       end
 
       # Locate and remove a message from the mailbox which matches the given filter
@@ -69,7 +69,7 @@ module Celluloid
       end
 
       # Cleanup any IO objects this Mailbox may be using
-      def cleanup
+      def shutdown
         @lock.synchronize do
           @waker.cleanup
           @messages.each { |msg| msg.cleanup if msg.respond_to? :cleanup }

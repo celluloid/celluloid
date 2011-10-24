@@ -364,6 +364,29 @@ method with the same label.
 The send_signal method of this class does just that, signaling "ponycopter"
 with the given value. This value is returned from the original wait call.
 
+Handling I/O
+------------
+
+Celluloid provides a separate class of actors which run alongside I/O
+operations. These actors are slower and more heavyweight and should only be
+used when writing actors that also handle I/O operations.
+
+To create an IO actor, include Celluloid::IO:
+
+    class IOActor
+      include Celluloid::IO
+
+      def initialize(sock)
+        @sock = sock
+      end
+
+      def read
+        wait_readable(@sock) do
+          @sock.read_nonblock
+        end
+      end
+    end
+
 Logging
 -------
 
