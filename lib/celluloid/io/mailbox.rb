@@ -70,11 +70,15 @@ module Celluloid
 
       # Cleanup any IO objects this Mailbox may be using
       def shutdown
+        messages = nil
+
         @lock.synchronize do
           @waker.cleanup
-          @messages.each { |msg| msg.cleanup if msg.respond_to? :cleanup }
-          @messages.clear
+          messages = @messages
+          @messages = []
         end
+
+        messages.each { |msg| msg.cleanup if msg.respond_to? :cleanup }
       end
 
       # Cast to an array

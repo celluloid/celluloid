@@ -161,3 +161,4 @@ require 'celluloid/supervisor'
 require 'celluloid/future'
 
 require 'celluloid/io'
+require 'celluloid/tcp_server'

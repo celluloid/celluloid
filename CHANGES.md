@@ -9,6 +9,8 @@
 * Celluloid#async allows actors to make indefinitely blocking calls while
   still responding to messages
 * Fix a potential thread safety bug in Thread#mailbox
+* Experimental Celluloid::TCPServer for people wanting to write servers in
+  Celluloid. This may wind up in another gem, so use at your own risk!
 * Magically skip ahead a few version numbers to impart the magnitude of this
   release. It's my versioning scheme and I can do what I wanna.
 
