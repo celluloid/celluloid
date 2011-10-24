@@ -18,6 +18,12 @@ module Celluloid
       end
     end
 
+    # Terminate this server
+    def terminate
+      @server.close
+      super
+    end
+
     # Called whenever a new connection is opened
     def on_connect(connection)
       connection.close

@@ -26,11 +26,8 @@ describe Celluloid::TCPServer do
     expect do
       client = TCPSocket.open HOST, PORT
     end.to change(server, :connection_count).by(1)
-  end
 
-  it "refuses to register non-Actors" do
-    expect do
-      Celluloid::Actor[:impostor] = Object.new
-    end.to raise_error(ArgumentError)
+    client.close
+    server.terminate
   end
 end
