@@ -41,21 +41,21 @@ puts "objects_per_second:"
 objs = []
 sequential_creation = measure(100000) { objs << RegularObject.new }
 
-puts "  sequential: #{format sequential_creation}"
+puts "\tsequential: #{format sequential_creation}"
 
 objs = []
 concurrent_creation = measure(500) { objs << ConcurrentObject.new }
-objs.each { |obj| obj.terminate! }
+objs.each { |obj| obj.terminate }
 
-puts "  concurrent: #{format concurrent_creation}"
+puts "\tconcurrent: #{format concurrent_creation}"
 
 objs = []
 concurrent_io_creation = measure(500) { objs << ConcurrentIOObject.new }
-objs.each { |obj| obj.terminate! }
+objs.each { |obj| obj.terminate }
 
-puts "  concurrent_io: #{format concurrent_io_creation}"
+puts "\tconcurrent_io: #{format concurrent_io_creation}"
 
-puts "  delta: #{format sequential_creation / concurrent_creation }"
+puts "\tdelta: #{format sequential_creation / concurrent_creation }"
 
 #
 # CREATION OF SHORT LIVED OBJECTS
@@ -64,10 +64,10 @@ puts "  delta: #{format sequential_creation / concurrent_creation }"
 puts "epehemeral_objects_per_second:"
 
 ephemeral_creation = measure(5000) { ConcurrentObject.new.terminate! }
-puts "  concurrent: #{format ephemeral_creation}"
+puts "\tconcurrent: #{format ephemeral_creation}"
 
 ephemeral_io_creation = measure(5000) { ConcurrentIOObject.new.terminate! }
-puts "  concurrent_io: #{format ephemeral_io_creation}"
+puts "\tconcurrent_io: #{format ephemeral_io_creation}"
 
 #
 # METHOD CALLS
@@ -78,15 +78,15 @@ puts "method_calls_per_second:"
 sequential_object = RegularObject.new
 sequential_calls = measure(10000000) { sequential_object.example }
 
-puts "  sequential: #{format sequential_calls}"
+puts "\tsequential: #{format sequential_calls}"
 
 concurrent_object = ConcurrentObject.new
 concurrent_calls = measure(20000) { concurrent_object.example }
 
-puts "  concurrent: #{format concurrent_calls}"
+puts "\tconcurrent: #{format concurrent_calls}"
 
 concurrent_io_object = ConcurrentIOObject.new
 concurrent_io_calls = measure(20000) { concurrent_io_object.example }
 
-puts "  concurrent_io: #{format concurrent_io_calls}"
-puts "  delta: #{format sequential_calls / concurrent_calls }"
+puts "\tconcurrent_io: #{format concurrent_io_calls}"
+puts "\tdelta: #{format sequential_calls / concurrent_calls }"
