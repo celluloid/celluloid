@@ -31,6 +31,7 @@ def format(float)
   "%0.2f" % float
 end
 
+puts "---"
 #
 # OBJECT CREATION
 #

@@ -15,4 +15,4 @@ task :benchmark do
   load File.expand_path("../benchmarks/objects.rb", __FILE__)
 end
 
-task :default => :spec
+task :default => %w(spec benchmark)
