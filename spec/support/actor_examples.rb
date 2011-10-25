@@ -2,10 +2,8 @@ shared_context "a Celluloid Actor" do |included_module|
   class ExampleCrash < StandardError; end
 
   let :actor_class do
-    module_to_include = included_module
-
     Class.new do
-      include module_to_include
+      include included_module
       attr_reader :name
 
       def initialize(name)
@@ -50,10 +48,8 @@ shared_context "a Celluloid Actor" do |included_module|
   end
 
   it "handles circular synchronous calls" do
-    module_to_include = included_module
-
     klass = Class.new do
-      include module_to_include
+      include included_module
 
       def greet_by_proxy(actor)
         actor.greet
@@ -184,10 +180,8 @@ shared_context "a Celluloid Actor" do |included_module|
     end
 
     it "traps exit messages from other actors" do
-      module_to_include = included_module
-
       boss = Class.new do # like a boss
-        include module_to_include
+        include included_module
         trap_exit :lambaste_subordinate
 
         def initialize(name)
@@ -216,9 +210,8 @@ shared_context "a Celluloid Actor" do |included_module|
 
   context :signaling do
     it "allows methods within the same object to signal each other" do
-      module_to_include = included_module
       signaler = Class.new do
-        include module_to_include
+        include included_module
         attr_reader :signaled
 
         def initialize

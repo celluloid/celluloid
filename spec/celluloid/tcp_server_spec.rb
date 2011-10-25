@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Celluloid::TCPServer, pending: !!ENV['CI'] do
+describe Celluloid::TCPServer, :pending => ENV['CI'] do
   HOST = "127.0.0.1"
   PORT = 10036
 
