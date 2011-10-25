@@ -4,8 +4,16 @@ module Celluloid
   module IO
     # An alternative implementation of Celluloid::Mailbox using Wakers
     class Mailbox < Celluloid::Mailbox
-      def initialize_signaling
+      attr_reader :reactor
+
+      def initialize
+        @messages = []
+        @lock  = Mutex.new
         @waker = Waker.new
+
+        # I can't say I'm too happy with shoving the reactor into the mailbox
+        # but it is what it is *shrug*
+        @reactor = Reactor.new
       end
 
       # Add a message to the Mailbox
@@ -38,8 +46,12 @@ module Celluloid
         message = nil
 
         begin
-          @waker.wait
-          message = next_message(&block)
+          @reactor.on_readable(@waker.io) do
+            @waker.wait
+            message = next_message(&block)
+          end
+
+          @reactor.run_once
         end until message
 
         message

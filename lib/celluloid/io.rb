@@ -1,4 +1,5 @@
 require 'celluloid/io/waker'
+require 'celluloid/io/reactor'
 require 'celluloid/io/mailbox'
 require 'celluloid/io/actor'
 

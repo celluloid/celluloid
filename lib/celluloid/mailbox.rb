@@ -13,10 +13,6 @@ module Celluloid
       @messages = []
       @lock  = Mutex.new
       @dead = false
-      initialize_signaling
-    end
-
-    def initialize_signaling
       @condition = ConditionVariable.new
     end
 
