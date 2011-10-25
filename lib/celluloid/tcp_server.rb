@@ -14,7 +14,7 @@ module Celluloid
     # Run the TCP server event loop
     def run
       while true
-        async { on_connect @server.accept }
+        wait_readable(@server) { on_connect @server.accept }
       end
     end
 

@@ -10,10 +10,7 @@ module Celluloid
         @messages = []
         @lock  = Mutex.new
         @waker = Waker.new
-
-        # I can't say I'm too happy with shoving the reactor into the mailbox
-        # but it is what it is *shrug*
-        @reactor = Reactor.new
+        @reactor = Reactor.new(@waker)
       end
 
       # Add a message to the Mailbox
@@ -46,12 +43,10 @@ module Celluloid
         message = nil
 
         begin
-          @reactor.on_readable(@waker.io) do
+          @reactor.run_once do
             @waker.wait
             message = next_message(&block)
           end
-
-          @reactor.run_once
         end until message
 
         message

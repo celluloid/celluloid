@@ -11,6 +11,7 @@ module Celluloid
       klass.send :extend,  IO::ClassMethods
     end
 
+    # Class methods added to classes which include Celluloid::IO
     module ClassMethods
       # Create a new actor
       def new(*args, &block)
@@ -29,6 +30,21 @@ module Celluloid
         proxy.send(:initialize, *args, &block)
         proxy
       end
+    end
+
+    #
+    # Instance methods
+    #
+
+    # Wait for the given IO object to become readable
+    def wait_readable(io, &block)
+      # Law of demeter be damned!
+      current_actor.mailbox.reactor.wait_readable(io, &block)
+    end
+
+    # Wait for the given IO object to become writeable
+    def wait_writeable(io, &block)
+      current_actor.mailbox.reactor.wait_writeable(io, &block)
     end
   end
 end

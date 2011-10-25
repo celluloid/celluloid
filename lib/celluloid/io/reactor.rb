@@ -1,19 +1,12 @@
 module Celluloid
   module IO
     # React to external I/O events. This is kinda sorta supposed to resemble the
-    # reactor design pattern.
+    # Reactor design pattern.
     class Reactor
-      def initialize
+      def initialize(waker)
+        @waker = waker
         @readers = {}
         @writers = {}
-      end
-
-      # Yield when the given object is readable
-      def on_readable(io, &block)
-        io = io.is_a?(IO) ? io : io.to_io
-        responders = @readers[io] ||= []
-        responders << block
-        nil
       end
 
       # Wait for the given IO object to become readable
@@ -30,20 +23,16 @@ module Celluloid
         block_given? ? yield(io) : io
       end
 
-      # Run the reactor, waiting for events
+      # Run the reactor, waiting for events, and calling the given block if
+      # the reactor is awoken by the waker
       def run_once
-        readers, writers = select @readers.keys, @writers.keys
+        readers, writers = select @readers.keys << @waker.io, @writers.keys
+        yield if readers.include? @waker.io
+
         [[readers, @readers], [writers, @writers]].each do |ios, registered|
           ios.each do |io|
-            responders = registered.delete io
-            next unless responders
-            responders.each do |responder|
-              if responder.is_a? Fiber
-                responder.resume
-              else
-                responder.call
-              end
-            end
+            fiber = registered.delete io
+            fiber.resume if fiber
           end
         end
       end
@@ -53,9 +42,21 @@ module Celluloid
       #######
 
       def monitor_io(io, set)
-        io = io.is_a?(IO) ? io : io.to_io
-        responders = set[io] ||= []
-        responders << Fiber.current
+        # zomg ugly type conversion :(
+        unless io.is_a?(IO)
+          if IO.respond_to? :try_convert
+            io = IO.try_convert(io)
+          elsif io.respond_to? :to_io
+            io = io.to_io
+          else raise TypeError, "can't convert #{io.class} into IO"
+          end
+        end
+
+        if set.has_key? io
+          raise ArgumentError, "another method is already waiting on #{io.inspect}"
+        else
+          set[io] = Fiber.current
+        end
       end
     end
   end
