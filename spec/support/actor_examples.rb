@@ -209,8 +209,8 @@ shared_context "a Celluloid Actor" do |included_module|
   end
 
   context :signaling do
-    it "allows methods within the same object to signal each other" do
-      signaler = Class.new do
+    before do
+      @signaler = Class.new do
         include included_module
         attr_reader :signaled
 
@@ -228,12 +228,10 @@ shared_context "a Celluloid Actor" do |included_module|
           signal :ponycopter, value
         end
       end
+    end
 
-      # FIXME: meh, I was getting deadlocks on Travis but not locally
-      # See http://travis-ci.org/#!/tarcieri/celluloid/builds/40080 failures
-      # A better test was implemented at 3f56bbb
-      # This implementation doesn't test all the functionality of signals
-      obj = signaler.new
+    it "allows methods within the same object to signal each other" do
+      obj = @signaler.new
       obj.signaled.should be_false
 
       obj.wait_for_signal!
@@ -241,6 +239,17 @@ shared_context "a Celluloid Actor" do |included_module|
 
       obj.send_signal :foobar
       obj.signaled.should be_true
+    end
+
+    it "sends the correct signal", :pending => ENV['CI'] do
+      obj = @signaler.new
+      obj.signaled.should be_false
+
+      future = Celluloid::Future.new { obj.wait_for_signal }
+      obj.signaled.should be_false
+
+      obj.send_signal :foobar
+      future.value.should == :foobar
     end
   end
 end
