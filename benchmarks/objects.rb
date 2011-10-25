@@ -44,13 +44,13 @@ sequential_creation = measure(100000) { objs << RegularObject.new }
 puts "  sequential: #{format sequential_creation}"
 
 objs = []
-concurrent_creation = measure(1000) { objs << ConcurrentObject.new }
+concurrent_creation = measure(500) { objs << ConcurrentObject.new }
 objs.each { |obj| obj.terminate! }
 
 puts "  concurrent: #{format concurrent_creation}"
 
 objs = []
-concurrent_io_creation = measure(1000) { objs << ConcurrentIOObject.new }
+concurrent_io_creation = measure(500) { objs << ConcurrentIOObject.new }
 objs.each { |obj| obj.terminate! }
 
 puts "  concurrent_io: #{format concurrent_io_creation}"
