@@ -17,8 +17,9 @@ task :benchmark do
     Timeout.timeout(120) do
       load File.expand_path("../benchmarks/objects.rb", __FILE__)
     end
-  rescue => ex
+  rescue Exception, Timeout::Error => ex
     puts "ERROR: Couldn't complete benchmark: #{ex.class}: #{ex}"
+    exit 1 unless ENV['CI'] # Hax for running benchmarks on Travis
   end
 end
 
