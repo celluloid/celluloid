@@ -116,6 +116,9 @@ module Celluloid
       while @running
         begin
           message = @mailbox.receive
+        rescue MailboxShutdown
+          # If the mailbox detects shutdown, exit the actor
+          @running = false
         rescue ExitEvent => exit_event
           fiber = Fiber.new do
             initialize_thread_locals
