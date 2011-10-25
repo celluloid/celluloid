@@ -364,12 +364,14 @@ method with the same label.
 The send_signal method of this class does just that, signaling "ponycopter"
 with the given value. This value is returned from the original wait call.
 
-Handling I/O
-------------
+Handling I/O with Celluloid::IO
+-------------------------------
 
 Celluloid provides a separate class of actors which run alongside I/O
 operations. These actors are slower and more heavyweight and should only be
-used when writing actors that also handle I/O operations.
+used when writing actors that also handle IO operations. Every IO actor will
+use 2 file descriptors (it uses a pipe for signaling), so use them sparingly
+and only when directly interacting with IO.
 
 To create an IO actor, include Celluloid::IO:
 
@@ -386,6 +388,12 @@ To create an IO actor, include Celluloid::IO:
         end
       end
     end
+
+The Celluloid::IO#wait_readable and #wait_writeable methods suspend execution
+of the current method until the given IO object is ready to be read from or
+written to respectively. In the meantime, the current actor will continue
+processing incoming messages, allowing it to respond to method requests even
+while a method (or many methods) are waiting on IO objects.
 
 Logging
 -------
