@@ -241,7 +241,7 @@ shared_context "a Celluloid Actor" do |included_module|
       obj.signaled.should be_true
     end
 
-    it "sends the correct signal", :pending => ENV['CI'] do
+    it "sends values along with signals", :pending => ENV['CI'] do
       obj = @signaler.new
       obj.signaled.should be_false
 
