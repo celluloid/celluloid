@@ -146,6 +146,7 @@ end
 
 require 'celluloid/version'
 require 'celluloid/actor_proxy'
+require 'celluloid/application'
 require 'celluloid/calls'
 require 'celluloid/core_ext'
 require 'celluloid/events'

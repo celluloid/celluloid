@@ -1,3 +1,8 @@
+0.6.0
+-----
+* Celluloid::Application classes for describing the structure of applications
+  built with Celluloid
+
 0.5.0
 -----
 * "include Celluloid::Actor" no longer supported. Use "include Celluloid"
