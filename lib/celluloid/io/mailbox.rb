@@ -50,7 +50,7 @@ module Celluloid
         end until message
 
         message
-      rescue DeadWakerError
+      rescue IOError, DeadWakerError
         shutdown # force shutdown of the mailbox
         raise MailboxShutdown, "mailbox shutdown called during receive"
       end
