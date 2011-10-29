@@ -11,13 +11,16 @@ module Celluloid
       class << self
         attr_accessor :max_idle
 
-        def get
+        def get(&block)
           @lock.synchronize do
             if @pool.empty?
-              create
+              thread = create
             else
-              @pool.shift
+              thread = @pool.shift
             end
+
+            thread[:queue] << block
+            thread
           end
         end
 

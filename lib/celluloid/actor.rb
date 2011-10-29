@@ -51,8 +51,7 @@ module Celluloid
       @proxy   = ActorProxy.new(self, @mailbox)
       @running = true
 
-      @thread = Pool.get
-      @thread[:queue] << proc do
+      @thread = Pool.get do
         initialize_thread_locals
         run
       end
