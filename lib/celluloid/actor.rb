@@ -50,6 +50,7 @@ module Celluloid
       @signals = Signals.new
       @proxy   = ActorProxy.new(self, @mailbox)
       @running = true
+      @pending_calls = {}
 
       @thread = Pool.get do
         initialize_thread_locals
@@ -74,7 +75,7 @@ module Celluloid
 
     # Run the actor loop
     def run
-      process_messages
+      dispatch while @running
       cleanup ExitEvent.new(@proxy)
     rescue Exception => ex
       @running = false
@@ -104,50 +105,43 @@ module Celluloid
       @signals.wait name
     end
 
-    #######
-    private
-    #######
+    # Dispatch an incoming message to the appropriate handler(s)
+    def dispatch
+      handle_message @mailbox.receive
+    rescue MailboxShutdown
+      # If the mailbox detects shutdown, exit the actor
+      @running = false
+    rescue ExitEvent => exit_event
+      fiber = Fiber.new do
+        initialize_thread_locals
+        handle_exit_event exit_event
+      end
 
-    # Process incoming messages
-    def process_messages
-      pending_calls = {}
+      call = fiber.resume
+      @pending_calls[call] = fiber if fiber.alive?
 
-      while @running
-        begin
-          message = @mailbox.receive
-        rescue MailboxShutdown
-          # If the mailbox detects shutdown, exit the actor
-          @running = false
-        rescue ExitEvent => exit_event
-          fiber = Fiber.new do
-            initialize_thread_locals
-            handle_exit_event exit_event
-          end
+      retry
+    end
 
-          call = fiber.resume
-          pending_calls[call] = fiber if fiber.alive?
-
-          retry
+    # Handle an incoming message
+    def handle_message(message)
+      case message
+      when Call
+        fiber = Fiber.new do
+          initialize_thread_locals
+          message.dispatch(@subject)
         end
 
-        case message
-        when Call
-          fiber = Fiber.new do
-            initialize_thread_locals
-            message.dispatch(@subject)
-          end
+        call = fiber.resume
+        @pending_calls[call] = fiber if fiber.alive?
+      when Response
+        fiber = @pending_calls.delete(message.call)
 
-          call = fiber.resume
-          pending_calls[call] = fiber if fiber.alive?
-        when Response
-          fiber = pending_calls.delete(message.call)
-
-          if fiber
-            call = fiber.resume message
-            pending_calls[call] = fiber if fiber.alive?
-          end
-        end # unexpected messages are ignored
-      end
+        if fiber
+          call = fiber.resume message
+          @pending_calls[call] = fiber if fiber.alive?
+        end
+      end # unexpected messages are ignored
     end
 
     # Handle exit events received by this actor
