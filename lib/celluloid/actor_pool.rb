@@ -24,7 +24,7 @@ module Celluloid
         def put(thread)
           @lock.synchronize do
             if @pool.size >= @max_idle
-              thread.kill
+              thread[:queue] << nil
             else
               @pool << thread
             end
@@ -35,13 +35,10 @@ module Celluloid
           queue = Queue.new
           thread = Thread.new do
             begin
-              while true
-                queue.pop.call
+              while func = queue.pop
+                func.call
               end
             rescue Exception => ex
-              # Rubinius hax
-              raise if defined?(Thread::Die) and ex.is_a? Thread::Die
-
               message = "Celluloid::Actor::Pool internal failure:\n"
               message << "#{ex.class}: #{ex.to_s}\n"
               message << ex.backtrace.join("\n")
