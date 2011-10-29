@@ -4,7 +4,7 @@ module Celluloid
   module IO
     # An alternative implementation of Celluloid::Mailbox using Wakers
     class Mailbox < Celluloid::Mailbox
-      attr_reader :reactor
+      attr_reader :reactor, :waker
 
       def initialize
         @messages = []
