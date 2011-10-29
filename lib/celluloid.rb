@@ -146,7 +146,6 @@ end
 
 require 'celluloid/version'
 require 'celluloid/actor_proxy'
-require 'celluloid/application'
 require 'celluloid/calls'
 require 'celluloid/core_ext'
 require 'celluloid/events'
@@ -160,6 +159,7 @@ require 'celluloid/actor'
 require 'celluloid/actor_pool'
 require 'celluloid/supervisor'
 require 'celluloid/future'
+require 'celluloid/application'
 
 require 'celluloid/io'
 require 'celluloid/tcp_server'
