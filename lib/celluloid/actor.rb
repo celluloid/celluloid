@@ -44,7 +44,12 @@ module Celluloid
     # Wrap the given subject object with an Actor
     def initialize(subject)
       @subject = subject
-      @mailbox = subject.class.mailbox_factory
+      if subject.respond_to? :mailbox_factory
+        @mailbox = subject.mailbox_factory
+      else
+        @mailbox = Celluloid::Mailbox.new
+      end
+
       @links   = Links.new
       @signals = Signals.new
       @proxy   = ActorProxy.new(self, @mailbox)

@@ -67,21 +67,12 @@ module Celluloid
     # Obtain the exit handler for this actor
     attr_reader :exit_handler
 
-    # Configure a custom mailbox
+    # Configure a custom mailbox factory
     def with_mailbox(klass = nil, &block)
       if block
-        @@mailbox_factory = block
+        define_method(:mailbox_factory, &block)
       else
-        @@mailbox_factory = proc { klass.new }
-      end
-    end
-
-    # Obtain a mailbox given this class hierarchy's rules
-    def mailbox_factory
-      if defined?(@@mailbox_factory)
-        @@mailbox_factory.call
-      else
-        Celluloid::Mailbox.new
+        define_method(:mailbox_factory) { klass.new }
       end
     end
   end
