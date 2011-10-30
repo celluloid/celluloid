@@ -2,7 +2,7 @@
 -----
 * Celluloid::Application classes for describing the structure of applications
   built with Celluloid
-* Configure custom mailbox types using Celluloid.with_mailbox
+* Configure custom mailbox types using Celluloid.use_mailbox
 
 0.5.0
 -----

@@ -7,7 +7,7 @@ module Celluloid
   module IO
     def self.included(klass)
       klass.send :include, ::Celluloid
-      klass.with_mailbox Celluloid::IO::Mailbox
+      klass.use_mailbox Celluloid::IO::Mailbox
     end
 
     # Wait for the given IO object to become readable

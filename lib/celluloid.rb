@@ -68,7 +68,7 @@ module Celluloid
     attr_reader :exit_handler
 
     # Configure a custom mailbox factory
-    def with_mailbox(klass = nil, &block)
+    def use_mailbox(klass = nil, &block)
       if block
         define_method(:mailbox_factory, &block)
       else
