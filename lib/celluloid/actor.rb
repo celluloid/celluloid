@@ -75,12 +75,16 @@ module Celluloid
     # Run the actor loop
     def run
       klass = @subject.class
-
-      # Check if this actor has a custom event loop
-      event_handler = klass.event_handler if klass.respond_to? :event_handler
+      event_handler = klass.celluloid_callbacks[:event_loop]
 
       if event_handler
-        return @subject.send(event_handler)
+        fiber = Fiber.new do
+          initialize_thread_locals
+          @subject.send event_handler
+        end
+
+        call = fiber.resume
+        @pending_calls[call] = fiber if fiber.alive?
       else
         dispatch while @running
       end
@@ -157,7 +161,7 @@ module Celluloid
     # Handle exit events received by this actor
     def handle_exit_event(exit_event)
       klass = @subject.class
-      exit_handler = klass.exit_handler if klass.respond_to? :exit_handler
+      exit_handler = klass.celluloid_callbacks[:exit_handler]
       if exit_handler
         return @subject.send(exit_handler, exit_event.actor, exit_event.reason)
       end
