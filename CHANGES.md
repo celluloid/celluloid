@@ -2,7 +2,7 @@
 -----
 * Celluloid::Application classes for describing the structure of applications
   built with Celluloid
-* Configure custom event loops for Celluloid::Actors with Celluloid#event_loop
+* Configure custom mailbox types using Celluloid.with_mailbox
 
 0.5.0
 -----

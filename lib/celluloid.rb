@@ -61,17 +61,28 @@ module Celluloid
 
     # Trap errors from actors we're linked to when they exit
     def trap_exit(callback)
-      celluloid_callbacks[:exit_handler] = callback.to_sym
+      @exit_handler = callback.to_sym
     end
 
-    # Configure a custom event loop for this actor
-    def event_loop(callback)
-      celluloid_callbacks[:event_loop] = callback.to_sym
+    # Obtain the exit handler for this actor
+    attr_reader :exit_handler
+
+    # Configure a custom mailbox
+    def with_mailbox(klass = nil, &block)
+      if block
+        @@mailbox_factory = block
+      else
+        @@mailbox_factory = proc { klass.new }
+      end
     end
 
-    # Callbacks utilized by Celluloid
-    def celluloid_callbacks
-      @celluloid_callbacks ||= {}
+    # Obtain a mailbox given this class hierarchy's rules
+    def mailbox_factory
+      if defined?(@@mailbox_factory)
+        @@mailbox_factory.call
+      else
+        Celluloid::Mailbox.new
+      end
     end
   end
 

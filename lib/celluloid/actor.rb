@@ -43,8 +43,8 @@ module Celluloid
 
     # Wrap the given subject object with an Actor
     def initialize(subject)
-      @subject  = subject
-      @mailbox = initialize_mailbox
+      @subject = subject
+      @mailbox = subject.class.mailbox_factory
       @links   = Links.new
       @signals = Signals.new
       @proxy   = ActorProxy.new(self, @mailbox)
@@ -57,14 +57,6 @@ module Celluloid
       end
     end
 
-    # Create the mailbox for this actor
-    #
-    # This implemententation is intended to be overridden in special-case
-    # subclasses of Celluloid::Actor which use a custom mailbox
-    def initialize_mailbox
-      Mailbox.new
-    end
-
     # Configure thread locals for the running thread
     def initialize_thread_locals
       Thread.current[:actor]       = self
@@ -74,21 +66,7 @@ module Celluloid
 
     # Run the actor loop
     def run
-      klass = @subject.class
-      event_handler = klass.celluloid_callbacks[:event_loop]
-
-      if event_handler
-        fiber = Fiber.new do
-          initialize_thread_locals
-          @subject.send event_handler
-        end
-
-        call = fiber.resume
-        @pending_calls[call] = fiber if fiber.alive?
-      else
-        dispatch while @running
-      end
-
+      dispatch while @running
       cleanup ExitEvent.new(@proxy)
     rescue Exception => ex
       @running = false
@@ -121,7 +99,6 @@ module Celluloid
     # Dispatch an incoming message to the appropriate handler(s)
     def dispatch
       handle_message @mailbox.receive
-      true
     rescue MailboxShutdown
       # If the mailbox detects shutdown, exit the actor
       @running = false
@@ -156,12 +133,12 @@ module Celluloid
           @pending_calls[call] = fiber if fiber.alive?
         end
       end # unexpected messages are ignored
+      message
     end
 
     # Handle exit events received by this actor
     def handle_exit_event(exit_event)
-      klass = @subject.class
-      exit_handler = klass.celluloid_callbacks[:exit_handler]
+      exit_handler = @subject.class.exit_handler
       if exit_handler
         return @subject.send(exit_handler, exit_event.actor, exit_event.reason)
       end
