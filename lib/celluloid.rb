@@ -64,8 +64,16 @@ module Celluloid
       @exit_handler = callback.to_sym
     end
 
+    # Configure a custom event loop for this actor
+    def event_loop(callback)
+      @event_handler = callback.to_sym
+    end
+
     # Obtain the exit handler method for this class
     def exit_handler; @exit_handler; end
+
+    # Obtain the custom event loop for this actor
+    def event_handler; @event_handler; end
   end
 
   #

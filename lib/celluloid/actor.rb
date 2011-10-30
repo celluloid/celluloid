@@ -41,7 +41,6 @@ module Celluloid
     attr_reader :links
     attr_reader :mailbox
 
-
     # Wrap the given subject object with an Actor
     def initialize(subject)
       @subject  = subject
@@ -75,7 +74,17 @@ module Celluloid
 
     # Run the actor loop
     def run
-      dispatch while @running
+      klass = @subject.class
+
+      # Check if this actor has a custom event loop
+      event_handler = klass.event_handler if klass.respond_to? :event_handler
+
+      if event_handler
+        return @subject.send(event_handler)
+      else
+        dispatch while @running
+      end
+
       cleanup ExitEvent.new(@proxy)
     rescue Exception => ex
       @running = false
@@ -108,6 +117,7 @@ module Celluloid
     # Dispatch an incoming message to the appropriate handler(s)
     def dispatch
       handle_message @mailbox.receive
+      true
     rescue MailboxShutdown
       # If the mailbox detects shutdown, exit the actor
       @running = false
