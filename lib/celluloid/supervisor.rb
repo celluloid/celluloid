@@ -4,33 +4,46 @@ module Celluloid
   class Supervisor
     include Celluloid
     trap_exit :restart_actor
-    
+
     # Retrieve the actor this supervisor is supervising
     attr_reader :actor
-    
+
     def self.supervise(klass, *args, &block)
       new(nil, klass, *args, &block)
     end
-    
+
     def self.supervise_as(name, klass, *args, &block)
       new(name, klass, *args, &block)
     end
-    
+
     def initialize(name, klass, *args, &block)
       @name, @klass, @args, @block = name, klass, args, block
       start_actor
     end
-    
+
     def start_actor
-      @actor = @klass.new_link(*@args, &@block)
+      failures = 0
+
+      begin
+        @actor = @klass.new_link(*@args, &@block)
+      rescue
+        failures += 1
+        if failures >= 5
+          failures = 0
+          Celluloid.logger.warn "#{@klass} is crashing on initialize repeatedly, sleeping for 10 seconds"
+          sleep 10
+        end
+        retry
+      end
+
       Celluloid::Actor[@name] = @actor if @name
     end
-    
+
     # When actors die, regardless of the reason, restart them
     def restart_actor(actor, reason)
       start_actor
     end
-    
+
     def inspect
       str = "#<Celluloid::Supervisor(#{@klass}):0x#{object_id.to_s(16)}"
       str << " " << @args.map { |arg| arg.inspect }.join(' ') unless @args.empty?
