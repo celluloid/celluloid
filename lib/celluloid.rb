@@ -1,4 +1,6 @@
 require 'logger'
+require 'thread'
+require 'celluloid/fibers_are_hard'
 
 module Celluloid
   @logger = Logger.new STDERR

@@ -1,0 +1,29 @@
+begin
+  require 'fiber'
+rescue LoadError => ex
+  if defined? JRUBY_VERSION
+    if RUBY_VERSION < "1.9.2"
+      raise LoadError, "Celluloid requires JRuby 1.9 mode. Please pass the --1.9 flag or set JRUBY_OPTS=--1.9"
+    end
+
+    # Fibers are broken on JRuby 1.6.5. This works around the issue
+    if JRUBY_VERSION == "1.6.5"
+      require 'jruby'
+      org.jruby.ext.fiber.FiberExtLibrary.new.load(JRuby.runtime, false)
+      class org::jruby::ext::fiber::ThreadFiber
+        field_accessor :state
+      end
+
+      class Fiber
+        def alive?
+          JRuby.reference(self).state != org.jruby.ext.fiber.ThreadFiberState::FINISHED
+        end
+      end
+    end
+  elsif defined? Rubinius
+    # If we're on Rubinius, we can still work in 1.8 mode
+    Fiber = Rubinius::Fiber
+  else
+    raise ex
+  end
+end

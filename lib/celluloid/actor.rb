@@ -1,22 +1,3 @@
-require 'thread'
-
-begin
-  require 'fiber'
-rescue LoadError => ex
-  if defined? JRUBY_VERSION
-    if JRUBY_VERSION == "1.6.5"
-      raise LoadError, "Fibers are broken on JRuby 1.6.5. Please use a different version of JRuby (e.g. 1.6.4)"
-    else
-      raise LoadError, "Celluloid requires JRuby 1.9 mode. Please pass the --1.9 flag or set JRUBY_OPTS=--1.9"
-    end
-  elsif defined? Rubinius
-    # If we're on Rubinius, we can still work in 1.8 mode
-    Fiber = Rubinius::Fiber
-  else
-    raise ex
-  end
-end
-
 module Celluloid
   # Don't do Actor-like things outside Actor scope
   class NotActorError < StandardError; end
