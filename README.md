@@ -456,6 +456,10 @@ Here are a few rules you can follow to keep this from happening:
    using Fibers, and why can't it be solved by a block? If you've got a really
    good reason and you're feeling lucky, knock yourself out.
 
+5. If you need to mock the behaviour of an Actor, you should mock its subject
+   rather than the proxy itself (#actor_subject). This ensures that any time
+   the subject calls methods on self, they will also be appropriately mocked.
+
 On Thread Safety in Ruby
 ------------------------
 
