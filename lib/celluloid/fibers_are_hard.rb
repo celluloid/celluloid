@@ -20,6 +20,9 @@ rescue LoadError => ex
           JRuby.reference(self).state != org.jruby.ext.fiber.ThreadFiberState::FINISHED
         end
       end
+    else
+      # Just in case subsequent JRuby releases have broken fibers :/
+      raise ex
     end
   elsif defined? Rubinius
     # If we're on Rubinius, we can still work in 1.8 mode
