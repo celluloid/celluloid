@@ -40,6 +40,10 @@ module Celluloid
       Celluloid::Future.new { __call method_name, *args, &block }
     end
 
+    def actor_subject
+      @actor.subject
+    end
+
     # Terminate the associated actor
     def terminate
       raise DeadActorError, "actor already terminated" unless alive?

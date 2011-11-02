@@ -127,6 +127,11 @@ shared_context "a Celluloid Actor" do |included_module|
     actor.inspect.should_not include("@celluloid")
   end
 
+  it "allows access to the subject" do
+    actor = actor_class.new "Troy McClure"
+    actor.actor_subject.should be_a actor_class
+  end
+
   context :termination do
     it "terminates" do
       actor = actor_class.new "Arnold Schwarzenegger"

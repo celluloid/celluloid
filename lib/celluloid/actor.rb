@@ -25,6 +25,7 @@ module Celluloid
     attr_reader :proxy
     attr_reader :links
     attr_reader :mailbox
+    attr_reader :subject
 
     # Wrap the given subject object with an Actor
     def initialize(subject)
