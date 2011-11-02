@@ -33,6 +33,14 @@ shared_context "a Celluloid Actor" do |included_module|
       def crash_with_abort(reason)
         abort ExampleCrash.new(reason)
       end
+
+      def internal_hello
+        external_hello
+      end
+
+      def external_hello
+        "Hello"
+      end
     end
   end
 
@@ -130,6 +138,22 @@ shared_context "a Celluloid Actor" do |included_module|
   it "allows access to the subject" do
     actor = actor_class.new "Troy McClure"
     actor.actor_subject.should be_a actor_class
+  end
+
+  describe 'mocking methods' do
+    let(:actor) { actor_class.new "Troy McClure" }
+
+    before do
+      actor.actor_subject.should_receive(:external_hello).once.and_return "World"
+    end
+
+    it 'works externally via the proxy' do
+      actor.external_hello.should == "World"
+    end
+
+    it 'works internally when called on self' do
+      actor.internal_hello.should == "World"
+    end
   end
 
   context :termination do
