@@ -1,3 +1,4 @@
+# Let's go shopping!
 begin
   require 'fiber'
 rescue LoadError => ex
