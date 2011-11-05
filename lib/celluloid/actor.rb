@@ -26,6 +26,58 @@ module Celluloid
     attr_reader :links
     attr_reader :mailbox
 
+    # Invoke a method on the given actor via its mailbox
+    def self.call(mailbox, meth, *args, &block)
+      our_mailbox = Thread.current.mailbox
+      call = SyncCall.new(our_mailbox, meth, args, block)
+
+      begin
+        mailbox << call
+      rescue MailboxError
+        raise DeadActorError, "attempted to call a dead actor"
+      end
+
+      if Celluloid.actor?
+        # Yield to the actor scheduler, which resumes us when we get a response
+        response = Fiber.yield(call)
+      else
+        # Otherwise we're inside a normal thread, so block
+        response = our_mailbox.receive do |msg|
+          msg.is_a? Response and msg.call == call
+        end
+      end
+
+      case response
+      when SuccessResponse
+        response.value
+      when ErrorResponse
+        ex = response.value
+
+        if ex.is_a? AbortError
+          # Aborts are caused by caller error, so ensure they capture the
+          # caller's backtrace instead of the receiver's
+          raise ex.cause.class.new(ex.cause.message)
+        else
+          raise ex
+        end
+      else
+        raise "don't know how to handle #{response.class} messages!"
+      end
+    end
+
+    # Invoke a method asynchronously on an actor via its mailbox
+    def self.async(mailbox, meth, *args, &block)
+      our_mailbox = Thread.current.mailbox
+      begin
+        mailbox << AsyncCall.new(our_mailbox, meth, args, block)
+      rescue MailboxError
+        # Silently swallow asynchronous calls to dead actors. There's no way
+        # to reliably generate DeadActorErrors for async calls, so users of
+        # async calls should find other ways to deal with actors dying
+        # during an async call (i.e. linking/supervisors)
+      end
+    end
+
     # Wrap the given subject object with an Actor
     def initialize(subject)
       @subject = subject
@@ -37,7 +89,7 @@ module Celluloid
 
       @links   = Links.new
       @signals = Signals.new
-      @proxy   = ActorProxy.new(self, @mailbox)
+      @proxy   = ActorProxy.new(@mailbox)
       @running = true
       @pending_calls = {}
 

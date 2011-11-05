@@ -86,6 +86,11 @@ module Celluloid
       true
     end
 
+    # Is the mailbox alive?
+    def alive?
+      !@dead
+    end
+
     # Cast to an array
     def to_a
       @lock.synchronize { @messages.dup }

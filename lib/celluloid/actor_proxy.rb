@@ -6,38 +6,38 @@ module Celluloid
     # FIXME: not nearly enough methods are delegated here
     attr_reader :mailbox
 
-    def initialize(actor, mailbox)
-      @actor, @mailbox = actor, mailbox
+    def initialize(mailbox, klass = "Object")
+      @mailbox, @klass = mailbox, klass
     end
 
     def send(meth, *args, &block)
-      __call__ :send, meth, *args, &block
+      Actor.call @mailbox, :send, meth, *args, &block
     end
 
     def respond_to?(meth)
-      __call__ :respond_to?, meth
+      Actor.call @mailbox, :respond_to?, meth
     end
 
     def methods(include_ancestors = true)
-      __call__ :methods, include_ancestors
+      Actor.call @mailbox, :methods, include_ancestors
     end
 
     def alive?
-      @actor.alive?
+      @mailbox.alive?
     end
 
     def to_s
-      __call__ :to_s
+      Actor.call @mailbox, :to_s
     end
 
     def inspect
-      return __call__ :inspect if alive?
-      "#<Celluloid::Actor(#{@actor.class}:0x#{@actor.object_id.to_s(16)}) dead>"
+      "#<Celluloid::Actor(#{@klass}) dead>" unless alive?
+      Actor.call @mailbox, :inspect
     end
 
     # Create a Celluloid::Future which calls a given method
     def future(method_name, *args, &block)
-      Celluloid::Future.new { __call__ method_name, *args, &block }
+      Celluloid::Future.new { Actor.call @mailbox, method_name, *args, &block }
     end
 
     # Terminate the associated actor
@@ -61,64 +61,11 @@ module Celluloid
       # bang methods are async calls
       if meth.to_s.match(/!$/)
         unbanged_meth = meth.to_s.sub(/!$/, '')
-        our_mailbox = Thread.current.mailbox
-
-        begin
-          @mailbox << AsyncCall.new(our_mailbox, unbanged_meth, args, block)
-        rescue MailboxError
-          # Silently swallow asynchronous calls to dead actors. There's no way
-          # to reliably generate DeadActorErrors for async calls, so users of
-          # async calls should find other ways to deal with actors dying
-          # during an async call (i.e. linking/supervisors)
-        end
-
-        return # casts are async and return immediately
+        Actor.async @mailbox, unbanged_meth, *args, &block
+        return
       end
 
-      __call__(meth, *args, &block)
-    end
-
-    #######
-    private
-    #######
-
-    # Make a synchronous call to the actor we're proxying to
-    def __call__(meth, *args, &block)
-      our_mailbox = Thread.current.mailbox
-      call = SyncCall.new(our_mailbox, meth, args, block)
-
-      begin
-        @mailbox << call
-      rescue MailboxError
-        raise DeadActorError, "attempted to call a dead actor"
-      end
-
-      if Celluloid.actor?
-        # Yield to the actor scheduler, which resumes us when we get a response
-        response = Fiber.yield(call)
-      else
-        # Otherwise we're inside a normal thread, so block
-        response = our_mailbox.receive do |msg|
-          msg.is_a? Response and msg.call == call
-        end
-      end
-
-      case response
-      when SuccessResponse
-        response.value
-      when ErrorResponse
-        ex = response.value
-
-        if ex.is_a? AbortError
-          # Aborts are caused by caller error, so ensure they capture the
-          # caller's backtrace instead of the receiver's
-          raise ex.cause.class.new(ex.cause.message)
-        else
-          raise ex
-        end
-      else
-        raise "don't know how to handle #{response.class} messages!"
-      end
+      Actor.call @mailbox, meth, *args, &block
     end
   end
 end
