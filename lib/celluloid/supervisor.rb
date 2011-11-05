@@ -21,17 +21,17 @@ module Celluloid
       start_actor
     end
 
-    def start_actor
+    def start_actor(start_attempts = 2, sleep_interval = 30)
       failures = 0
 
       begin
         @actor = @klass.new_link(*@args, &@block)
       rescue
         failures += 1
-        if failures >= 5
+        if failures >= start_attempts
           failures = 0
-          Celluloid.logger.warn "#{@klass} is crashing on initialize repeatedly, sleeping for 10 seconds"
-          sleep 10
+          Celluloid.logger.warn "#{@klass} is crashing on initialize repeatedly, sleeping for #{sleep_interval} seconds"
+          sleep sleep_interval
         end
         retry
       end
