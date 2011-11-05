@@ -3,6 +3,7 @@
 * Celluloid::Application classes for describing the structure of applications
   built with Celluloid
 * Configure custom mailbox types using Celluloid.use_mailbox
+* Actor.call and Actor.async API for making direct calls to mailboxes
 
 0.5.0
 -----
