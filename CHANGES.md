@@ -4,6 +4,8 @@
   built with Celluloid
 * Configure custom mailbox types using Celluloid.use_mailbox
 * Actor.call and Actor.async API for making direct calls to mailboxes
+* Fix bugs in Celluloid::Supervisors which would crash on startup if the actor
+  they're supervising also crashes on startup
 
 0.5.0
 -----
