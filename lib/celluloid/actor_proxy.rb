@@ -11,15 +11,15 @@ module Celluloid
     end
 
     def send(meth, *args, &block)
-      __call :send, meth, *args, &block
+      __call__ :send, meth, *args, &block
     end
 
     def respond_to?(meth)
-      __call :respond_to?, meth
+      __call__ :respond_to?, meth
     end
 
     def methods(include_ancestors = true)
-      __call :methods, include_ancestors
+      __call__ :methods, include_ancestors
     end
 
     def alive?
@@ -27,17 +27,17 @@ module Celluloid
     end
 
     def to_s
-      __call :to_s
+      __call__ :to_s
     end
 
     def inspect
-      return __call :inspect if alive?
+      return __call__ :inspect if alive?
       "#<Celluloid::Actor(#{@actor.class}:0x#{@actor.object_id.to_s(16)}) dead>"
     end
 
     # Create a Celluloid::Future which calls a given method
     def future(method_name, *args, &block)
-      Celluloid::Future.new { __call method_name, *args, &block }
+      Celluloid::Future.new { __call__ method_name, *args, &block }
     end
 
     # Terminate the associated actor
@@ -75,7 +75,7 @@ module Celluloid
         return # casts are async and return immediately
       end
 
-      __call(meth, *args, &block)
+      __call__(meth, *args, &block)
     end
 
     #######
@@ -83,7 +83,7 @@ module Celluloid
     #######
 
     # Make a synchronous call to the actor we're proxying to
-    def __call(meth, *args, &block)
+    def __call__(meth, *args, &block)
       our_mailbox = Thread.current.mailbox
       call = SyncCall.new(our_mailbox, meth, args, block)
 
