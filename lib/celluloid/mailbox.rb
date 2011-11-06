@@ -103,7 +103,7 @@ module Celluloid
 
     # Inspect the contents of the Mailbox
     def inspect
-      "#<Celluloid::Mailbox:#{object_id} [#{map { |m| m.inspect }.join(', ')}]>"
+      "#<Celluloid::Mailbox:#{object_id.to_s(16)} @messages=[#{map { |m| m.inspect }.join(', ')}]>"
     end
   end
 end
