@@ -43,7 +43,7 @@ module Celluloid
       else
         # Otherwise we're inside a normal thread, so block
         response = our_mailbox.receive do |msg|
-          msg.is_a? Response and msg.call == call
+          msg.is_a? Response and msg.call_id == call.id
         end
       end
 
@@ -156,9 +156,7 @@ module Celluloid
         handle_exit_event exit_event
       end
 
-      call = fiber.resume
-      @pending_calls[call] = fiber if fiber.alive?
-
+      run_method fiber
       retry
     end
 
@@ -171,19 +169,20 @@ module Celluloid
           message.dispatch(@subject)
         end
 
-        call = fiber.resume
-        @pending_calls[call] = fiber if fiber.alive?
+        run_method fiber
       when Response
-        fiber = @pending_calls.delete(message.call)
-
-        if fiber
-          call = fiber.resume message
-          @pending_calls[call] = fiber if fiber.alive?
-        end
+        fiber = @pending_calls.delete(message.call_id)
+        run_method fiber, message if fiber
       else
         @receivers.handle_message(message)
       end
       message
+    end
+
+    # Run a method, handling when its Fiber is suspended
+    def run_method(fiber, value = nil)
+      call = fiber.resume value
+      @pending_calls[call.id] = fiber if call and fiber.alive?
     end
 
     # Handle exit events received by this actor
