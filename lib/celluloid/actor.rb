@@ -78,7 +78,7 @@ module Celluloid
       end
     end
 
-    # Wrap the given subject object with an Actor
+    # Wrap the given subject with an Actor
     def initialize(subject)
       @subject = subject
       if subject.respond_to? :mailbox_factory
@@ -87,10 +87,11 @@ module Celluloid
         @mailbox = Celluloid::Mailbox.new
       end
 
-      @links   = Links.new
-      @signals = Signals.new
-      @proxy   = ActorProxy.new(@mailbox)
-      @running = true
+      @links     = Links.new
+      @signals   = Signals.new
+      @receivers = Receivers.new
+      @proxy     = ActorProxy.new(@mailbox)
+      @running   = true
       @pending_calls = {}
 
       @thread = Pool.get do
@@ -138,6 +139,11 @@ module Celluloid
       @signals.wait name
     end
 
+    # Receive an asynchronous message
+    def receive(&block)
+      @receivers.receive(&block)
+    end
+
     # Dispatch an incoming message to the appropriate handler(s)
     def dispatch
       handle_message @mailbox.receive
@@ -174,7 +180,9 @@ module Celluloid
           call = fiber.resume message
           @pending_calls[call] = fiber if fiber.alive?
         end
-      end # unexpected messages are ignored
+      else
+        @receivers.handle_message(message)
+      end
       message
     end
 

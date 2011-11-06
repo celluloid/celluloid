@@ -2,6 +2,8 @@
 -----
 * Celluloid::Application classes for describing the structure of applications
   built with Celluloid
+* Methods of actors can now participate in the actor protocol directly via
+  Celluloid#receive
 * Configure custom mailbox types using Celluloid.use_mailbox
 * Actor.call and Actor.async API for making direct calls to mailboxes
 * Fix bugs in Celluloid::Supervisors which would crash on startup if the actor

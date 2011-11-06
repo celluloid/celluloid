@@ -3,7 +3,6 @@ module Celluloid
   # dispatches calls and casts to normal Ruby objects which are running inside
   # of their own threads.
   class ActorProxy
-    # FIXME: not nearly enough methods are delegated here
     attr_reader :mailbox
 
     def initialize(mailbox, klass = "Object")

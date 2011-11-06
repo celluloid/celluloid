@@ -25,6 +25,16 @@ module Celluloid
 
       actor
     end
+
+    # Receive an asynchronous message
+    def receive(&block)
+      actor = Thread.current[:actor]
+      if actor
+        actor.receive(&block)
+      else
+        Thread.current.mailbox.receive(&block)
+      end
+    end
   end
 
   # Class methods added to classes which include Celluloid
@@ -123,6 +133,11 @@ module Celluloid
     Celluloid.current_actor
   end
 
+  # Receive an asynchronous message via the actor protocol
+  def receive(&block)
+    Celluloid.receive(&block)
+  end
+
   # Perform a blocking or computationally intensive action inside an
   # asynchronous thread pool, allowing the caller to continue processing other
   # messages in its mailbox in the meantime
@@ -162,6 +177,7 @@ require 'celluloid/core_ext'
 require 'celluloid/events'
 require 'celluloid/linking'
 require 'celluloid/mailbox'
+require 'celluloid/receivers'
 require 'celluloid/registry'
 require 'celluloid/responses'
 require 'celluloid/signals'

@@ -357,12 +357,42 @@ send them a value in the process:
 	  end
 	end
 
-The wait_for_signal method in turn calls a method called "wait". Wait suspends
+The #wait_for_signal method in turn calls a method called "wait". Wait suspends
 the running method until another method of the same object calls the "signal"
 method with the same label.
 
-The send_signal method of this class does just that, signaling "ponycopter"
+The #send_signal method of this class does just that, signaling "ponycopter"
 with the given value. This value is returned from the original wait call.
+
+Protocol Interaction
+--------------------
+
+The asynchronous message protocol Celluloid uses can be used directly to add
+new behavior to actors.
+
+To send a raw asynchronous message to an actor, use:
+
+    actor.mailbox << MyMessage.new
+
+Methods can wait on incoming MyMessage objects using the #receive method:
+
+    class MyActor
+      def initialize
+        wait_for_my_messages!
+      end
+
+      def wait_for_my_messages
+        loop do
+          message = receive { |msg| msg.is_a? MyMessage }
+		  puts "Got a MyMessage: #{message.inspect}"
+        end
+      end
+    end
+
+The #receive method takes a block, and yields any incoming messages which are
+received by the current actor to the block, waiting for the block to return
+true. Calls to #receive sleep until a message is received which makes the
+block return true, at which point the matching message is returned.
 
 Handling I/O with Celluloid::IO
 -------------------------------
