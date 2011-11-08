@@ -25,6 +25,7 @@ module Celluloid
     attr_reader :proxy
     attr_reader :links
     attr_reader :mailbox
+    attr_reader :subject
 
     # Invoke a method on the given actor via its mailbox
     def self.call(mailbox, meth, *args, &block)
