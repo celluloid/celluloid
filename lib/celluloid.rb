@@ -133,6 +133,13 @@ module Celluloid
     Celluloid.current_actor
   end
 
+  # Obtain the Ruby object the actor is wrapping. This should ONLY be used
+  # for a limited set of use cases like runtime metaprogramming. Interacting
+  # directly with the wrapped object foregoes any kind of thread safety that
+  # Celluloid would ordinarily provide you, and the object is guaranteed to
+  # be shared with at least the actor thread. Tread carefully.
+  def wrapped_object; self; end
+
   # Receive an asynchronous message via the actor protocol
   def receive(&block)
     Celluloid.receive(&block)

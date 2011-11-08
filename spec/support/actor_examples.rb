@@ -135,16 +135,16 @@ shared_context "a Celluloid Actor" do |included_module|
     actor.inspect.should_not include("@celluloid")
   end
 
-  it "allows access to the subject" do
+  it "allows access to the wrapped object" do
     actor = actor_class.new "Troy McClure"
-    actor.actor_subject.should be_a actor_class
+    actor.wrapped_object.should be_a actor_class
   end
 
   describe 'mocking methods' do
     let(:actor) { actor_class.new "Troy McClure" }
 
     before do
-      actor.actor_subject.should_receive(:external_hello).once.and_return "World"
+      actor.wrapped_object.should_receive(:external_hello).once.and_return "World"
     end
 
     it 'works externally via the proxy' do
