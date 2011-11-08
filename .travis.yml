@@ -1,6 +1,7 @@
 rvm:
   - 1.9.2
-  - rbx
+  - 1.9.3
+#  - rbx # crashing :(
   - jruby
   - ruby-head
 
