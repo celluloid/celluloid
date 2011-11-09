@@ -101,24 +101,6 @@ module Celluloid
       end
     end
 
-    # Configure thread locals for the running thread
-    def initialize_thread_locals
-      Thread.current[:actor]       = self
-      Thread.current[:actor_proxy] = @proxy
-      Thread.current[:mailbox]     = @mailbox
-    end
-
-    # Run the actor loop
-    def run
-      dispatch while @running
-      cleanup ExitEvent.new(@proxy)
-    rescue Exception => ex
-      @running = false
-      handle_crash(ex)
-    ensure
-      Pool.put @thread
-    end
-
     # Is this actor alive?
     def alive?
       @running
@@ -145,20 +127,46 @@ module Celluloid
       @receivers.receive(&block)
     end
 
-    # Dispatch an incoming message to the appropriate handler(s)
-    def dispatch
-      handle_message @mailbox.receive
+    # Configure thread locals for the running thread
+    def initialize_thread_locals
+      Thread.current[:actor]       = self
+      Thread.current[:actor_proxy] = @proxy
+      Thread.current[:mailbox]     = @mailbox
+    end
+
+    # Run the actor loop
+    def run
+      while @running
+        begin
+          message = @mailbox.receive
+        rescue ExitEvent => exit_event
+          fiber = Fiber.new do
+            initialize_thread_locals
+            handle_exit_event exit_event
+          end
+
+          run_method fiber
+          retry
+        end
+
+        handle_message message
+      end
+
+      cleanup ExitEvent.new(@proxy)
     rescue MailboxShutdown
       # If the mailbox detects shutdown, exit the actor
       @running = false
-    rescue ExitEvent => exit_event
-      fiber = Fiber.new do
-        initialize_thread_locals
-        handle_exit_event exit_event
-      end
+    rescue Exception => ex
+      @running = false
+      handle_crash(ex)
+    ensure
+      Pool.put @thread
+    end
 
-      run_method fiber
-      retry
+    # Run a method, handling when its Fiber is suspended
+    def run_method(fiber, value = nil)
+      call = fiber.resume value
+      @pending_calls[call.id] = fiber if call and fiber.alive?
     end
 
     # Handle an incoming message
@@ -178,12 +186,6 @@ module Celluloid
         @receivers.handle_message(message)
       end
       message
-    end
-
-    # Run a method, handling when its Fiber is suspended
-    def run_method(fiber, value = nil)
-      call = fiber.resume value
-      @pending_calls[call.id] = fiber if call and fiber.alive?
     end
 
     # Handle exit events received by this actor
