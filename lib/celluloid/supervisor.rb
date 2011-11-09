@@ -45,7 +45,7 @@ module Celluloid
     end
 
     def inspect
-      str = "#<Celluloid::Supervisor(#{@klass}):0x#{object_id.to_s(16)}"
+      str = "#<#{self.class}(#{@klass}):0x#{object_id.to_s(16)}"
       str << " " << @args.map { |arg| arg.inspect }.join(' ') unless @args.empty?
       str << ">"
     end

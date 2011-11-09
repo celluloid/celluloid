@@ -50,7 +50,7 @@ module Celluloid
     def inspect
       @lock.synchronize do
         links = @links.to_a.map { |l| "#{l.class}:#{l.object_id}" }.join(',')
-        "#<Celluloid::Links[#{links}]>"
+        "#<#{self.class}[#{links}]>"
       end
     end
   end
