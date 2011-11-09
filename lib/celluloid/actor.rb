@@ -212,6 +212,12 @@ module Celluloid
     def cleanup(exit_event)
       @mailbox.shutdown
       @links.send_event exit_event
+
+      begin
+        @subject.finalize if @subject.respond_to? :finalize
+      rescue Exception => finalizer_exception
+        log_error(finalizer_exception, "#{@subject.class}#finalize crashed!")
+      end
     end
 
     # Log errors when an actor crashes
