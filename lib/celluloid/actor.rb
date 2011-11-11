@@ -81,7 +81,10 @@ module Celluloid
       @pending_calls = {}
 
       @thread = Pool.get do
-        initialize_thread_locals
+        Thread.current[:actor]       = self
+        Thread.current[:actor_proxy] = @proxy
+        Thread.current[:mailbox]     = @mailbox
+
         run
       end
     end
@@ -112,24 +115,13 @@ module Celluloid
       @receivers.receive(&block)
     end
 
-    # Configure thread locals for the running thread
-    def initialize_thread_locals
-      Thread.current[:actor]       = self
-      Thread.current[:actor_proxy] = @proxy
-      Thread.current[:mailbox]     = @mailbox
-    end
-
     # Run the actor loop
     def run
       while @running
         begin
           message = @mailbox.receive
         rescue ExitEvent => exit_event
-          fiber = Fiber.new do
-            initialize_thread_locals
-            handle_exit_event exit_event
-          end
-
+          fiber = Celluloid.fiber { handle_exit_event exit_event }
           run_method fiber
           retry
         end
@@ -158,15 +150,11 @@ module Celluloid
     def handle_message(message)
       case message
       when Call
-        fiber = Fiber.new do
-          initialize_thread_locals
-          message.dispatch(@subject)
-        end
-
+        fiber = Celluloid.fiber { message.dispatch(@subject) }
         run_method fiber
       when Response
         fiber = @pending_calls.delete(message.call_id)
-        
+
         if fiber
           run_method fiber, message
         else

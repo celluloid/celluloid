@@ -35,6 +35,21 @@ module Celluloid
         Thread.current.mailbox.receive(&block)
       end
     end
+
+    # Create a fiber that participates in the Celluloid protocol
+    def fiber(*args)
+      actor   = Thread.current[:actor]
+      proxy   = Thread.current[:actor_proxy]
+      mailbox = Thread.current[:mailbox]
+
+      Fiber.new do
+        Thread.current[:actor]       = actor
+        Thread.current[:actor_proxy] = proxy
+        Thread.current[:mailbox]     = mailbox
+
+        yield(*args)
+      end
+    end
   end
 
   # Class methods added to classes which include Celluloid
