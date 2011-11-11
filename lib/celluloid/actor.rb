@@ -47,22 +47,7 @@ module Celluloid
         end
       end
 
-      case response
-      when SuccessResponse
-        response.value
-      when ErrorResponse
-        ex = response.value
-
-        if ex.is_a? AbortError
-          # Aborts are caused by caller error, so ensure they capture the
-          # caller's backtrace instead of the receiver's
-          raise ex.cause.class.new(ex.cause.message)
-        else
-          raise ex
-        end
-      else
-        raise "don't know how to handle #{response.class} messages!"
-      end
+      response.value
     end
 
     # Invoke a method asynchronously on an actor via its mailbox
