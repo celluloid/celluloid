@@ -55,7 +55,6 @@ module Celluloid
       end
 
       respond SuccessResponse.new(@id, result)
-      true
     end
 
     def cleanup

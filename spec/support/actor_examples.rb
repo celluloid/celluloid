@@ -270,19 +270,16 @@ shared_context "a Celluloid Actor" do |included_module|
       obj.signaled.should be_true
     end
 
-    # FIXME: this spec is causing deadlocks. It's unclear whether the cause is
-    # the spec itself or if it's a legitimate deadlock in Celluloid. Further
-    # investigation is needed
-    # it "sends values along with signals", :pending => ENV['CI'] do
-    #   obj = @signaler.new
-    #   obj.signaled.should be_false
-    #
-    #   future = Celluloid::Future.new { obj.wait_for_signal }
-    #   obj.signaled.should be_false
-    #
-    #   obj.send_signal :foobar
-    #   future.value.should == :foobar
-    # end
+    it "sends values along with signals" do
+      obj = @signaler.new
+      obj.signaled.should be_false
+
+      future = Celluloid::Future.new { obj.wait_for_signal }
+      obj.signaled.should be_false
+
+      obj.send_signal :foobar
+      future.value.should == :foobar
+    end
   end
 
   context :receiving do

@@ -18,7 +18,9 @@ module Celluloid
       fibers = @waiting.delete name
       return unless fibers
       
-      fibers.each { |fiber| fiber.resume value }
+      fibers.each do |fiber|
+        Celluloid.resume_fiber fiber, value
+      end
       true
     end
   end

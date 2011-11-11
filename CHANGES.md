@@ -9,6 +9,8 @@
 * Actor.call and Actor.async API for making direct calls to mailboxes
 * Fix bugs in Celluloid::Supervisors which would crash on startup if the actor
   they're supervising also crashes on startup
+* Add Celluloid.fiber and Celluloid.resume_fiber to allow extension APIs to
+  participate in the Celluloid fiber protocol
 
 0.5.0
 -----

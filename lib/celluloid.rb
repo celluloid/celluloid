@@ -50,6 +50,16 @@ module Celluloid
         yield(*args)
       end
     end
+
+    # Resume a fiber that participates in the Celluloid protocol
+    def resume_fiber(fiber, value = nil)
+      actor = Thread.current[:actor]
+      if actor
+        actor.run_fiber fiber, value
+      else
+        fiber.resume value
+      end
+    end
   end
 
   # Class methods added to classes which include Celluloid
