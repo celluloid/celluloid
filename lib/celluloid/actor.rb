@@ -166,7 +166,13 @@ module Celluloid
         run_method fiber
       when Response
         fiber = @pending_calls.delete(message.call_id)
-        run_method fiber, message if fiber
+        
+        if fiber
+          run_method fiber, message
+        else
+          warning = "spurious response to call #{message.call_id}"
+          Celluloid.logger.debug if Celluloid.logger
+        end
       else
         @receivers.handle_message(message)
       end

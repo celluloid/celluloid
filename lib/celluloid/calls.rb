@@ -81,14 +81,20 @@ module Celluloid
       begin
         check_signature(obj)
       rescue Exception => ex
-        obj.__log_error ex, "#{obj.class}: async call failed!"
+        log_error ex, "#{obj.class}: async call failed!"
         return
       end
 
       obj.send(@method, *@arguments, &@block)
     rescue AbortError => ex
       # Swallow aborted async calls, as they indicate the caller made a mistake
-      obj.__log_error ex, "#{obj.class}: async call aborted!"
+      obj.log_error ex, "#{obj.class}: async call aborted!"
+    end
+    
+    def log_error(ex, message)
+      message << "\n#{ex.class}: #{ex.to_s}\n"
+      message << ex.backtrace.join("\n")
+      Celluloid.logger.error message if Celluloid.logger
     end
   end
 end
