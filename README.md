@@ -329,6 +329,35 @@ working, freshly-restarted version.
 The main use of the registry is for interfacing with actors that are
 automatically restarted by supervisors when they crash.
 
+Applications
+------------
+
+Celluloid provides a DSL for describing all of the actors in a given
+application. This lets you start a group of actors in one swoop and
+also provides an additional level of supervision: applications supervise
+the supervisors of all the actors in your system, an approach known
+as supervision trees.
+
+Define Celluloid::Applications with the following syntax:
+
+   class MyApplication < Celluloid::Application
+     supervise MyActor, :as => :my_actor
+     supervise AnotherActor, :as => :another_actor
+   end
+
+This will start the MyActor and AnotherActor actors under a supervisor and
+automatically register them as Celluloid::Actor[:my_actor] and
+Celluloid::Actor[:another_actor].
+
+To launch your application, do:
+
+    MyApplication.run
+
+This launches your application in the foreground. To launch in in the
+background, do:
+
+    MyApplication.run!
+
 Signaling
 ---------
 
