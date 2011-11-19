@@ -340,10 +340,10 @@ as supervision trees.
 
 Define Celluloid::Applications with the following syntax:
 
-   class MyApplication < Celluloid::Application
-     supervise MyActor, :as => :my_actor
-     supervise AnotherActor, :as => :another_actor
-   end
+    class MyApplication < Celluloid::Application
+      supervise MyActor, :as => :my_actor
+      supervise AnotherActor, :as => :another_actor
+    end
 
 This will start the MyActor and AnotherActor actors under a supervisor and
 automatically register them as Celluloid::Actor[:my_actor] and
