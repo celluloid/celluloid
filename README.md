@@ -487,9 +487,11 @@ Here are a few rules you can follow to keep this from happening:
 
 1. ***NEVER RETURN SELF*** (or pass self as an argument to other actors): in
    cases where you want to pass an actor around to other actors or threads,
-   use Celluloid.current_actor. If you grab the latest master of Celluloid
-   off of Github, you can just use the #current_actor method when you are
-   inside of an actor itself.
+   use Celluloid.current_actor, or if you're within an actor itself, you can
+   just call the #current_actor method. If you really need to get ahold of
+   "self" in order to add instance-specific behavior, e.g for metaprogramming
+   purposes or adding stubs during tests, call MyActor#wrapped_object to
+   obtain the actual object an actor is wrapping.
 
 2. Don't mutate the state of objects you've sent in calls to other actors:
    This means you must think about data in one of two different ways: either
