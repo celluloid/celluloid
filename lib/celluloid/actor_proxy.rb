@@ -13,6 +13,10 @@ module Celluloid
       Actor.call @mailbox, :send, meth, *args, &block
     end
 
+    def class
+      Actor.call @mailbox, :send, :class
+    end
+
     def respond_to?(meth)
       Actor.call @mailbox, :respond_to?, meth
     end

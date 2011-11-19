@@ -1,3 +1,7 @@
+0.6.1
+-----
+* The #class method is now proxied to the actor
+
 0.6.0
 -----
 * Celluloid::Application classes for describing the structure of applications

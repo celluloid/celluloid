@@ -44,6 +44,11 @@ shared_context "a Celluloid Actor" do |included_module|
     end
   end
 
+  it "returns the actor's class, not the proxy's" do
+    actor = actor_class.new "Troy McClure"
+    actor.class.should == actor_class
+  end
+
   it "handles synchronous calls" do
     actor = actor_class.new "Troy McClure"
     actor.greet.should == "Hi, I'm Troy McClure"
