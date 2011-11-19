@@ -1,6 +1,7 @@
-coverage
-rdoc
-doc
+coverage/
+rdoc/
+doc/
+pkg/
 .yardoc
 .bundle
 Gemfile.lock
