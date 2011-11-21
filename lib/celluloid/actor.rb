@@ -76,7 +76,7 @@ module Celluloid
       @links     = Links.new
       @signals   = Signals.new
       @receivers = Receivers.new
-      @proxy     = ActorProxy.new(@mailbox)
+      @proxy     = ActorProxy.new(@mailbox, self.class.to_s)
       @running   = true
       @pending_calls = {}
 
