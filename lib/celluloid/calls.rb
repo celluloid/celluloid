@@ -87,7 +87,7 @@ module Celluloid
       obj.send(@method, *@arguments, &@block)
     rescue AbortError => ex
       # Swallow aborted async calls, as they indicate the caller made a mistake
-      obj.log_error ex, "#{obj.class}: async call aborted!"
+      log_error ex, "#{obj.class}: async call aborted!"
     end
     
     def log_error(ex, message)
