@@ -1,4 +1,3 @@
-require 'set'
 require 'thread'
 
 module Celluloid
@@ -7,14 +6,14 @@ module Celluloid
     include Enumerable
 
     def initialize
-      @links = Set.new
+      @links = {}
       @lock  = Mutex.new
     end
 
     # Add an actor to the current links
     def <<(actor)
       @lock.synchronize do
-        @links << actor
+        @links[actor.mailbox.address] = actor
       end
       actor
     end
@@ -22,23 +21,30 @@ module Celluloid
     # Do links include the given actor?
     def include?(actor)
       @lock.synchronize do
-        @links.include? actor
+        @links.has_key? actor.mailbox.address
       end
     end
 
     # Remove an actor from the links
     def delete(actor)
       @lock.synchronize do
-        @links.delete actor
+        @links.delete actor.mailbox.address
       end
       actor
     end
 
     # Iterate through all links
-    def each(&block)
+    def each
       @lock.synchronize do
-        @links.each(&block)
+        @links.each { |_, actor| yield(actor) }
       end
+    end
+
+    # Map across links
+    def map
+      result = []
+      each { |actor| result << yield(actor) }
+      result
     end
 
     # Send an event message to all actors
@@ -48,10 +54,8 @@ module Celluloid
 
     # Generate a string representation
     def inspect
-      @lock.synchronize do
-        links = @links.to_a.map { |l| "#{l.class}:#{l.object_id}" }.join(',')
-        "#<#{self.class}[#{links}]>"
-      end
+      links = self.map(&:inspect).join(',')
+      "#<#{self.class}[#{links}]>"
     end
   end
 end

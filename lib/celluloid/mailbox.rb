@@ -9,6 +9,9 @@ module Celluloid
   class Mailbox
     include Enumerable
 
+    # A unique address at which this mailbox can be found
+    alias_method :address, :object_id
+
     def initialize
       @messages = []
       @lock  = Mutex.new
