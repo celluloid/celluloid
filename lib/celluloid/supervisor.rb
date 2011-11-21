@@ -26,11 +26,16 @@ module Celluloid
 
       begin
         @actor = @klass.new_link(*@args, &@block)
-      rescue
+      rescue => ex
         failures += 1
         if failures >= start_attempts
           failures = 0
-          Celluloid.logger.warn "#{@klass} is crashing on initialize repeatedly, sleeping for #{sleep_interval} seconds"
+
+          warning = "#{@klass} is crashing on initialize repeatedly, sleeping for #{sleep_interval} seconds\n"
+          warning << "#{ex.class}: #{ex}\n  "
+          warning << "#{ex.backtrace.join("\n  ")}"
+
+          Celluloid.logger.warn warning if Celluloid.logger
           sleep sleep_interval
         end
         retry

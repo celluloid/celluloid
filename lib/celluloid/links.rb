@@ -54,36 +54,4 @@ module Celluloid
       end
     end
   end
-
-  # Support for linking actors together so they can crash or react to errors
-  module Linking
-    # Link this actor to another, allowing it to crash or react to errors
-    def link(actor)
-      current_actor = Thread.current[:actor]
-
-      actor.notify_link(current_actor.proxy)
-      current_actor.notify_link(actor)
-    end
-
-    # Remove links to another actor
-    def unlink(actor)
-      current_actor = Thread.current[:actor]
-
-      actor.notify_unlink(current_actor.proxy)
-      current_actor.notify_unlink(actor)
-    end
-
-    def notify_link(actor)
-      Thread.current[:actor].links << actor
-    end
-
-    def notify_unlink(actor)
-      Thread.current[:actor].links.delete actor
-    end
-
-    # Is this actor linked to another?
-    def linked_to?(actor)
-      Thread.current[:actor].links.include? actor
-    end
-  end
 end

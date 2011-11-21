@@ -20,7 +20,6 @@ module Celluloid
   # messages.
   class Actor
     extend Registry
-    include Linking
 
     attr_reader :proxy
     attr_reader :links

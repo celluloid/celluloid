@@ -9,8 +9,7 @@ module Celluloid
     attr_accessor :logger # Thread-safe logger class
 
     def included(klass)
-      klass.send :extend,  ClassMethods
-      klass.send :include, Linking
+      klass.send :extend, ClassMethods
     end
 
     # Are we currently inside of an actor?
@@ -74,7 +73,7 @@ module Celluloid
 
     # Create a new actor and link to the current one
     def new_link(*args, &block)
-      current_actor = Thread.current[:actor]
+      current_actor = Celluloid.current_actor
       raise NotActorError, "can't link outside actor context" unless current_actor
 
       proxy = Celluloid::Actor.new(allocate).proxy
@@ -165,6 +164,36 @@ module Celluloid
   # be shared with at least the actor thread. Tread carefully.
   def wrapped_object; self; end
 
+  # Obtain the Celluloid::Links for this actor
+  def links
+    Thread.current[:actor].links
+  end
+
+  # Link this actor to another, allowing it to crash or react to errors
+  def link(actor)
+    actor.notify_link current_actor
+    notify_link actor
+  end
+
+  # Remove links to another actor
+  def unlink(actor)
+    actor.notify_unlink current_actor
+    notify_unlink actor
+  end
+
+  def notify_link(actor)
+    links << actor
+  end
+
+  def notify_unlink(actor)
+    links.delete actor
+  end
+
+  # Is this actor linked to another?
+  def linked_to?(actor)
+    Thread.current[:actor].links.include? actor
+  end
+
   # Receive an asynchronous message via the actor protocol
   def receive(&block)
     Celluloid.receive(&block)
@@ -207,7 +236,7 @@ require 'celluloid/actor_proxy'
 require 'celluloid/calls'
 require 'celluloid/core_ext'
 require 'celluloid/events'
-require 'celluloid/linking'
+require 'celluloid/links'
 require 'celluloid/mailbox'
 require 'celluloid/receivers'
 require 'celluloid/registry'
