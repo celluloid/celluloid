@@ -27,8 +27,7 @@ module Celluloid
 
     # Invoke a method on the given actor via its mailbox
     def self.call(mailbox, meth, *args, &block)
-      our_mailbox = Thread.current.mailbox
-      call = SyncCall.new(our_mailbox, meth, args, block)
+      call = SyncCall.new(Thread.mailbox, meth, args, block)
 
       begin
         mailbox << call
@@ -41,8 +40,8 @@ module Celluloid
         response = Fiber.yield(call)
       else
         # Otherwise we're inside a normal thread, so block
-        response = our_mailbox.receive do |msg|
-          msg.is_a? Response and msg.call_id == call.id
+        response = Thread.mailbox.receive do |msg|
+          msg.respond_to?(:call_id) and msg.call_id == call.id
         end
       end
 
@@ -51,9 +50,8 @@ module Celluloid
 
     # Invoke a method asynchronously on an actor via its mailbox
     def self.async(mailbox, meth, *args, &block)
-      our_mailbox = Thread.current.mailbox
       begin
-        mailbox << AsyncCall.new(our_mailbox, meth, args, block)
+        mailbox << AsyncCall.new(Thread.mailbox, meth, args, block)
       rescue MailboxError
         # Silently swallow asynchronous calls to dead actors. There's no way
         # to reliably generate DeadActorErrors for async calls, so users of
@@ -80,8 +78,8 @@ module Celluloid
       @pending_calls = {}
 
       @thread = Pool.get do
-        Thread.current[:actor]       = self
-        Thread.current[:mailbox]     = @mailbox
+        Thread.current[:actor]   = self
+        Thread.current[:mailbox] = @mailbox
 
         run
       end

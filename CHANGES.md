@@ -3,6 +3,8 @@
 * Celluloid#links obtains Celluloid::Links for a given actor
 * The #class method is now proxied to actors
 * Celluloid::Fiber replaces the Celluloid.fiber and Celluloid.resume_fiber API
+* Use Thread.mailbox instead of Thread.current.mailbox to obtain the mailbox
+  for the current thread
 
 0.6.0
 -----

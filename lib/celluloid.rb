@@ -30,7 +30,7 @@ module Celluloid
       if actor
         actor.receive(&block)
       else
-        Thread.current.mailbox.receive(&block)
+        Thread.mailbox.receive(&block)
       end
     end
 
