@@ -26,7 +26,7 @@ module Celluloid
 
       if handler
         fiber, _ = @handlers.delete_at handler
-        Celluloid.resume_fiber fiber, message
+        fiber.resume message
         true
       else
         false

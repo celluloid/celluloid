@@ -1,4 +1,4 @@
-# Let's go shopping!
+# Every time I look at this code a little part of me dies...
 begin
   require 'fiber'
 rescue LoadError => ex
@@ -29,5 +29,37 @@ rescue LoadError => ex
     Fiber = Rubinius::Fiber
   else
     raise ex
+  end
+end
+
+module Celluloid
+  class Fiber < ::Fiber
+    def initialize(*args)
+      actor   = Thread.current[:actor]
+      proxy   = Thread.current[:actor_proxy]
+      mailbox = Thread.current[:mailbox]
+
+      super do
+        Thread.current[:actor]       = actor
+        Thread.current[:actor_proxy] = proxy
+        Thread.current[:mailbox]     = mailbox
+
+        yield(*args)
+      end
+    end
+
+    def resume(value = nil)
+      result = super
+      actor = Thread.current[:actor]
+      return result unless actor
+
+      if result.is_a? Celluloid::Call
+        actor.register_fiber result, self
+      elsif result
+        warning = "non-call returned from fiber: #{result.class}"
+        Celluloid.logger.debug warning if Celluloid.logger
+      end
+      nil
+    end
   end
 end

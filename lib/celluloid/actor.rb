@@ -120,8 +120,7 @@ module Celluloid
         begin
           message = @mailbox.receive
         rescue ExitEvent => exit_event
-          fiber = Celluloid.fiber { handle_exit_event exit_event; nil }
-          run_fiber fiber
+          Celluloid::Fiber.new { handle_exit_event exit_event; nil }.resume
           retry
         end
 
@@ -139,29 +138,22 @@ module Celluloid
       Pool.put @thread
     end
 
-    # Run a method, handling when its Fiber is suspended
-    def run_fiber(fiber, value = nil)
-      result = fiber.resume value
-      if result.is_a? Celluloid::Call
-        @pending_calls[result.id] = fiber if fiber.alive?
-      elsif result
-        warning = "non-call returned from fiber: #{result.class}"
-        Celluloid.logger.debug warning if Celluloid.logger
-      end
-      nil
+    # Register a fiber waiting for the response to a Celluloid::Call
+    def register_fiber(call, fiber)
+      raise ArgumentError, "attempted to register a dead fiber" unless fiber.alive?
+      @pending_calls[call.id] = fiber
     end
 
     # Handle an incoming message
     def handle_message(message)
       case message
       when Call
-        fiber = Celluloid.fiber { message.dispatch(@subject); nil }
-        run_fiber fiber
+        Celluloid::Fiber.new { message.dispatch(@subject); nil }.resume
       when Response
         fiber = @pending_calls.delete(message.call_id)
 
         if fiber
-          run_fiber fiber, message
+          fiber.resume message
         else
           warning = "spurious response to call #{message.call_id}"
           Celluloid.logger.debug if Celluloid.logger

@@ -1,7 +1,8 @@
 0.6.1
 -----
 * Celluloid#links obtains Celluloid::Links for a given actor
-* The #class method is now proxied to the actor
+* The #class method is now proxied to actors
+* Celluloid::Fiber replaces the Celluloid.fiber and Celluloid.resume_fiber API
 
 0.6.0
 -----

@@ -1,6 +1,5 @@
 require 'logger'
 require 'thread'
-require 'celluloid/fibers_are_hard'
 
 module Celluloid
   @logger = Logger.new STDERR
@@ -35,29 +34,9 @@ module Celluloid
       end
     end
 
-    # Create a fiber that participates in the Celluloid protocol
-    def fiber(*args)
-      actor   = Thread.current[:actor]
-      proxy   = Thread.current[:actor_proxy]
-      mailbox = Thread.current[:mailbox]
-
-      Fiber.new do
-        Thread.current[:actor]       = actor
-        Thread.current[:actor_proxy] = proxy
-        Thread.current[:mailbox]     = mailbox
-
-        yield(*args)
-      end
-    end
-
     # Resume a fiber that participates in the Celluloid protocol
     def resume_fiber(fiber, value = nil)
-      actor = Thread.current[:actor]
-      if actor
-        actor.run_fiber fiber, value
-      else
-        fiber.resume value
-      end
+      fiber.resume value
     end
   end
 
@@ -236,6 +215,7 @@ require 'celluloid/actor_proxy'
 require 'celluloid/calls'
 require 'celluloid/core_ext'
 require 'celluloid/events'
+require 'celluloid/fiber'
 require 'celluloid/links'
 require 'celluloid/mailbox'
 require 'celluloid/receivers'

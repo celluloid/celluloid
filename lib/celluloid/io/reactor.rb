@@ -32,7 +32,7 @@ module Celluloid
         [[readers, @readers], [writers, @writers]].each do |ios, registered|
           ios.each do |io|
             fiber = registered.delete io
-            Celluloid.resume_fiber(fiber) if fiber
+            fiber.resume if fiber
           end
         end
       end

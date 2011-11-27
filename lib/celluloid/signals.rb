@@ -18,10 +18,8 @@ module Celluloid
       fibers = @waiting.delete name
       return unless fibers
       
-      fibers.each do |fiber|
-        Celluloid.resume_fiber fiber, value
-      end
-      true
+      fibers.each { |fiber| fiber.resume value }
+      value
     end
   end
 end
