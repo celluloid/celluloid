@@ -36,13 +36,11 @@ module Celluloid
   class Fiber < ::Fiber
     def initialize(*args)
       actor   = Thread.current[:actor]
-      proxy   = Thread.current[:actor_proxy]
       mailbox = Thread.current[:mailbox]
 
       super do
-        Thread.current[:actor]       = actor
-        Thread.current[:actor_proxy] = proxy
-        Thread.current[:mailbox]     = mailbox
+        Thread.current[:actor]   = actor
+        Thread.current[:mailbox] = mailbox
 
         yield(*args)
       end

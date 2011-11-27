@@ -18,10 +18,10 @@ module Celluloid
 
     # Obtain the currently running actor (if one exists)
     def current_actor
-      actor = Thread.current[:actor_proxy]
+      actor = Thread.current[:actor]
       raise NotActorError, "not in actor scope" unless actor
 
-      actor
+      actor.proxy
     end
 
     # Receive an asynchronous message

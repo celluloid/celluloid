@@ -81,7 +81,6 @@ module Celluloid
 
       @thread = Pool.get do
         Thread.current[:actor]       = self
-        Thread.current[:actor_proxy] = @proxy
         Thread.current[:mailbox]     = @mailbox
 
         run
