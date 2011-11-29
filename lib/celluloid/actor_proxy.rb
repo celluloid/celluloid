@@ -34,11 +34,9 @@ module Celluloid
     end
 
     def inspect
-      if alive?
-        Actor.call @mailbox, :inspect
-      else
-        "#<Celluloid::Actor(#{@klass}) dead>"
-      end
+      Actor.call @mailbox, :inspect
+    rescue DeadActorError
+      "#<Celluloid::Actor(#{@klass}) dead>"
     end
 
     # Create a Celluloid::Future which calls a given method
