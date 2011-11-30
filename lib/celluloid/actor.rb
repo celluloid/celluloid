@@ -175,10 +175,14 @@ module Celluloid
 
     # Handle any exceptions that occur within a running actor
     def handle_crash(exception)
-      log_error(exception)
+      Celluloid::Logger.crash(@subject.class, exception)
       cleanup ExitEvent.new(@proxy, exception)
     rescue Exception => handler_exception
-      log_error(handler_exception, "ERROR HANDLER CRASHED!")
+      Celluloid::Logger.crash(
+        @subject.class,
+        handler_exception,
+        "ERROR HANDLER CRASHED!"
+      )
     end
 
     # Handle cleaning up this actor after it exits
@@ -189,15 +193,12 @@ module Celluloid
       begin
         @subject.finalize if @subject.respond_to? :finalize
       rescue Exception => finalizer_exception
-        log_error(finalizer_exception, "#{@subject.class}#finalize crashed!")
+        Celluloid::Logger.crash(
+          @subject.class,
+          finalizer_exception,
+          "#{@subject.class}#finalize crashed!"
+        )
       end
-    end
-
-    # Log errors when an actor crashes
-    def log_error(ex, message = "#{@subject.class} crashed!")
-      message << "\n#{ex.class}: #{ex.to_s}\n"
-      message << ex.backtrace.join("\n")
-      Celluloid.logger.error message if Celluloid.logger
     end
   end
 end
