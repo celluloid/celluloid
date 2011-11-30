@@ -42,10 +42,7 @@ module Celluloid
                 func.call
               end
             rescue Exception => ex
-              message = "Celluloid::Actor::Pool internal failure:\n"
-              message << "#{ex.class}: #{ex.to_s}\n"
-              message << ex.backtrace.join("\n")
-              Celluloid.logger.error message if Celluloid.logger
+              Celluloid::Logger.crash("#{self} internal failure", ex)
             end
           end
           thread[:queue] = queue

@@ -152,8 +152,7 @@ module Celluloid
         if fiber
           fiber.resume message
         else
-          warning = "spurious response to call #{message.call_id}"
-          Celluloid.logger.debug if Celluloid.logger
+          Celluloid::Logger.debug("spurious response to call #{message.call_id}")
         end
       else
         @receivers.handle_message(message)
@@ -175,14 +174,10 @@ module Celluloid
 
     # Handle any exceptions that occur within a running actor
     def handle_crash(exception)
-      Celluloid::Logger.crash(@subject.class, exception)
+      Celluloid::Logger.crash("#{@subject.class} crashed!", exception)
       cleanup ExitEvent.new(@proxy, exception)
-    rescue Exception => handler_exception
-      Celluloid::Logger.crash(
-        @subject.class,
-        handler_exception,
-        "ERROR HANDLER CRASHED!"
-      )
+    rescue Exception => ex
+      Celluloid::Logger.crash("#{@subject.class}: ERROR HANDLER CRASHED!", ex)
     end
 
     # Handle cleaning up this actor after it exits
@@ -192,12 +187,8 @@ module Celluloid
 
       begin
         @subject.finalize if @subject.respond_to? :finalize
-      rescue Exception => finalizer_exception
-        Celluloid::Logger.crash(
-          @subject.class,
-          finalizer_exception,
-          "#{@subject.class}#finalize crashed!"
-        )
+      rescue Exception => ex
+        Celluloid::Logger.crash("#{@subject.class}#finalize crashed!", ex)
       end
     end
   end

@@ -54,8 +54,7 @@ module Celluloid
       if result.is_a? Celluloid::Call
         actor.register_fiber result, self
       elsif result
-        warning = "non-call returned from fiber: #{result.class}"
-        Celluloid.logger.debug warning if Celluloid.logger
+        Celluloid::Logger.debug("non-call returned from fiber: #{result.class}")
       end
       nil
     end

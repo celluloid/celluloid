@@ -31,11 +31,7 @@ module Celluloid
         if failures >= start_attempts
           failures = 0
 
-          warning = "#{@klass} is crashing on initialize repeatedly, sleeping for #{sleep_interval} seconds\n"
-          warning << "#{ex.class}: #{ex}\n  "
-          warning << "#{ex.backtrace.join("\n  ")}"
-
-          Celluloid.logger.warn warning if Celluloid.logger
+          Celluloid::Logger.crash("#{@klass} is crashing on initialize repeatedly, sleeping for #{sleep_interval} seconds", ex)
           sleep sleep_interval
         end
         retry
