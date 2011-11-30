@@ -1,5 +1,6 @@
 0.6.2
 -----
+* List all registered actors with Celluloid::Actor.registered
 * All logging now handled through Celluloid::Logger
 * Rescue DeadActorError in Celluloid::ActorProxy#inspect
 
