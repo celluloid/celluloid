@@ -1,3 +1,8 @@
+0.6.2
+-----
+* All logging now handled through Celluloid::Logger
+* Rescue DeadActorError in Celluloid::ActorProxy#inspect
+
 0.6.1
 -----
 * Celluloid#links obtains Celluloid::Links for a given actor
