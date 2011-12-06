@@ -47,7 +47,16 @@ module Celluloid
     end
 
     def resume(value = nil)
-      result = super
+      begin
+        result = super
+      rescue RuntimeError => ex
+        # YARV likes to spit out extremely confusing RuntimeErrors with no
+        # explanation message sporadically during shutdown. People then
+        # interpret this as some kind of bug in Celluloid. UGH!
+        # Swallow those suckers up so people don't complain
+        raise ex unless ex.to_s.empty?
+      end
+
       actor = Thread.current[:actor]
       return result unless actor
 
