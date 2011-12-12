@@ -11,6 +11,6 @@ describe Celluloid::Timers do
     started_at = Time.now
     timers.wait.should == :bazinga
 
-    (Time.now - started_at).should be_within(0.01).of(interval)
+    (Time.now - started_at).should be_within(Celluloid::Timer::QUANTUM).of interval
   end
 end

@@ -22,6 +22,9 @@ module Celluloid
 
   # A proc associated with a particular timestamp
   class Timer
+    # How precise are we being here? We're using freaking floats!
+    QUANTUM = 0.01
+
     attr_reader :time
 
     def initialize(interval, block)
