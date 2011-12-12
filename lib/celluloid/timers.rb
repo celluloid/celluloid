@@ -14,16 +14,31 @@ module Celluloid
     # Wait for the next timer and fire it
     def wait
       return if @timers.empty?
-      timer = @timers.shift
 
-      interval = timer.time - Time.now
-      sleep interval unless interval < Timer::QUANTUM
-      timer.call
+      int = interval
+      sleep int if int >= Timer::QUANTUM
+      fire
     end
 
     # Interval to wait until when the next timer will fire
     def interval
       @timers.first.time - Time.now
+    end
+
+    # Fire all timers that are ready
+    def fire
+      return if @timers.empty?
+
+      time = Time.now
+      while not empty? and time > @timers.first.time
+        timer = @timers.shift
+        timer.call
+      end
+    end
+
+    # Are there any timers pending?
+    def empty?
+      @timers.empty?
     end
 
     # Index where a timer would be located in the sorted timers array

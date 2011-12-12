@@ -9,9 +9,11 @@ describe Celluloid::Timers do
     interval = 0.1
     started_at = Time.now
 
-    @timers.add(interval) { :bazinga }
-    @timers.wait.should == :bazinga
+    fired = false
+    @timers.add(interval) { fired = true }
+    @timers.wait
 
+    fired.should be_true
     (Time.now - started_at).should be_within(Celluloid::Timer::QUANTUM).of interval
   end
 
@@ -20,5 +22,18 @@ describe Celluloid::Timers do
 
     @timers.add(interval)
     @timers.interval.should be_within(Celluloid::Timer::QUANTUM).of interval
+  end
+
+  it "fires timers in the correct order" do
+    result = []
+
+    @timers.add(0.02) { result << :two }
+    @timers.add(0.03) { result << :three }
+    @timers.add(0.01) { result << :one }
+
+    sleep 0.03 + Celluloid::Timer::QUANTUM
+    @timers.fire
+
+    result.should == [:one, :two, :three]
   end
 end
