@@ -223,6 +223,7 @@ require 'celluloid/receivers'
 require 'celluloid/registry'
 require 'celluloid/responses'
 require 'celluloid/signals'
+require 'celluloid/timers'
 
 require 'celluloid/actor'
 require 'celluloid/actor_pool'
