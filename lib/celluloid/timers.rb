@@ -7,7 +7,8 @@ module Celluloid
 
     # Call the given block after the given interval
     def add(interval, &block)
-      @timers << Timer.new(interval, block)
+      timer = Timer.new(interval, block)
+      @timers.insert(index(timer), timer)
     end
 
     # Wait for the next timer and fire it
@@ -18,10 +19,27 @@ module Celluloid
       sleep timer.time - Time.now
       timer.call
     end
+
+    # Index where a timer would be located in the sorted timers array
+    def index(timer)
+      l, r = 0, @timers.size - 1
+
+      while l <= r
+        m = (r + l) / 2
+        if timer < @timers.at(m)
+          r = m - 1
+        else
+          l = m + 1
+        end
+      end
+      l
+    end
   end
 
   # A proc associated with a particular timestamp
   class Timer
+    include Comparable
+
     # How precise are we being here? We're using freaking floats!
     QUANTUM = 0.01
 
@@ -30,6 +48,10 @@ module Celluloid
     def initialize(interval, block)
       @block = block
       @time = Time.now + interval
+    end
+
+    def <=>(other)
+      @time <=> other.time
     end
 
     # Call the associated block
