@@ -16,8 +16,14 @@ module Celluloid
       return if @timers.empty?
       timer = @timers.shift
 
-      sleep timer.time - Time.now
+      interval = timer.time - Time.now
+      sleep interval unless interval < Timer::QUANTUM
       timer.call
+    end
+
+    # Interval to wait until when the next timer will fire
+    def interval
+      @timers.first.time - Time.now
     end
 
     # Index where a timer would be located in the sorted timers array
