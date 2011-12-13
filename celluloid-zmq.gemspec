@@ -14,8 +14,6 @@ Gem::Specification.new do |gem|
   gem.add_dependency "celluloid", ">= 0.6.2"
   gem.add_dependency "ffi"
   gem.add_dependency "ffi-rzmq"
-  gem.add_dependency "redis"
-  gem.add_dependency "redis-namespace"
 
   gem.add_development_dependency "rake"
   gem.add_development_dependency "rspec", ">= 2.7.0"
