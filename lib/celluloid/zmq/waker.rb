@@ -36,11 +36,11 @@ module Celluloid
       # Wait for another thread to signal this Waker
       def wait
         message = ''
-  	    rc = @receiver.recv_string message
+        rc = @receiver.recv_string message
 
-  	    unless ::ZMQ::Util.resultcode_ok? rc and message == PAYLOAD
-  	      raise DeadWakerError, "error receiving ZMQ string: #{::ZMQ::Util.error_string}"
-  	    end
+        unless ::ZMQ::Util.resultcode_ok? rc and message == PAYLOAD
+          raise DeadWakerError, "error receiving ZMQ string: #{::ZMQ::Util.error_string}"
+        end
       end
 
       # Clean up the IO objects associated with this waker
