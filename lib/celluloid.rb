@@ -34,6 +34,11 @@ module Celluloid
       end
     end
 
+    # Sleep letting the actor continue processing messages
+    def sleep(interval)
+      receive interval
+    end
+
     # Resume a fiber that participates in the Celluloid protocol
     def resume_fiber(fiber, value = nil)
       fiber.resume value
@@ -176,6 +181,11 @@ module Celluloid
   # Receive an asynchronous message via the actor protocol
   def receive(timeout = nil, &block)
     Celluloid.receive(timeout, &block)
+  end
+
+  # Sleep while letting the actor continue to receive messages
+  def sleep(interval)
+    Celluloid.sleep(interval)
   end
 
   # Perform a blocking or computationally intensive action inside an

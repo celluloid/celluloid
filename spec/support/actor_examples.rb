@@ -323,4 +323,40 @@ shared_context "a Celluloid Actor" do |included_module|
       (Time.now - started_at).should be_within(Celluloid::Timer::QUANTUM).of interval
     end
   end
+
+  context :timers do
+    before do
+      @klass = Class.new do
+        include included_module
+
+        def initialize
+          @sleeping = false
+        end
+
+        def do_sleep(n)
+          @sleeping = true
+          sleep n
+          @sleeping = false
+        end
+
+        def sleeping?; @sleeping end
+      end
+    end
+
+    it "suspends execution of a method (but not the actor) for a given time" do
+      actor = @klass.new
+
+      # Sleep long enough to ensure we're actually seeing behavior when asleep
+      # but not so long as to delay the test suite unnecessarily
+      interval = Celluloid::Timer::QUANTUM * 10
+      started_at = Time.now
+
+      future = actor.future(:do_sleep, interval)
+      sleep(interval / 2) # wonky! :/
+      actor.should be_sleeping
+
+      future.value
+      (Time.now - started_at).should be_within(Celluloid::Timer::QUANTUM).of interval
+    end
+  end
 end
