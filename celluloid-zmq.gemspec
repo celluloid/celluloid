@@ -8,11 +8,7 @@ Gem::Specification.new do |gem|
   gem.summary       = "Celluloid::ZMQ provides concurrent Celluloid actors that can listen for 0MQ events"
   gem.homepage      = "http://github.com/tarcieri/dcell"
 
-  gem.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
-  gem.files         = `git ls-files`.split("\n")
-  gem.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
   gem.name          = "celluloid-zmq"
-  gem.require_paths = ["lib"]
   gem.version       = Celluloid::ZMQ::VERSION
 
   gem.add_dependency "celluloid", ">= 0.6.2"
@@ -23,4 +19,11 @@ Gem::Specification.new do |gem|
 
   gem.add_development_dependency "rake"
   gem.add_development_dependency "rspec", ">= 2.7.0"
+
+  # Files
+  ignores = File.read(".gitignore").split(/\r?\n/).reject{ |f| f =~ /^(#.+|\s*)$/ }.map {|f| Dir[f] }.flatten
+  gem.files = (Dir['**/*','.gitignore'] - ignores).reject {|f| !File.file?(f) }
+  gem.test_files = (Dir['spec/**/*','.gitignore'] - ignores).reject {|f| !File.file?(f) }
+  # gem.executables   = Dir['bin/*'].map { |f| File.basename(f) }
+  gem.require_paths = ['lib']
 end
