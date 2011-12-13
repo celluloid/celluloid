@@ -7,9 +7,7 @@ module Celluloid
 
     # Call the given block after the given interval
     def add(interval, &block)
-      timer = Timer.new(interval, block)
-      @timers.insert(index(timer), timer)
-      timer
+      Timer.new(self, interval, block)
     end
 
     # Wait for the next timer and fire it
@@ -35,6 +33,11 @@ module Celluloid
         timer = @timers.shift
         timer.call
       end
+    end
+
+    # Insert a timer into the active timers
+    def insert(timer)
+      @timers.insert(index(timer), timer)
     end
 
     # Remove a given timer from the set we're monitoring
@@ -72,20 +75,35 @@ module Celluloid
     # firing of timers
     QUANTUM = 0.02
 
-    attr_reader :time
+    attr_reader :interval, :time
 
-    def initialize(interval, block)
+    def initialize(timers, interval, block)
+      @timers, @interval = timers, interval
       @block = block
-      @time = Time.now + interval
+
+      reset
     end
 
     def <=>(other)
       @time <=> other.time
     end
 
-    # Call the associated block
-    def call
+    # Cancel this timer
+    def cancel
+      @timers.cancel self
+    end
+
+    # Reset this timer
+    def reset
+      @timers.cancel self if defined?(@time)
+      @time = Time.now + interval
+      @timers.insert self
+    end
+
+    # Fire the block
+    def fire
       @block.call
     end
+    alias_method :call, :fire
   end
 end
