@@ -39,11 +39,20 @@ module Celluloid
       end
 
       # Receive a message from the Mailbox
-      def receive(&block)
+      def receive(timeout = nil, &block)
         message = nil
 
         begin
-          @reactor.run_once do
+          if timeout
+             now = Time.now
+             wait_until ||= now + timeout
+             wait_interval = wait_until - now
+             return if wait_interval < Celluloid::Timer::QUANTUM
+           else
+             wait_interval = nil
+           end
+
+          @reactor.run_once(wait_interval) do
             @waker.wait
             message = next_message(&block)
           end

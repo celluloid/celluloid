@@ -25,8 +25,10 @@ module Celluloid
 
       # Run the reactor, waiting for events, and calling the given block if
       # the reactor is awoken by the waker
-      def run_once
-        readers, writers = select @readers.keys << @waker.io, @writers.keys
+      def run_once(timeout = nil)
+        readers, writers = select(@readers.keys << @waker.io, @writers.keys, [], timeout)
+        return unless readers
+
         yield if readers.include? @waker.io
 
         [[readers, @readers], [writers, @writers]].each do |ios, registered|

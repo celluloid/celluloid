@@ -42,7 +42,7 @@ module Celluloid
     end
 
     # Receive a message from the Mailbox
-    def receive(&block)
+    def receive(timeout = nil, &block)
       message = nil
 
       @lock.synchronize do
@@ -50,7 +50,19 @@ module Celluloid
 
         begin
           message = next_message(&block)
-          @condition.wait(@lock) unless message
+
+          unless message
+            if timeout
+              now = Time.now
+              wait_until ||= now + timeout
+              wait_interval = wait_until - now
+              return if wait_interval < Celluloid::Timer::QUANTUM
+            else
+              wait_interval = nil
+            end
+
+            @condition.wait(@lock, wait_interval)
+          end
         end until message
       end
 

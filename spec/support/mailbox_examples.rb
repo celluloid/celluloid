@@ -41,4 +41,12 @@ shared_context "a Celluloid Mailbox" do
     subject.receive { |msg| msg.is_a? Bar }.should == bar
     subject.receive.should == baz
   end
+
+  it "waits for a given timeout interval" do
+    interval = 0.1
+    started_at = Time.now
+
+    subject.receive(interval) { false }
+    (Time.now - started_at).should be_within(Celluloid::Timer::QUANTUM).of interval
+  end
 end
