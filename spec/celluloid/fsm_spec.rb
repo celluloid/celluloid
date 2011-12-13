@@ -13,6 +13,7 @@ describe Celluloid::FSM do
         @fired = true
       end
 
+      state :pre_done, :to => :done
       state :another, :done
 
       def fired?; @fired end
@@ -45,5 +46,10 @@ describe Celluloid::FSM do
 
   it "allows custom default states" do
     CustomDefaultMachine.new.state.should == :foobar
+  end
+
+  it "supports constraints on valid state transitions" do
+    subject.transition :pre_done
+    expect { subject.transition :another }.to raise_exception ArgumentError
   end
 end

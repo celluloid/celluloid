@@ -41,10 +41,18 @@ module Celluloid
       end
 
       # Declare an FSM state and optionally provide a callback block to fire
+      # Options:
+      # * to: a state or array of states this state can transition to
       def state(*args, &block)
+        if args.last.is_a? Hash
+          options = args.pop.inject({}) { |h,(k,v)| h[k.to_s] = v; h }
+        else
+          options = {}
+        end
+
         args.each do |name|
           name = name.to_sym
-          states[name] = State.new(name, &block)
+          states[name] = State.new(name, options['to'], &block)
         end
       end
     end
@@ -57,6 +65,13 @@ module Celluloid
 
     # Transition to another state
     def transition(state_name)
+      current_state = self.class.states[@state]
+
+      if current_state and not current_state.valid_transition? state_name
+        valid = current_state.transitions.map(&:to_s).join(", ")
+        raise ArgumentError, "#{self.class} can't change state from '#{@state}' to '#{state_name}', only to: #{valid}"
+      end
+
       new_state = self.class.states[state_name.to_sym]
 
       unless new_state
@@ -74,14 +89,22 @@ module Celluloid
 
     # FSM states as declared by Celluloid::FSM.state
     class State
-      attr_reader :name
+      attr_reader :name, :transitions
 
-      def initialize(name, &block)
+      def initialize(name, transitions, &block)
         @name, @block = name, block
+        @transitions = Array(transitions).map { |t| t.to_sym } if transitions
       end
 
       def call(obj)
         obj.instance_eval(&@block) if @block
+      end
+
+      def valid_transition?(new_state)
+        # All transitions are allowed unless expressly
+        return true unless @transitions
+
+        @transitions.include? new_state.to_sym
       end
     end
   end
