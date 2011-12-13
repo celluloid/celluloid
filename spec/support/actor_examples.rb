@@ -331,6 +331,7 @@ shared_context "a Celluloid Actor" do |included_module|
 
         def initialize
           @sleeping = false
+          @fired = false
         end
 
         def do_sleep(n)
@@ -340,6 +341,12 @@ shared_context "a Celluloid Actor" do |included_module|
         end
 
         def sleeping?; @sleeping end
+
+        def fire_after(n)
+          after(n) { @fired = true }
+        end
+
+        def fired?; @fired end
       end
     end
 
@@ -357,6 +364,33 @@ shared_context "a Celluloid Actor" do |included_module|
 
       future.value
       (Time.now - started_at).should be_within(Celluloid::Timer::QUANTUM).of interval
+    end
+
+    it "schedules timers which fire in the future" do
+      actor = @klass.new
+
+      interval = Celluloid::Timer::QUANTUM * 10
+      started_at = Time.now
+
+      timer = actor.fire_after(interval)
+      actor.should_not be_fired
+
+      sleep(interval + Celluloid::Timer::QUANTUM) # wonky! #/
+      actor.should be_fired
+    end
+
+    it "cancels timers before they fire" do
+      actor = @klass.new
+
+      interval = Celluloid::Timer::QUANTUM * 10
+      started_at = Time.now
+
+      timer = actor.fire_after(interval)
+      actor.should_not be_fired
+      timer.cancel
+
+      sleep(interval + Celluloid::Timer::QUANTUM) # wonky! #/
+      actor.should_not be_fired
     end
   end
 end

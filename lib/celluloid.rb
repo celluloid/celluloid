@@ -188,6 +188,11 @@ module Celluloid
     Celluloid.sleep(interval)
   end
 
+  # Call a block after a given interval
+  def after(interval, &block)
+    Thread.current[:actor].after(interval, &block)
+  end
+
   # Perform a blocking or computationally intensive action inside an
   # asynchronous thread pool, allowing the caller to continue processing other
   # messages in its mailbox in the meantime

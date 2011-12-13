@@ -73,6 +73,7 @@ module Celluloid
       @links     = Links.new
       @signals   = Signals.new
       @receivers = Receivers.new
+      @timers    = Timers.new
       @proxy     = ActorProxy.new(@mailbox, self.class.to_s)
       @running   = true
       @pending_calls = {}
@@ -115,7 +116,7 @@ module Celluloid
     def run
       while @running
         begin
-          message = @mailbox.receive @receivers.wait_interval
+          message = @mailbox.receive wait_interval
         rescue ExitEvent => exit_event
           Celluloid::Fiber.new { handle_exit_event exit_event; nil }.resume
           retry
@@ -125,6 +126,7 @@ module Celluloid
           handle_message message
         else
           # No message indicates a timeout
+          @timers.fire
           @receivers.fire_timers
         end
       end
@@ -140,10 +142,31 @@ module Celluloid
       Pool.put @thread
     end
 
+    # How long to wait until the next timer fires
+    def wait_interval
+      i1 = @timers.wait_interval
+      i2 = @receivers.wait_interval
+
+      if i1 and i2
+        i1 < i2 ? i1 : i2
+      elsif i1
+        i1
+      else
+        i2
+      end
+    end
+
     # Register a fiber waiting for the response to a Celluloid::Call
     def register_fiber(call, fiber)
       raise ArgumentError, "attempted to register a dead fiber" unless fiber.alive?
       @pending_calls[call.id] = fiber
+    end
+
+    # Schedule a block to run at the given time
+    def after(interval)
+      @timers.add(interval) do
+        Celluloid::Fiber.new { yield; nil }.resume
+      end
     end
 
     # Handle an incoming message
