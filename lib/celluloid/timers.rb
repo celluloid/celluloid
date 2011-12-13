@@ -16,13 +16,13 @@ module Celluloid
     def wait
       return if @timers.empty?
 
-      int = interval
-      sleep int if int >= Timer::QUANTUM
+      interval = wait_interval
+      sleep interval if interval >= Timer::QUANTUM
       fire
     end
 
     # Interval to wait until when the next timer will fire
-    def interval
+    def wait_interval
       @timers.first.time - Time.now unless empty?
     end
 
@@ -30,7 +30,7 @@ module Celluloid
     def fire
       return if @timers.empty?
 
-      time = Time.now
+      time = Time.now + Timer::QUANTUM
       while not empty? and time > @timers.first.time
         timer = @timers.shift
         timer.call
@@ -67,8 +67,10 @@ module Celluloid
   class Timer
     include Comparable
 
-    # How precise are we being here? We're using freaking floats!
-    QUANTUM = 0.01
+    # The timer system is guaranteed (at least by the specs) to be this precise
+    # during normal operation. Long blocking calls within actors will delay the
+    # firing of timers
+    QUANTUM = 0.02
 
     attr_reader :time
 

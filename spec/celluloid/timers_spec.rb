@@ -21,15 +21,17 @@ describe Celluloid::Timers do
     interval = 0.1
 
     @timers.add(interval)
-    @timers.interval.should be_within(Celluloid::Timer::QUANTUM).of interval
+    @timers.wait_interval.should be_within(Celluloid::Timer::QUANTUM).of interval
   end
 
   it "fires timers in the correct order" do
     result = []
 
-    @timers.add(0.02) { result << :two }
-    @timers.add(0.03) { result << :three }
-    @timers.add(0.01) { result << :one }
+    Q = Celluloid::Timer::QUANTUM
+
+    @timers.add(Q * 2) { result << :two }
+    @timers.add(Q * 3) { result << :three }
+    @timers.add(Q * 1) { result << :one }
 
     sleep 0.03 + Celluloid::Timer::QUANTUM
     @timers.fire
