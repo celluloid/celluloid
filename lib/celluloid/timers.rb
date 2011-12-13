@@ -96,7 +96,7 @@ module Celluloid
     # Reset this timer
     def reset
       @timers.cancel self if defined?(@time)
-      @time = Time.now + interval
+      @time = Time.now + @interval
       @timers.insert self
     end
 
