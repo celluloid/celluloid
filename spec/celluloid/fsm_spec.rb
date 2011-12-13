@@ -17,6 +17,12 @@ describe Celluloid::FSM do
 
       def fired?; @fired end
     end
+
+    class CustomDefaultMachine
+      include Celluloid::FSM
+
+      default_state :foobar
+    end
   end
 
   let(:subject) { TestMachine.new }
@@ -35,5 +41,9 @@ describe Celluloid::FSM do
     subject.should_not be_fired
     subject.transition :callbacked
     subject.should be_fired
+  end
+
+  it "allows custom default states" do
+    CustomDefaultMachine.new.state.should == :foobar
   end
 end

@@ -58,7 +58,7 @@ module Celluloid
       new_state = self.class.states[state_name.to_sym]
 
       unless new_state
-        if state_name == DEFAULT_STATE
+        if state_name == self.class.default_state
           @state = state_name
           return
         end
