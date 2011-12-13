@@ -1,5 +1,6 @@
 0.7.0
 -----
+* Finite state machines with Celluloid::FSM
 * New timer subsystem! Bullet point-by-bullet point details below
 * Celluloid#after registers a callback to fire after a given time interval
 * Celluloid.sleep and Celluloid#sleep let an actor continue processing messages
