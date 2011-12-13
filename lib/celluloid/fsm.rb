@@ -20,5 +20,10 @@ module Celluloid
     def state
       defined?(@state) ? @state : @state = self.class.default_state
     end
+
+    # Transition to another state
+    def transition(state)
+      @state = state
+    end
   end
 end
