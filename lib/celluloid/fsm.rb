@@ -41,9 +41,11 @@ module Celluloid
       end
 
       # Declare an FSM state and optionally provide a callback block to fire
-      def state(name, &block)
-        name = name.to_sym
-        states[name] = State.new(name, &block)
+      def state(*args, &block)
+        args.each do |name|
+          name = name.to_sym
+          states[name] = State.new(name, &block)
+        end
       end
     end
 

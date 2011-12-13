@@ -13,7 +13,7 @@ describe Celluloid::FSM do
         @fired = true
       end
 
-      state :done
+      state :another, :done
 
       def fired?; @fired end
     end
