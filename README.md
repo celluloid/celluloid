@@ -12,7 +12,7 @@ receiving messages over Celluloid's actor protocol:
 * Celluloid::ZMQ#wait_writeable(socket): waits until there's space in the
   given socket's message buffer to send another message
 
-Usage:
+Example Usage:
 
     require 'celluloid-zmq'
 
@@ -50,3 +50,7 @@ Usage:
       end
     end
 
+Copyright
+---------
+
+Copyright (c) 2011 Tony Arcieri. See LICENSE.txt for further details.
