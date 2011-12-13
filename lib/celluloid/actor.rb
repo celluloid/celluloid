@@ -169,6 +169,13 @@ module Celluloid
       end
     end
 
+    # Sleep for the given amount of time
+    def sleep(interval)
+      fiber = Fiber.current
+      @timers.add(interval) { fiber.resume }
+      Fiber.yield
+    end
+
     # Handle an incoming message
     def handle_message(message)
       case message

@@ -36,7 +36,12 @@ module Celluloid
 
     # Sleep letting the actor continue processing messages
     def sleep(interval)
-      receive interval
+      actor = Thread.current[:actor]
+      if actor
+        actor.sleep(interval)
+      else
+        Kernel.sleep interval
+      end
     end
 
     # Resume a fiber that participates in the Celluloid protocol
