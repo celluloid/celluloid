@@ -5,7 +5,7 @@ module Celluloid
       def initialize
         @messages = []
         @lock  = Mutex.new
-        @waker = Celluloid::IO::Waker.new
+        @waker = Celluloid::ZMQ::Waker.new
         @reactor = Reactor.new(@waker)
       end
     end
