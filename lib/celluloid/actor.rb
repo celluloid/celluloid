@@ -107,21 +107,26 @@ module Celluloid
     end
 
     # Receive an asynchronous message
-    def receive(&block)
-      @receivers.receive(&block)
+    def receive(timeout = nil, &block)
+      @receivers.receive(timeout, &block)
     end
 
     # Run the actor loop
     def run
       while @running
         begin
-          message = @mailbox.receive
+          message = @mailbox.receive @receivers.wait_interval
         rescue ExitEvent => exit_event
           Celluloid::Fiber.new { handle_exit_event exit_event; nil }.resume
           retry
         end
 
-        handle_message message
+        if message
+          handle_message message
+        else
+          # No message indicates a timeout
+          @receivers.fire_timers
+        end
       end
 
       cleanup ExitEvent.new(@proxy)

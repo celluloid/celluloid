@@ -25,12 +25,12 @@ module Celluloid
     end
 
     # Receive an asynchronous message
-    def receive(&block)
+    def receive(timeout = nil, &block)
       actor = Thread.current[:actor]
       if actor
-        actor.receive(&block)
+        actor.receive(timeout, &block)
       else
-        Thread.mailbox.receive(&block)
+        Thread.mailbox.receive(timeout, &block)
       end
     end
 
@@ -174,8 +174,8 @@ module Celluloid
   end
 
   # Receive an asynchronous message via the actor protocol
-  def receive(&block)
-    Celluloid.receive(&block)
+  def receive(timeout = nil, &block)
+    Celluloid.receive(timeout, &block)
   end
 
   # Perform a blocking or computationally intensive action inside an

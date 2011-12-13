@@ -313,5 +313,14 @@ shared_context "a Celluloid Actor" do |included_module|
       received_obj = receiver.signal_myself(obj) { |o| o == obj }
       received_obj.should == obj
     end
+
+    it "times out after the given interval" do
+      interval = 0.1
+      started_at = Time.now
+      receiver = @receiver.new
+
+      receiver.receive(interval) { false }.should be_nil
+      (Time.now - started_at).should be_within(Celluloid::Timer::QUANTUM).of interval
+    end
   end
 end
