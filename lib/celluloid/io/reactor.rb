@@ -13,14 +13,14 @@ module Celluloid
       def wait_readable(io)
         monitor_io io, @readers
         Fiber.yield
-        block_given? ? yield(io) : io
+        io
       end
 
       # Wait for the given IO object to become writeable
       def wait_writeable(io)
         monitor_io io, @writers
         Fiber.yield
-        block_given? ? yield(io) : io
+        io
       end
 
       # Run the reactor, waiting for events, and calling the given block if
