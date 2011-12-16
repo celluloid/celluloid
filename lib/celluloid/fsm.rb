@@ -64,7 +64,14 @@ module Celluloid
     alias_method :state, :current_state
 
     # Transition to another state
-    def transition(state_name)
+    # Options:
+    # * delay: don't transition immediately, wait the given number of seconds.
+    #          This will return a Celluloid::Timer object you can use to
+    #          cancel the pending state transition.
+    #
+    # Note:
+    def transition(state_name, options = {})
+      state_name = state_name.to_sym
       current_state = self.class.states[@state]
 
       if current_state and not current_state.valid_transition? state_name
@@ -72,26 +79,43 @@ module Celluloid
         raise ArgumentError, "#{self.class} can't change state from '#{@state}' to '#{state_name}', only to: #{valid}"
       end
 
-      new_state = self.class.states[state_name.to_sym]
+      new_state = self.class.states[state_name]
 
-      unless new_state
-        if state_name == self.class.default_state
-          @state = state_name
-          return
-        end
-
-        raise ArgumentError, "invalid state for #{self.class}: #{state_name}" unless new_state
+      if !new_state and state_name == self.class.default_state
+        # FIXME This probably isn't thread safe... or wise
+        new_state = self.class.states[state_name] = State.new(state_name)
       end
 
-      @state = new_state.name
-      new_state.call(self)
+      if new_state
+        if options[:delay]
+          @pending = after(options[:delay]) do
+            transition! new_state.name
+            new_state.call(self)
+          end
+
+          return @pending
+        end
+
+        transition! new_state.name
+        new_state.call(self)
+      elsif
+
+        transition!(state_name)
+      else
+        raise ArgumentError, "invalid state for #{self.class}: #{state_name}"
+      end
+    end
+
+    # Immediate state transition with no sanity checks. "Dangerous!"
+    def transition!(state_name)
+      @state = state_name
     end
 
     # FSM states as declared by Celluloid::FSM.state
     class State
       attr_reader :name, :transitions
 
-      def initialize(name, transitions, &block)
+      def initialize(name, transitions = nil, &block)
         @name, @block = name, block
         @transitions = Array(transitions).map { |t| t.to_sym } if transitions
       end

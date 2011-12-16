@@ -52,4 +52,16 @@ describe Celluloid::FSM do
     subject.transition :pre_done
     expect { subject.transition :another }.to raise_exception ArgumentError
   end
+
+  it "transitions to states after a specified delay" do
+    interval = Celluloid::Timer::QUANTUM * 10
+
+    subject.transition :another
+    subject.transition :done, :delay => interval
+
+    subject.state.should == :another
+    sleep interval + Celluloid::Timer::QUANTUM
+
+    subject.state.should == :done
+  end
 end
