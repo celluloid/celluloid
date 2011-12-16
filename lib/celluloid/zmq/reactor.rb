@@ -43,7 +43,12 @@ module Celluloid
       # Run the reactor, waiting for events, and calling the given block if
       # the reactor is awoken by the waker
       def run_once(timeout = nil)
-        timeout ||= :blocking
+        if timeout
+          timeout *= 1000 # Poller uses millisecond increments
+        else
+          timeout = :blocking
+        end
+
         rc = @poller.poll(timeout)
 
         unless ::ZMQ::Util.resultcode_ok? rc

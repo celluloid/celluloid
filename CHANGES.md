@@ -1,3 +1,11 @@
+0.0.4
+-----
+* Fix bugs in 0MQ polling (timeouts were being processed 1000x too fast)
+
+0.0.3
+-----
+* Fix botched dependencies (celluloid-zmq does not depend on redis)
+
 0.0.2
 -----
 * Pure blocking 0MQ reactor using a ZMQ::PAIR socket as the waker
