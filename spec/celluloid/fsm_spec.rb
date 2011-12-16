@@ -64,4 +64,17 @@ describe Celluloid::FSM do
 
     subject.state.should == :done
   end
+
+  it "cancels delayed state transitions if another transition is made" do
+    interval = Celluloid::Timer::QUANTUM * 10
+
+    subject.transition :another
+    subject.transition :done, :delay => interval
+
+    subject.state.should == :another
+    subject.transition :pre_done
+    sleep interval + Celluloid::Timer::QUANTUM
+
+    subject.state.should == :pre_done
+  end
 end

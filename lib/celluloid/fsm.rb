@@ -69,7 +69,7 @@ module Celluloid
     #          This will return a Celluloid::Timer object you can use to
     #          cancel the pending state transition.
     #
-    # Note:
+    # Note: making additional state transitions will cancel delayed transitions
     def transition(state_name, options = {})
       state_name = state_name.to_sym
       current_state = self.class.states[@state]
@@ -88,19 +88,23 @@ module Celluloid
 
       if new_state
         if options[:delay]
-          @pending = after(options[:delay]) do
+          @delayed_transition.cancel if @delayed_transition
+
+          @delayed_transition = after(options[:delay]) do
             transition! new_state.name
             new_state.call(self)
           end
 
-          return @pending
+          return @delayed_transition
+        end
+
+        if defined?(@delayed_transition) and @delayed_transition
+          @delayed_transition.cancel
+          @delayed_transition = nil
         end
 
         transition! new_state.name
         new_state.call(self)
-      elsif
-
-        transition!(state_name)
       else
         raise ArgumentError, "invalid state for #{self.class}: #{state_name}"
       end
