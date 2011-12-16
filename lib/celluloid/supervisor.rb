@@ -23,7 +23,7 @@ module Celluloid
       start_actor
     end
 
-    def start_actor(start_attempts = 2, sleep_interval = 30)
+    def start_actor(start_attempts = 3, sleep_interval = 30)
       failures = 0
 
       begin
