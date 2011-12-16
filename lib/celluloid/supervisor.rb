@@ -18,6 +18,8 @@ module Celluloid
 
     def initialize(name, klass, *args, &block)
       @name, @klass, @args, @block = name, klass, args, block
+      @started = false
+
       start_actor
     end
 
@@ -37,12 +39,13 @@ module Celluloid
         retry
       end
 
+      @started = true
       Celluloid::Actor[@name] = @actor if @name
     end
 
     # When actors die, regardless of the reason, restart them
     def restart_actor(actor, reason)
-      start_actor
+      start_actor if @started
     end
 
     def inspect
