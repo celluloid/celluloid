@@ -6,6 +6,7 @@
 * Celluloid.sleep and Celluloid#sleep let an actor continue processing messages
 * Celluloid.receive and Celluloid#receive now accept an optional timeout
 * Celluloid::Mailbox#receive now accepts an optional timeout
+* Fix bugs in supervisors handling actors that crash during initialize
 
 0.6.2
 -----
