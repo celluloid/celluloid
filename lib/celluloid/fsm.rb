@@ -12,14 +12,14 @@ module Celluloid
 
     module ClassMethods
       # Ensure FSMs transition into the default state after they're initialized
-      def new
+      def new(*args, &block)
         fsm = super
         fsm.transition default_state
         fsm
       end
 
       # Ensure FSMs transition into the default state after they're initialized
-      def new_link
+      def new_link(*args, &block)
         fsm = super
         fsm.transition default_state
         fsm
