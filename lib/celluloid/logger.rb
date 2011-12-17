@@ -2,17 +2,22 @@ module Celluloid
   module Logger
     module_function
 
-    # Print a debug message
+    # Send a debug message
     def debug(string)
       Celluloid.logger.debug(string) if Celluloid.logger
     end
 
-    # Print a warning message
+    # Send a info message
+    def info(string)
+      Celluloid.logger.info(string) if Celluloid.logger
+    end
+
+    # Send a warning message
     def warn(string)
       Celluloid.logger.warn(string) if Celluloid.logger
     end
 
-    # Print an error message
+    # Send an error message
     def error(string)
       Celluloid.logger.error(string) if Celluloid.logger
     end
