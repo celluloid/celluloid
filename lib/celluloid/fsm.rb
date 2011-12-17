@@ -74,6 +74,8 @@ module Celluloid
       state_name = state_name.to_sym
       current_state = self.class.states[@state]
 
+      return if current_state && current_state.name == state_name
+
       if current_state and not current_state.valid_transition? state_name
         valid = current_state.transitions.map(&:to_s).join(", ")
         raise ArgumentError, "#{self.class} can't change state from '#{@state}' to '#{state_name}', only to: #{valid}"
