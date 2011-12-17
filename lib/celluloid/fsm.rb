@@ -8,7 +8,6 @@ module Celluloid
     def self.included(klass)
       klass.send :include, Celluloid
       klass.send :extend,  ClassMethods
-      klass.send :attr_reader, :state
     end
 
     module ClassMethods
