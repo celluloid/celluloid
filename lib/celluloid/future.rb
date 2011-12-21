@@ -30,6 +30,7 @@ module Celluloid
         @value
       end
     end
+    alias_method :call, :value
     
     # Inspect this Celluloid::Future
     alias_method :inspect, :to_s
