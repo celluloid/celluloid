@@ -46,7 +46,9 @@ Supported Platforms
 -------------------
 
 Celluloid works on Ruby 1.9.2, JRuby 1.6 (in 1.9 mode), and Rubinius 2.0. JRuby
-or Rubinius are the preferred platforms as they support true concurrent threads.
+or Rubinius are the preferred platforms as they support true hardware-level
+parallelism when running Ruby code, whereas MRI/YARV is constrained by a global
+interpreter lock (GIL).
 
 To use JRuby in 1.9 mode, you'll need to pass the "--1.9" command line option
 to the JRuby executable, or set the "JRUBY_OPTS=--1.9" environment variable.
