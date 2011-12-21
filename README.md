@@ -50,7 +50,7 @@ Like Celluloid? [Join the Google Group](http://groups.google.com/group/celluloid
 Supported Platforms
 -------------------
 
-Celluloid works on Ruby 1.9.2, JRuby 1.6 (in 1.9 mode), and Rubinius 2.0. JRuby
+Celluloid works on Ruby 1.9.2+, JRuby 1.6 (in 1.9 mode), and Rubinius 2.0. JRuby
 or Rubinius are the preferred platforms as they support true hardware-level
 parallelism when running Ruby code, whereas MRI/YARV is constrained by a global
 interpreter lock (GIL).
