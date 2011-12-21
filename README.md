@@ -19,7 +19,7 @@ your worries about building multithreaded Ruby programs:
   value it returns later? Celluloid futures allow you to do that. When you
   ask for a method's return value it's returned if it's immediately available
   or blocks if the method is still running.
-* __[Supervisors]((https://github.com/tarcieri/celluloid/wiki/supervisors):__
+* __[Supervisors](https://github.com/tarcieri/celluloid/wiki/supervisors):__
   Celluloid can monitor your concurrent objects and
   automatically restart them when they crash. You can also link concurrent
   objects together into groups that will crash and restart as a group,
