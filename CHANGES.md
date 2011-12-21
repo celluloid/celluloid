@@ -1,5 +1,7 @@
 0.7.0
 -----
+* Old syntax for creating Celluloid::Futures deprecated. Please use
+  the #future method or Celluloid::Future.new to create futures
 * Finite state machines with Celluloid::FSM
 * New timer subsystem! Bullet point-by-bullet point details below
 * Celluloid#after registers a callback to fire after a given time interval
