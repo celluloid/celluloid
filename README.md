@@ -10,7 +10,19 @@ Celluloid provides a simple and natural way to build fault-tolerant concurrent
 programs in Ruby. With Celluloid, you can build systems out of concurrent
 objects just as easily as you build sequential programs out of regular objects.
 Recommended for any developer, including novices, Celluloid should help ease
-your worries about building multithreaded Ruby programs.
+your worries about building multithreaded Ruby programs:
+
+* __Look ma, no mutexes:__ Celluloid automatically synchronizes access to instance
+  variables by using a special proxy object system and messaging model.
+* __Futures:__ Ever wanted to call a method "in the background" and retrieve the
+  value it returns later? Celluloid futures allow you to do that. When you
+  ask for a method's return value it's returned if it's immediately available
+  or blocks if the method is still running.
+* __Supervisors:__ Celluloid can monitor your concurrent objects and
+  automatically restart them when they crash. You can also link concurrent
+  objects together into groups that will crash and restart as a group,
+  ensuring that after a crash all interdependent objects are in a clean and
+  consistent state.
 
 Under the hood, Celluloid wraps regular objects in threads that talk to each
 other using messages. These concurrent objects are called "actors". When a
@@ -24,6 +36,9 @@ variables.
 In addition to that, Celluloid also gives you the ability to call methods
 _asynchronously_, so the receiver to do things in the background for you
 without the caller having to sit around waiting for the result.
+
+You can also build distributed systems with Celluloid using its
+[sister project DCell](https://github.com/tarcieri/dcell).
 
 Like Celluloid? [Join the Google Group](http://groups.google.com/group/celluloid-ruby)
 
