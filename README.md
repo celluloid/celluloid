@@ -42,7 +42,7 @@ without the caller having to sit around waiting for the result.
 You can also build distributed systems with Celluloid using its
 [sister project DCell](https://github.com/tarcieri/dcell).
 
-[Please see the Celluloid Wiki](https://github.com/tarcieri/dcell/wiki)
+[Please see the Celluloid Wiki](https://github.com/tarcieri/celluloid/wiki)
 for more detailed documentation and usage notes.
 
 Like Celluloid? [Join the Google Group](http://groups.google.com/group/celluloid-ruby)
