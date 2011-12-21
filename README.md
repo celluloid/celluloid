@@ -14,11 +14,13 @@ your worries about building multithreaded Ruby programs:
 
 * __Look ma, no mutexes:__ Celluloid automatically synchronizes access to instance
   variables by using a special proxy object system and messaging model.
-* __Futures:__ Ever wanted to call a method "in the background" and retrieve the
+* __[Futures](https://github.com/tarcieri/celluloid/wiki/futures):__
+  Ever wanted to call a method "in the background" and retrieve the
   value it returns later? Celluloid futures allow you to do that. When you
   ask for a method's return value it's returned if it's immediately available
   or blocks if the method is still running.
-* __Supervisors:__ Celluloid can monitor your concurrent objects and
+* __[Supervisors]((https://github.com/tarcieri/celluloid/wiki/supervisors):__
+  Celluloid can monitor your concurrent objects and
   automatically restart them when they crash. You can also link concurrent
   objects together into groups that will crash and restart as a group,
   ensuring that after a crash all interdependent objects are in a clean and
