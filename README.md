@@ -132,7 +132,8 @@ Contributing to Celluloid
 * Make your changes and send me a pull request
 * If I like them I'll merge them and give you commit access to my repository
 
-Copyright
----------
+License
+-------
 
-Copyright (c) 2011 Tony Arcieri. See LICENSE.txt for further details.
+Copyright (c) 2011 Tony Arcieri. Distributed under the MIT License. See
+LICENSE.txt for further details.
