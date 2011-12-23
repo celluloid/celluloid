@@ -73,7 +73,7 @@ module Celluloid
       @signals   = Signals.new
       @receivers = Receivers.new
       @timers    = Timers.new
-      @proxy     = ActorProxy.new(@mailbox, self.class.to_s)
+      @proxy     = ActorProxy.new(@mailbox, subject.class.to_s)
       @running   = true
 
       @thread = Pool.get do
