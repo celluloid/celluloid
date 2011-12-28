@@ -12,14 +12,14 @@ module Celluloid
       # Wait for the given IO object to become readable
       def wait_readable(io)
         monitor_io io, @readers
-        Fiber.yield
+        Task.suspend
         io
       end
 
       # Wait for the given IO object to become writeable
       def wait_writeable(io)
         monitor_io io, @writers
-        Fiber.yield
+        Task.suspend
         io
       end
 
@@ -33,8 +33,8 @@ module Celluloid
 
         [[readers, @readers], [writers, @writers]].each do |ios, registered|
           ios.each do |io|
-            fiber = registered.delete io
-            fiber.resume if fiber
+            task = registered.delete io
+            task.resume if task
           end
         end
       end
@@ -57,7 +57,7 @@ module Celluloid
         if set.has_key? io
           raise ArgumentError, "another method is already waiting on #{io.inspect}"
         else
-          set[io] = Fiber.current
+          set[io] = Task.current
         end
       end
     end

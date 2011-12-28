@@ -36,8 +36,8 @@ module Celluloid
       end
 
       if Celluloid.actor?
-        # Yield to the actor scheduler, which resumes us when we get a response
-        response = Fiber.yield(call)
+        # Suspend the current task, waiting for a response
+        response = Task.suspend call.id
       else
         # Otherwise we're inside a normal thread, so block
         response = Thread.mailbox.receive do |msg|
@@ -76,7 +76,7 @@ module Celluloid
       @timers    = Timers.new
       @proxy     = ActorProxy.new(@mailbox, self.class.to_s)
       @running   = true
-      @pending_calls = {}
+      @waiting_tasks = {}
 
       @thread = Pool.get do
         Thread.current[:actor]   = self
@@ -118,7 +118,7 @@ module Celluloid
         begin
           message = @mailbox.receive wait_interval
         rescue ExitEvent => exit_event
-          Celluloid::Fiber.new { handle_exit_event exit_event; nil }.resume
+          Task.new { handle_exit_event exit_event; nil }.resume
           retry
         end
 
@@ -156,36 +156,36 @@ module Celluloid
       end
     end
 
-    # Register a fiber waiting for the response to a Celluloid::Call
-    def register_fiber(call, fiber)
-      raise ArgumentError, "attempted to register a dead fiber" unless fiber.alive?
-      @pending_calls[call.id] = fiber
+    # Register a task which is blocked waiting for soemthing
+    def add_waiting_task(task, waitable)
+      raise ArgumentError, "attempted to register a dead task" unless task.running?
+      @waiting_tasks[waitable] = task
     end
 
     # Schedule a block to run at the given time
     def after(interval)
       @timers.add(interval) do
-        Celluloid::Fiber.new { yield; nil }.resume
+        Task.new { yield; nil }.resume
       end
     end
 
     # Sleep for the given amount of time
     def sleep(interval)
-      fiber = Fiber.current
-      @timers.add(interval) { fiber.resume }
-      Fiber.yield
+      task = Task.current
+      @timers.add(interval) { task.resume }
+      Task.suspend
     end
 
     # Handle an incoming message
     def handle_message(message)
       case message
       when Call
-        Celluloid::Fiber.new { message.dispatch(@subject); nil }.resume
+        Task.new { message.dispatch(@subject); nil }.resume
       when Response
-        fiber = @pending_calls.delete(message.call_id)
+        task = @waiting_tasks.delete(message.call_id)
 
-        if fiber
-          fiber.resume message
+        if task
+          task.resume message
         else
           Logger.debug("spurious response to call #{message.call_id}")
         end

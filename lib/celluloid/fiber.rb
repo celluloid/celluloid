@@ -1,4 +1,4 @@
-# Every time I look at this code a little part of me dies...
+# Fibers are hard... let's go shopping!
 begin
   require 'fiber'
 rescue LoadError => ex
@@ -29,43 +29,5 @@ rescue LoadError => ex
     Fiber = Rubinius::Fiber
   else
     raise ex
-  end
-end
-
-module Celluloid
-  class Fiber < ::Fiber
-    def initialize(*args)
-      actor   = Thread.current[:actor]
-      mailbox = Thread.current[:mailbox]
-
-      super do
-        Thread.current[:actor]   = actor
-        Thread.current[:mailbox] = mailbox
-
-        yield(*args)
-      end
-    end
-
-    def resume(value = nil)
-      begin
-        result = super
-      rescue RuntimeError => ex
-        # YARV likes to spit out extremely confusing RuntimeErrors with no
-        # explanation message sporadically during shutdown. People then
-        # interpret this as some kind of bug in Celluloid. UGH!
-        # Swallow those suckers up so people don't complain
-        raise ex unless ex.to_s.empty?
-      end
-
-      actor = Thread.current[:actor]
-      return result unless actor
-
-      if result.is_a? Celluloid::Call
-        actor.register_fiber result, self
-      elsif result
-        Logger.debug("non-call returned from fiber: #{result.class}")
-      end
-      nil
-    end
   end
 end

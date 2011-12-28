@@ -43,11 +43,6 @@ module Celluloid
         Kernel.sleep interval
       end
     end
-
-    # Resume a fiber that participates in the Celluloid protocol
-    def resume_fiber(fiber, value = nil)
-      fiber.resume value
-    end
   end
 
   # Class methods added to classes which include Celluloid
@@ -244,6 +239,7 @@ require 'celluloid/receivers'
 require 'celluloid/registry'
 require 'celluloid/responses'
 require 'celluloid/signals'
+require 'celluloid/task'
 require 'celluloid/timers'
 
 require 'celluloid/actor'

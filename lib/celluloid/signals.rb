@@ -7,18 +7,18 @@ module Celluloid
     
     # Wait for the given signal name and return the associated value
     def wait(name)
-      fibers = @waiting[name] ||= []
-      fibers << Fiber.current
-      Fiber.yield
+      tasks = @waiting[name] ||= []
+      tasks << Task.current
+      Task.suspend
     end
     
     # Send a signal to all method calls waiting for the given name
     # Returns true if any calls were signaled, or false otherwise
     def send(name, value = nil)
-      fibers = @waiting.delete name
-      return unless fibers
+      tasks = @waiting.delete name
+      return unless tasks
       
-      fibers.each { |fiber| fiber.resume value }
+      tasks.each { |task| task.resume value }
       value
     end
   end

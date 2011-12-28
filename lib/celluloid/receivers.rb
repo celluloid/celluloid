@@ -20,7 +20,7 @@ module Celluloid
       end
 
       @receivers << receiver
-      Fiber.yield
+      Task.suspend
     end
 
     # How long to wait until the next timer fires
@@ -50,7 +50,7 @@ module Celluloid
 
     def initialize(block)
       @block = block
-      @fiber = Fiber.current
+      @task  = Task.current
       @timer = nil
     end
 
@@ -60,7 +60,7 @@ module Celluloid
     end
 
     def resume(message = nil)
-      @fiber.resume message
+      @task.resume message
     end
   end
 end
