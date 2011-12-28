@@ -6,7 +6,7 @@ module Celluloid
   # Actors which can run alongside other I/O operations
   module IO
     def self.included(klass)
-      klass.send :include, ::Celluloid
+      klass.send :include, Celluloid
       klass.use_mailbox Celluloid::IO::Mailbox
     end
 

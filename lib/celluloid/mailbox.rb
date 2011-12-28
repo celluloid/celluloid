@@ -56,7 +56,7 @@ module Celluloid
               now = Time.now
               wait_until ||= now + timeout
               wait_interval = wait_until - now
-              return if wait_interval < Celluloid::Timer::QUANTUM
+              return if wait_interval < 0
             else
               wait_interval = nil
             end
@@ -75,7 +75,7 @@ module Celluloid
 
       if block_given?
         index = @messages.index do |msg|
-          yield(msg) || msg.is_a?(Celluloid::SystemEvent)
+          yield(msg) || msg.is_a?(SystemEvent)
         end
 
         message = @messages.slice!(index, 1).first if index
@@ -83,7 +83,7 @@ module Celluloid
         message = @messages.shift
       end
 
-      raise message if message.is_a?(Celluloid::SystemEvent)
+      raise message if message.is_a? SystemEvent
       message
     end
 

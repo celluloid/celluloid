@@ -47,7 +47,7 @@ module Celluloid
              now = Time.now
              wait_until ||= now + timeout
              wait_interval = wait_until - now
-             return if wait_interval < Celluloid::Timer::QUANTUM
+             return if wait_interval < 0
            else
              wait_interval = nil
            end

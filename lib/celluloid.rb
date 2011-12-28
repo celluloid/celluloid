@@ -54,7 +54,7 @@ module Celluloid
   module ClassMethods
     # Create a new actor
     def new(*args, &block)
-      proxy = Celluloid::Actor.new(allocate).proxy
+      proxy = Actor.new(allocate).proxy
       proxy.send(:initialize, *args, &block)
       proxy
     end
@@ -65,7 +65,7 @@ module Celluloid
       current_actor = Celluloid.current_actor
       raise NotActorError, "can't link outside actor context" unless current_actor
 
-      proxy = Celluloid::Actor.new(allocate).proxy
+      proxy = Actor.new(allocate).proxy
       current_actor.link proxy
       proxy.send(:initialize, *args, &block)
       proxy
@@ -75,13 +75,13 @@ module Celluloid
     # Create a supervisor which ensures an instance of an actor will restart
     # an actor if it fails
     def supervise(*args, &block)
-      Celluloid::Supervisor.supervise(self, *args, &block)
+      Supervisor.supervise(self, *args, &block)
     end
 
     # Create a supervisor which ensures an instance of an actor will restart
     # an actor if it fails, and keep the actor registered under a given name
     def supervise_as(name, *args, &block)
-      Celluloid::Supervisor.supervise_as(name, self, *args, &block)
+      Supervisor.supervise_as(name, self, *args, &block)
     end
 
     # Trap errors from actors we're linked to when they exit
@@ -203,8 +203,8 @@ module Celluloid
   # messages in its mailbox in the meantime
   def async(&block)
     # This implementation relies on the present implementation of
-    # Celluloid::Future, which uses a Celluloid::Actor to run the block
-    Celluloid::Future.new(&block).value
+    # Celluloid::Future, which uses an Actor to run the block
+    Future.new(&block).value
   end
 
   # Process async calls via method_missing

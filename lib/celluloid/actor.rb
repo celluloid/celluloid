@@ -67,7 +67,7 @@ module Celluloid
       if subject.respond_to? :mailbox_factory
         @mailbox = subject.mailbox_factory
       else
-        @mailbox = Celluloid::Mailbox.new
+        @mailbox = Mailbox.new
       end
 
       @links     = Links.new
@@ -187,7 +187,7 @@ module Celluloid
         if fiber
           fiber.resume message
         else
-          Celluloid::Logger.debug("spurious response to call #{message.call_id}")
+          Logger.debug("spurious response to call #{message.call_id}")
         end
       else
         @receivers.handle_message(message)
@@ -209,10 +209,10 @@ module Celluloid
 
     # Handle any exceptions that occur within a running actor
     def handle_crash(exception)
-      Celluloid::Logger.crash("#{@subject.class} crashed!", exception)
+      Logger.crash("#{@subject.class} crashed!", exception)
       cleanup ExitEvent.new(@proxy, exception)
     rescue Exception => ex
-      Celluloid::Logger.crash("#{@subject.class}: ERROR HANDLER CRASHED!", ex)
+      Logger.crash("#{@subject.class}: ERROR HANDLER CRASHED!", ex)
     end
 
     # Handle cleaning up this actor after it exits
@@ -223,7 +223,7 @@ module Celluloid
       begin
         @subject.finalize if @subject.respond_to? :finalize
       rescue Exception => ex
-        Celluloid::Logger.crash("#{@subject.class}#finalize crashed!", ex)
+        Logger.crash("#{@subject.class}#finalize crashed!", ex)
       end
     end
   end

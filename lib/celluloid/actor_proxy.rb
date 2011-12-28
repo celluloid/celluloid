@@ -41,7 +41,7 @@ module Celluloid
 
     # Create a Celluloid::Future which calls a given method
     def future(method_name, *args, &block)
-      Celluloid::Future.new { Actor.call @mailbox, method_name, *args, &block }
+      Future.new { Actor.call @mailbox, method_name, *args, &block }
     end
 
     # Terminate the associated actor

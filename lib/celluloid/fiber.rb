@@ -63,7 +63,7 @@ module Celluloid
       if result.is_a? Celluloid::Call
         actor.register_fiber result, self
       elsif result
-        Celluloid::Logger.debug("non-call returned from fiber: #{result.class}")
+        Logger.debug("non-call returned from fiber: #{result.class}")
       end
       nil
     end

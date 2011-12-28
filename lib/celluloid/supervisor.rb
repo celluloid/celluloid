@@ -33,14 +33,14 @@ module Celluloid
         if failures >= start_attempts
           failures = 0
 
-          Celluloid::Logger.warn("#{@klass} is crashing on initialize too quickly, sleeping for #{sleep_interval} seconds")
+          Logger.warn("#{@klass} is crashing on initialize too quickly, sleeping for #{sleep_interval} seconds")
           sleep sleep_interval
         end
         retry
       end
 
       @started = true
-      Celluloid::Actor[@name] = @actor if @name
+      Actor[@name] = @actor if @name
     end
 
     # When actors die, regardless of the reason, restart them

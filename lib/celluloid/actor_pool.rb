@@ -42,7 +42,7 @@ module Celluloid
                 func.call
               end
             rescue Exception => ex
-              Celluloid::Logger.crash("#{self} internal failure", ex)
+              Logger.crash("#{self} internal failure", ex)
             end
           end
           thread[:queue] = queue

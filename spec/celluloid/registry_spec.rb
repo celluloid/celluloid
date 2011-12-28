@@ -17,7 +17,7 @@ describe Celluloid::Registry do
   it "refuses to register non-Actors" do
     expect do
       Celluloid::Actor[:impostor] = Object.new
-    end.to raise_error(ArgumentError)
+    end.to raise_error TypeError
   end
 
   it "lists all registered actors" do
