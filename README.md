@@ -35,36 +35,38 @@ Usage
 
 To use Celluloid::IO, define a normal Ruby class that includes Celluloid::IO:
 
-    require 'celluloid/io'
+```ruby
+require 'celluloid/io'
 
-	class MyServer
-	  include Celluloid::IO
+class MyServer
+  include Celluloid::IO
 
-	  # Bind a TCP server to the given host and port
-	  def initialize(host, port)
-	    @server = TCPServer.new host, port
-	    run!
-	  end
+  # Bind a TCP server to the given host and port
+  def initialize(host, port)
+    @server = TCPServer.new host, port
+    run!
+  end
 
-	  # Run the TCP server event loop
-	  def run
-	    while true
-	      wait_readable(@server)
-	      on_connect @server.accept
-	    end
-	  end
+  # Run the TCP server event loop
+  def run
+    while true
+      wait_readable(@server)
+      on_connect @server.accept
+    end
+  end
 
-	  # Terminate this server
-	  def terminate
-	    @server.close
-	    super
-	  end
+  # Terminate this server
+  def terminate
+    @server.close
+    super
+  end
 
-	  # Called whenever a new connection is opened
-	  def on_connect(connection)
-	    connection.close
-	  end
-	end
+  # Called whenever a new connection is opened
+  def on_connect(connection)
+    connection.close
+  end
+end
+```
 
 Contributing to Celluloid::IO
 -----------------------------
