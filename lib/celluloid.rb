@@ -259,6 +259,3 @@ require 'celluloid/actor_pool'
 require 'celluloid/supervisor'
 require 'celluloid/future'
 require 'celluloid/application'
-
-require 'celluloid/io'
-require 'celluloid/tcp_server'

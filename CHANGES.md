@@ -2,6 +2,7 @@
 -----
 * Celluloid::Task abstraction replaces Celluloid::Fiber
 * Celluloid#tasks API to introspect on running tasks
+* Move Celluloid::IO into its own gem, celluloid-io
 * Finite state machines with Celluloid::FSM
 * Fix bugs in supervisors handling actors that crash during initialize
 * Old syntax Celluloid::Future() { ... } deprecated. Please use the #future

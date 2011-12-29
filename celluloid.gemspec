@@ -16,7 +16,7 @@ Gem::Specification.new do |s|
   
   s.required_rubygems_version = '>= 1.3.6'
   
-  s.files        = Dir['README.md', 'lib/**/*']
+  s.files        = Dir['README.md', 'lib/**/*', 'spec/support/**/*']
   s.require_path = 'lib'
 
   s.add_development_dependency('rake')
