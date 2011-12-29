@@ -20,7 +20,7 @@ module Celluloid
       tasks = @waiting.delete name
       return unless tasks
 
-      tasks.each { |task| task.resume value }
+      tasks.each { |task| task.resume(value) if task.running? }
       value
     end
   end
