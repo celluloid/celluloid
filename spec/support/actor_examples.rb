@@ -443,8 +443,7 @@ shared_context "a Celluloid Actor" do |included_module|
         break
       end
 
-      # FIXME: This is temporary, but describes the existing behavior
-      tasks[blocking_task].should be_a Fixnum
+      tasks[blocking_task].first.should == :call
 
       actor.blocker.unblock
       sleep 0.1 # hax again :(

@@ -36,8 +36,7 @@ module Celluloid
       end
 
       if Celluloid.actor?
-        # Suspend the current task, waiting for a response
-        response = Task.suspend call.id
+        response = Thread.current[:actor].wait [:call, call.id]
       else
         # Otherwise we're inside a normal thread, so block
         response = Thread.mailbox.receive do |msg|
@@ -76,7 +75,6 @@ module Celluloid
       @timers    = Timers.new
       @proxy     = ActorProxy.new(@mailbox, self.class.to_s)
       @running   = true
-      @waiting_tasks = {}
 
       @thread = Pool.get do
         Thread.current[:actor]   = self
@@ -166,17 +164,11 @@ module Celluloid
       current_task = Thread.current[:task]
       tasks[current_task] = :running if current_task
 
-      @waiting_tasks.each do |waitable, task|
+      @signals.waiting.each do |waitable, task|
         tasks[task] = waitable
       end
 
       tasks
-    end
-
-    # Register a task which is blocked waiting for soemthing
-    def add_waiting_task(task, waitable)
-      raise ArgumentError, "attempted to register a dead task" unless task.running?
-      @waiting_tasks[waitable] = task
     end
 
     # Schedule a block to run at the given time
@@ -199,11 +191,9 @@ module Celluloid
       when Call
         Task.new(:message_handler) { message.dispatch(@subject); nil }.resume
       when Response
-        task = @waiting_tasks.delete(message.call_id)
+        handled_successfully = signal [:call, message.call_id], message
 
-        if task
-          task.resume message
-        else
+        unless handled_successfully
           Logger.debug("anomalous message! spurious response to call #{message.call_id}")
         end
       else

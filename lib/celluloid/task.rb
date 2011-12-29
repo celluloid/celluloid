@@ -33,12 +33,7 @@ module Celluloid
 
     # Resume a suspended task, giving it a value to return if needed
     def resume(value = nil)
-      waitable = @fiber.resume value
-
-      actor = Thread.current[:actor]
-      return waitable unless actor
-
-      actor.add_waiting_task self, waitable if waitable
+      @fiber.resume value
       nil
     end
 
