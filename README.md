@@ -65,6 +65,8 @@ Usage
 
 To use Celluloid, define a normal Ruby class that includes Celluloid:
 
+    require 'celluloid'
+
     class Sheen
       include Celluloid
 
@@ -122,8 +124,11 @@ exceptions will crash the receiver, and making an asynchronous call to a
 crashed object will not raise an error.
 
 However, you can still handle errors created by asynchronous calls using
-two features of Celluloid called _supervisors_ and _linking_. See the
-corresponding sections below for more information.
+two features of Celluloid called [supervisors](https://github.com/tarcieri/celluloid/wiki/supervisors)
+and [linking](https://github.com/tarcieri/celluloid/wiki/linking)
+
+[Please see the Celluloid Wiki](https://github.com/tarcieri/celluloid/wiki)
+for additional usage information.
 
 Contributing to Celluloid
 -------------------------
