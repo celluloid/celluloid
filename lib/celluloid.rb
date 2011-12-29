@@ -20,9 +20,9 @@ module Celluloid
     def current_actor
       actor = Thread.current[:actor]
       raise NotActorError, "not in actor scope" unless actor
-
       actor.proxy
     end
+    alias_method :current, :current_actor
 
     # Receive an asynchronous message
     def receive(timeout = nil, &block)
@@ -42,6 +42,13 @@ module Celluloid
       else
         Kernel.sleep interval
       end
+    end
+
+    # Obtain a hash of active tasks to their current activities
+    def tasks
+      actor = Thread.current[:actor]
+      raise NotActorError, "not in actor scope" unless actor
+      actor.tasks
     end
   end
 
@@ -139,6 +146,11 @@ module Celluloid
   # Obtain the current_actor
   def current_actor
     Celluloid.current_actor
+  end
+
+  # Obtain the running tasks for this actor
+  def tasks
+    Celluloid.tasks
   end
 
   # Obtain the Ruby object the actor is wrapping. This should ONLY be used

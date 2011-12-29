@@ -393,4 +393,62 @@ shared_context "a Celluloid Actor" do |included_module|
       actor.should_not be_fired
     end
   end
+
+  context :tasks do
+    before do
+      @klass = Class.new do
+        include included_module
+        attr_reader :blocker
+
+        def initialize
+          @blocker = Blocker.new
+        end
+
+        def blocking_call
+          @blocker.block
+        end
+      end
+
+      class Blocker
+        include Celluloid
+
+        def block
+          wait :unblock
+        end
+
+        def unblock
+          signal :unblock
+        end
+      end
+    end
+
+    it "knows which tasks are waiting on calls to other actors" do
+      actor = @klass.new
+
+      # an alias for Celluloid::Actor#waiting_tasks
+      tasks = actor.tasks
+      tasks.size.should == 1
+      tasks.values.first.should == :running
+
+      future = actor.future(:blocking_call)
+      sleep 0.1 # hax! waiting for ^^^ call to actually start
+
+      tasks = actor.tasks
+      tasks.size.should == 2
+
+      blocking_task = nil
+      tasks.each do |task, waitable|
+        next if waitable == :running
+        blocking_task = task
+        break
+      end
+
+      # FIXME: This is temporary, but describes the existing behavior
+      tasks[blocking_task].should be_a Fixnum
+
+      actor.blocker.unblock
+      sleep 0.1 # hax again :(
+      actor.tasks.size.should == 1
+    end
+  end
 end

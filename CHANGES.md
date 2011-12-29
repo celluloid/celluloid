@@ -1,14 +1,16 @@
 0.7.0
 -----
-* Old syntax for creating Celluloid::Futures deprecated. Please use
-  the #future method or Celluloid::Future.new to create futures
+* Celluloid::Task abstraction replaces Celluloid::Fiber
+* Celluloid#tasks API to introspect on running tasks
 * Finite state machines with Celluloid::FSM
+* Fix bugs in supervisors handling actors that crash during initialize
+* Old syntax Celluloid::Future() { ... } deprecated. Please use the #future
+  method or Celluloid::Future.new { ... } to create futures
 * New timer subsystem! Bullet point-by-bullet point details below
 * Celluloid#after registers a callback to fire after a given time interval
 * Celluloid.sleep and Celluloid#sleep let an actor continue processing messages
 * Celluloid.receive and Celluloid#receive now accept an optional timeout
 * Celluloid::Mailbox#receive now accepts an optional timeout
-* Fix bugs in supervisors handling actors that crash during initialize
 
 0.6.2
 -----

@@ -116,9 +116,9 @@ module Celluloid
     def run
       while @running
         begin
-          message = @mailbox.receive wait_interval
+          message = @mailbox.receive(timeout)
         rescue ExitEvent => exit_event
-          Task.new { handle_exit_event exit_event; nil }.resume
+          Task.new(:exit_handler) { handle_exit_event exit_event; nil }.resume
           retry
         end
 
@@ -143,7 +143,7 @@ module Celluloid
     end
 
     # How long to wait until the next timer fires
-    def wait_interval
+    def timeout
       i1 = @timers.wait_interval
       i2 = @receivers.wait_interval
 
@@ -156,6 +156,23 @@ module Celluloid
       end
     end
 
+    # Obtain a hash of tasks that are currently waiting
+    def tasks
+      # A hash of tasks to what they're waiting on is more meaningful to the
+      # end-user, and lets us make a copy of the tasks table, rather than
+      # handing them the one we're using internally across threads, a definite
+      # thread safety shared state no-no
+      tasks = {}
+      current_task = Thread.current[:task]
+      tasks[current_task] = :running if current_task
+
+      @waiting_tasks.each do |waitable, task|
+        tasks[task] = waitable
+      end
+
+      tasks
+    end
+
     # Register a task which is blocked waiting for soemthing
     def add_waiting_task(task, waitable)
       raise ArgumentError, "attempted to register a dead task" unless task.running?
@@ -165,7 +182,7 @@ module Celluloid
     # Schedule a block to run at the given time
     def after(interval)
       @timers.add(interval) do
-        Task.new { yield; nil }.resume
+        Task.new(:timer) { yield; nil }.resume
       end
     end
 
@@ -180,14 +197,14 @@ module Celluloid
     def handle_message(message)
       case message
       when Call
-        Task.new { message.dispatch(@subject); nil }.resume
+        Task.new(:message_handler) { message.dispatch(@subject); nil }.resume
       when Response
         task = @waiting_tasks.delete(message.call_id)
 
         if task
           task.resume message
         else
-          Logger.debug("spurious response to call #{message.call_id}")
+          Logger.debug("anomalous message! spurious response to call #{message.call_id}")
         end
       else
         @receivers.handle_message(message)
