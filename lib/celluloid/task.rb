@@ -1,4 +1,7 @@
 module Celluloid
+  # Trying to resume a dead task
+  class DeadTaskError < StandardError; end
+
   # Tasks are interruptable/resumable execution contexts used to run methods
   class Task
     attr_reader :type # what type of task is this?
@@ -35,6 +38,8 @@ module Celluloid
     def resume(value = nil)
       @fiber.resume value
       nil
+    rescue FiberError
+      raise DeadTaskError, "cannot resume a dead task"
     end
 
     # Is the current task still running?
