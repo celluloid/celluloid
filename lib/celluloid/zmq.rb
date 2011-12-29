@@ -1,6 +1,6 @@
 require 'ffi-rzmq'
 
-require 'celluloid'
+require 'celluloid/io'
 require 'celluloid/zmq/mailbox'
 require 'celluloid/zmq/reactor'
 require 'celluloid/zmq/version'

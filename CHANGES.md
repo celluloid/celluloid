@@ -1,3 +1,8 @@
+0.7.0
+-----
+* Use celluloid-io gem
+* Match versions with Celluloid
+
 0.0.4
 -----
 * Fix bugs in 0MQ polling (timeouts were being processed 1000x too fast)
