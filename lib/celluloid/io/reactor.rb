@@ -11,16 +11,12 @@ module Celluloid
 
       # Wait for the given IO object to become readable
       def wait_readable(io)
-        monitor_io io, @readers
-        Task.suspend
-        io
+        wait_for_io io, @readers
       end
 
       # Wait for the given IO object to become writeable
       def wait_writeable(io)
-        monitor_io io, @writers
-        Task.suspend
-        io
+        wait_for_io io, @writers
       end
 
       # Run the reactor, waiting for events, and calling the given block if
@@ -43,7 +39,7 @@ module Celluloid
       private
       #######
 
-      def monitor_io(io, set)
+      def wait_for_io(io, set)
         # zomg ugly type conversion :(
         unless io.is_a?(IO)
           if IO.respond_to? :try_convert
@@ -59,6 +55,8 @@ module Celluloid
         else
           set[io] = Task.current
         end
+
+        Task.suspend
       end
     end
   end
