@@ -55,7 +55,7 @@ puts "  actors_per_second: #{format concurrent_creation}"
 
 # How quickly can we create short-lived actors?
 
-ephemeral_creation = measure(5000) { ConcurrentObject.new.terminate! }
+ephemeral_creation = measure(5000) { ConcurrentObject.new.terminate }
 puts "  ephemeral_actors_per_second: #{format ephemeral_creation}"
 
 #
