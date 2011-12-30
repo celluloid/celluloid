@@ -4,7 +4,7 @@ desc "Run Celluloid benchmarks"
 task :benchmark do
   begin
     Timeout.timeout(120) do
-      load File.expand_path("../../benchmarks/objects.rb", __FILE__)
+      load File.expand_path("../../benchmarks/actor.rb", __FILE__)
       load File.expand_path("../../benchmarks/ring.rb", __FILE__)
     end
   rescue Exception, Timeout::Error => ex
