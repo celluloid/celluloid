@@ -37,6 +37,8 @@ module Celluloid
 
       def initialize(*args, &block)
         @args, @block = args, block
+        @called = nil
+        @error = nil
       end
 
       def run
