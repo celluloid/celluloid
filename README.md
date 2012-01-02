@@ -65,37 +65,41 @@ Usage
 
 To use Celluloid, define a normal Ruby class that includes Celluloid:
 
-    require 'celluloid'
+```ruby
+require 'celluloid'
 
-    class Sheen
-      include Celluloid
+class Sheen
+  include Celluloid
 
-      def initialize(name)
-        @name = name
-      end
+  def initialize(name)
+    @name = name
+  end
 
-      def set_status(status)
-        @status = status
-      end
+  def set_status(status)
+    @status = status
+  end
 
-      def report
-        "#{@name} is #{@status}"
-      end
-    end
+  def report
+    "#{@name} is #{@status}"
+  end
+end
+```
 
 Now when you create new instances of this class, they're actually concurrent
 objects, each running in their own thread:
 
-    >> charlie = Sheen.new "Charlie Sheen"
-     => #<Celluloid::Actor(Sheen:0x00000100a312d0) @name="Charlie Sheen">
-    >> charlie.set_status "winning!"
-     => "winning!"
-    >> charlie.report
-     => "Charlie Sheen is winning!"
-    >> charlie.set_status! "asynchronously winning!"
-     => nil
-    >> charlie.report
-     => "Charlie Sheen is asynchronously winning!"
+```ruby
+>> charlie = Sheen.new "Charlie Sheen"
+ => #<Celluloid::Actor(Sheen:0x00000100a312d0) @name="Charlie Sheen">
+>> charlie.set_status "winning!"
+ => "winning!"
+>> charlie.report
+ => "Charlie Sheen is winning!"
+>> charlie.set_status! "asynchronously winning!"
+ => nil
+>> charlie.report
+ => "Charlie Sheen is asynchronously winning!"
+```
 
 You can call methods on this concurrent object just like you would any other
 Ruby object. The Sheen#set_status method works exactly like you'd expect,
