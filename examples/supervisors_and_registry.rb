@@ -78,6 +78,9 @@ begin
   puts "We should now be in a clean state again: #{Celluloid::Actor[:my_actor].state}"
 rescue Celluloid::DeadActorError
   # Perhaps we got ahold of the actor before the supervisor restarted it
+  # Don't want to catch Celluloid::DeadActorError all over the place? If this
+  # code were in a supervised Celluloid::Actor itself, the supervisor would
+  # catch Celluloid::DeadActorError and automatically restart this actor
   retry
 end
 
