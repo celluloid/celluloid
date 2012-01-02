@@ -20,7 +20,14 @@ module Celluloid
       tasks = @waiting.delete name
       return unless tasks
 
-      tasks.each { |task| task.resume(value) if task.running? }
+      tasks.each do |task|
+        begin
+          task.resume(value)
+        rescue => ex
+          Celluloid::Logger.crash("signaling error", ex)
+        end
+      end
+
       value
     end
   end
