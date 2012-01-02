@@ -9,6 +9,8 @@ task :benchmark do
     end
   rescue Exception, Timeout::Error => ex
     puts "ERROR: Couldn't complete benchmark: #{ex.class}: #{ex}"
+    puts "  #{ex.backtrace.join("\n  ")}"
+
     exit 1 unless ENV['CI'] # Hax for running benchmarks on Travis
   end
 end

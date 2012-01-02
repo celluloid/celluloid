@@ -4,6 +4,8 @@ module Celluloid
 
   # Tasks are interruptable/resumable execution contexts used to run methods
   class Task
+    class TerminatedError < StandardError; end # kill a running fiber
+
     attr_reader :type # what type of task is this?
 
     # Obtain the current task
@@ -15,7 +17,9 @@ module Celluloid
 
     # Suspend the running task, deferring to the scheduler
     def self.suspend(value = nil)
-      Fiber.yield(value)
+      result = Fiber.yield(value)
+      raise TerminatedError, "task was terminated" if result == TerminatedError
+      result
     end
 
     # Run the given block within a task
@@ -30,7 +34,11 @@ module Celluloid
         Thread.current[:mailbox] = mailbox
         Thread.current[:task]    = self
 
-        yield
+        begin
+          yield
+        rescue TerminatedError
+          # Task was explicitly terminated
+        end
       end
     end
 
@@ -40,6 +48,13 @@ module Celluloid
       nil
     rescue FiberError
       raise DeadTaskError, "cannot resume a dead task"
+    end
+
+    # Terminate this task
+    def terminate
+      resume TerminatedError
+    rescue FiberError
+      # If we're getting this the task should already be dead
     end
 
     # Is the current task still running?

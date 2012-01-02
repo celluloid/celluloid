@@ -116,7 +116,7 @@ module Celluloid
         begin
           message = @mailbox.receive(timeout)
         rescue ExitEvent => exit_event
-          Task.new(:exit_handler) { handle_exit_event exit_event; nil }.resume
+          Task.new(:exit_handler) { handle_exit_event exit_event }.resume
           retry
         end
 
@@ -164,8 +164,8 @@ module Celluloid
       current_task = Thread.current[:task]
       tasks[current_task] = :running if current_task
 
-      @signals.waiting.each do |waitable, task|
-        tasks[task] = waitable
+      @signals.waiting.each do |waitable, waiters|
+        waiters.each { |waiter| tasks[waiter] = waitable }
       end
 
       tasks
@@ -174,7 +174,7 @@ module Celluloid
     # Schedule a block to run at the given time
     def after(interval)
       @timers.add(interval) do
-        Task.new(:timer) { yield; nil }.resume
+        Task.new(:timer) { yield }.resume
       end
     end
 
@@ -189,7 +189,7 @@ module Celluloid
     def handle_message(message)
       case message
       when Call
-        Task.new(:message_handler) { message.dispatch(@subject); nil }.resume
+        Task.new(:message_handler) { message.dispatch(@subject) }.resume
       when Response
         handled_successfully = signal [:call, message.call_id], message
 
@@ -226,6 +226,7 @@ module Celluloid
     def cleanup(exit_event)
       @mailbox.shutdown
       @links.send_event exit_event
+      tasks.each { |task, _| task.terminate }
 
       begin
         @subject.finalize if @subject.respond_to? :finalize
