@@ -253,50 +253,61 @@ shared_context "a Celluloid Actor" do |included_module|
     before do
       @signaler = Class.new do
         include included_module
-        attr_reader :signaled
 
         def initialize
+          @waiting  = false
           @signaled = false
         end
 
         def wait_for_signal
+          raise "already signaled" if @signaled
+
+          @waiting = true
+          signal :future
+
           value = wait :ponycopter
+
+          @waiting = false
           @signaled = true
           value
+        end
+
+        def wait_for_future
+          return true if @waiting
+          wait :future
         end
 
         def send_signal(value)
           signal :ponycopter, value
         end
+
+        def waiting?; @waiting end
+        def signaled?; @signaled end
       end
     end
 
     it "allows methods within the same object to signal each other" do
       obj = @signaler.new
-      obj.signaled.should be_false
+      obj.should_not be_signaled
 
       obj.wait_for_signal!
-      obj.signaled.should be_false
+      obj.should_not be_signaled
 
       obj.send_signal :foobar
-      obj.signaled.should be_true
+      obj.should be_signaled
     end
 
     # FIXME: This is deadlocking on Travis, and may still have issues
     it "sends values along with signals" do
       obj = @signaler.new
-      obj.signaled.should be_false
+      obj.should_not be_signaled
 
-      future = Celluloid::Future.new do
-        puts "waiting for signal"
-        value = obj.wait_for_signal
-        puts "got signal!"
-        value
-      end
+      future = obj.future(:wait_for_signal)
 
-      obj.signaled.should be_false
+      obj.wait_for_future
+      obj.should be_waiting
+      obj.should_not be_signaled
 
-      puts "sending signal..."
       obj.send_signal(:foobar).should be_true
       future.value.should == :foobar
     end
