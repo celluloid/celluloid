@@ -21,6 +21,8 @@ end
 # Using the Supervisor API directly
 #
 
+puts "*** Demonstrating using the Supervisor API directly"
+
 # Calling supervise directly returns the supervisor
 supervisor = MyActor.supervise
 
@@ -46,3 +48,36 @@ rescue Celluloid::DeadActorError
   # Perhaps we got ahold of the actor before the supervisor restarted it
   retry
 end
+
+#
+# Using the Actor Registry
+# This is the preferred approach and will make using DCell easier
+#
+
+puts "*** Demonstrating using the actor registry"
+
+# We can give our actor a name and thus avoid interacting with the supervisor
+MyActor.supervise_as :my_actor
+
+# Same as above, just getting the actor from a different place
+puts "We should be in a clean state now: #{Celluloid::Actor[:my_actor].state}"
+puts "Brace yourself for a crash message..."
+
+# If we call a method that crashes an actor, it will print out a debug message,
+# then restart an actor in a clean state
+begin
+  Celluloid::Actor[:my_actor].broken_method
+rescue NameError
+  puts "Uhoh, we crashed the actor..."
+end
+
+puts "The supervisor should automatically restart the actor"
+
+# By now we'll be back in a :clean state!
+begin
+  puts "We should now be in a clean state again: #{Celluloid::Actor[:my_actor].state}"
+rescue Celluloid::DeadActorError
+  # Perhaps we got ahold of the actor before the supervisor restarted it
+  retry
+end
+
