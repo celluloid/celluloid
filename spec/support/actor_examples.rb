@@ -287,10 +287,17 @@ shared_context "a Celluloid Actor" do |included_module|
       obj = @signaler.new
       obj.signaled.should be_false
 
-      future = Celluloid::Future.new { obj.wait_for_signal }
+      future = Celluloid::Future.new do
+        puts "waiting for signal"
+        value = obj.wait_for_signal
+        puts "got signal!"
+        value
+      end
+
       obj.signaled.should be_false
 
-      obj.send_signal :foobar
+      puts "sending signal..."
+      obj.send_signal(:foobar).should be_true
       future.value.should == :foobar
     end
   end
