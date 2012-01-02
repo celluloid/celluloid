@@ -161,7 +161,7 @@ module Celluloid
       # handing them the one we're using internally across threads, a definite
       # thread safety shared state no-no
       tasks = {}
-      current_task = Thread.current[:task]
+      current_task = Task.current rescue nil
       tasks[current_task] = :running if current_task
 
       @signals.waiting.each do |waitable, waiters|

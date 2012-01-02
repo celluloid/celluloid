@@ -10,7 +10,7 @@ module Celluloid
 
     # Obtain the current task
     def self.current
-      task = Thread.current[:task]
+      task = Fiber.current.task
       raise "not in task scope" unless task
       task
     end
@@ -32,7 +32,8 @@ module Celluloid
       @fiber = Fiber.new do
         Thread.current[:actor]   = actor
         Thread.current[:mailbox] = mailbox
-        Thread.current[:task]    = self
+
+        Fiber.current.task = self
 
         begin
           yield
