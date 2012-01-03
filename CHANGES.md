@@ -1,3 +1,10 @@
+0.7.1
+-----
+* More examples!
+* Cancel all pending tasks when actors crash
+* Log all errors that occur during signaling failures
+* Work around thread-local issues on rbx (see 52325ecd)
+
 0.7.0
 -----
 * Celluloid::Task abstraction replaces Celluloid::Fiber
