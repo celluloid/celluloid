@@ -165,7 +165,11 @@ module Celluloid
       tasks[current_task] = :running if current_task
 
       @signals.waiting.each do |waitable, waiters|
-        waiters.each { |waiter| tasks[waiter] = waitable }
+        if waiters.is_a? Enumerable
+          waiters.each { |waiter| tasks[waiter] = waitable }
+        else
+          tasks[waiters] = waitable
+        end
       end
 
       tasks

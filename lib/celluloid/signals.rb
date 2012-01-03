@@ -7,10 +7,19 @@ module Celluloid
       @waiting = {}
     end
 
-    # Wait for the given signal name and return the associated value
-    def wait(name)
-      tasks = @waiting[name] ||= []
-      tasks << Task.current
+    # Wait for the given signal and return the associated value
+    def wait(signal)
+      tasks = @waiting[signal]
+
+      case tasks
+      when Array
+        tasks << Task.current
+      when NilClass
+        @waiting[signal] = Task.current
+      else
+        @waiting[signal] = [tasks, Task.current]
+      end
+
       Task.suspend
     end
 
@@ -18,17 +27,24 @@ module Celluloid
     # Returns true if any calls were signaled, or false otherwise
     def send(name, value = nil)
       tasks = @waiting.delete name
-      return unless tasks
 
-      tasks.each do |task|
-        begin
-          task.resume(value)
-        rescue => ex
-          Celluloid::Logger.crash("signaling error", ex)
-        end
+      case tasks
+      when Array
+        tasks.each { |task| run_task task, value }
+      when NilClass
+        Logger.debug("spurious signal: #{name}")
+      else
+        run_task tasks, value
       end
 
       value
+    end
+
+    # Run the given task, reporting errors that occur
+    def run_task(task, value)
+      task.resume(value)
+    rescue => ex
+      Celluloid::Logger.crash("signaling error", ex)
     end
   end
 end
