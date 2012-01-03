@@ -57,7 +57,7 @@ module Celluloid
 
     # Terminate this task
     def terminate
-      resume TerminatedError
+      resume TerminatedError if @fiber.alive?
     rescue FiberError
       # If we're getting this the task should already be dead
     end
