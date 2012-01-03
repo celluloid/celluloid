@@ -1,6 +1,6 @@
 Celluloid
 =========
-[![Build Status](http://travis-ci.org/tarcieri/celluloid.png)](http://travis-ci.org/tarcieri/celluloid)
+[![Build Status](http://travis-ci.org/tarcieri/celluloid.png)](http://travis-ci.org/tarcieri/celluloid) [![Dependency Status](https://gemnasium.com/tarcieri/celluloid.png)](https://gemnasium.com/tarcieri/celluloid)
 
 > "I thought of objects being like biological cells and/or individual
 > computers on a network, only able to communicate with messages"
