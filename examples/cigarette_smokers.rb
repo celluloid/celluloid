@@ -24,7 +24,7 @@ require 'celluloid'
 # If, however, he's already smoking, he'll smile and nod in return, perhaps
 # taking an extra long drag on his cigarette, possibly to the chagrin of his
 # compatriates. For you see, the rules are that only the third man in this
-# exchange is allowed to remote the items from the table. If he's already
+# exchange is allowed to remove the items from the table. If he's already
 # enjoying a cigarette, the other two are forced to wait.
 #
 # One way or another, the third man will eventually collect the items from the
