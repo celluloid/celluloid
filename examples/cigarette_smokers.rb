@@ -45,7 +45,7 @@ class Paper
   def burn; [:ash]; end
 end
 
-class Match
+class Matches
   def initialize
     @lit = false
   end
@@ -79,13 +79,18 @@ class Smoker
   default_state :standing
 
   state :waiting, :to => :procuring do
-    puts "#{name} whistles at waitress... get me smokes!"
-    @table.waitress.whistle! # We'll decide what to do when the waitress arrives
+    if @table.empty?
+      puts "#{name} whistles at waitress... get me smokes!"
+      @table.waitress.whistle! # We'll decide what to do when the waitress arrives
+    end
   end
 
-  state :procuring, :to => :smoking do
-    puts "#{name} takes the items from the table"
-    take_items
+  state :procuring, :to => [:waiting, :smoking] do
+    if take_items
+      transition :smoking
+    else
+      transition :waiting
+    end
   end
 
   state :smoking do
@@ -96,7 +101,7 @@ class Smoker
   state :done do
     @smoking = false
     puts "#{name} has finished smoking"
-    transition :waiting
+    transition :procuring
   end
 
   def initialize(commodity, rate)
@@ -121,10 +126,10 @@ class Smoker
   # Sit down at the table
   def sit(table)
     puts "#{name} sits down at table"
-    table.smokers << self
+    table.smokers << current_actor # DON'T USE SELF!
     @table = table
 
-    transition :waiting
+    transition :procuring
   end
 
   # Obtain this smoker's commodity
@@ -143,15 +148,27 @@ class Smoker
 
   # Take the items from the table
   def take_items
+    unless @table.has_complimentary_items? @commodity
+      items = @table.items
+      if items
+        puts "#{name} eyes the table: #{@table.items.map(&:class).join(' and ')} are useless to me!"
+      else
+        puts "#{name} says: The table is empty!"
+      end
+
+      return
+    end
+
+    puts "#{name} takes the items from the table"
     items = @table.take
     @table.waitress.whistle!
 
     tobacco = find_item items, Tobacco
     paper   = find_item items, Paper
-    @match  = find_item items, Match
+    @match  = find_item items, Matches
 
     @cigarette = paper.roll tobacco
-    transition :smoking
+    true
   end
 
   def find_item(items, type)
@@ -168,7 +185,7 @@ class Smoker
     puts "#{name} enjoys a smoke"
     @cigarette.smoke
 
-    transition :done, :delay => @rate * 10
+    transition :done, :delay => @rate * 5
   end
 end
 
@@ -178,6 +195,7 @@ class Waitress
 
   def initialize(table)
     @table = table
+    @refilling = false
   end
 
   # Handle incoming whistles
@@ -187,25 +205,40 @@ class Waitress
       return
     end
 
-    refill_table
+    if @table.items
+      puts "Waitress says: The table already has stuff on it!"
+    elsif @refilling
+      puts "Waitress says: I'm WORKIN' on it! Hold your horses!"
+    else
+      refill_table
+    end
   end
 
   def refill_table
-    smokers = @table.smokers.dup
-    receiver = smokers.delete_at rand(smokers.size)
-    puts "#{self.class} decides that #{receiver.name} gets to smoke!"
+    @refilling = true
 
-    items = smokers.map { |s| s.dispense_commodity }
+    begin
+      smokers = @table.smokers.dup
+      receiver = smokers.delete_at rand(smokers.size)
+      puts "#{self.class} decides that #{receiver.name} gets to smoke!"
 
-    puts "Waitress collects #{items.map(&:class).join(' and ')} and puts them on the table"
-    @table.place(items)
+      items = smokers.map { |s| s.dispense_commodity }
+
+      puts "Waitress collects #{items.map(&:class).join(' and ')} and puts them on the table"
+      @table.place(items)
+    ensure
+      @refilling = false
+    end
 
     puts "Waitress tells #{receiver.name} he can smoke now"
-    receiver.notify_ready
+    receiver.notify_ready!
+    note_smokers
   end
 
-  def inspect
-    "#<Waitress: I don't like the way you're looking at me>"
+  def note_smokers
+    active_smokers = @table.smokers.select { |s| s.smoking? }
+    puts "*** Active smokers: #{active_smokers.map(&:name).join(", ")}"
+    puts "!!! EVERYBODY SMOKES !!!" if active_smokers.size == @table.smokers.size
   end
 end
 
@@ -218,32 +251,40 @@ class Table
 
   def initialize
     @smokers = []
-    @waitress = Waitress.new(self)
+    @waitress = Waitress.new(current_actor) # DON'T USE SELF!
     @items = nil
   end
 
   def place(items)
+    raise "there's already stuff on the table" if @items
     @items = items
     puts "Table now contains: #{items.map(&:class).join(', ')}"
+    return @items
   end
 
   def take
-    note_smokers
-
+    raise "there's nothing on the table" unless @items
     items = @items
     @items = nil
     items
   end
 
-  def note_smokers
-    puts "*** Active smokers: #{smokers.select { |s| s.smoking? }.map(&:name).join(", ")}"
+  def has_complimentary_items?(klass)
+    return unless @items
+
+    klasses = [Tobacco, Paper, Matches] - [klass]
+    @items.map { |i| klasses.include?(i.class) }.all?
+  end
+
+  def empty?
+    !@items
   end
 end
 
 smokers = [
   Smoker.new(Tobacco, 1.0),
   Smoker.new(Paper,   1.5),
-  Smoker.new(Match, 0.3) # he smokes faster because he likes to burn things
+  Smoker.new(Matches,   0.3) # he smokes faster because he likes to burn things
 ]
 
 table = Table.new
