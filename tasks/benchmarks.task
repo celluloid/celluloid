@@ -2,6 +2,8 @@ require 'timeout'
 
 desc "Run Celluloid benchmarks"
 task :benchmark do
+  exit 0 if RUBY_ENGINE == 'rbx'
+
   begin
     Timeout.timeout(120) do
       load File.expand_path("../../benchmarks/actor.rb", __FILE__)
