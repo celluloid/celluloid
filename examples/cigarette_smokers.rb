@@ -284,7 +284,7 @@ end
 smokers = [
   Smoker.new(Tobacco, 1.0),
   Smoker.new(Paper,   1.5),
-  Smoker.new(Matches,   0.3) # he smokes faster because he likes to burn things
+  Smoker.new(Matches, 0.3) # he smokes faster because he likes to burn things
 ]
 
 table = Table.new
