@@ -161,6 +161,8 @@ class Smoker
 
     puts "#{name} takes the items from the table"
     items = @table.take
+
+    puts "#{name} whistles for the waitress because the table is empty"
     @table.waitress.whistle!
 
     tobacco = find_item items, Tobacco
