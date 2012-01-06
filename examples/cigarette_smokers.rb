@@ -148,10 +148,10 @@ class Smoker
 
   # Take the items from the table
   def take_items
-    unless @table.has_complimentary_items? @commodity
-      items = @table.items
+    items = @table.items
+    unless complimentary? items
       if items
-        puts "#{name} eyes the table: #{@table.items.map(&:class).join(' and ')} are useless to me!"
+        puts "#{name} eyes the table: #{items.map(&:class).join(' and ')} are useless to me!"
       else
         puts "#{name} says: The table is empty!"
       end
@@ -188,6 +188,12 @@ class Smoker
     @cigarette.smoke
 
     transition :done, :delay => @rate * 5
+  end
+
+  def complimentary?(items)
+    return unless items
+    klasses = [Tobacco, Paper, Matches] - [@commodity]
+    items.map { |i| klasses.include?(i.class) }.all?
   end
 end
 
@@ -269,13 +275,6 @@ class Table
     items = @items
     @items = nil
     items
-  end
-
-  def has_complimentary_items?(klass)
-    return unless @items
-
-    klasses = [Tobacco, Paper, Matches] - [klass]
-    @items.map { |i| klasses.include?(i.class) }.all?
   end
 
   def empty?
