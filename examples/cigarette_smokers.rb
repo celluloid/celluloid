@@ -29,7 +29,7 @@ require 'celluloid'
 #
 # One way or another, the third man will eventually collect the items from the
 # table. When he does, he'll whistle for the waitress, and she'll again select
-# two men at random, replentishing the table.
+# two men at random, replenishing the table.
 
 class Tobacco
   def burn
