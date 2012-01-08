@@ -8,7 +8,7 @@ rescue LoadError => ex
     end
 
     # Fibers are broken on JRuby 1.6.5. This works around the issue
-    if JRUBY_VERSION == "1.6.5"
+    if JRUBY_VERSION[/^1\.6\.5/]
       require 'jruby'
       org.jruby.ext.fiber.FiberExtLibrary.new.load(JRuby.runtime, false)
       class org::jruby::ext::fiber::ThreadFiber
