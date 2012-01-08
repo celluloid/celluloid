@@ -1,3 +1,8 @@
+0.7.2
+-----
+* Workaround fiber problems on JRuby 1.6.5.1 in addition to 1.6.5
+* Fix class displayed when inspecting dead actors
+
 0.7.1
 -----
 * More examples!
