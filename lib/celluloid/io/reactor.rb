@@ -46,7 +46,7 @@ module Celluloid
       def run_once(timeout = nil)
         @selector.select_each(timeout) do |monitor|
           monitor.value.resume
-          @selector.detach(monitor)
+          @selector.deregister(monitor.io)
         end
       end
       
