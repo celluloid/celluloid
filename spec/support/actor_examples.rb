@@ -327,17 +327,21 @@ shared_context "a Celluloid Actor" do |included_module|
       end
     end
 
+    let(:receiver) { @receiver.new }
+    let(:message) { Object.new }
+
+    it "allows unconditional receive" do
+      receiver.signal_myself(message).should == message
+    end
+
     it "allows arbitrary selective receive" do
-      obj = Object.new
-      receiver = @receiver.new
-      received_obj = receiver.signal_myself(obj) { |o| o == obj }
-      received_obj.should == obj
+      received_obj = receiver.signal_myself(message) { |o| o == message }
+      received_obj.should == message
     end
 
     it "times out after the given interval" do
       interval = 0.1
       started_at = Time.now
-      receiver = @receiver.new
 
       receiver.receive(interval) { false }.should be_nil
       (Time.now - started_at).should be_within(Celluloid::Timer::QUANTUM).of interval
