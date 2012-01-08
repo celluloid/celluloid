@@ -56,7 +56,7 @@ module Celluloid
 
     # Match a message with this receiver's block
     def match(message)
-      @block.call(message) if @block
+      @block ? @block.call(message) : true
     end
 
     def resume(message = nil)
