@@ -3,7 +3,6 @@ require 'celluloid/io/version'
 require 'celluloid'
 require 'celluloid/io/mailbox'
 require 'celluloid/io/reactor'
-require 'celluloid/io/waker'
 
 module Celluloid
   # Actors with evented IO support
