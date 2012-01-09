@@ -5,6 +5,13 @@ module Celluloid
     # React to external I/O events. This is kinda sorta supposed to resemble the
     # Reactor design pattern.
     class Reactor
+      extend Forwardable
+
+      # Unblock the reactor (i.e. to signal it from another thread)
+      def_delegator :@selector, :wakeup
+      # Terminate the reactor
+      def_delegator :@selector, :close, :shutdown
+
       def initialize
         @selector = NIO::Selector.new
       end
@@ -36,22 +43,12 @@ module Celluloid
         Task.suspend
       end
       
-      # Unblock the reactor (i.e. to signal it from another thread)
-      def wakeup
-        @selector.wakeup
-      end
-      
       # Run the reactor, waiting for events or wakeup signal
       def run_once(timeout = nil)
         @selector.select_each(timeout) do |monitor|
           monitor.value.resume
           @selector.deregister(monitor.io)
         end
-      end
-      
-      # Terminate the reactor
-      def shutdown
-        @selector.close
       end
     end
   end
