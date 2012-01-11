@@ -2,13 +2,14 @@ require 'timeout'
 
 desc "Run Celluloid benchmarks"
 task :benchmark do
-  exit 0 if RUBY_ENGINE == 'rbx'
+  # Travis has an out-of-date version of rbx that rashes on the benchmarks
+  exit 0 if ENV['CI'] and RUBY_ENGINE == 'rbx'
 
   begin
     Timeout.timeout(120) do
-      load File.expand_path("../../benchmarks/actor.rb", __FILE__)
-      load File.expand_path("../../benchmarks/jruby.rb", __FILE__)
-      load File.expand_path("../../benchmarks/ring.rb", __FILE__)
+      %w(actor mailbox ring).each do |benchmark|
+        load File.expand_path("../../benchmarks/#{benchmark}.rb", __FILE__)
+      end
     end
   rescue Exception, Timeout::Error => ex
     puts "ERROR: Couldn't complete benchmark: #{ex.class}: #{ex}"
