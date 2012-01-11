@@ -3,6 +3,11 @@ module Celluloid
     # React to incoming 0MQ and Celluloid events. This is kinda sorta supposed
     # to resemble the Reactor design pattern.
     class Reactor
+      extend Forwardable
+
+      def_delegator :@waker, :signal, :wakeup
+      def_delegator :@waker, :cleanup, :shutdown
+
       def initialize(waker)
         @waker = waker
         @poller = ::ZMQ::Poller.new
@@ -56,12 +61,8 @@ module Celluloid
         end
 
         @poller.readables.each do |sock|
-          if sock == @waker.socket
-            yield
-          else
-            fiber = @readers.delete sock
-            fiber.resume if fiber
-          end
+          fiber = @readers.delete sock
+          fiber.resume if fiber
         end
 
         @poller.writables.each do |sock|

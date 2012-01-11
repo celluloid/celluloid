@@ -1,6 +1,7 @@
 module Celluloid
   module ZMQ
-    class DeadWakerError < Celluloid::IO::DeadWakerError; end # You can't wake the dead
+    # You can't wake the dead
+    DeadWakerError = Class.new IOError
 
     # Wakes up sleepy threads so that they can check their mailbox
     # Works like a ConditionVariable, except it's implemented as a ZMQ socket
