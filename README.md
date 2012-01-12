@@ -40,12 +40,14 @@ _asynchronously_, so the receiver to do things in the background for you
 without the caller having to sit around waiting for the result.
 
 You can also build distributed systems with Celluloid using its
-[sister project DCell](https://github.com/tarcieri/dcell).
+[sister project DCell](https://github.com/tarcieri/dcell) and do evented IO with
+the [Celluloid::IO](https://github.com/tarcieri/celluloid-io) library.
 
 [Please see the Celluloid Wiki](https://github.com/tarcieri/celluloid/wiki)
 for more detailed documentation and usage notes.
 
 Like Celluloid? [Join the Google Group](http://groups.google.com/group/celluloid-ruby)
+Or visit us on IRC at #celluloid on freenode
 
 Supported Platforms
 -------------------
