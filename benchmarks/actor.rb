@@ -1,79 +1,21 @@
 #!/usr/bin/env ruby
 
-$:.push File.expand_path("../../lib", __FILE__)
-
-require 'benchmark'
+require 'rubygems'
+require 'bundler/setup'
 require 'celluloid'
+require 'benchmark/ips'
 
-class RegularObject
-  def example; end
-end
-
-class ConcurrentObject
+class ExampleActor
   include Celluloid
-  def example; end
+  def example_method; end
 end
 
-class MessageSink
-  include Celluloid
+example_actor = ExampleActor.new
+mailbox = Celluloid::Mailbox.new
 
-  def initialize(total_messages)
-    @n, @total = 0, total_messages
-  end
-
-  def wait_until_complete
-    wait :done
-  end
-
-  def message
-    @n += 1
-    signal :done if @n >= @total
-  end
+Benchmark.ips do |ips|
+  ips.report("spawn")       { ExampleActor.new.terminate }
+  ips.report("calls")       { example_actor.example_method }
+  ips.report("async calls") { example_actor.example_method! }
+  ips.report("messages")    { mailbox << :message }
 end
-
-def measure(reps, &block)
-  time = Benchmark.measure do
-    reps.times(&block)
-  end.real
-
-  1 / time * reps
-end
-
-def format(float)
-  "%0.2f" % float
-end
-
-puts "---"
-puts "actor_benchmarks:"
-# How quickly can we create actors?
-
-objs = []
-concurrent_creation = measure(1000) { objs << ConcurrentObject.new }
-objs.each { |obj| obj.terminate }
-
-puts "  actors_per_second: #{format concurrent_creation}"
-
-# How quickly can we create short-lived actors?
-
-ephemeral_creation = measure(5000) { ConcurrentObject.new.terminate }
-puts "  ephemeral_actors_per_second: #{format ephemeral_creation}"
-
-#
-# How quickly can we call methods?
-#
-
-concurrent_object = ConcurrentObject.new
-concurrent_calls = measure(20000) { concurrent_object.example }
-
-puts "  calls_per_second: #{format concurrent_calls}"
-
-messages = 20000
-sink = MessageSink.new(messages)
-wait = sink.future(:wait_until_complete)
-
-time = Benchmark.measure do
-  messages.times { sink.message! }
-  wait.value
-end.real
-
-puts "  messages_per_second: #{format 1 / time * messages}"

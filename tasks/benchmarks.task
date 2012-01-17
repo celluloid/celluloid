@@ -7,9 +7,8 @@ task :benchmark do
 
   begin
     Timeout.timeout(120) do
-      %w(actor mailbox ring).each do |benchmark|
-        load File.expand_path("../../benchmarks/#{benchmark}.rb", __FILE__)
-      end
+      glob = File.expand_path("../../benchmarks/*.rb", __FILE__)
+      Dir[glob].each { |benchmark| load benchmark }
     end
   rescue Exception, Timeout::Error => ex
     puts "ERROR: Couldn't complete benchmark: #{ex.class}: #{ex}"

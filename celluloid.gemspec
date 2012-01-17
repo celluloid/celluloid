@@ -19,6 +19,7 @@ Gem::Specification.new do |s|
   s.files        = Dir['README.md', 'lib/**/*', 'spec/support/**/*']
   s.require_path = 'lib'
 
-  s.add_development_dependency('rake')
-  s.add_development_dependency('rspec', ['~> 2.7.0'])
+  s.add_development_dependency 'rake'
+  s.add_development_dependency 'rspec', '~> 2.7.0'
+  s.add_development_dependency 'benchmark_suite'
 end
