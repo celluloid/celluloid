@@ -1,3 +1,7 @@
+0.7.3
+-----
+* Benchmarks using benchmark_suite
+
 0.7.2
 -----
 * Workaround fiber problems on JRuby 1.6.5.1 in addition to 1.6.5
