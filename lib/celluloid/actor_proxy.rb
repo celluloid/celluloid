@@ -62,14 +62,15 @@ module Celluloid
 
     # method_missing black magic to call bang predicate methods asynchronously
     def method_missing(meth, *args, &block)
-      # bang methods are async calls
-      if meth.to_s.match(/!$/)
-        unbanged_meth = meth.to_s.sub(/!$/, '')
-        Actor.async @mailbox, unbanged_meth, *args, &block
-        return
-      end
+      meth = meth.to_s
 
-      Actor.call @mailbox, meth, *args, &block
+      # bang methods are async calls
+      if meth.match(/!$/)
+        meth.sub!(/!$/, '')
+        Actor.async @mailbox, meth, *args, &block
+      else
+        Actor.call  @mailbox, meth, *args, &block
+      end
     end
   end
 end
