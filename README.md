@@ -12,7 +12,7 @@ objects just as easily as you build sequential programs out of regular objects.
 Recommended for any developer, including novices, Celluloid should help ease
 your worries about building multithreaded Ruby programs:
 
-* __Look ma, no mutexes:__ Celluloid automatically synchronizes access to instance
+* __Automatic synchronization:__ Celluloid synchronizes access to instance
   variables by using a special proxy object system and messaging model.
 * __[Futures](https://github.com/tarcieri/celluloid/wiki/futures):__
   Ever wanted to call a method "in the background" and retrieve the
