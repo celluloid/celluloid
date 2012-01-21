@@ -36,15 +36,16 @@ module Celluloid
       end
 
       if Celluloid.actor?
-        response = Thread.current[:actor].wait [:call, call]
+        # The current task will be automatically resumed when we get a response
+        Task.suspend
       else
         # Otherwise we're inside a normal thread, so block
         response = Thread.mailbox.receive do |msg|
           msg.respond_to?(:call) and msg.call == call
         end
-      end
 
-      response.value
+        response.value
+      end
     end
 
     # Invoke a method asynchronously on an actor via its mailbox
@@ -195,11 +196,7 @@ module Celluloid
       when Call
         Task.new(:message_handler) { message.dispatch(@subject) }.resume
       when Response
-        handled_successfully = signal [:call, message.call], message
-
-        unless handled_successfully
-          Logger.debug("anomalous message! spurious response to call #{message.call_id}")
-        end
+        message.call.task.resume message.value
       else
         @receivers.handle_message(message)
       end

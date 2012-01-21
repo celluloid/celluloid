@@ -28,6 +28,13 @@ module Celluloid
 
   # Synchronous calls wait for a response
   class SyncCall < Call
+    attr_reader :task
+
+    def initialize(caller, method, arguments, block)
+      super
+      @task = Task.current
+    end
+
     def dispatch(obj)
       begin
         check_signature(obj)

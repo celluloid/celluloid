@@ -10,9 +10,7 @@ module Celluloid
 
     # Obtain the current task
     def self.current
-      task = Fiber.current.task
-      raise "not in task scope" unless task
-      task
+      Fiber.current.task
     end
 
     # Suspend the running task, deferring to the scheduler
