@@ -40,7 +40,7 @@ module Celluloid
         
         monitor = @selector.register(io, set)
         monitor.value = Task.current
-        Task.suspend
+        Task.suspend :iowait
       end
       
       # Run the reactor, waiting for events or wakeup signal

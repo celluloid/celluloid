@@ -16,7 +16,6 @@ module Celluloid
     extend Forwardable
 
     # Wait for the given IO object to become readable/writeable
-    def_delegators 'current_actor.mailbox.reactor',
-      :wait_readable, :wait_writeable
+    def_delegators 'current_actor.mailbox.reactor', :wait_readable, :wait_writeable
   end
 end
