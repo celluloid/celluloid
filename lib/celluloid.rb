@@ -43,13 +43,6 @@ module Celluloid
         Kernel.sleep interval
       end
     end
-
-    # Obtain a hash of active tasks to their current activities
-    def tasks
-      actor = Thread.current[:actor]
-      raise NotActorError, "not in actor scope" unless actor
-      actor.tasks
-    end
   end
 
   # Class methods added to classes which include Celluloid
@@ -150,7 +143,7 @@ module Celluloid
 
   # Obtain the running tasks for this actor
   def tasks
-    Celluloid.tasks
+    Thread.current[:actor].tasks.to_a
   end
 
   # Obtain the Ruby object the actor is wrapping. This should ONLY be used

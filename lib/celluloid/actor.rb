@@ -20,10 +20,7 @@ module Celluloid
   # messages.
   class Actor
     extend Registry
-
-    attr_reader :proxy
-    attr_reader :links
-    attr_reader :mailbox
+    attr_reader :proxy, :tasks, :links, :mailbox
 
     # Invoke a method on the given actor via its mailbox
     def self.call(mailbox, meth, *args, &block)
@@ -37,7 +34,7 @@ module Celluloid
 
       if Celluloid.actor?
         # The current task will be automatically resumed when we get a response
-        Task.suspend
+        Task.suspend :callwait
       else
         # Otherwise we're inside a normal thread, so block
         response = Thread.mailbox.receive do |msg|
@@ -70,11 +67,12 @@ module Celluloid
         @mailbox = Mailbox.new
       end
 
+      @proxy     = ActorProxy.new(@mailbox, subject.class.to_s)
+      @tasks     = Set.new
       @links     = Links.new
       @signals   = Signals.new
       @receivers = Receivers.new
       @timers    = Timers.new
-      @proxy     = ActorProxy.new(@mailbox, subject.class.to_s)
       @running   = true
 
       @thread = Pool.get do
@@ -155,27 +153,6 @@ module Celluloid
       end
     end
 
-    # Obtain a hash of tasks that are currently waiting
-    def tasks
-      # A hash of tasks to what they're waiting on is more meaningful to the
-      # end-user, and lets us make a copy of the tasks table, rather than
-      # handing them the one we're using internally across threads, a definite
-      # thread safety shared state no-no
-      tasks = {}
-      current_task = Task.current rescue nil
-      tasks[current_task] = :running if current_task
-
-      @signals.waiting.each do |waitable, waiters|
-        if waiters.is_a? Enumerable
-          waiters.each { |waiter| tasks[waiter] = waitable }
-        else
-          tasks[waiters] = waitable
-        end
-      end
-
-      tasks
-    end
-
     # Schedule a block to run at the given time
     def after(interval)
       @timers.add(interval) do
@@ -187,7 +164,7 @@ module Celluloid
     def sleep(interval)
       task = Task.current
       @timers.add(interval) { task.resume }
-      Task.suspend
+      Task.suspend :sleeping
     end
 
     # Handle an incoming message
@@ -227,7 +204,7 @@ module Celluloid
     def cleanup(exit_event)
       @mailbox.shutdown
       @links.send_event exit_event
-      tasks.each { |task, _| task.terminate }
+      tasks.each { |task| task.terminate }
 
       begin
         @subject.finalize if @subject.respond_to? :finalize

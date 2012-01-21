@@ -452,27 +452,21 @@ shared_context "a Celluloid Actor" do |included_module|
       # an alias for Celluloid::Actor#waiting_tasks
       tasks = actor.tasks
       tasks.size.should == 1
-      tasks.values.first.should == :running
+      tasks.first.status.should == :running
 
       future = actor.future(:blocking_call)
       sleep 0.1 # hax! waiting for ^^^ call to actually start
 
-      # FIXME: broke!
-      # tasks = actor.tasks
-      # tasks.size.should == 2
-      #
-      # blocking_task = nil
-      # tasks.each do |task, waitable|
-      #   next if waitable == :running
-      #   blocking_task = task
-      #   break
-      # end
-      #
-      # tasks[blocking_task].first.should == :call
-      #
-      # actor.blocker.unblock
-      # sleep 0.1 # hax again :(
-      # actor.tasks.size.should == 1
+      tasks = actor.tasks
+      tasks.size.should == 2
+
+      blocking_task = tasks.find { |t| t.status != :running }
+      blocking_task.should be_a Celluloid::Task
+      blocking_task.status.should == :callwait
+
+      actor.blocker.unblock
+      sleep 0.1 # hax again :(
+      actor.tasks.size.should == 1
     end
   end
 end

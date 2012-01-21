@@ -20,7 +20,7 @@ module Celluloid
       end
 
       @receivers << receiver
-      Task.suspend
+      Task.suspend :receiving
     end
 
     # How long to wait until the next timer fires

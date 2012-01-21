@@ -6,7 +6,8 @@ module Celluloid
   class Task
     class TerminatedError < StandardError; end # kill a running fiber
 
-    attr_reader :type # what type of task is this?
+    attr_reader   :type
+    attr_accessor :status
 
     # Obtain the current task
     def self.current
@@ -14,29 +15,38 @@ module Celluloid
     end
 
     # Suspend the running task, deferring to the scheduler
-    def self.suspend(value = nil)
-      result = Fiber.yield(value)
+    def self.suspend(status)
+      task = Task.current
+      task.status = status
+
+      result = Fiber.yield
       raise TerminatedError, "task was terminated" if result == TerminatedError
+      task.status = :running
+
       result
     end
 
     # Run the given block within a task
     def initialize(type)
-      @type = type
+      @type   = type
+      @status = :new
 
       actor   = Thread.current[:actor]
       mailbox = Thread.current[:mailbox]
 
       @fiber = Fiber.new do
+        @status = :running
         Thread.current[:actor]   = actor
         Thread.current[:mailbox] = mailbox
-
         Fiber.current.task = self
+        actor.tasks << self
 
         begin
           yield
         rescue TerminatedError
           # Task was explicitly terminated
+        ensure
+          actor.tasks.delete self
         end
       end
     end
@@ -65,7 +75,7 @@ module Celluloid
 
     # Nicer string inspect for tasks
     def inspect
-      "<Celluloid::Task:0x#{object_id.to_s(16)} @type=#{@type.inspect}, @running=#{@fiber.alive?}>"
+      "<Celluloid::Task:0x#{object_id.to_s(16)} @type=#{@type.inspect}, @status=#{@status.inspect}, @running=#{@fiber.alive?}>"
     end
   end
 end
