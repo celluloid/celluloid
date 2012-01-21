@@ -19,6 +19,10 @@ describe Celluloid::FSM do
       def fired?; @fired end
     end
 
+    class DummyActor
+      include Celluloid
+    end
+
     class CustomDefaultMachine
       include Celluloid::FSM
 
@@ -56,6 +60,7 @@ describe Celluloid::FSM do
   it "transitions to states after a specified delay" do
     interval = Celluloid::Timer::QUANTUM * 10
 
+    subject.attach DummyActor.new
     subject.transition :another
     subject.transition :done, :delay => interval
 
@@ -68,6 +73,7 @@ describe Celluloid::FSM do
   it "cancels delayed state transitions if another transition is made" do
     interval = Celluloid::Timer::QUANTUM * 10
 
+    subject.attach DummyActor.new
     subject.transition :another
     subject.transition :done, :delay => interval
 

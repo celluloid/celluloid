@@ -1,5 +1,6 @@
-0.7.3
+0.8.0
 -----
+* Celluloid::FSMs are no longer actors themselves
 * Benchmarks using benchmark_suite
 
 0.7.2
