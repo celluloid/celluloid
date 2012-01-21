@@ -36,11 +36,11 @@ module Celluloid
       end
 
       if Celluloid.actor?
-        response = Thread.current[:actor].wait [:call, call.id]
+        response = Thread.current[:actor].wait [:call, call]
       else
         # Otherwise we're inside a normal thread, so block
         response = Thread.mailbox.receive do |msg|
-          msg.respond_to?(:call_id) and msg.call_id == call.id
+          msg.respond_to?(:call) and msg.call == call
         end
       end
 
@@ -195,7 +195,7 @@ module Celluloid
       when Call
         Task.new(:message_handler) { message.dispatch(@subject) }.resume
       when Response
-        handled_successfully = signal [:call, message.call_id], message
+        handled_successfully = signal [:call, message.call], message
 
         unless handled_successfully
           Logger.debug("anomalous message! spurious response to call #{message.call_id}")

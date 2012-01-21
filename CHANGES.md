@@ -1,5 +1,7 @@
 0.8.0
 -----
+* Reduce coupling between Celluloid and DCell. Breaks compatibility with
+  earlier versions of DCell.
 * Celluloid::FSMs are no longer actors themselves
 * Benchmarks using benchmark_suite
 

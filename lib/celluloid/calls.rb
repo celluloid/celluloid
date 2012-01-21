@@ -1,10 +1,9 @@
 module Celluloid
   # Calls represent requests to an actor
   class Call
-    attr_reader :id, :caller, :method, :arguments, :block
+    attr_reader :caller, :method, :arguments, :block
 
     def initialize(caller, method, arguments, block)
-      @id = object_id # memoize object ID for serialization
       @caller, @method, @arguments, @block = caller, method, arguments, block
     end
 
@@ -33,7 +32,7 @@ module Celluloid
       begin
         check_signature(obj)
       rescue Exception => ex
-        respond ErrorResponse.new(@id, AbortError.new(ex))
+        respond ErrorResponse.new(self, AbortError.new(ex))
         return
       end
 
@@ -42,7 +41,7 @@ module Celluloid
       rescue Exception => exception
         # Exceptions that occur during synchronous calls are reraised in the
         # context of the caller
-        respond ErrorResponse.new(@id, exception)
+        respond ErrorResponse.new(self, exception)
 
         if exception.is_a? AbortError
           # Aborting indicates a protocol error on the part of the caller
@@ -54,12 +53,12 @@ module Celluloid
         end
       end
 
-      respond SuccessResponse.new(@id, result)
+      respond SuccessResponse.new(self, result)
     end
 
     def cleanup
       exception = DeadActorError.new("attempted to call a dead actor")
-      respond ErrorResponse.new(@id, exception)
+      respond ErrorResponse.new(self, exception)
     end
 
     #######

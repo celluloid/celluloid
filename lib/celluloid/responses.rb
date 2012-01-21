@@ -1,10 +1,10 @@
 module Celluloid
   # Responses to calls
   class Response
-    attr_reader :call_id, :value
+    attr_reader :call, :value
     
-    def initialize(call_id, value)
-      @call_id, @value = call_id, value
+    def initialize(call, value)
+      @call, @value = call, value
     end
   end
   
