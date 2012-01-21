@@ -74,34 +74,35 @@ end
 
 # Each of the three men at the table is a smoker
 class Smoker
-  include Celluloid::FSM
+  include Celluloid
 
-  default_state :standing
+  # These guys are smoking MACHINES (literally, they're finite state machines!)
+  class Machine
+    include Celluloid::FSM
 
-  state :waiting, :to => :procuring do
-    if @table.empty?
-      puts "#{name} whistles at waitress... get me smokes!"
-      @table.waitress.whistle! # We'll decide what to do when the waitress arrives
+    default_state :standing
+
+    state :waiting, :to => :procuring do
+      actor.check_table
     end
-  end
 
-  state :procuring, :to => [:waiting, :smoking] do
-    if take_items
-      transition :smoking
-    else
-      transition :waiting
+    state :procuring, :to => [:waiting, :smoking] do
+      if actor.take_items
+        transition :smoking
+      else
+        transition :waiting
+      end
     end
-  end
 
-  state :smoking do
-    @smoking = true
-    smoke
-  end
+    state :smoking do
+      actor.smoke
+    end
 
-  state :done do
-    @smoking = false
-    puts "#{name} has finished smoking"
-    transition :procuring
+    state :done do
+      actor.smoking = false
+      puts "#{actor.name} has finished smoking"
+      transition :procuring
+    end
   end
 
   def initialize(commodity, rate)
@@ -111,9 +112,13 @@ class Smoker
     @cigarette = nil
     @match = nil
     @smoking = false
+
+    # It's okay to use self here, since Machine is just an object
+    @machine = Machine.new(self)
   end
 
-  def smoking?; @smoking end
+  attr_accessor :smoking
+  alias_method  :smoking?, :smoking
 
   def name
     "#{@commodity} Guy"
@@ -126,10 +131,12 @@ class Smoker
   # Sit down at the table
   def sit(table)
     puts "#{name} sits down at table"
-    table.smokers << current_actor # DON'T USE SELF!
+
+    # DON'T USE SELF ACROSS ACTORS!
+    table.smokers << current_actor
     @table = table
 
-    transition :procuring
+    @machine.transition :procuring
   end
 
   # Obtain this smoker's commodity
@@ -139,10 +146,18 @@ class Smoker
 
   # The table should now have the items I need
   def notify_ready
-    if state == :smoking
+    if @machine.state == :smoking
       puts "#{name} says: I'm good on smokes, thanks"
     else
-      transition :procuring
+      @machine.transition :procuring
+    end
+  end
+
+  # Check the table for the items we're waiting for
+  def check_table
+    if @table.empty?
+      puts "#{name} whistles at waitress... get me smokes!"
+      @table.waitress.whistle! # We'll decide what to do when the waitress arrives
     end
   end
 
@@ -181,13 +196,14 @@ class Smoker
   end
 
   def smoke
+    @smoking = true
     @match.light
     @cigarette.light @match
 
     puts "#{name} enjoys a smoke"
     @cigarette.smoke
 
-    transition :done, :delay => @rate * 5
+    @machine.transition :done, :delay => @rate * 5
   end
 
   def complimentary?(items)
