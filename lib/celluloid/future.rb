@@ -51,14 +51,8 @@ module Celluloid
       end
 
       unless ready
-        if Celluloid.actor?
-          result = Celluloid.receive do |msg|
-            msg.is_a?(Future::Result) && msg.future == self
-          end
-        else
-          result = Thread.mailbox.receive do |msg|
-            msg.is_a?(Future::Result) && msg.future == self
-          end
+        result = Thread.receive do |msg|
+          msg.is_a?(Future::Result) && msg.future == self
         end
       end
 
