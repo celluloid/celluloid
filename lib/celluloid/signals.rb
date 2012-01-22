@@ -31,8 +31,6 @@ module Celluloid
       case tasks
       when Array
         tasks.each { |task| run_task task, value }
-      when NilClass
-        Logger.debug("spurious signal: #{name}")
       else
         run_task tasks, value
       end
