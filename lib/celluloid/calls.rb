@@ -3,7 +3,7 @@ module Celluloid
   class Call
     attr_reader :caller, :method, :arguments, :block
 
-    def initialize(caller, method, arguments, block)
+    def initialize(caller, method, arguments = [], block = nil)
       @caller, @method, @arguments, @block = caller, method, arguments, block
     end
 
@@ -30,7 +30,7 @@ module Celluloid
   class SyncCall < Call
     attr_reader :task
 
-    def initialize(caller, method, arguments, block)
+    def initialize(caller, method, arguments = [], block = nil)
       super
       @task = Task.current
     end
