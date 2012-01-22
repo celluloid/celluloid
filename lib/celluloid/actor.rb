@@ -57,6 +57,11 @@ module Celluloid
       end
     end
 
+    # Call a method asynchronously and retrieve its value later
+    def self.future(mailbox, meth, *args, &block)
+      Future.new { Actor.call mailbox, meth, *args, &block }
+    end
+
     # Wrap the given subject with an Actor
     def initialize(subject)
       @subject = subject
