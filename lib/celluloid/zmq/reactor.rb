@@ -35,11 +35,11 @@ module Celluloid
         if set.has_key? socket
           raise ArgumentError, "another method is already waiting on #{socket.inspect}"
         else
-          set[socket] = Fiber.current
+          set[socket] = Task.current
         end
 
         @poller.register socket, type
-        Fiber.yield
+        Task.suspend :zmqwait
 
         @poller.deregister socket, type
         socket
@@ -64,10 +64,10 @@ module Celluloid
           if sock == @waker.socket
             @waker.wait
           else
-            fiber = @readers.delete sock
+            task = @readers.delete sock
 
-            if fiber
-              fiber.resume
+            if task
+              task.resume
             else
               Celluloid::Logger.debug "ZMQ error: got read event without associated reader"
             end
@@ -75,10 +75,10 @@ module Celluloid
         end
 
         @poller.writables.each do |sock|
-          fiber = @writers.delete sock
+          task = @writers.delete sock
 
-          if fiber
-            fiber.resume
+          if task
+            task.resume
           else
             Celluloid::Logger.debug "ZMQ error: got read event without associated reader"
           end
