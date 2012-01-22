@@ -31,11 +31,13 @@ module Celluloid
       case tasks
       when Array
         tasks.each { |task| run_task task, value }
+        true if tasks.size > 0
+      when NilClass
+        false
       else
         run_task tasks, value
+        true
       end
-
-      value
     end
 
     # Run the given task, reporting errors that occur
