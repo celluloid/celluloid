@@ -82,7 +82,7 @@ module Celluloid
       @timers    = Timers.new
       @running   = true
 
-      @thread = Pool.get do
+      @thread = ThreadPool.get do
         Thread.current[:actor]   = self
         Thread.current[:mailbox] = @mailbox
 
@@ -143,7 +143,7 @@ module Celluloid
       @running = false
       handle_crash(ex)
     ensure
-      Pool.put @thread
+      ThreadPool.put @thread
     end
 
     # How long to wait until the next timer fires

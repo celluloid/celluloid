@@ -13,7 +13,15 @@ module Celluloid
 
       if block
         @call = SyncCall.new(self, :call, args)
-        Actor::Pool.get { @call.dispatch(block) }
+        ThreadPool.get do
+          begin
+            @call.dispatch(block)
+          rescue
+            # Exceptions in blocks will get raised when the value is retrieved
+          ensure
+            ThreadPool.put Thread.current
+          end
+        end
       else
         @call = nil
       end
