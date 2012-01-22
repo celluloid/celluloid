@@ -1,5 +1,6 @@
 0.8.0
 -----
+* Rename Celluloid#async to Celluloid#defer
 * Celluloid#tasks now returns an array of tasks with a #status attribute
 * Reduce coupling between Celluloid and DCell. Breaks compatibility with
   earlier versions of DCell.

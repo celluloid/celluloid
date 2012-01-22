@@ -201,10 +201,15 @@ module Celluloid
   # Perform a blocking or computationally intensive action inside an
   # asynchronous thread pool, allowing the caller to continue processing other
   # messages in its mailbox in the meantime
-  def async(&block)
+  def defer(&block)
     # This implementation relies on the present implementation of
     # Celluloid::Future, which uses an Actor to run the block
     Future.new(&block).value
+  end
+
+  # Deprecated, do not use
+  def async
+    raise "Celluloid#async is defunct. Please use #defer instead"
   end
 
   # Process async calls via method_missing
