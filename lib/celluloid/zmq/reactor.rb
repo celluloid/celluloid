@@ -65,13 +65,23 @@ module Celluloid
             @waker.wait
           else
             fiber = @readers.delete sock
-            fiber.resume if fiber
+
+            if fiber
+              fiber.resume
+            else
+              Celluloid::Logger.debug "ZMQ error: got read event without associated reader"
+            end
           end
         end
 
         @poller.writables.each do |sock|
           fiber = @writers.delete sock
-          fiber.resume if fiber
+
+          if fiber
+            fiber.resume
+          else
+            Celluloid::Logger.debug "ZMQ error: got read event without associated reader"
+          end
         end
       end
     end
