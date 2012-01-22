@@ -44,7 +44,7 @@ module Celluloid
     def run_task(task, value)
       task.resume(value)
     rescue => ex
-      Celluloid::Logger.crash("signaling error", ex)
+      Logger.crash("signaling error", ex)
     end
   end
 end
