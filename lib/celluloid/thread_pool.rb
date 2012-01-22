@@ -1,7 +1,7 @@
 require 'thread'
 
 module Celluloid
-  # Maintain a thread pool of actors FOR SPEED!!
+  # Maintain a thread pool FOR SPEED!!
   module ThreadPool
     @pool = []
     @lock = Mutex.new
