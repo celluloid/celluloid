@@ -11,7 +11,7 @@ module Celluloid
 
     # Obtain the current task
     def self.current
-      Fiber.current.task
+      Fiber.current.task or raise "no task for this Fiber"
     end
 
     # Suspend the running task, deferring to the scheduler
