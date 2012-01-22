@@ -8,8 +8,8 @@ module Celluloid
       def_delegator :@waker, :signal, :wakeup
       def_delegator :@waker, :cleanup, :shutdown
 
-      def initialize(waker)
-        @waker = waker
+      def initialize
+        @waker = Waker.new
         @poller = ::ZMQ::Poller.new
         @readers = {}
         @writers = {}
@@ -61,8 +61,12 @@ module Celluloid
         end
 
         @poller.readables.each do |sock|
-          fiber = @readers.delete sock
-          fiber.resume if fiber
+          if sock == @waker.socket
+            @waker.wait
+          else
+            fiber = @readers.delete sock
+            fiber.resume if fiber
+          end
         end
 
         @poller.writables.each do |sock|

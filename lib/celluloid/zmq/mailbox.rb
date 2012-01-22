@@ -6,8 +6,7 @@ module Celluloid
         # More APIs and less monkeypatching would be useful here
         @messages = []
         @lock    = Mutex.new
-        @waker   = Waker.new
-        @reactor = Reactor.new(@waker)
+        @reactor = Reactor.new
       end
     end
   end

@@ -1,3 +1,7 @@
+0.8.0
+-----
+* Update to match internals of celluloid-io
+
 0.7.0
 -----
 * Use celluloid-io gem
