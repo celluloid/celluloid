@@ -1,6 +1,6 @@
 module Celluloid
-  # Applications describe and manage networks of Celluloid actors
-  class Application
+  # Supervise collections of actors as a group
+  class Group
     include Celluloid
     trap_exit :restart_supervisor
 
@@ -75,4 +75,7 @@ module Celluloid
       end
     end
   end
+
+  # Legacy support for the old name. Going away soon!
+  Application = Group
 end

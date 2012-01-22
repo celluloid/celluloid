@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Celluloid::Application do
+describe Celluloid::Group do
   before :all do
     class MyActor
       include Celluloid
@@ -8,13 +8,13 @@ describe Celluloid::Application do
       def running?; :yep; end
     end
 
-    class MyApplication < Celluloid::Application
+    class MyGroup < Celluloid::Group
       supervise MyActor, :as => :example
     end
   end
 
   it "runs applications" do
-    MyApplication.run!
+    MyGroup.run!
     sleep 0.01 # startup time hax
 
     Celluloid::Actor[:example].should be_running

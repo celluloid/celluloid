@@ -1,5 +1,6 @@
 0.8.0
 -----
+* Celluloid::Application is now Celluloid::Group
 * Futures no longer use a thread unless created with a block
 * No more future thread-leaks! Future threads auto-terminate now
 * Rename Celluloid#async to Celluloid#defer
