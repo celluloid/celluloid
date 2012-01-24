@@ -39,9 +39,8 @@ module Celluloid
         end
 
         @poller.register socket, type
-        Task.suspend :zmqwait
 
-        @poller.deregister socket, type
+        Task.suspend :zmqwait
         socket
       end
 
@@ -65,6 +64,7 @@ module Celluloid
             @waker.wait
           else
             task = @readers.delete sock
+            @poller.deregister sock, ::ZMQ::POLLIN
 
             if task
               task.resume
@@ -76,11 +76,12 @@ module Celluloid
 
         @poller.writables.each do |sock|
           task = @writers.delete sock
+          @poller.deregister sock, ::ZMQ::POLLOUT
 
           if task
             task.resume
           else
-            Celluloid::Logger.debug "ZMQ error: got read event without associated reader"
+            Celluloid::Logger.debug "ZMQ error: got write event without associated reader"
           end
         end
       end
