@@ -16,6 +16,11 @@ module Celluloid
       !!Thread.current[:actor]
     end
 
+    # Is current actor running in exclusive mode?
+    def exclusive?
+      actor? and Thread.current[:actor].exclusive?
+    end
+
     # Obtain the currently running actor (if one exists)
     def current_actor
       actor = Thread.current[:actor]
@@ -191,6 +196,12 @@ module Celluloid
   # Sleep while letting the actor continue to receive messages
   def sleep(interval)
     Celluloid.sleep(interval)
+  end
+
+  # Run given block in an exclusive mode: all synchronous calls block the whole
+  # actor, not only current message processing.
+  def exclusive(&block)
+    Thread.current[:actor].exclusive(&block)
   end
 
   # Call a block after a given interval
