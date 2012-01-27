@@ -28,7 +28,7 @@ module Celluloid
 
       begin
         @actor = @klass.new_link(*@args, &@block)
-      rescue => ex
+      rescue
         failures += 1
         if failures >= start_attempts
           failures = 0
