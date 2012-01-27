@@ -75,7 +75,10 @@ module Celluloid
         @mailbox = Mailbox.new
       end
 
-      @proxy     = ActorProxy.new(@mailbox, subject.class.to_s)
+      # Some naughty objects won't let us call class in this state
+      klass      = (subject.class rescue nil) || Object
+
+      @proxy     = ActorProxy.new(@mailbox, klass.to_s)
       @tasks     = Set.new
       @links     = Links.new
       @signals   = Signals.new
