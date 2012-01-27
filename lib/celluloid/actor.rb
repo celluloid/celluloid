@@ -68,7 +68,8 @@ module Celluloid
     def initialize(subject)
       @subject = subject
 
-      if subject.respond_to? :mailbox_factory
+      got_mailbox_factory = subject.respond_to? :mailbox_factory rescue nil
+      if got_mailbox_factory
         @mailbox = subject.mailbox_factory
       else
         @mailbox = Mailbox.new
