@@ -4,7 +4,7 @@ module Celluloid
   # Maintain a thread pool FOR SPEED!!
   module ThreadPool
     @pool = []
-    @lock = Mutex.new
+    @mutex = Mutex.new
 
     # TODO: should really adjust this based on usage
     @max_idle = 16
@@ -14,7 +14,7 @@ module Celluloid
 
       # Get a thread from the pool, running the given block
       def get(&block)
-        @lock.synchronize do
+        @mutex.synchronize do
           if @pool.empty?
             thread = create
           else
@@ -28,7 +28,7 @@ module Celluloid
 
       # Return a thread to the pool
       def put(thread)
-        @lock.synchronize do
+        @mutex.synchronize do
           if @pool.size >= @max_idle
             thread[:queue] << nil
           else
@@ -41,14 +41,17 @@ module Celluloid
       def create
         queue = Queue.new
         thread = Thread.new do
-          begin
-            while func = queue.pop
-              func.call
+          while proc = queue.pop
+            begin
+              proc.call
+            rescue => ex
+              Logger.crash("thread crashed", ex)
             end
-          rescue Exception => ex
-            Logger.crash("#{self} internal failure", ex)
+
+            put thread
           end
         end
+
         thread[:queue] = queue
         thread
       end

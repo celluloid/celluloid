@@ -18,8 +18,6 @@ module Celluloid
             @call.dispatch(block)
           rescue
             # Exceptions in blocks will get raised when the value is retrieved
-          ensure
-            ThreadPool.put Thread.current
           end
         end
       else

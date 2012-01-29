@@ -146,8 +146,6 @@ module Celluloid
     rescue Exception => ex
       @running = false
       handle_crash(ex)
-    ensure
-      ThreadPool.put @thread
     end
 
     # How long to wait until the next timer fires
