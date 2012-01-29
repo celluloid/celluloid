@@ -5,6 +5,8 @@ require 'celluloid'
 require 'celluloid/io/mailbox'
 require 'celluloid/io/reactor'
 
+require 'celluloid/io/tcp_server'
+
 module Celluloid
   # Actors with evented IO support
   module IO
