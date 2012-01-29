@@ -40,34 +40,5 @@ describe Celluloid::IO::TCPServer do
       server.terminate
       socket.close
     end
-
-
-    it "can be interrupted by Thread#kill" do
-      t = Thread.new { subject.accept }
-
-      Thread.pass while t.status and t.status != "sleep"
-
-      # kill thread, ensure it dies in a reasonable amount of time
-      t.kill
-      a = 1
-      while a < 2000
-        break unless t.alive?
-        Thread.pass
-        sleep 0.2
-        a += 1
-      end
-      a.should < 2000
-    end
-
-    it "can be interrupted by Thread#raise" do
-      t = Thread.new { subject.accept }
-
-      Thread.pass while t.status and t.status != "sleep"
-
-      # raise in thread, ensure the raise happens
-      ex = Exception.new
-      t.raise ex
-      lambda { t.join }.should raise_error(Exception)
-    end
   end
 end
