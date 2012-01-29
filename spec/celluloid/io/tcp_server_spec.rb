@@ -6,36 +6,38 @@ describe Celluloid::IO::TCPServer do
     subject      { Celluloid::IO::TCPServer.new("127.0.0.1", port) }
     after(:each) { subject.close unless subject.closed? }
 
-    it "accepts a connection and returns a TCPSocket" do
+    it "accepts a connection and returns a Celluloid::IO::TCPSocket" do
       class ExampleServer
         include Celluloid::IO
-        
+
         def initialize(socket)
           @socket = socket
           @data = nil
-          
+
           accept!
         end
-        
+
         def accept
           client = @socket.accept
+          raise "not a Celluloid::IO::TCPSocket!" unless client.is_a? Celluloid::IO::TCPSocket
+
           @data = client.read(5)
           client << "goodbye"
           client.close
         end
-        
+
         def data
           @data
         end
       end
-      
+
       server = ExampleServer.new(subject)
       socket = TCPSocket.new('127.0.0.1', port)
-      
+
       socket.write('hello')
       socket.shutdown(1) # we are done with sending
       socket.read.should == 'goodbye'
-      
+
       server.data.should == 'hello'
       server.terminate
       socket.close

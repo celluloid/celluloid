@@ -2,10 +2,12 @@ require 'celluloid/io/version'
 
 require 'forwardable'
 require 'celluloid'
+require 'celluloid/io/common_methods'
 require 'celluloid/io/mailbox'
 require 'celluloid/io/reactor'
 
 require 'celluloid/io/tcp_server'
+require 'celluloid/io/tcp_socket'
 
 module Celluloid
   # Actors with evented IO support
