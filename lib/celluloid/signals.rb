@@ -20,7 +20,7 @@ module Celluloid
         @waiting[signal] = [tasks, Task.current]
       end
 
-      Task.suspend :sigwait
+      Task.suspend :sigwait unless Celluloid.exclusive?
     end
 
     # Send a signal to all method calls waiting for the given name
