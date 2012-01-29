@@ -78,7 +78,9 @@ end
 The very first thing including *Celluloid::IO* does is also include the
 *Celluloid* module, which promotes objects of this class to concurrent Celluloid
 actors each running in their own thread. Before trying to use Celluloid::IO
-you may want to familiarize yourself with Celluloid in general.
+you may want to familiarize yourself with Celluloid in general. Celluloid
+actors can each be thought of as being event loops. Celluloid::IO actors
+are heavier but have capabilities similar to other event loop-driven frameworks.
 
 While this looks like a normal Ruby TCP server, there aren't any threads, so
 you might expect this server can only handle one connection at a time.
@@ -99,7 +101,9 @@ comes in three forms:
   *run!* and *handle_connection!*. This queues these methods to be executed
   after the current method is complete. You can queue up as many methods as
   you want, allowing asynchronous operation similar to the "call later" or
-  "next tick" feature of Twisted, EventMachine, and Node.
+  "next tick" feature of Twisted, EventMachine, and Node. This echo server
+  first kicks off a background task for accepting connections on the server
+  socket, then kicks off a background task for each connection.
 
 * __Reactor + Fibers:__ Celluloid::IO is a combination of Actor and Reactor
   concepts. The blocking mechanism used by the mailboxes of Celluloid::IO
