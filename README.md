@@ -1,6 +1,7 @@
 Celluloid::IO
 =============
-[![Build Status](http://travis-ci.org/tarcieri/celluloid-io.png)](http://travis-ci.org/tarcieri/celluloid-io)
+[![Build Status](https://secure.travis-ci.org/tarcieri/celluloid-io.png)](http://travis-ci.org/tarcieri/celluloid-io)
+[![Dependency Status](https://gemnasium.com/tarcieri/celluloid-io.png)](https://gemnasium.com/tarcieri/celluloid-io)
 
 You don't have to choose between threaded and evented IO! Celluloid::IO
 provides a simple and easy way to wait for IO events inside of a Celluloid
