@@ -32,7 +32,7 @@ module Celluloid
         raise DeadActorError, "attempted to call a dead actor"
       end
 
-      if Celluloid.actor?
+      if Celluloid.actor? and not Celluloid.exclusive?
         # The current task will be automatically resumed when we get a response
         Task.suspend :callwait
       else
@@ -85,6 +85,7 @@ module Celluloid
       @receivers = Receivers.new
       @timers    = Timers.new
       @running   = true
+      @exclusive = false
 
       @thread = ThreadPool.get do
         Thread.current[:actor]   = self
@@ -97,6 +98,19 @@ module Celluloid
     # Is this actor alive?
     def alive?
       @running
+    end
+
+    # Is this actor running in exclusive mode?
+    def exclusive?
+      @exclusive
+    end
+
+    # Execute a code block in exclusive mode.
+    def exclusive
+      @exclusive = true
+      yield
+    ensure
+      @exclusive = false
     end
 
     # Terminate this actor
@@ -173,7 +187,7 @@ module Celluloid
     def sleep(interval)
       task = Task.current
       @timers.add(interval) { task.resume }
-      Task.suspend :sleeping
+      Task.suspend :sleeping unless Celluloid.exclusive?
     end
 
     # Handle an incoming message

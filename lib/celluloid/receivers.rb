@@ -20,7 +20,7 @@ module Celluloid
       end
 
       @receivers << receiver
-      Task.suspend :receiving
+      Task.suspend :receiving unless Celluloid.exclusive?
     end
 
     # How long to wait until the next timer fires
