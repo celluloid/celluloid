@@ -1,3 +1,8 @@
+0.8.1
+-----
+* Celluloid#exclusive runs a high priority block which prevents other methods
+  from executing
+
 0.8.0
 -----
 * Celluloid::Application is now Celluloid::Group

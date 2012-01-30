@@ -10,17 +10,21 @@ module Celluloid
 
     # Receive an asynchronous message
     def receive(timeout = nil, &block)
-      receiver = Receiver.new block
+      if Celluloid.exclusive?
+        Thread.mailbox.receive(timeout, &block)
+      else
+        receiver = Receiver.new block
 
-      if timeout
-        receiver.timer = @timers.add(timeout) do
-          @receivers.delete receiver
-          receiver.resume
+        if timeout
+          receiver.timer = @timers.add(timeout) do
+            @receivers.delete receiver
+            receiver.resume
+          end
         end
-      end
 
-      @receivers << receiver
-      Task.suspend :receiving unless Celluloid.exclusive?
+        @receivers << receiver
+        Task.suspend :receiving
+      end
     end
 
     # How long to wait until the next timer fires

@@ -9,8 +9,9 @@ module Celluloid
 
     # Wait for the given signal and return the associated value
     def wait(signal)
-      tasks = @waiting[signal]
+      raise "cannot wait for signals while exclusive" if Celluloid.exclusive?
 
+      tasks = @waiting[signal]
       case tasks
       when Array
         tasks << Task.current
@@ -20,7 +21,7 @@ module Celluloid
         @waiting[signal] = [tasks, Task.current]
       end
 
-      Task.suspend :sigwait unless Celluloid.exclusive?
+      Task.suspend :sigwait
     end
 
     # Send a signal to all method calls waiting for the given name

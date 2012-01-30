@@ -185,9 +185,13 @@ module Celluloid
 
     # Sleep for the given amount of time
     def sleep(interval)
-      task = Task.current
-      @timers.add(interval) { task.resume }
-      Task.suspend :sleeping unless Celluloid.exclusive?
+      if Celluloid.exclusive?
+        Kernel.sleep(interval)
+      else
+        task = Task.current
+        @timers.add(interval) { task.resume }
+        Task.suspend :sleeping
+      end
     end
 
     # Handle an incoming message
