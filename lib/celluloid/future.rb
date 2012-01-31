@@ -39,7 +39,7 @@ module Celluloid
     def value
       ready = result = nil
 
-      @lock.synchronize do
+      @mutex.synchronize do
         raise "no call requested" unless @call
 
         if @ready
