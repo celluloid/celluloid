@@ -100,6 +100,10 @@ module Celluloid
         define_method(:mailbox_factory) { klass.new }
       end
     end
+
+    def ===(other)
+      other.kind_of? self
+    end
   end
 
   #

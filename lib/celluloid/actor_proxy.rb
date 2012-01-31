@@ -17,6 +17,14 @@ module Celluloid
       Actor.call @mailbox, :send, :class
     end
 
+    def is_a?(klass)
+      Actor.call @mailbox, :is_a?, klass
+    end
+
+    def kind_of?(klass)
+      Actor.call @mailbox, :kind_of?, klass
+    end
+
     def respond_to?(meth)
       Actor.call @mailbox, :respond_to?, meth
     end
