@@ -1,7 +1,21 @@
-coverage/
-rdoc/
-doc/
-pkg/
-.yardoc
+# Gem related stuff
+*.gem
+pkg
 .bundle
 Gemfile.lock
+vendor
+
+# RBX stuff
+*~
+.*.sw?
+nbproject
+/.rbx/
+
+# General
+.DS_Store
+.rvmrc
+.yardoc
+coverage
+doc
+rdoc
+tmp
