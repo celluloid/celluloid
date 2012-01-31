@@ -49,6 +49,15 @@ shared_context "a Celluloid Actor" do |included_module|
     actor.class.should == actor_class
   end
 
+  it "compares with the actor's class in a case statement" do
+    case actor_class.new("Troy McClure")
+    when actor_class
+      true
+    else
+      false
+    end.should be_true
+  end
+
   it "handles synchronous calls" do
     actor = actor_class.new "Troy McClure"
     actor.greet.should == "Hi, I'm Troy McClure"
