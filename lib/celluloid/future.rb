@@ -39,8 +39,7 @@ module Celluloid
     def value
       ready = result = nil
 
-      begin
-        @mutex.lock
+      @mutex.synchronize do
         raise "no call requested" unless @call
 
         if @ready
@@ -56,8 +55,6 @@ module Celluloid
             @forwards = [@forwards, Thread.mailbox]
           end
         end
-      ensure
-        @mutex.unlock
       end
 
       unless ready
