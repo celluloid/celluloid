@@ -34,7 +34,7 @@ module Celluloid
 
       if Celluloid.actor? and not Celluloid.exclusive?
         # The current task will be automatically resumed when we get a response
-        Task.suspend :callwait
+        Task.suspend(:callwait).value
       else
         # Otherwise we're inside a normal thread, so block
         response = Thread.mailbox.receive do |msg|
@@ -200,7 +200,7 @@ module Celluloid
       when Call
         Task.new(:message_handler) { message.dispatch(@subject) }.resume
       when Response
-        message.call.task.resume message.value
+        message.call.task.resume message
       else
         @receivers.handle_message(message)
       end
