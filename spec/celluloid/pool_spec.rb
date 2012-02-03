@@ -2,9 +2,12 @@ require 'spec_helper'
 
 describe Celluloid::Pool do
   before do
+    class ExampleError < StandardError; end
+
     class ExampleActor
       include Celluloid
       def working?; true end
+      def crash; raise ExampleError, 'the spec purposely crashed me'; end
     end
   end
 
@@ -42,6 +45,12 @@ describe Celluloid::Pool do
     subject.idle_count.should == 1
     subject.get
 
+    subject.idle_count.should == 0
+  end
+
+  it "tracks the number of idle actors properly even in the event of crashes" do
+    subject.idle_count.should == 1
+    expect { subject.get { |actor| actor.crash } }.to raise_exception(ExampleError)
     subject.idle_count.should == 0
   end
 end

@@ -48,9 +48,11 @@ module Celluloid
       if block_given?
         begin
           yield actor
-        ensure
-          put(actor) if actor.alive?
+        rescue => ex
         end
+
+        put actor
+        abort ex if ex
         nil
       else
         actor
@@ -59,7 +61,14 @@ module Celluloid
 
     # Return an actor to the pool
     def put(actor)
-      raise TypeError, "expecting a #{@klass} actor" unless actor.class == @klass
+      begin
+        raise TypeError, "expecting a #{@klass} actor" unless actor.is_a? @klass
+      rescue DeadActorError
+        # The actor may have died before it was handed back to us
+        # We'll let the crash_handler deal with it in due time
+        return
+      end
+
       @actors << actor
       @idle_actors += 1
     end
@@ -77,8 +86,6 @@ module Celluloid
 
     # Handle crashed actors
     def crash_handler(actor, reason)
-      return unless actor.class == @klass
-
       @idle_actors    -= 1 if @actors.delete actor
       @running_actors -= 1
 
