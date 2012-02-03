@@ -1,0 +1,96 @@
+module Celluloid
+  # Pools provide groups of actors which can service requests
+  class Pool
+    include Celluloid
+    trap_exit :crash_handler
+
+    # Takes a class of actor to pool and a hash of options:
+    #
+    # * initial_size: how many actors to eagerly create
+    # * max_size: maximum number of actors (default nil, unlimited)
+    # * args: an array of arguments to pass to the actor's initialize
+    def initialize(klass, options = {})
+      opts = {
+        :initial_size => 1,
+        :max_size     => nil,
+        :args         => []
+      }.merge(options)
+
+      @klass, @args = klass, opts[:args]
+      @max_actors = opts[:max_size]
+      @idle_actors, @running_actors = 0, 0
+      @actors = []
+
+      opts[:initial_size].times do
+        @actors << spawn
+        @idle_actors += 1
+      end
+    end
+
+    # Get an actor from the pool. Actors taken from the pool must be put back
+    # with Pool#put. Alternatively, you can use get with a block form:
+    #
+    #     pool.get { |actor| ... }
+    #
+    # This will automatically return actors to the pool when the block completes
+    def get
+      if @max_actors and @running_actors == @max_actors
+        wait :ready
+      end
+
+      actor = @actors.pop
+      if actor
+        @idle_actors -= 1
+      else
+        actor = spawn
+      end
+
+      if block_given?
+        begin
+          yield actor
+        ensure
+          put(actor) if actor.alive?
+        end
+        nil
+      else
+        actor
+      end
+    end
+
+    # Return an actor to the pool
+    def put(actor)
+      raise TypeError, "expecting a #{@klass} actor" unless actor.class == @klass
+      @actors << actor
+      @idle_actors += 1
+    end
+
+    # Number of active actors in this pool
+    def size
+      @running_actors
+    end
+
+    # Number of idle actors in the pool
+    def idle_count
+      @idle_actors
+    end
+    alias_method :idle_size, :idle_count
+
+    # Handle crashed actors
+    def crash_handler(actor, reason)
+      return unless actor.class == @klass
+
+      @idle_actors    -= 1 if @actors.delete actor
+      @running_actors -= 1
+
+      # If we were maxed out before...
+      signal :ready if @max_actors and @running_actors + 1 == @max_actors
+    end
+
+    # Spawn an actor of the given class
+    def spawn
+      worker = @klass.new_link(*@args)
+      @running_actors += 1
+      worker
+    end
+  end
+end
