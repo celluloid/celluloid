@@ -14,59 +14,65 @@ module Celluloid
 
     def initialize
       @messages = []
-      @lock  = Mutex.new
+      @mutex  = Mutex.new
       @dead = false
       @condition = ConditionVariable.new
     end
 
     # Add a message to the Mailbox
     def <<(message)
-      @lock.lock
-      raise MailboxError, "dead recipient" if @dead
+      @mutex.lock
+      begin
+        raise MailboxError, "dead recipient" if @dead
 
-      @messages << message
-      @condition.signal
-      nil
-    ensure @lock.unlock
+        @messages << message
+        @condition.signal
+        nil
+      ensure @mutex.unlock
+      end
     end
 
     # Add a high-priority system event to the Mailbox
     def system_event(event)
-      @lock.lock
-      unless @dead # Silently fail if messages are sent to dead actors
-        @messages.unshift event
-        @condition.signal
+      @mutex.lock
+      begin
+        unless @dead # Silently fail if messages are sent to dead actors
+          @messages.unshift event
+          @condition.signal
+        end
+        nil
+      ensure @mutex.unlock
       end
-      nil
-    ensure @lock.unlock
     end
 
     # Receive a message from the Mailbox
     def receive(timeout = nil, &block)
       message = nil
 
-      @lock.lock
-      raise MailboxError, "attempted to receive from a dead mailbox" if @dead
-
+      @mutex.lock
       begin
-        message = next_message(&block)
+        raise MailboxError, "attempted to receive from a dead mailbox" if @dead
 
-        unless message
-          if timeout
-            now = Time.now
-            wait_until ||= now + timeout
-            wait_interval = wait_until - now
-            return if wait_interval < 0
-          else
-            wait_interval = nil
+        begin
+          message = next_message(&block)
+
+          unless message
+            if timeout
+              now = Time.now
+              wait_until ||= now + timeout
+              wait_interval = wait_until - now
+              return if wait_interval < 0
+            else
+              wait_interval = nil
+            end
+
+            @condition.wait(@mutex, wait_interval)
           end
+        end until message
 
-          @condition.wait(@lock, wait_interval)
-        end
-      end until message
-
-      message
-    ensure @lock.unlock
+        message
+      ensure @mutex.unlock
+      end
     end
 
     # Retrieve the next message in the mailbox
@@ -91,14 +97,14 @@ module Celluloid
     def shutdown
       messages = nil
 
-      @lock.lock
+      @mutex.lock
       messages = @messages
       @messages = []
       @dead = true
 
       messages.each { |msg| msg.cleanup if msg.respond_to? :cleanup }
       true
-    ensure @lock.unlock
+    ensure @mutex.unlock
     end
 
     # Is the mailbox alive?
@@ -108,9 +114,7 @@ module Celluloid
 
     # Cast to an array
     def to_a
-      @lock.lock
-      @messages.dup
-    ensure @lock.unlock
+      @mutex.synchronize { @messages.dup }
     end
 
     # Iterate through the mailbox
