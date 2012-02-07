@@ -254,17 +254,17 @@ module Celluloid
   at_exit do
     # Give all actors one minute to terminate
     Timeout.timeout(SHUTDOWN_TIMEOUT) do
-      futures = Celluloid::Actor.all.each do |actor|
+      futures = Actor.all.each do |actor|
         begin
           actor.future(:terminate)
-        rescue Celluloid::DeadActorError
+        rescue DeadActorError, MailboxError
         end
       end
 
       futures.each do |future|
         begin
           future.value
-        rescue Celluloid::DeadActorError
+        rescue DeadActorError, MailboxError
         end
       end
     end
