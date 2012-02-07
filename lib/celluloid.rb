@@ -251,8 +251,10 @@ module Celluloid
     super
   end
 
+  # Terminate all actors at exit
+  # FIXME: This should probably attempt a graceful shutdown of the supervision
+  # tree before iterating through all actors and telling them to terminate.
   at_exit do
-    # Give all actors one minute to terminate
     Timeout.timeout(SHUTDOWN_TIMEOUT) do
       futures = Actor.all.each do |actor|
         begin
