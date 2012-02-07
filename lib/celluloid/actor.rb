@@ -22,46 +22,58 @@ module Celluloid
     extend Registry
     attr_reader :proxy, :tasks, :links, :mailbox
 
-    # Invoke a method on the given actor via its mailbox
-    def self.call(mailbox, meth, *args, &block)
-      call = SyncCall.new(Thread.mailbox, meth, args, block)
+    class << self
+      # Invoke a method on the given actor via its mailbox
+      def call(mailbox, meth, *args, &block)
+        call = SyncCall.new(Thread.mailbox, meth, args, block)
 
-      begin
-        mailbox << call
-      rescue MailboxError
-        raise DeadActorError, "attempted to call a dead actor"
-      end
-
-      if Celluloid.actor? and not Celluloid.exclusive?
-        # The current task will be automatically resumed when we get a response
-        Task.suspend(:callwait).value
-      else
-        # Otherwise we're inside a normal thread, so block
-        response = Thread.mailbox.receive do |msg|
-          msg.respond_to?(:call) and msg.call == call
+        begin
+          mailbox << call
+        rescue MailboxError
+          raise DeadActorError, "attempted to call a dead actor"
         end
 
-        response.value
-      end
-    end
+        if Celluloid.actor? and not Celluloid.exclusive?
+          # The current task will be automatically resumed when we get a response
+          Task.suspend(:callwait).value
+        else
+          # Otherwise we're inside a normal thread, so block
+          response = Thread.mailbox.receive do |msg|
+            msg.respond_to?(:call) and msg.call == call
+          end
 
-    # Invoke a method asynchronously on an actor via its mailbox
-    def self.async(mailbox, meth, *args, &block)
-      begin
-        mailbox << AsyncCall.new(Thread.mailbox, meth, args, block)
-      rescue MailboxError
-        # Silently swallow asynchronous calls to dead actors. There's no way
-        # to reliably generate DeadActorErrors for async calls, so users of
-        # async calls should find other ways to deal with actors dying
-        # during an async call (i.e. linking/supervisors)
+          response.value
+        end
       end
-    end
 
-    # Call a method asynchronously and retrieve its value later
-    def self.future(mailbox, meth, *args, &block)
-      future = Future.new
-      future.execute(mailbox, meth, args, block)
-      future
+      # Invoke a method asynchronously on an actor via its mailbox
+      def async(mailbox, meth, *args, &block)
+        begin
+          mailbox << AsyncCall.new(Thread.mailbox, meth, args, block)
+        rescue MailboxError
+          # Silently swallow asynchronous calls to dead actors. There's no way
+          # to reliably generate DeadActorErrors for async calls, so users of
+          # async calls should find other ways to deal with actors dying
+          # during an async call (i.e. linking/supervisors)
+        end
+      end
+
+      # Call a method asynchronously and retrieve its value later
+      def future(mailbox, meth, *args, &block)
+        future = Future.new
+        future.execute(mailbox, meth, args, block)
+        future
+      end
+
+      # Obtain all running actors in the system
+      def all
+        actors = []
+        Thread.list.each do |t|
+          actor = t[:actor]
+          actors << actor.proxy if actor
+        end
+        actors
+      end
     end
 
     # Wrap the given subject with an Actor
@@ -136,29 +148,29 @@ module Celluloid
 
     # Run the actor loop
     def run
-      while @running
-        begin
-          message = @mailbox.receive(timeout)
-        rescue ExitEvent => exit_event
-          Task.new(:exit_handler) { handle_exit_event exit_event }.resume
-          retry
-        end
+      begin
+        while @running
+          begin
+            message = @mailbox.receive(timeout)
+          rescue ExitEvent => exit_event
+            Task.new(:exit_handler) { handle_exit_event exit_event }.resume
+            retry
+          end
 
-        if message
-          handle_message message
-        else
-          # No message indicates a timeout
-          @timers.fire
-          @receivers.fire_timers
+          if message
+            handle_message message
+          else
+            # No message indicates a timeout
+            @timers.fire
+            @receivers.fire_timers
+          end
         end
+      rescue MailboxShutdown
+        # If the mailbox detects shutdown, exit the actor
       end
 
-      cleanup ExitEvent.new(@proxy)
-    rescue MailboxShutdown
-      # If the mailbox detects shutdown, exit the actor
-      @running = false
-    rescue Exception => ex
-      @running = false
+      cleanup
+    rescue => ex
       handle_crash(ex)
     end
 
@@ -228,7 +240,7 @@ module Celluloid
     end
 
     # Handle cleaning up this actor after it exits
-    def cleanup(exit_event)
+    def cleanup(exit_event = ExitEvent.new(@proxy))
       @mailbox.shutdown
       @links.send_event exit_event
       tasks.each { |task| task.terminate }
@@ -238,6 +250,9 @@ module Celluloid
       rescue Exception => ex
         Logger.crash("#{@subject.class}#finalize crashed!", ex)
       end
+    ensure
+      Thread.current[:actor]   = nil
+      Thread.current[:mailbox] = nil
     end
   end
 end

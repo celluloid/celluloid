@@ -1,6 +1,7 @@
 0.8.1
 -----
 * Celluloid::Pool lets you supervise a pool of actors
+* Celluloid::Actor.all returns all running actors
 * Celluloid#exclusive runs a high priority block which prevents other methods
   from executing
 
