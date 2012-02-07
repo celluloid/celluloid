@@ -102,7 +102,6 @@ module Celluloid
       @thread = ThreadPool.get do
         Thread.current[:actor]   = self
         Thread.current[:mailbox] = @mailbox
-
         run
       end
     end
