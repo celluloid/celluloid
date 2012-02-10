@@ -136,9 +136,10 @@ Filesystem monitoring is also likely on the horizon.
 Contributing to Celluloid::IO
 -----------------------------
 
-* Fork Celluloid on github
+* Fork this repository on github
 * Make your changes and send me a pull request
-* If I like them I'll merge them and give you commit access to my repository
+* If I like them I'll merge them
+* If I've accepted a patch, feel free to ask for a commit bit!
 
 License
 -------
