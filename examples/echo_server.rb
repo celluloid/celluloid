@@ -29,6 +29,7 @@ class EchoServer
     loop { socket.write socket.readpartial(4096) }
   rescue EOFError
     puts "*** #{host}:#{port} disconnected"
+    socket.close
   end
 end
 
