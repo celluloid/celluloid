@@ -48,10 +48,13 @@ module Celluloid
       def run_once(timeout = nil)
         @selector.select_each(timeout) do |monitor|
           task = monitor.value
-          # Only resume task if it is still running. If task is dead
-          # (e.g. it finished prematurely by itself) there is no need
-          # to resume it.
-          task.resume if task.running?
+
+          if task.running?
+            task.resume
+          else
+            Logger.warn("reactor attempted to resume a dead task")
+          end
+
           @selector.deregister(monitor.io)
         end
       end
