@@ -6,31 +6,32 @@ module Celluloid
 
       def initialize
         @messages = []
-        @lock  = Mutex.new
+        @mutex = Mutex.new
         @reactor = Reactor.new
       end
 
       # Add a message to the Mailbox
       def <<(message)
-        @lock.synchronize do
+        @mutex.lock
+        begin
           @messages << message
           @reactor.wakeup
+        rescue IOError
+          raise MailboxError, "dead recipient"
+        ensure @mutex.unlock
         end
         nil
-      rescue IOError
-        raise MailboxError, "dead recipient"
       end
 
       # Add a high-priority system event to the Mailbox
       def system_event(event)
-        @lock.synchronize do
+        @mutex.lock
+        begin
           @messages.unshift event
-          
-          begin
-            @reactor.wakeup
-          rescue IOError
-            # Silently fail if messages are sent to dead actors
-          end
+          @reactor.wakeup
+        rescue IOError
+          # Silently fail if messages are sent to dead actors
+        ensure @mutex.unlock
         end
         nil
       end
