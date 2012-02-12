@@ -34,7 +34,7 @@ module Celluloid
           read_nonblock(length, buffer)
         rescue ::IO::WaitReadable
           # Le sigh, exceptions for control flow ;(
-          __get_actor.wait_readable self
+          __get_actor.wait_readable self.to_io
           retry
         end
 
@@ -49,7 +49,7 @@ module Celluloid
           begin
             written = write_nonblock(string)
           rescue ::IO::WaitWritable
-            __get_actor.wait_writable self
+            __get_actor.wait_writable self.to_io
             retry
           rescue EOFError
             return total_written
