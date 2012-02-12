@@ -1,8 +1,8 @@
 rvm:
   - 1.9.2
   - 1.9.3
-#  - rbx crashing :(
-  - jruby
   - ruby-head
-
-env: "JRUBY_OPTS=--1.9"
+  - jruby-19mode
+  - jruby-head
+  - rbx-18mode
+  - rbx-19mode
