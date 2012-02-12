@@ -14,7 +14,7 @@ module Celluloid
 
     def initialize
       @messages = []
-      @mutex  = Mutex.new
+      @mutex = Mutex.new
       @dead = false
       @condition = ConditionVariable.new
     end
