@@ -30,8 +30,8 @@ module Celluloid
       def wait(io, set)
         # zomg ugly type conversion :(
         unless io.is_a?(::IO)
-          if IO.respond_to? :try_convert
-            io = IO.try_convert(io)
+          if ::IO.respond_to? :try_convert
+            io = ::IO.try_convert(io)
           elsif io.respond_to? :to_io
             io = io.to_io
           end
@@ -46,7 +46,7 @@ module Celluloid
 
       # Run the reactor, waiting for events or wakeup signal
       def run_once(timeout = nil)
-        @selector.select_each(timeout) do |monitor|
+        @selector.select(timeout) do |monitor|
           task = monitor.value
 
           if task.running?
