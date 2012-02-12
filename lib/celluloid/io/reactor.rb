@@ -30,10 +30,10 @@ module Celluloid
       def wait(io, set)
         # zomg ugly type conversion :(
         unless io.is_a?(::IO)
-          if ::IO.respond_to? :try_convert
-            io = ::IO.try_convert(io)
-          elsif io.respond_to? :to_io
+          if io.respond_to? :to_io
             io = io.to_io
+          elsif ::IO.respond_to? :try_convert
+            io = ::IO.try_convert(io)
           end
 
           raise TypeError, "can't convert #{io.class} into IO" unless io.is_a? IO
