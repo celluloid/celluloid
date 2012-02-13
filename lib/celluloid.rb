@@ -50,6 +50,11 @@ module Celluloid
         Kernel.sleep interval
       end
     end
+
+    # Define an exception handler for actor crashes
+    def exception_handler(&block)
+      Logger.exception_handler(&block)
+    end
   end
 
   # Class methods added to classes which include Celluloid

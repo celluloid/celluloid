@@ -1,5 +1,6 @@
 module Celluloid
   module Logger
+    @exception_handlers = []
     module_function
 
     # Send a debug message
@@ -24,9 +25,29 @@ module Celluloid
 
     # Handle a crash
     def crash(string, exception)
-      string += "\n#{exception.class}: #{exception.to_s}\n"
-      string << exception.backtrace.join("\n")
-      error(string)
+      string += format_exception(exception)
+      error string
+
+      @exception_handlers.each do |handler|
+        begin
+          handler.call(exception)
+        rescue => ex
+          error "EXCEPTION HANDLER CRASHED:\n" << format_exception(ex)
+        end
+      end
+    end
+
+    # Format an exception message
+    def format_exception(exception)
+      str = "#{exception.class}: #{exception.to_s}\n"
+      str << exception.backtrace.join("\n")
+    end
+
+    # Define an exception handler
+    # NOTE: These should be defined at application start time
+    def exception_handler(&block)
+      @exception_handlers << block
+      nil
     end
   end
 end
