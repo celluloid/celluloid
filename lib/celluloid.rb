@@ -55,7 +55,31 @@ module Celluloid
     def exception_handler(&block)
       Logger.exception_handler(&block)
     end
+
+    # Shut down all running actors
+    # FIXME: This should probably attempt a graceful shutdown of the supervision
+    # tree before iterating through all actors and telling them to terminate.
+    def shutdown
+      Timeout.timeout(SHUTDOWN_TIMEOUT) do
+        futures = Actor.all.each do |actor|
+          begin
+            actor.future(:terminate)
+          rescue DeadActorError, MailboxError
+          end
+        end
+
+        futures.each do |future|
+          begin
+            future.value
+          rescue DeadActorError, MailboxError
+          end
+        end
+      end
+    end
   end
+
+  # Terminate all actors at exit
+  at_exit { shutdown }
 
   # Class methods added to classes which include Celluloid
   module ClassMethods
@@ -249,27 +273,6 @@ module Celluloid
     end
 
     super
-  end
-
-  # Terminate all actors at exit
-  # FIXME: This should probably attempt a graceful shutdown of the supervision
-  # tree before iterating through all actors and telling them to terminate.
-  at_exit do
-    Timeout.timeout(SHUTDOWN_TIMEOUT) do
-      futures = Actor.all.each do |actor|
-        begin
-          actor.future(:terminate)
-        rescue DeadActorError, MailboxError
-        end
-      end
-
-      futures.each do |future|
-        begin
-          future.value
-        rescue DeadActorError, MailboxError
-        end
-      end
-    end
   end
 end
 
