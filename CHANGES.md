@@ -5,6 +5,8 @@ HEAD
 * Celluloid::Actor.all returns all running actors
 * Celluloid#exclusive runs a high priority block which prevents other methods
   from executing
+* Celluloid.exception_handler { |ex| ... } defines a callback for notifying
+  exceptions (for use with Airbrake, exception_notifier, etc.)
 
 0.8.0
 -----
