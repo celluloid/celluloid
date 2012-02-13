@@ -1,4 +1,4 @@
-Celluloid
+![Celluloid](https://github.com/tarcieri/celluloid/raw/master/logo.png)
 =========
 [![Build Status](http://travis-ci.org/tarcieri/celluloid.png)](http://travis-ci.org/tarcieri/celluloid) [![Dependency Status](https://gemnasium.com/tarcieri/celluloid.png)](https://gemnasium.com/tarcieri/celluloid)
 
@@ -143,7 +143,7 @@ Contributing to Celluloid
 * Fork this repository on github
 * Make your changes and send me a pull request
 * If I like them I'll merge them
-* If I've accepted a patch, feel free to ask for a commit bit!
+* If I've accepted a patch, feel free to ask for commit access
 
 License
 -------
