@@ -5,8 +5,8 @@ module Celluloid
       def initialize
         # More APIs and less monkeypatching would be useful here
         @messages = []
-        @lock    = Mutex.new
-        @reactor = Reactor.new
+        @mutex    = Mutex.new
+        @reactor  = Reactor.new
       end
     end
   end

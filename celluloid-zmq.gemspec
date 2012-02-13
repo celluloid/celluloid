@@ -11,13 +11,13 @@ Gem::Specification.new do |gem|
   gem.name          = "celluloid-zmq"
   gem.version       = Celluloid::ZMQ::VERSION
 
-  gem.add_dependency "celluloid",    "~> 0.8.0"
-  gem.add_dependency "celluloid-io", "~> 0.8.0"
+  gem.add_dependency "celluloid",    "~> 0.9.0"
+  gem.add_dependency "celluloid-io", "~> 0.9.0"
   gem.add_dependency "ffi"
   gem.add_dependency "ffi-rzmq"
 
   gem.add_development_dependency "rake"
-  gem.add_development_dependency "rspec", ">= 2.7.0"
+  gem.add_development_dependency "rspec"
 
   # Files
   ignores = File.read(".gitignore").split(/\r?\n/).reject{ |f| f =~ /^(#.+|\s*)$/ }.map {|f| Dir[f] }.flatten
