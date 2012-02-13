@@ -1,5 +1,5 @@
-0.8.1
------
+HEAD
+----
 * Celluloid::Pool supervises pools of actors
 * Graceful shutdown which calls #terminate on all actors
 * Celluloid::Actor.all returns all running actors
