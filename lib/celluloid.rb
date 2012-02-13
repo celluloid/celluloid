@@ -224,11 +224,6 @@ module Celluloid
     Future.new(&block).value
   end
 
-  # Deprecated, do not use
-  def async
-    raise "Celluloid#async is defunct. Please use #defer instead"
-  end
-
   # Process async calls via method_missing
   def method_missing(meth, *args, &block)
     # bang methods are async calls
