@@ -12,14 +12,14 @@ to service multiple network connections simultaneously.
 It's a somewhat similar idea to Ruby event frameworks like EventMachine and
 Cool.io, but Celluloid actors automatically wrap up all IO in Fibers,
 resulting in a synchronous API that's duck type compatible with the existing
-TCPServer and TCPSocket APIs.
+TCPServer and TCPSocket APIs. This means you can potentially use any library
+written using core Ruby IO objects with Celluloid::IO in an "evented" manner,
+provided it has an API for specifying the socket classes it uses.
 
-Celluloid::IO uses the nio4r gem to monitor IO objects, which provides access
-to the high-performance epoll and kqueue system calls across a wide range of
-Ruby VMs, including MRI/YARV, JRuby, and Rubinius. For more information,
-please see the [nio4r github page](https://github.com/tarcieri/nio4r).
-
-Unlike systems such as EventMachine and Node.js, which provide a singleton
+Celluloid::IO uses the [nio4r gem](https://github.com/tarcieri/nio4r)
+to monitor IO objects, which provides access to the high-performance
+epoll and kqueue system calls used by similar systems like EventMachine
+and Node.js. However, where EventMachine and Node provide a singleton
 "god loop" for the entire process, you can make as many Celluloid::IO actors
 as you wish (system resources providing), which each run in their own
 independent thread.
