@@ -79,8 +79,8 @@ end
 The very first thing including *Celluloid::IO* does is also include the
 *Celluloid* module, which promotes objects of this class to concurrent Celluloid
 actors each running in their own thread. Before trying to use Celluloid::IO
-you may want to familiarize yourself with Celluloid in general. Celluloid
-actors can each be thought of as being event loops. Celluloid::IO actors
+you may want to [familiarize yourself with Celluloid in general](https://github.com/tarcieri/celluloid/).
+Celluloid actors can each be thought of as being event loops. Celluloid::IO actors
 are heavier but have capabilities similar to other event loop-driven frameworks.
 
 While this looks like a normal Ruby TCP server, there aren't any threads, so
