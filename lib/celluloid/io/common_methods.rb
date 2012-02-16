@@ -2,10 +2,29 @@ module Celluloid
   module IO
     # Common implementations of methods originall from the IO class
     module CommonMethods
-      def __get_actor
+      # Are we inside of a Celluloid::IO actor?
+      def evented?
+        Celluloid.current_actor.is_a? Celluloid::IO
+      end
+
+      # Wait until the current object is readable
+      def wait_readable
         actor = Celluloid.current_actor
-        raise NotActorError, "Celluloid::IO objects can only be used inside actors" unless actor
-        actor
+        if actor.class < Celluloid::IO
+          actor.wait_readable self.to_io
+        else
+          Kernel.select [self.to_io]
+        end
+      end
+
+      # Wait until the current object is writable
+      def wait_writable
+        actor = Celluloid.current_actor
+        if actor.class < Celluloid::IO
+          actor.wait_writable self.to_io
+        else
+          Kernel.select [], [self.to_io]
+        end
       end
 
       def read(length, buffer = nil)
@@ -33,8 +52,7 @@ module Celluloid
         begin
           read_nonblock(length, buffer)
         rescue ::IO::WaitReadable
-          # Le sigh, exceptions for control flow ;(
-          __get_actor.wait_readable self.to_io
+          wait_readable
           retry
         end
 
@@ -49,7 +67,7 @@ module Celluloid
           begin
             written = write_nonblock(string)
           rescue ::IO::WaitWritable
-            __get_actor.wait_writable self.to_io
+            wait_writable
             retry
           rescue EOFError
             return total_written
