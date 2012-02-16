@@ -4,7 +4,7 @@ module Celluloid
     module CommonMethods
       # Are we inside of a Celluloid::IO actor?
       def evented?
-        Celluloid.current_actor.is_a? Celluloid::IO
+        Celluloid.current_actor.class < Celluloid::IO
       end
 
       # Wait until the current object is readable
