@@ -36,7 +36,7 @@ def with_connected_sockets
     peer = server.accept
 
     begin
-      yield client,
+      yield client
     ensure
       client.close
       peer.close
