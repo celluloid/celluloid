@@ -23,11 +23,6 @@ normal blocking behavior you'd expect everywhere else in Ruby. Since they're
 drop-in replacements for the standard classes, there's no need to rewrite
 every library just to take advantage of Celluloid::IO's event loop.
 
-Each individual Celluloid::IO actor can handle many simultaneous IO objects
-(e.g. TCPSocket connections) and only requires one thread (its own) to do so.
-This is great for servers where you expect large numbers of mostly-idle
-connections and employing an actor-per-connection model would get too costly.
-
 Celluloid::IO uses the [nio4r gem](https://github.com/tarcieri/nio4r)
 to monitor IO objects, which provides cross-platform and cross-Ruby
 implementation access to the high-performance event monitoring system calls
