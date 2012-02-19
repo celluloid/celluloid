@@ -125,9 +125,9 @@ Status
 Celluloid::IO::TCPServer is mostly complete, although only #accept is tested
 at the moment.
 
-Celluloid::IO::TCPSocket is extremely shaky, untested, proof-of-concept code
-at this point but appears to mostly work. It's partially tested by the existing
-TCPServer#accept test. Real tests coming soon!
+Celluloid::IO::TCPSocket has some rudimentary testing, however it is not yet
+"production ready" nor does it yet implement all the methods of Ruby's own
+TCPSocket class.
 
 No UDP or UNIXSocket support yet. Also coming soon!
 

@@ -32,11 +32,12 @@ end
 
 def with_connected_sockets
   with_tcp_server do |server|
+    # FIXME: client isn't actually a Celluloid::IO::TCPSocket yet
     client = TCPSocket.new(example_addr, example_port)
     peer = server.accept
 
     begin
-      yield client
+      yield peer, client
     ensure
       client.close
       peer.close
