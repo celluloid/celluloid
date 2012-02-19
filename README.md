@@ -29,12 +29,9 @@ This is great for servers where you expect large numbers of mostly-idle
 connections and employing an actor-per-connection model would get too costly.
 
 Celluloid::IO uses the [nio4r gem](https://github.com/tarcieri/nio4r)
-to monitor IO objects, which provides access to the high-performance
-epoll and kqueue system calls used by similar systems like EventMachine
-and Node.js. However, where EventMachine and Node provide a singleton
-"god loop" for the entire process, you can make as many Celluloid::IO actors
-as you wish (system resources providing), which each run in their own
-independent thread.
+to monitor IO objects, which provides cross-platform and cross-Ruby
+implementation access to the high-performance event monitoring system calls
+such as epoll and kqueue.
 
 Like Celluloid::IO? [Join the Google Group](http://groups.google.com/group/celluloid-ruby)
 
