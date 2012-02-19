@@ -6,10 +6,16 @@ describe Celluloid::IO::TCPSocket do
   describe "#read" do
     context "inside Celluloid::IO" do
       it "reads data" do
-        # FIXME: client isn't actually a Celluloid::IO::TCPSocket yet
         with_connected_sockets do |subject, peer|
           peer << payload
           within_io_actor { subject.read(payload.size) }.should eq payload
+        end
+      end
+
+      it "reads partial data" do
+        with_connected_sockets do |subject, peer|
+          peer << payload * 2
+          within_io_actor { subject.readpartial(payload.size) }.should eq payload
         end
       end
     end
@@ -19,6 +25,13 @@ describe Celluloid::IO::TCPSocket do
         with_connected_sockets do |subject, peer|
           peer << payload
           subject.read(payload.size).should eq payload
+        end
+      end
+
+      it "reads partial data" do
+        with_connected_sockets do |subject, peer|
+          peer << payload * 2
+          subject.readpartial(payload.size).should eq payload
         end
       end
     end
