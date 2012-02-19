@@ -4,7 +4,7 @@
 [![Dependency Status](https://gemnasium.com/tarcieri/celluloid-io.png)](https://gemnasium.com/tarcieri/celluloid-io)
 
 You don't have to choose between threaded and evented IO! Celluloid::IO
-provides an event-driven I/O system for building fast, scalable network
+provides an event-driven IO system for building fast, scalable network
 applications that integrates directly with the
 [Celluloid actor library](https://github.com/tarcieri/celluloid), making it
 easy to compose with multithreaded programs. Celluloid::IO lets Celluloid-based
@@ -23,7 +23,9 @@ types of Ruby's own IO classes, such as TCPServer and TCPSocket. These classes
 work identically to their core Ruby counterparts, but in the scope of
 Celluloid::IO actors provide "evented" performance. Since they're drop-in
 replacements for the standard classes, there's no need to rewrite every
-library just to take advantage of Celluloid::IO's event loop.
+library just to take advantage of Celluloid::IO's event loop and you can
+freely switch between evented and blocking IO even over the lifetime of a
+single connection.
 
 Celluloid::IO uses the [nio4r gem](https://github.com/tarcieri/nio4r)
 to monitor IO objects, which provides cross-platform and cross-Ruby
