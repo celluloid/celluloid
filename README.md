@@ -16,12 +16,12 @@ Celluloid::IO actors have the power of both Celluloid actors and evented
 I/O loops, and you can make as many Celluloid::IO actors as you want (system
 resources permitting) unlike certain other evented I/O systems.
 
-Celluloid::IO doesn't provide a callback-driven API, but instead provides duck
-types of Ruby's own IO classes, such as TCPServer and TCPSocket. These
-provide evented behavior when used inside a Celluloid::IO actor, and the
-normal blocking behavior you'd expect everywhere else in Ruby. Since they're
-drop-in replacements for the standard classes, there's no need to rewrite
-every library just to take advantage of Celluloid::IO's event loop.
+Rather than callbacks, Celluloid::IO exposes a synchronous API built on duck
+types of Ruby's own IO classes, such as TCPServer and TCPSocket. These classes
+work identically to their core Ruby counterparts, but in the scope of
+Celluloid::IO actors provide "evented" performance. Since they're drop-in
+replacements for the standard classes, there's no need to rewrite every
+library just to take advantage of Celluloid::IO's event loop.
 
 Celluloid::IO uses the [nio4r gem](https://github.com/tarcieri/nio4r)
 to monitor IO objects, which provides cross-platform and cross-Ruby
