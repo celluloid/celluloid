@@ -250,7 +250,7 @@ module Celluloid
     Thread.current[:actor].exclusive(&block)
   end
 
-  # Call a block after a given interval
+  # Call a block after a given interval, returning a Celluloid::Timer object
   def after(interval, &block)
     Thread.current[:actor].after(interval, &block)
   end
