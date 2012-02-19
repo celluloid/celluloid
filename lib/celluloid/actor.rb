@@ -78,19 +78,9 @@ module Celluloid
 
     # Wrap the given subject with an Actor
     def initialize(subject)
-      @subject = subject
-
-      got_mailbox_factory = subject.respond_to? :mailbox_factory rescue nil
-      if got_mailbox_factory
-        @mailbox = subject.mailbox_factory
-      else
-        @mailbox = Mailbox.new
-      end
-
-      # Some naughty objects won't let us call class in this state
-      klass      = (subject.class rescue nil) || Object
-
-      @proxy     = ActorProxy.new(@mailbox, klass.to_s)
+      @subject   = subject
+      @mailbox   = subject.class.mailbox_factory
+      @proxy     = ActorProxy.new(@mailbox, subject.class.to_s)
       @tasks     = Set.new
       @links     = Links.new
       @signals   = Signals.new

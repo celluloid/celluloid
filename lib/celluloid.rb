@@ -126,9 +126,20 @@ module Celluloid
     # Configure a custom mailbox factory
     def use_mailbox(klass = nil, &block)
       if block
-        define_method(:mailbox_factory, &block)
+        @mailbox_factory = block
       else
-        define_method(:mailbox_factory) { klass.new }
+        @mailbox_factory = proc { klass.new }
+      end
+    end
+
+    # Create a mailbox for this actor
+    def mailbox_factory
+      if defined?(@mailbox_factory)
+        @mailbox_factory.call
+      elsif defined?(super)
+        super
+      else
+        Mailbox.new
       end
     end
 
