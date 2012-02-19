@@ -10,12 +10,11 @@ applications that integrates directly with the
 easy to compose with multithreaded programs.
 
 Celluloid::IO provides a different class of actor: one that's slightly slower
-and heavier than standard Celluloid actors, but integrates a high-performance
-reactor just like EventMachine or Cool.io. This means Celluloid::IO actors
-have the power of both Celluloid actors and evented I/O loops, and you can
-make as many Celluloid::IO actors as you want (system resources permitting).
-You can think of Celluloid::IO as being the combination of actor and reactor
-concepts.
+and heavier than standard Celluloid actors, but one which contains a
+high-performance reactor just like EventMachine or Cool.io. This means
+Celluloid::IO actors have the power of both Celluloid actors and evented
+I/O loops, and you can make as many Celluloid::IO actors as you want (system
+resources permitting) unlike certain other evented I/O systems.
 
 Celluloid::IO doesn't provide a callback-driven API, but instead provides duck
 types of Ruby's own IO classes, such as TCPServer and TCPSocket. These
