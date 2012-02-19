@@ -137,6 +137,11 @@ and [linking](https://github.com/tarcieri/celluloid/wiki/linking)
 [Please see the Celluloid Wiki](https://github.com/tarcieri/celluloid/wiki)
 for additional usage information.
 
+Suggested Reading
+-----------------
+
+* [Concurrent Object-Oriented Programming in Python with ATOM](http://python.org/workshops/1997-10/proceedings/atom/)
+
 Contributing to Celluloid
 -------------------------
 
