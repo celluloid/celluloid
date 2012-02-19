@@ -24,6 +24,12 @@ describe Celluloid::IO::TCPServer do
       end
 
       context "elsewhere in Ruby" do
+        it "should be blocking" do
+          with_tcp_server do |server|
+            server.should_not be_evented
+          end
+        end
+
         it "accepts a connection and returns a Celluloid::IO::TCPSocket" do
           with_tcp_server do |server|
             thread = Thread.new { TCPSocket.new(example_addr, example_port) }

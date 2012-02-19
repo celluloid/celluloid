@@ -33,6 +33,12 @@ describe Celluloid::IO::TCPSocket do
   end
 
   context "elsewhere in Ruby" do
+    it "should be blocking" do
+      with_connected_sockets do |subject|
+        subject.should_not be_evented
+      end
+    end
+
     it "reads data" do
       with_connected_sockets do |subject, peer|
         peer << payload
