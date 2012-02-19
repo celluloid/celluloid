@@ -15,9 +15,9 @@ Celluloid::IO provides a different class of actor: one that's slightly slower
 and heavier than standard Celluloid actors, but one which contains a
 high-performance reactor just like EventMachine or Cool.io. This means
 Celluloid::IO actors have the power of both Celluloid actors and evented
-I/O loops, and you can make as many Celluloid::IO actors as you want (system
-resources permitting) unlike certain other evented I/O systems which limit you
-to a single loop per process.
+I/O loops. Unlike certain other evented I/O systems which limit you to a
+single event loop per process, Celluloid::IO lets you make as many actors as
+you want, system resources permitting.
 
 Rather than callbacks, Celluloid::IO exposes a synchronous API built on duck
 types of Ruby's own IO classes, such as TCPServer and TCPSocket. These classes
