@@ -95,16 +95,16 @@ module Celluloid
 
     # Shut down this mailbox and clean up its contents
     def shutdown
-      messages = nil
-
       @mutex.lock
-      messages = @messages
-      @messages = []
-      @dead = true
+      begin
+        messages = @messages
+        @messages = []
+        @dead = true
+      ensure @mutex.unlock
+      end
 
       messages.each { |msg| msg.cleanup if msg.respond_to? :cleanup }
       true
-    ensure @mutex.unlock
     end
 
     # Is the mailbox alive?
