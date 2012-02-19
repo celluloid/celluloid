@@ -8,8 +8,8 @@ provides an event-driven I/O system for building fast, scalable network
 applications that integrates directly with the
 [Celluloid actor library](https://github.com/tarcieri/celluloid), making it
 easy to compose with multithreaded programs. Celluloid::IO lets Celluloid-based
-programs handle cases with large numbers of mostly-idle connections, such as
-Websockets-based programs or chat systems.
+programs handle large numbers of mostly-idle connections, such as Websocket
+servers or chat/messaging systems.
 
 Celluloid::IO provides a different class of actor: one that's slightly slower
 and heavier than standard Celluloid actors, but one which contains a
