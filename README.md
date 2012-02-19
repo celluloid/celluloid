@@ -6,7 +6,8 @@
 You don't have to choose between threaded and evented IO! Celluloid::IO
 provides an event-driven I/O system for building fast, scalable network
 applications that integrates directly with the
-[Celluloid actor library](https://github.com/tarcieri/celluloid).
+[Celluloid actor library](https://github.com/tarcieri/celluloid), making it
+easy to compose with multithreaded programs.
 
 Celluloid::IO provides a different class of actor: one that's slightly slower
 and heavier than standard Celluloid actors, but integrates a high-performance
