@@ -9,7 +9,7 @@ describe Celluloid::IO::TCPSocket do
         # FIXME: client isn't actually a Celluloid::IO::TCPSocket yet
         with_connected_sockets do |subject, peer|
           peer << payload
-          within_io_actor { subject.read(payload.size) }.should == payload
+          within_io_actor { subject.read(payload.size) }.should eq payload
         end
       end
     end
@@ -18,7 +18,7 @@ describe Celluloid::IO::TCPSocket do
       it "reads data" do
         with_connected_sockets do |subject, peer|
           peer << payload
-          subject.read(payload.size).should == payload
+          subject.read(payload.size).should eq payload
         end
       end
     end
@@ -29,7 +29,7 @@ describe Celluloid::IO::TCPSocket do
       it "writes data" do
         with_connected_sockets do |subject, peer|
           within_io_actor { subject << payload }
-          peer.read(payload.size).should == payload
+          peer.read(payload.size).should eq payload
         end
       end
     end
@@ -38,7 +38,7 @@ describe Celluloid::IO::TCPSocket do
       it "writes data" do
         with_connected_sockets do |subject, peer|
           subject << payload
-          peer.read(payload.size).should == payload
+          peer.read(payload.size).should eq payload
         end
       end
     end

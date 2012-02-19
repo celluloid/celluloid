@@ -2,16 +2,32 @@ require 'spec_helper'
 
 describe Celluloid::IO::TCPServer do
   describe "#accept" do
+    let(:payload) { 'ohai' }
+
     context "inside Celluloid::IO" do
       it "accepts a connection and returns a Celluloid::IO::TCPSocket" do
         with_tcp_server do |server|
-          thread = Thread.new { TCPSocket.new('127.0.0.1', example_port) }
+          thread = Thread.new { TCPSocket.new(example_addr, example_port) }
           peer = within_io_actor { server.accept }
-          client = thread.value
+          peer.should be_a Celluloid::IO::TCPSocket
 
-          payload = 'ohai'
+          client = thread.value
           client.write payload
           peer.read(payload.size).should eq payload
+        end
+      end
+
+      context "elsewhere in Ruby" do
+        it "accepts a connection and returns a Celluloid::IO::TCPSocket" do
+          with_tcp_server do |server|
+            thread = Thread.new { TCPSocket.new(example_addr, example_port) }
+            peer   = server.accept
+            peer.should be_a Celluloid::IO::TCPSocket
+
+            client = thread.value
+            client.write payload
+            peer.read(payload.size).should eq payload
+          end
         end
       end
     end

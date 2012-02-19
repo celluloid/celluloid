@@ -9,7 +9,7 @@ module Celluloid
 
       # Wait until the current object is readable
       def wait_readable
-        actor = Celluloid.current_actor
+        actor = Thread.current[:actor]
         if actor.class < Celluloid::IO
           actor.wait_readable self.to_io
         else
@@ -19,7 +19,7 @@ module Celluloid
 
       # Wait until the current object is writable
       def wait_writable
-        actor = Celluloid.current_actor
+        actor = Thread.current[:actor]
         if actor.class < Celluloid::IO
           actor.wait_writable self.to_io
         else
