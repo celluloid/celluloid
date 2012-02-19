@@ -4,17 +4,29 @@
 [![Dependency Status](https://gemnasium.com/tarcieri/celluloid-io.png)](https://gemnasium.com/tarcieri/celluloid-io)
 
 You don't have to choose between threaded and evented IO! Celluloid::IO
-provides a simple and easy way to wait for IO events inside of a Celluloid
-actor. Underneath an event loop waits for activity on several IO objects
-at once, allowing a single Celluloid::IO actor running in a single thread
-to service multiple network connections simultaneously.
+provides an event-driven I/O system for building fast, scalable network
+applications that integrates directly with the
+[Celluloid actor library](https://github.com/tarcieri/celluloid).
 
-It's a somewhat similar idea to Ruby event frameworks like EventMachine and
-Cool.io, but Celluloid actors automatically wrap up all IO in Fibers,
-resulting in a synchronous API that's duck type compatible with the existing
-TCPServer and TCPSocket APIs. This means you can potentially use any library
-written using core Ruby IO objects with Celluloid::IO in an "evented" manner,
-provided it has an API for specifying the socket classes it uses.
+Celluloid::IO provides a different class of actor: one that's slightly slower
+and heavier than standard Celluloid actors, but integrates a high-performance
+reactor just like EventMachine or Cool.io. This means Celluloid::IO actors
+have the power of both Celluloid actors and evented I/O loops, and you can
+make as many Celluloid::IO actors as you want (system resources permitting).
+You can think of Celluloid::IO as being the combination of actor and reactor
+concepts.
+
+Celluloid::IO doesn't provide a callback-driven API, but instead provides duck
+types of Ruby's own IO classes, such as TCPServer and TCPSocket. These
+provide evented behavior when used inside a Celluloid::IO actor, and the
+normal blocking behavior you'd expect everywhere else in Ruby. Since they're
+drop-in replacements for the standard classes, there's no need to rewrite
+every library just to take advantage of Celluloid::IO's event loop.
+
+Each individual Celluloid::IO actor can handle many simultaneous IO objects
+(e.g. TCPSocket connections) and only requires one thread (its own) to do so.
+This is great for servers where you expect large numbers of mostly-idle
+connections and employing an actor-per-connection model would get too costly.
 
 Celluloid::IO uses the [nio4r gem](https://github.com/tarcieri/nio4r)
 to monitor IO objects, which provides access to the high-performance
@@ -23,9 +35,6 @@ and Node.js. However, where EventMachine and Node provide a singleton
 "god loop" for the entire process, you can make as many Celluloid::IO actors
 as you wish (system resources providing), which each run in their own
 independent thread.
-
-Using many actors allows your program to scale across multiple CPU cores on
-Ruby implementations which don't have a GIL, such as JRuby and Rubinius.
 
 Like Celluloid::IO? [Join the Google Group](http://groups.google.com/group/celluloid-ruby)
 
@@ -122,12 +131,9 @@ classes instead of the core Ruby TCPSocket and TCPServer classes.
 Status
 ------
 
-Celluloid::IO::TCPServer is mostly complete, although only #accept is tested
-at the moment.
-
-Celluloid::IO::TCPSocket has some rudimentary testing, however it is not yet
-"production ready" nor does it yet implement all the methods of Ruby's own
-TCPSocket class.
+The rudiments of TCPServer and TCPSocket are in place and ready to use.
+Several methods are still missing, and there is presently no way to open
+new TCP connections in an evented manner.
 
 No UDP or UNIXSocket support yet. Also coming soon!
 
