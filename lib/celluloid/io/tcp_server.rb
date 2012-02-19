@@ -12,13 +12,13 @@ module Celluloid
       end
 
       def accept
-        actor = Celluloid.current_actor
-        raise NotActorError, "Celluloid::IO objects can only be used inside actors" unless actor
-
-        actor.wait_readable @server
-
-        # If wait_readable did its job, we should no be ready to accept
-        accept_nonblock
+        actor = Thread.current[:actor]
+        if actor.class < Celluloid::IO
+          actor.wait_readable @server
+          accept_nonblock
+        else
+          Celluloid::IO::TCPSocket.from_ruby_socket @server.accept
+        end
       end
 
       def accept_nonblock

@@ -1,46 +1,19 @@
 require 'spec_helper'
 
 describe Celluloid::IO::TCPServer do
-  context :accept do
-    let(:port)   { 10103 }
-    subject      { Celluloid::IO::TCPServer.new("127.0.0.1", port) }
-    after(:each) { subject.close unless subject.closed? }
+  describe "#accept" do
+    context "inside Celluloid::IO" do
+      it "accepts a connection and returns a Celluloid::IO::TCPSocket" do
+        with_tcp_server do |server|
+          thread = Thread.new { TCPSocket.new('127.0.0.1', example_port) }
+          peer = within_io_actor { server.accept }
+          client = thread.value
 
-    it "accepts a connection and returns a Celluloid::IO::TCPSocket" do
-      class ExampleServer
-        include Celluloid::IO
-
-        def initialize(socket)
-          @socket = socket
-          @data = nil
-
-          accept!
-        end
-
-        def accept
-          client = @socket.accept
-          raise "not a Celluloid::IO::TCPSocket!" unless client.is_a? Celluloid::IO::TCPSocket
-
-          @data = client.read(5)
-          client << "goodbye"
-          client.close
-        end
-
-        def data
-          @data
+          payload = 'ohai'
+          client.write payload
+          peer.read(payload.size).should eq payload
         end
       end
-
-      server = ExampleServer.new(subject)
-      socket = TCPSocket.new('127.0.0.1', port)
-
-      socket.write('hello')
-      socket.shutdown(1) # we are done with sending
-      socket.read.should == 'goodbye'
-
-      server.data.should == 'hello'
-      server.terminate
-      socket.close
     end
   end
 end
