@@ -3,56 +3,48 @@ require 'spec_helper'
 describe Celluloid::IO::TCPSocket do
   let(:payload) { 'ohai' }
 
-  describe "#read" do
-    context "inside Celluloid::IO" do
-      it "reads data" do
-        with_connected_sockets do |subject, peer|
-          peer << payload
-          within_io_actor { subject.read(payload.size) }.should eq payload
-        end
-      end
-
-      it "reads partial data" do
-        with_connected_sockets do |subject, peer|
-          peer << payload * 2
-          within_io_actor { subject.readpartial(payload.size) }.should eq payload
-        end
+  context "inside Celluloid::IO" do
+    it "reads data" do
+      with_connected_sockets do |subject, peer|
+        peer << payload
+        within_io_actor { subject.read(payload.size) }.should eq payload
       end
     end
 
-    context "elsewhere in Ruby" do
-      it "reads data" do
-        with_connected_sockets do |subject, peer|
-          peer << payload
-          subject.read(payload.size).should eq payload
-        end
+    it "reads partial data" do
+      with_connected_sockets do |subject, peer|
+        peer << payload * 2
+        within_io_actor { subject.readpartial(payload.size) }.should eq payload
       end
+    end
 
-      it "reads partial data" do
-        with_connected_sockets do |subject, peer|
-          peer << payload * 2
-          subject.readpartial(payload.size).should eq payload
-        end
+    it "writes data" do
+      with_connected_sockets do |subject, peer|
+        within_io_actor { subject << payload }
+        peer.read(payload.size).should eq payload
       end
     end
   end
 
-  describe "#write" do
-    context "inside Celluloid::IO" do
-      it "writes data" do
-        with_connected_sockets do |subject, peer|
-          within_io_actor { subject << payload }
-          peer.read(payload.size).should eq payload
-        end
+  context "elsewhere in Ruby" do
+    it "reads data" do
+      with_connected_sockets do |subject, peer|
+        peer << payload
+        subject.read(payload.size).should eq payload
       end
     end
 
-    context "elsewhere in Ruby" do
-      it "writes data" do
-        with_connected_sockets do |subject, peer|
-          subject << payload
-          peer.read(payload.size).should eq payload
-        end
+    it "reads partial data" do
+      with_connected_sockets do |subject, peer|
+        peer << payload * 2
+        subject.readpartial(payload.size).should eq payload
+      end
+    end
+
+    it "writes data" do
+      with_connected_sockets do |subject, peer|
+        subject << payload
+        peer.read(payload.size).should eq payload
       end
     end
   end
