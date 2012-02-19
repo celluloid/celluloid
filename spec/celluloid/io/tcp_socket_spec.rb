@@ -4,6 +4,12 @@ describe Celluloid::IO::TCPSocket do
   let(:payload) { 'ohai' }
 
   context "inside Celluloid::IO" do
+    it "should be evented" do
+      with_connected_sockets do |subject|
+        within_io_actor { subject.evented? }.should be_true
+      end
+    end
+
     it "reads data" do
       with_connected_sockets do |subject, peer|
         peer << payload

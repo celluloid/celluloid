@@ -4,14 +4,17 @@ module Celluloid
     module CommonMethods
       # Are we inside of a Celluloid::IO actor?
       def evented?
-        Celluloid.current_actor.class < Celluloid::IO
+        actor = Thread.current[:actor]
+        actor && actor.mailbox.is_a?(Celluloid::IO::Mailbox)
       end
 
       # Wait until the current object is readable
       def wait_readable
         actor = Thread.current[:actor]
-        if actor.class < Celluloid::IO
-          actor.wait_readable self.to_io
+
+        # FIXME: This is silly logic for selecting whether or not to use the reactor
+        if actor && actor.mailbox.is_a?(Celluloid::IO::Mailbox)
+          actor.mailbox.reactor.wait_readable self.to_io
         else
           Kernel.select [self.to_io]
         end
@@ -20,8 +23,10 @@ module Celluloid
       # Wait until the current object is writable
       def wait_writable
         actor = Thread.current[:actor]
-        if actor.class < Celluloid::IO
-          actor.wait_writable self.to_io
+
+        # FIXME: This is silly logic for selecting whether or not to use the reactor
+        if actor && actor.mailbox.is_a?(Celluloid::IO::Mailbox)
+          actor.mailbox.reactor.wait_writable self.to_io
         else
           Kernel.select [], [self.to_io]
         end
