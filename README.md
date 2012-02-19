@@ -29,8 +29,8 @@ single connection.
 
 Celluloid::IO uses the [nio4r gem](https://github.com/tarcieri/nio4r)
 to monitor IO objects, which provides cross-platform and cross-Ruby
-implementation access to the high-performance event monitoring system calls
-such as epoll and kqueue.
+implementation access to high-performance system calls such as epoll
+and kqueue.
 
 Like Celluloid::IO? [Join the Google Group](http://groups.google.com/group/celluloid-ruby)
 
