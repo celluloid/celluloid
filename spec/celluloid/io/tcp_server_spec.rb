@@ -6,15 +6,15 @@ describe Celluloid::IO::TCPServer do
 
     context "inside Celluloid::IO" do
       it "should be evented" do
-        with_tcp_server do |server|
-          within_io_actor { server.evented? }.should be_true
+        with_tcp_server do |subject|
+          within_io_actor { subject.evented? }.should be_true
         end
       end
 
       it "accepts a connection and returns a Celluloid::IO::TCPSocket" do
-        with_tcp_server do |server|
+        with_tcp_server do |subject|
           thread = Thread.new { TCPSocket.new(example_addr, example_port) }
-          peer = within_io_actor { server.accept }
+          peer = within_io_actor { subject.accept }
           peer.should be_a Celluloid::IO::TCPSocket
 
           client = thread.value
@@ -25,15 +25,15 @@ describe Celluloid::IO::TCPServer do
 
       context "elsewhere in Ruby" do
         it "should be blocking" do
-          with_tcp_server do |server|
-            server.should_not be_evented
+          with_tcp_server do |subject|
+            subject.should_not be_evented
           end
         end
 
         it "accepts a connection and returns a Celluloid::IO::TCPSocket" do
-          with_tcp_server do |server|
+          with_tcp_server do |subject|
             thread = Thread.new { TCPSocket.new(example_addr, example_port) }
-            peer   = server.accept
+            peer   = subject.accept
             peer.should be_a Celluloid::IO::TCPSocket
 
             client = thread.value
