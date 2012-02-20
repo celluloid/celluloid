@@ -64,9 +64,10 @@ module Celluloid
         length = string.length
         total_written = 0
 
+        remaining = string
         while total_written < length
           begin
-            written = write_nonblock(string)
+            written = write_nonblock(remaining)
           rescue ::IO::WaitWritable
             wait_writable
             retry
@@ -75,9 +76,15 @@ module Celluloid
           end
 
           total_written += written
-          if written < string.length
-            # Probably not the most efficient way to do this
-            string = string[written..-1]
+          if written < remaining.length
+            # Avoid mutating string itself, but we can mutate the remaining data
+            if remaining == string
+              # Copy the remaining data so as to avoid mutating string
+              # Note if we have a large amount of data remaining this could be slow
+              remaining = string[written..-1]
+            else
+              remaining.slice!(0, written)
+            end
           end
         end
 
