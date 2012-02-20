@@ -2,6 +2,7 @@ require 'socket'
 
 module Celluloid
   module IO
+    # TCPSocket with combined blocking and evented support
     class TCPSocket
       include CommonMethods
       extend Forwardable

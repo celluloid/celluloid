@@ -11,7 +11,7 @@ module Celluloid
       # Wait until the current object is readable
       def wait_readable
         if evented?
-          Celluloid.current_actor.wait_readable(self)
+          Celluloid.current_actor.wait_readable(self.to_io)
         else
           Kernel.select([self.to_io])
         end
@@ -22,7 +22,7 @@ module Celluloid
         actor = Thread.current[:actor]
 
         if evented?
-          Celluloid.current_actor.wait_writable(self)
+          Celluloid.current_actor.wait_writable(self.to_io)
         else
           Kernel.select([], [self.to_io])
         end

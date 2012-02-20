@@ -2,7 +2,7 @@ require 'socket'
 
 module Celluloid
   module IO
-    # TCPServer duck type for Celluloid::IO
+    # TCPServer with combined blocking and evented support
     class TCPServer
       extend Forwardable
       def_delegators :@server, :listen, :sysaccept, :close, :closed?
