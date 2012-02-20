@@ -158,7 +158,7 @@ module Celluloid
         # If the mailbox detects shutdown, exit the actor
       end
 
-      cleanup
+      shutdown
     rescue => ex
       handle_crash(ex)
     end
@@ -223,25 +223,34 @@ module Celluloid
     # Handle any exceptions that occur within a running actor
     def handle_crash(exception)
       Logger.crash("#{@subject.class} crashed!", exception)
-      cleanup ExitEvent.new(@proxy, exception)
-    rescue Exception => ex
+      shutdown ExitEvent.new(@proxy, exception)
+    rescue => ex
       Logger.crash("#{@subject.class}: ERROR HANDLER CRASHED!", ex)
     end
 
     # Handle cleaning up this actor after it exits
-    def cleanup(exit_event = ExitEvent.new(@proxy))
-      @mailbox.shutdown
-      @links.send_event exit_event
-      tasks.each { |task| task.terminate }
-
-      begin
-        @subject.finalize if @subject.respond_to? :finalize
-      rescue Exception => ex
-        Logger.crash("#{@subject.class}#finalize crashed!", ex)
-      end
+    def shutdown(exit_event = ExitEvent.new(@proxy))
+      run_finalizer
+      cleanup exit_event
     ensure
       Thread.current[:actor]   = nil
       Thread.current[:mailbox] = nil
+    end
+
+    # Run the user-defined finalizer, if one is set
+    def run_finalizer
+      @subject.finalize if @subject.respond_to? :finalize
+    rescue => ex
+      Logger.crash("#{@subject.class}#finalize crashed!", ex)
+    end
+
+    # Clean up after this actor
+    def cleanup(exit_event)
+      @mailbox.shutdown
+      @links.send_event exit_event
+      tasks.each { |task| task.terminate }
+    rescue => ex
+      Logger.crash("#{@subject.class}: CLEANUP CRASHED!", ex)
     end
   end
 end
