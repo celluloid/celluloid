@@ -25,7 +25,7 @@ module Celluloid
 
     # Handle a crash
     def crash(string, exception)
-      string += format_exception(exception)
+      string << "\n" << format_exception(exception)
       error string
 
       @exception_handlers.each do |handler|
