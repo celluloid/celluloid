@@ -4,10 +4,10 @@ module Celluloid
     class Mailbox < Celluloid::Mailbox
       attr_reader :reactor
 
-      def initialize
+      def initialize(reactor = nil)
         @messages = []
         @mutex = Mutex.new
-        @reactor = Reactor.new
+        @reactor = reactor || Reactor.new
       end
 
       # Add a message to the Mailbox
