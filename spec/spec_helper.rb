@@ -25,15 +25,17 @@ end
 
 def with_tcp_server
   server = Celluloid::IO::TCPServer.new(example_addr, example_port)
-  yield server
-ensure
-  server.close
+  begin
+    yield server
+  ensure
+    server.close
+  end
 end
 
 def with_connected_sockets
   with_tcp_server do |server|
     # FIXME: client isn't actually a Celluloid::IO::TCPSocket yet
-    client = TCPSocket.new(example_addr, example_port)
+    client = ::TCPSocket.new(example_addr, example_port)
     peer = server.accept
 
     begin

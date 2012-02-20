@@ -4,6 +4,20 @@ describe Celluloid::IO::TCPSocket do
   let(:payload) { 'ohai' }
 
   context "inside Celluloid::IO" do
+    it "connects to TCP servers" do
+      server = ::TCPServer.new example_addr, example_port
+      thread = Thread.new { server.accept }
+      socket = within_io_actor { Celluloid::IO::TCPSocket.new example_addr, example_port }
+      peer = thread.value
+
+      peer << payload
+      within_io_actor { socket.read(payload.size) }.should eq payload
+
+      server.close
+      socket.close
+      peer.close
+    end
+
     it "should be evented" do
       with_connected_sockets do |subject|
         within_io_actor { subject.evented? }.should be_true
@@ -33,6 +47,20 @@ describe Celluloid::IO::TCPSocket do
   end
 
   context "elsewhere in Ruby" do
+    it "connects to TCP servers" do
+      server = ::TCPServer.new example_addr, example_port
+      thread = Thread.new { server.accept }
+      socket = Celluloid::IO::TCPSocket.new example_addr, example_port
+      peer = thread.value
+
+      peer << payload
+      socket.read(payload.size).should eq payload
+
+      server.close
+      socket.close
+      peer.close
+    end
+
     it "should be blocking" do
       with_connected_sockets do |subject|
         subject.should_not be_evented
