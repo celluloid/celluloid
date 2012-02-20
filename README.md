@@ -114,7 +114,7 @@ comes in three forms:
 
 * __Reactor + Fibers:__ Celluloid::IO is a combination of Actor and Reactor
   concepts. The blocking mechanism used by the mailboxes of Celluloid::IO
-  actors is a [full-fledged reactor](https://github.com/tarcieri/celluloid-io/blob/master/lib/celluloid/io/reactor.rb).
+  actors is an [nio4r-powered reactor](https://github.com/tarcieri/celluloid-io/blob/master/lib/celluloid/io/reactor.rb).
   When the current task needs to make a blocking I/O call, it first makes
   a non-blocking attempt, and if the socket isn't ready the current task
   is suspended until the reactor detects the operation is ready and resumes
@@ -129,12 +129,14 @@ Status
 ------
 
 The rudiments of TCPServer and TCPSocket are in place and ready to use.
-Several methods are still missing, and there is presently no way to open
-new TCP connections in an evented manner.
+Several methods are still missing. Making new connections with
+Celluloid::IO::TCPSocket.new works, however it presently does blocking DNS
+resolution and connect so it can stall the reactor loop.
 
-No UDP or UNIXSocket support yet. Also coming soon!
+Basic UDPSocket support is in place. On JRuby, recvfrom makes a blocking call
+as the underlying recvfrom_nonblock call is not supported by JRuby.
 
-Filesystem monitoring is also likely on the horizon.
+No UNIXSocket support yet, sorry (patches welcome!)
 
 Contributing to Celluloid::IO
 -----------------------------
