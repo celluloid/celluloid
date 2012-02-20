@@ -14,13 +14,11 @@ module Celluloid
       def accept
         actor = Thread.current[:actor]
 
-        # FIXME: This is silly logic for selecting whether or not to use the reactor
-        if actor && actor.mailbox.is_a?(Celluloid::IO::Mailbox)
-          actor.mailbox.reactor.wait_readable @server
+        if evented?
+          Celluloid.current_actor.wait_readable @server
           accept_nonblock
         else
-          socket = Celluloid::IO::TCPSocket.from_ruby_socket @server.accept
-          socket
+          Celluloid::IO::TCPSocket.from_ruby_socket @server.accept
         end
       end
 

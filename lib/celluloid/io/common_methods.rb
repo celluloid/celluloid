@@ -10,13 +10,10 @@ module Celluloid
 
       # Wait until the current object is readable
       def wait_readable
-        actor = Thread.current[:actor]
-
-        # FIXME: This is silly logic for selecting whether or not to use the reactor
-        if actor && actor.mailbox.is_a?(Celluloid::IO::Mailbox)
-          actor.mailbox.reactor.wait_readable self.to_io
+        if evented?
+          Celluloid.current_actor.wait_readable(self)
         else
-          Kernel.select [self.to_io]
+          Kernel.select([self.to_io])
         end
       end
 
@@ -24,11 +21,10 @@ module Celluloid
       def wait_writable
         actor = Thread.current[:actor]
 
-        # FIXME: This is silly logic for selecting whether or not to use the reactor
-        if actor && actor.mailbox.is_a?(Celluloid::IO::Mailbox)
-          actor.mailbox.reactor.wait_writable self.to_io
+        if evented?
+          Celluloid.current_actor.wait_writable(self)
         else
-          Kernel.select [], [self.to_io]
+          Kernel.select([], [self.to_io])
         end
       end
 
