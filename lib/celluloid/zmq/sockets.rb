@@ -9,9 +9,11 @@ module Celluloid
       # Connect to the given 0MQ address
       # Address should be in the form: tcp://1.2.3.4:5678/
       def connect(addr)
+        puts "zomg connecting"
         unless ::ZMQ::Util.resultcode_ok? @socket.connect addr
           raise IOError, "error connecting to #{addr}: #{::ZMQ::Util.error_string}"
         end
+        true
       end
 
       # Bind to the given 0MQ address
@@ -62,11 +64,10 @@ module Celluloid
     module WritableSocket
       # Send a message to the socket
       def send(message)
-        Celluloid.current_actor.wait_writable(@socket) if evented?
-
-        if ::ZMQ::Util.resultcode_ok? @socket.send_string message
+        unless ::ZMQ::Util.resultcode_ok? @socket.send_string message
           raise IOError, "error sending 0MQ message: #{::ZMQ::Util.error_string}"
         end
+
         message
       end
       alias_method :<<, :send
