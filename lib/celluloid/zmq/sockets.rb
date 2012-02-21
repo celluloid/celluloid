@@ -4,11 +4,6 @@ module Celluloid
       # Create a new socket
       def initialize(type)
         @socket = Celluloid::ZMQ.context.socket ::ZMQ.const_get(type.to_s.upcase)
-
-        unless ::ZMQ::Util.resultcode_ok? @socket.setsockopt(::ZMQ::LINGER, 0)
-          @socket.close
-          raise IOError, "couldn't set ZMQ::LINGER: #{::ZMQ::Util.error_string}"
-        end
       end
 
       # Connect to the given 0MQ address
@@ -22,6 +17,11 @@ module Celluloid
       # Bind to the given 0MQ address
       # Address should be in the form: tcp://1.2.3.4:5678/
       def bind(addr)
+        unless ::ZMQ::Util.resultcode_ok? @socket.setsockopt(::ZMQ::LINGER, 0)
+          @socket.close
+          raise IOError, "couldn't set ZMQ::LINGER: #{::ZMQ::Util.error_string}"
+        end
+
         unless ::ZMQ::Util.resultcode_ok? @socket.bind(addr)
           raise IOError, "couldn't bind to #{addr}: #{::ZMQ::Util.error_string}"
         end
@@ -35,7 +35,10 @@ module Celluloid
       # Does the 0MQ socket support evented operation?
       def evented?
         actor = Thread.current[:actor]
-        actor && actor.mailbox.is_a?(Celluloid::IO::Mailbox) && actor.mailbox.reactor.is_a?(Celluloid::ZMQ::Reactor)
+        return unless actor
+
+        mailbox = actor.mailbox
+        mailbox.is_a?(Celluloid::IO::Mailbox) && mailbox.reactor.is_a?(Celluloid::ZMQ::Reactor)
       end
 
       # Hide ffi-rzmq internals
@@ -61,7 +64,7 @@ module Celluloid
       def send(message)
         Celluloid.current_actor.wait_writable(@socket) if evented?
 
-        if ::ZMQ::Util.resultcode_ok? socket.send_string message
+        if ::ZMQ::Util.resultcode_ok? @socket.send_string message
           raise IOError, "error sending 0MQ message: #{::ZMQ::Util.error_string}"
         end
         message
