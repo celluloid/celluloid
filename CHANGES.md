@@ -1,5 +1,5 @@
-HEAD
-----
+0.9.0
+-----
 * TCPServer, TCPSocket, and UDPSocket classes in Celluloid::IO namespace
   with both evented and blocking I/O support
 * Celluloid::IO::Mailbox.new now takes a single parameter to specify an
