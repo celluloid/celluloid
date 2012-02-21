@@ -19,7 +19,10 @@ module Celluloid
 
       # Obtain a 0MQ context (or lazily initialize it)
       def context
-        @context ||= ::ZMQ::Context.new(1)
+        return @context if @context
+        @context = ::ZMQ::Context.new(1)
+        at_exit { @context.close }
+        @context
       end
     end
 

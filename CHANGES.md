@@ -1,3 +1,9 @@
+HEAD
+----
+* Terminate the 0MQ context at shutdown
+* Use Celluloid::IO 0.9.0's reactor injection support so we no longer have to
+  subclass Celluloid::IO::Mailbox
+
 0.8.0
 -----
 * Update to match internals of celluloid-io
