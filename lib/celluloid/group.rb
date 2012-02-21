@@ -52,6 +52,9 @@ module Celluloid
       supervisable = @supervisors.delete supervisor
       raise "a supervisable went missing. This shouldn't be!" unless supervisable
 
+      # Ignore supervisors that shut down cleanly
+      return unless reason
+
       supervisor = supervisable.supervise
       @supervisors[supervisor] = supervisable
     end

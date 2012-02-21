@@ -45,6 +45,9 @@ module Celluloid
 
     # When actors die, regardless of the reason, restart them
     def restart_actor(actor, reason)
+      # If the actor we're supervising exited cleanly, exit the supervisor cleanly too
+      terminate unless reason
+
       start_actor if @started
     end
 
