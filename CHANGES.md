@@ -1,5 +1,6 @@
-HEAD
-----
+0.9.0
+-----
+* New 0MQ APIs which wrap ffi-rzmq's
 * Terminate the 0MQ context at shutdown
 * Use Celluloid::IO 0.9.0's reactor injection support so we no longer have to
   subclass Celluloid::IO::Mailbox
