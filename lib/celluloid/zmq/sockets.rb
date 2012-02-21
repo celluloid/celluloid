@@ -1,34 +1,9 @@
 module Celluloid
   module ZMQ
-    module ReadableSocket
-      # Read a message from the socket
-      def read(buffer = '')
-        Celluloid.current_actor.wait_readable(@socket) if evented?
-
-        unless ::ZMQ::Util.resultcode_ok? @socket.recv_string buffer
-          raise IOError, "error receiving ZMQ string: #{::ZMQ::Util.error_string}"
-        end
-        buffer
-      end
-    end
-
-    module WritableSocket
-      # Send a message to the socket
-      def send(message)
-        Celluloid.current_actor.wait_writable(@socket) if evented?
-
-        if ::ZMQ::Util.resultcode_ok? socket.send_string message
-          raise IOError, "error sending 0MQ message: #{::ZMQ::Util.error_string}"
-        end
-        message
-      end
-      alias_method :<<, :send
-    end
-
     class Socket
       # Create a new socket
       def initialize(type)
-        @socket = Celluloid::ZMQ.context.socket ::ZMQ.const_get(type.to_s.upscase)
+        @socket = Celluloid::ZMQ.context.socket ::ZMQ.const_get(type.to_s.upcase)
 
         unless ::ZMQ::Util.resultcode_ok? @socket.setsockopt(::ZMQ::LINGER, 0)
           @socket.close
@@ -65,6 +40,33 @@ module Celluloid
 
       # Hide ffi-rzmq internals
       alias_method :inspect, :to_s
+    end
+
+    # Readable 0MQ sockets have a read method
+    module ReadableSocket
+      # Read a message from the socket
+      def read(buffer = '')
+        Celluloid.current_actor.wait_readable(@socket) if evented?
+
+        unless ::ZMQ::Util.resultcode_ok? @socket.recv_string buffer
+          raise IOError, "error receiving ZMQ string: #{::ZMQ::Util.error_string}"
+        end
+        buffer
+      end
+    end
+
+    # Writable 0MQ sockets have a send method
+    module WritableSocket
+      # Send a message to the socket
+      def send(message)
+        Celluloid.current_actor.wait_writable(@socket) if evented?
+
+        if ::ZMQ::Util.resultcode_ok? socket.send_string message
+          raise IOError, "error sending 0MQ message: #{::ZMQ::Util.error_string}"
+        end
+        message
+      end
+      alias_method :<<, :send
     end
 
     # ReqSockets are the counterpart of RepSockets (REQ/REP)
