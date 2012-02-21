@@ -2,6 +2,7 @@ require 'ffi-rzmq'
 
 require 'celluloid/io'
 require 'celluloid/zmq/reactor'
+require 'celluloid/zmq/sockets'
 require 'celluloid/zmq/version'
 require 'celluloid/zmq/waker'
 
@@ -18,18 +19,18 @@ module Celluloid
       end
 
       # Obtain a 0MQ context (or lazily initialize it)
-      def context
+      def context(threads = 1)
         return @context if @context
-        @context = ::ZMQ::Context.new(1)
-        at_exit { @context.close }
+        @context = ::ZMQ::Context.new(threads)
+        at_exit { @context.terminate }
         @context
       end
+      alias_method :init, :context
     end
 
     extend Forwardable
 
     # Wait for the given IO object to become readable/writeable
-    def_delegators 'current_actor.mailbox.reactor',
-      :wait_readable, :wait_writeable
+    def_delegators 'current_actor.mailbox.reactor', :wait_readable, :wait_writeable
   end
 end
