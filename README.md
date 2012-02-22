@@ -21,12 +21,11 @@ your worries about building multithreaded Ruby programs:
   out to other actors, and resumed when the response is available. This means
   methods which are waiting for responses from other actors, external messages,
   or other system events (including I/O with Celluloid::IO) can be suspended
-  and will never block other methods that are ready to run.
-
-  This won't prevent bugs in Celluloid, bugs in other thread-safe libraries
-  you use, and even certain "dangerous" features of Celluloid from causing
-  your program to deadlock, but in general, programs built with Celluloid
-  will be naturally immune to deadlocks.
+  and will never block other methods that are ready to run. This won't prevent
+  bugs in Celluloid, bugs in other thread-safe libraries you use, and even
+  certain "dangerous" features of Celluloid from causing your program to
+  deadlock, but in general, programs built with Celluloid will be naturally
+  immune to deadlocks.
 
 * __Fault-tolerance:__ Celluloid has taken to heart many of Erlang's ideas
   about fault-tolerance in order to enable self-healing applications.
@@ -36,10 +35,8 @@ your worries about building multithreaded Ruby programs:
   actors that are all interdependent. This means rather that worrying about
   rescuing every last exception, you can just sit back, relax, and let parts
   of your program crash, knowing Celluloid will automatically reboot them in
-  a clean state.
-
-  Celluloid provides its own implementation of the core fault-tolerance
-  concepts in Erlang including [linking](https://github.com/tarcieri/celluloid/wiki/Linking),
+  a clean state. Celluloid provides its own implementation of the core
+  fault-tolerance concepts in Erlang including [linking](https://github.com/tarcieri/celluloid/wiki/Linking),
   [supervisors](https://github.com/tarcieri/celluloid/wiki/Supervisors),
   and [supervision trees](https://github.com/tarcieri/celluloid/wiki/Groups).
 
