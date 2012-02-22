@@ -13,36 +13,46 @@ objects just as easily as you build sequential programs out of regular objects.
 Recommended for any developer, including novices, Celluloid should help ease
 your worries about building multithreaded Ruby programs:
 
-* __Automatic synchronization:__ Celluloid synchronizes access to instance
-  variables by using a special proxy object system and messaging model.
+* __Automatic "deadlock-free" synchronization:__ Celluloid uses a
+  [concurrent object model](http://python.org/workshops/1997-10/proceedings/atom/)
+  which combines method dispatch with thread synchronization. Every Celluloid
+  actor is a concurrent object running in its own thread, and every method
+  invocation is wrapped in a fiber that can be suspended whenever it calls
+  out to other actors, and resumed when the response is available. This means
+  methods which are waiting for responses from other actors, external messages,
+  or other system events (including I/O with Celluloid::IO) can be suspended
+  and will never block other methods that are ready to run.
+
+  This won't prevent bugs in Celluloid, bugs in other thread-safe libraries
+  you use, and even certain "dangerous" features of Celluloid from causing
+  your program to deadlock, but in general, programs built with Celluloid
+  will be naturally immune to deadlocks.
+
+* __Fault-tolerance:__ Celluloid has taken to heart many of Erlang's ideas
+  about fault-tolerance in order to enable self-healing applications.
+  The central idea: have you tried turning it off and on again? Celluloid
+  takes care of rebooting subcomponents of your application when they crash,
+  whether it's a single actor, or large (potentially multi-tiered) groups of
+  actors that are all interdependent. This means rather that worrying about
+  rescuing every last exception, you can just sit back, relax, and let parts
+  of your program crash, knowing Celluloid will automatically reboot them in
+  a clean state.
+
+  Celluloid provides its own implementation of the core fault-tolerance
+  concepts in Erlang including [linking](https://github.com/tarcieri/celluloid/wiki/Linking),
+  [supervisors](https://github.com/tarcieri/celluloid/wiki/Supervisors),
+  and [supervision trees](https://github.com/tarcieri/celluloid/wiki/Groups).
+
 * __[Futures](https://github.com/tarcieri/celluloid/wiki/futures):__
   Ever wanted to call a method "in the background" and retrieve the
-  value it returns later? Celluloid futures allow you to do that. When you
-  ask for a method's return value it's returned if it's immediately available
-  or blocks if the method is still running.
-* __[Supervisors](https://github.com/tarcieri/celluloid/wiki/supervisors):__
-  Celluloid can monitor your concurrent objects and
-  automatically restart them when they crash. You can also link concurrent
-  objects together into groups that will crash and restart as a group,
-  ensuring that after a crash all interdependent objects are in a clean and
-  consistent state.
-
-Under the hood, Celluloid wraps regular objects in threads that talk to each
-other using messages. These concurrent objects are called "actors". When a
-caller wants another actor to execute a method, it literally sends it a
-message object telling it what method to execute. The receiver listens on its
-mailbox, gets the request, runs the method, and sends the caller the result.
-The receiver processes messages in its inbox one-at-a-time, which means that
-you don't need to worry about synchronizing access to an object's instance
-variables.
-
-In addition to that, Celluloid also gives you the ability to call methods
-_asynchronously_, so the receiver to do things in the background for you
-without the caller having to sit around waiting for the result.
+  value it returns later? Celluloid futures do just that. When you
+  ask for a method's return value, it's returned immediately if the
+  method has already completed, or otherwise the current method is
+  suspended until the value becomes available.
 
 You can also build distributed systems with Celluloid using its
 [sister project DCell](https://github.com/tarcieri/dcell). Evented IO similar
-to EventMachine (albeit with a synchronous API) is available through the
+to EventMachine (with a synchronous API) is available through the
 [Celluloid::IO](https://github.com/tarcieri/celluloid-io) library.
 
 [Please see the Celluloid Wiki](https://github.com/tarcieri/celluloid/wiki)
@@ -64,84 +74,13 @@ to the JRuby executable, or set the "JRUBY_OPTS=--1.9" environment variable.
 
 Celluloid works on Rubinius in either 1.8 or 1.9 mode.
 
-Usage
------
+Additional Reading
+------------------
 
-To use Celluloid, define a normal Ruby class that includes Celluloid:
-
-```ruby
-require 'celluloid'
-
-class Sheen
-  include Celluloid
-
-  def initialize(name)
-    @name = name
-  end
-
-  def set_status(status)
-    @status = status
-  end
-
-  def report
-    "#{@name} is #{@status}"
-  end
-end
-```
-
-Now when you create new instances of this class, they're actually concurrent
-objects, each running in their own thread:
-
-```ruby
->> charlie = Sheen.new "Charlie Sheen"
- => #<Celluloid::Actor(Sheen:0x00000100a312d0) @name="Charlie Sheen">
->> charlie.set_status "winning!"
- => "winning!"
->> charlie.report
- => "Charlie Sheen is winning!"
->> charlie.set_status! "asynchronously winning!"
- => nil
->> charlie.report
- => "Charlie Sheen is asynchronously winning!"
-```
-
-You can call methods on this concurrent object just like you would any other
-Ruby object. The Sheen#set_status method works exactly like you'd expect,
-returning the last expression evaluated.
-
-However, Celluloid's secret sauce kicks in when you call banged predicate
-methods (i.e. methods ending in !). Even though the Sheen class has no
-set_status! method, you can still call it. Why is this? Because bang methods
-have a special meaning in Celluloid. (Note: this also means you can't define
-bang methods on Celluloid classes and expect them to be callable from other
-objects)
-
-Adding a bang to the end of a method instructs Celluloid that you would like
-for the given method to be called _asynchronously_. This means that rather
-than the caller waiting for a response, the caller sends a message to the
-concurrent object that you'd like the given method invoked, and then the
-caller proceeds without waiting for a response. The concurrent object
-receiving the message will then process the method call in the background.
-
-Adding a bang to a method name is a convention in Ruby used to indicate that
-the method is in some way "dangerous", and in Celluloid this is no exception.
-You have no guarantees that just because you made an asynchronous call it was
-ever actually invoked. Asynchronous calls will never raise an exception, even
-if an exception occurs when the receiver is processing it. Worse, unhandled
-exceptions will crash the receiver, and making an asynchronous call to a
-crashed object will not raise an error.
-
-However, you can still handle errors created by asynchronous calls using
-two features of Celluloid called [supervisors](https://github.com/tarcieri/celluloid/wiki/supervisors)
-and [linking](https://github.com/tarcieri/celluloid/wiki/linking)
-
-[Please see the Celluloid Wiki](https://github.com/tarcieri/celluloid/wiki)
-for additional usage information.
-
-Suggested Reading
------------------
-
-* [Concurrent Object-Oriented Programming in Python with ATOM](http://python.org/workshops/1997-10/proceedings/atom/)
+* [Concurrent Object-Oriented Programming in Python with ATOM](http://python.org/workshops/1997-10/proceedings/atom/):
+  ATOM implemented almost all of the same ideas as Celluloid, except it was
+  written in Python (in 1997). ATOM and Celluloid are so similar that the
+  ATOM paper can be considered a formal description of how Celluloid works.
 
 Contributing to Celluloid
 -------------------------
