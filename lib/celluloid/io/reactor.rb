@@ -48,7 +48,7 @@ module Celluloid
       def run_once(timeout = nil)
         @selector.select(timeout) do |monitor|
           task = monitor.value
-          @selector.deregister(monitor.io)
+          monitor.close
 
           if task.running?
             task.resume
