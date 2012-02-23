@@ -14,7 +14,7 @@ Recommended for any developer, including novices, Celluloid should help ease
 your worries about building multithreaded Ruby programs:
 
 * __Automatic "deadlock-free" synchronization:__ Celluloid uses a concurrent
-  object model which combines method dispatch with thread synchronization.
+  object model which combines method dispatch and thread synchronization.
   Each actor is a concurrent object running in its own thread, and every method
   invocation is wrapped in a fiber that can be suspended whenever it calls
   out to other actors, and resumed when the response is available. This means
