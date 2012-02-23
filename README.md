@@ -13,10 +13,9 @@ objects just as easily as you build sequential programs out of regular objects.
 Recommended for any developer, including novices, Celluloid should help ease
 your worries about building multithreaded Ruby programs:
 
-* __Automatic "deadlock-free" synchronization:__ Celluloid uses a
-  [concurrent object model](http://python.org/workshops/1997-10/proceedings/atom/)
-  which combines method dispatch with thread synchronization. Every Celluloid
-  actor is a concurrent object running in its own thread, and every method
+* __Automatic "deadlock-free" synchronization:__ Celluloid uses a concurrent
+  object model which combines method dispatch with thread synchronization.
+  Each actor is a concurrent object running in its own thread, and every method
   invocation is wrapped in a fiber that can be suspended whenever it calls
   out to other actors, and resumed when the response is available. This means
   methods which are waiting for responses from other actors, external messages,
@@ -77,9 +76,7 @@ Additional Reading
 ------------------
 
 * [Concurrent Object-Oriented Programming in Python with ATOM](http://python.org/workshops/1997-10/proceedings/atom/):
-  ATOM implemented almost all of the same ideas as Celluloid, except it was
-  written in Python (in 1997). ATOM and Celluloid are so similar that the
-  ATOM paper can be considered a formal description of how Celluloid works.
+  a similar system to Celluloid written in Python
 
 Contributing to Celluloid
 -------------------------
