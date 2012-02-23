@@ -1,6 +1,17 @@
 module Celluloid
-  # Turn concurrent objects into finite state machines
-  # Inspired by Erlang's gen_fsm. See http://www.erlang.org/doc/man/gen_fsm.html
+  # Simple finite state machines with integrated Celluloid timeout support
+  # Inspired by Erlang's gen_fsm (http://www.erlang.org/doc/man/gen_fsm.html)
+  #
+  # Basic usage:
+  #
+  #     class MyMachine
+  #       include Celluloid::FSM # NOTE: this does NOT pull in the Celluloid module
+  #     end
+  #
+  # Inside an actor:
+  #
+  #     #
+  #     machine = MyMachine.new(current_actor)
   module FSM
     class UnattachedError < StandardError; end # Not attached to an actor
 
@@ -49,7 +60,7 @@ module Celluloid
     attr_reader :actor
 
     # Be kind and call super if you must redefine initialize
-    def initialize(actor = nil)
+    def initialize(actor = Celluloid.current_actor)
       @state = self.class.default_state
       @actor = actor
     end
