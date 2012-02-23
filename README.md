@@ -42,9 +42,11 @@ your worries about building multithreaded Ruby programs:
 
 * __[Futures](https://github.com/tarcieri/celluloid/wiki/futures):__
   Ever wanted to call a method "in the background" and retrieve the
-  value it returns later? Celluloid futures do just that. When you
-  ask for a method's return value, it's returned immediately if the
-  method has already completed, or otherwise the current method is
+  value it returns later? Celluloid futures do just that. It's like
+  calling ahead to a restaurant to place an order, so they can work
+  on preparing your food while you're on your way to pick it up.
+  When you ask for a method's return value, it's returned immediately
+  if the method has already completed, or otherwise the current method is
   suspended until the value becomes available.
 
 You can also build distributed systems with Celluloid using its
