@@ -60,9 +60,10 @@ module Celluloid
     attr_reader :actor
 
     # Be kind and call super if you must redefine initialize
-    def initialize(actor = Celluloid.current_actor)
+    def initialize(actor = nil)
       @state = self.class.default_state
       @actor = actor
+      @actor ||= Celluloid.current_actor if Celluloid.actor?
     end
 
     # Obtain the current state of the FSM
