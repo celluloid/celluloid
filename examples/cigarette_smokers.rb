@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
-$:.push File.expand_path('../../lib', __FILE__)
+require 'rubygems'
+require 'bundler/setup'
 require 'celluloid'
 
 #
@@ -30,47 +31,6 @@ require 'celluloid'
 # One way or another, the third man will eventually collect the items from the
 # table. When he does, he'll whistle for the waitress, and she'll again select
 # two men at random, replenishing the table.
-
-class Tobacco
-  def burn
-    carcinogens = [:polonium, :nitrosamine, :benzopyrene]
-    [:nicotine, *carcinogens]
-  end
-end
-
-class Paper
-  def roll(tobacco)
-    Cigarette.new(tobacco, self)
-  end
-  def burn; [:ash]; end
-end
-
-class Matches
-  def initialize
-    @lit = false
-  end
-
-  def light; @lit = true; end
-  def lit?; @lit; end
-end
-
-class Cigarette
-  def initialize(tobacco, paper)
-    @lit = false
-    @tobacco, @paper = tobacco, paper
-  end
-
-  def light(match)
-    @lit = true if match.lit?
-  end
-
-  def lit?; @lit end
-
-  def smoke
-    raise "not lit" unless @lit
-    @tobacco.burn + @paper.burn
-  end
-end
 
 # Each of the three men at the table is a smoker
 class Smoker
@@ -113,8 +73,7 @@ class Smoker
     @match = nil
     @smoking = false
 
-    # It's okay to use self here, since Machine is just an object
-    @machine = Machine.new(self)
+    @machine = Machine.new
   end
 
   attr_accessor :smoking
@@ -280,7 +239,7 @@ class Table
   end
 
   def place(items)
-    raise "there's already stuff on the table" if @items
+    abort RuntimeError.new("there's already stuff on the table") if @items
     @items = items
     puts "Table now contains: #{items.map(&:class).join(', ')}"
     return @items
@@ -297,6 +256,55 @@ class Table
     !@items
   end
 end
+
+#
+# The following are effectively data objects passed around between smokers
+#
+
+class Tobacco
+  def burn
+    carcinogens = [:polonium, :nitrosamine, :benzopyrene]
+    [:nicotine, *carcinogens]
+  end
+end
+
+class Paper
+  def roll(tobacco)
+    Cigarette.new(tobacco, self)
+  end
+  def burn; [:ash]; end
+end
+
+class Matches
+  def initialize
+    @lit = false
+  end
+
+  def light; @lit = true; end
+  def lit?; @lit; end
+end
+
+class Cigarette
+  def initialize(tobacco, paper)
+    @lit = false
+    @tobacco, @paper = tobacco, paper
+  end
+
+  def light(match)
+    @lit = true if match.lit?
+  end
+
+  def lit?; @lit end
+
+  def smoke
+    raise "not lit" unless @lit
+    @tobacco.burn + @paper.burn
+  end
+end
+
+#
+# Run the simulation
+#
 
 smokers = [
   Smoker.new(Tobacco, 1.0),
