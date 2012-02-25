@@ -286,7 +286,7 @@ module Celluloid
         # during an async call (i.e. linking/supervisors)
       end
 
-      return # casts are async and return immediately
+      return
     end
 
     super
