@@ -3,7 +3,7 @@ require 'thread'
 require 'timeout'
 
 module Celluloid
-  SHUTDOWN_TIMEOUT = 60 # How long actors have to terminate
+  SHUTDOWN_TIMEOUT = 120 # How long actors have to terminate
   @logger = Logger.new STDERR
 
   class << self
@@ -61,19 +61,25 @@ module Celluloid
     # tree before iterating through all actors and telling them to terminate.
     def shutdown
       Timeout.timeout(SHUTDOWN_TIMEOUT) do
-        futures = Actor.all.each do |actor|
+        actors = Actor.all
+        Celluloid::Logger.info "Terminating #{actors.size} actors..." if actors.size > 0
+
+        # Actors cannot self-terminate, you must do it for them
+        terminators = actors.each do |actor|
           begin
             actor.future(:terminate)
           rescue DeadActorError, MailboxError
           end
         end
 
-        futures.each do |future|
+        terminators.each do |terminator|
           begin
-            future.value
+            terminator.value
           rescue DeadActorError, MailboxError
           end
         end
+
+        Celluloid::Logger.info "Shutdown completed cleanly"
       end
     end
   end
