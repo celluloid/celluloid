@@ -21,8 +21,8 @@ module Celluloid
         wait io, :r
       end
 
-      # Wait for the given IO object to become writeable
-      def wait_writeable(io)
+      # Wait for the given IO object to become writable
+      def wait_writable(io)
         wait io, :w
       end
 
