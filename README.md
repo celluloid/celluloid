@@ -1,12 +1,12 @@
 ![Celluloid](https://github.com/celluloid/celluloid-io/raw/master/logo.png)
 =============
-[![Build Status](https://secure.travis-ci.org/tarcieri/celluloid-io.png?branch=master)](http://travis-ci.org/tarcieri/celluloid-io)
-[![Dependency Status](https://gemnasium.com/tarcieri/celluloid-io.png)](https://gemnasium.com/tarcieri/celluloid-io)
+[![Build Status](https://secure.travis-ci.org/celluloid/celluloid-io.png?branch=master)](http://travis-ci.org/celluloid/celluloid-io)
+[![Dependency Status](https://gemnasium.com/celluloid/celluloid-io.png)](https://gemnasium.com/celluloid/celluloid-io)
 
 You don't have to choose between threaded and evented IO! Celluloid::IO
 provides an event-driven IO system for building fast, scalable network
 applications that integrates directly with the
-[Celluloid actor library](https://github.com/tarcieri/celluloid), making it
+[Celluloid actor library](https://github.com/celluloid/celluloid), making it
 easy to combine both threaded and evented concepts. Celluloid::IO is ideal for
 servers which handle large numbers of mostly-idle connections, such as Websocket
 servers or chat/messaging systems.
@@ -85,7 +85,7 @@ end
 The very first thing including *Celluloid::IO* does is also include the
 *Celluloid* module, which promotes objects of this class to concurrent Celluloid
 actors each running in their own thread. Before trying to use Celluloid::IO
-you may want to [familiarize yourself with Celluloid in general](https://github.com/tarcieri/celluloid/).
+you may want to [familiarize yourself with Celluloid in general](https://github.com/celluloid/celluloid/).
 Celluloid actors can each be thought of as being event loops. Celluloid::IO actors
 are heavier but have capabilities similar to other event loop-driven frameworks.
 
@@ -114,7 +114,7 @@ comes in three forms:
 
 * __Reactor + Fibers:__ Celluloid::IO is a combination of Actor and Reactor
   concepts. The blocking mechanism used by the mailboxes of Celluloid::IO
-  actors is an [nio4r-powered reactor](https://github.com/tarcieri/celluloid-io/blob/master/lib/celluloid/io/reactor.rb).
+  actors is an [nio4r-powered reactor](https://github.com/celluloid/celluloid-io/blob/master/lib/celluloid/io/reactor.rb).
   When the current task needs to make a blocking I/O call, it first makes
   a non-blocking attempt, and if the socket isn't ready the current task
   is suspended until the reactor detects the operation is ready and resumes
