@@ -8,7 +8,7 @@ module Celluloid
       extend Forwardable
 
       def_delegators :@socket, :read_nonblock, :write_nonblock, :close, :closed?
-      def_delegators :@socket, :addr, :peeraddr
+      def_delegators :@socket, :addr, :peeraddr, :setsockopt
 
       # Convert a Ruby TCPSocket into a Celluloid::IO::TCPSocket
       def self.from_ruby_socket(ruby_socket)
