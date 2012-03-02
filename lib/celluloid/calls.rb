@@ -68,10 +68,6 @@ module Celluloid
       respond ErrorResponse.new(self, exception)
     end
 
-    #######
-    private
-    #######
-
     def respond(message)
       @caller << message
     rescue MailboxError
