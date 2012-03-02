@@ -4,51 +4,69 @@ Celluloid::ZMQ
 This gem uses the ffi-rzmq library to provide Celluloid actors that can
 interact with 0MQ sockets.
 
-Celluloid::ZMQ provides two methods for multiplexing 0MQ sockets with
-receiving messages over Celluloid's actor protocol:
-
-* Celluloid::ZMQ#wait_readable(socket): wait until a message is available to
-  read from the given 0MQ socket
-* Celluloid::ZMQ#wait_writeable(socket): waits until there's space in the
-  given socket's message buffer to send another message
+It provides different `Celluloid::ZMQ::Socket`s which can be initialized
+then sent `bind` or `connect`. Once bound or connected, the socket can
+`read` or `send` depending on whether it's readable or writable.
 
 Example Usage:
 
-    require 'celluloid-zmq'
+```ruby
+require 'celluloid/zmq'
 
-	ZMQ_CONTEXT = ZMQ::Context.new(1)
+Celluloid::ZMQ.init
 
-    class MyZmqCell
-      include Celluloid::ZMQ
+class Server
+  include Celluloid::ZMQ
 
-      def initialize(addr)
-        @socket = ZMQ_CONTEXT.socket(ZMQ::PUSH)
+  def initialize(address)
+    @socket = PullSocket.new
 
-        unless ZMQ::Util.resultcode_ok? @socket.connect addr
-	      @socket.close
-	      raise "error connecting to #{addr}: #{ZMQ::Util.error_string}"
-        end
-      end
-
-      def write(message)
-        wait_writeable @socket
-        unless ZMQ::Util.resultcode_ok? @socket.send_string message
-          raise "error sending 0MQ message: #{ZMQ::Util.error_string}"
-        end
-      end
-
-      def read
-        wait_readable @socket
-        message = ''
-
-	    rc = @socket.recv_string message
-	    if ZMQ::Util.resultcode_ok? rc
-	      handle_message message
-	    else
-	      raise "error receiving ZMQ string: #{ZMQ::Util.error_string}"
-	    end
-      end
+    begin
+      @socket.bind(address)
+    rescue IOError
+      @socket.close
+      raise
     end
+  end
+
+  def run
+    while true; handle_message! @socket.read; end
+  end
+
+  def handle_message(message)
+    puts "got message: #{message}"
+  end
+end
+
+class Client
+  include Celluloid::ZMQ
+
+  def initialize(address)
+    @socket = PushSocket.new
+
+    begin
+      @socket.connect(address)
+    rescue IOError
+      @socket.close
+      raise
+    end
+  end
+
+  def write(message)
+    @socket.send(message)
+
+    nil
+  end
+end
+
+addr = 'tcp://127.0.0.1:3435'
+
+server = Server.new(addr)
+client = Client.new(addr)
+
+server.run!
+client.write('hi')
+```
 
 Copyright
 ---------
