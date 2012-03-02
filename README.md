@@ -1,4 +1,4 @@
-![Celluloid](https://github.com/tarcieri/celluloid-io/raw/master/logo.png)
+![Celluloid](https://github.com/celluloid/celluloid-io/raw/master/logo.png)
 =============
 [![Build Status](https://secure.travis-ci.org/tarcieri/celluloid-io.png?branch=master)](http://travis-ci.org/tarcieri/celluloid-io)
 [![Dependency Status](https://gemnasium.com/tarcieri/celluloid-io.png)](https://gemnasium.com/tarcieri/celluloid-io)
