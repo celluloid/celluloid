@@ -1,7 +1,7 @@
 ![Celluloid](https://github.com/celluloid/celluloid/raw/master/logo.png)
 =========
-[![Build Status](https://secure.travis-ci.org/tarcieri/celluloid.png?branch=master)](http://travis-ci.org/tarcieri/celluloid)
-[![Dependency Status](https://gemnasium.com/tarcieri/celluloid.png)](https://gemnasium.com/tarcieri/celluloid)
+[![Build Status](https://secure.travis-ci.org/celluloid/celluloid.png?branch=master)](http://travis-ci.org/celluloid/celluloid)
+[![Dependency Status](https://gemnasium.com/celluloid/celluloid.png)](https://gemnasium.com/celluloid/celluloid)
 
 > "I thought of objects being like biological cells and/or individual
 > computers on a network, only able to communicate with messages"
@@ -35,11 +35,11 @@ your worries about building multithreaded Ruby programs:
   rescuing every last exception, you can just sit back, relax, and let parts
   of your program crash, knowing Celluloid will automatically reboot them in
   a clean state. Celluloid provides its own implementation of the core
-  fault-tolerance concepts in Erlang including [linking](https://github.com/tarcieri/celluloid/wiki/Linking),
-  [supervisors](https://github.com/tarcieri/celluloid/wiki/Supervisors),
-  and [supervision trees](https://github.com/tarcieri/celluloid/wiki/Groups).
+  fault-tolerance concepts in Erlang including [linking](https://github.com/celluloid/celluloid/wiki/Linking),
+  [supervisors](https://github.com/celluloid/celluloid/wiki/Supervisors),
+  and [supervision trees](https://github.com/celluloid/celluloid/wiki/Groups).
 
-* __[Futures](https://github.com/tarcieri/celluloid/wiki/futures):__
+* __[Futures](https://github.com/celluloid/celluloid/wiki/futures):__
   Ever wanted to call a method "in the background" and retrieve the
   value it returns later? Celluloid futures do just that. It's like
   calling ahead to a restaurant to place an order, so they can work
@@ -49,11 +49,11 @@ your worries about building multithreaded Ruby programs:
   suspended until the value becomes available.
 
 You can also build distributed systems with Celluloid using its
-[sister project DCell](https://github.com/tarcieri/dcell). Evented IO similar
+[sister project DCell](https://github.com/celluloid/dcell). Evented IO similar
 to EventMachine (with a synchronous API) is available through the
-[Celluloid::IO](https://github.com/tarcieri/celluloid-io) library.
+[Celluloid::IO](https://github.com/celluloid/celluloid-io) library.
 
-[Please see the Celluloid Wiki](https://github.com/tarcieri/celluloid/wiki)
+[Please see the Celluloid Wiki](https://github.com/celluloid/celluloid/wiki)
 for more detailed documentation and usage notes.
 
 Like Celluloid? [Join the Google Group](http://groups.google.com/group/celluloid-ruby)
