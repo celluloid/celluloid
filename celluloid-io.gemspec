@@ -6,7 +6,7 @@ Gem::Specification.new do |gem|
   gem.email         = ["tony.arcieri@gmail.com"]
   gem.description   = "Evented IO for Celluloid actors"
   gem.summary       = "Celluloid::IO allows you to monitor multiple IO objects within a Celluloid actor"
-  gem.homepage      = "http://github.com/tarcieri/celluloid-io"
+  gem.homepage      = "http://github.com/celluloid/celluloid-io"
 
   gem.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   gem.files         = `git ls-files`.split("\n")
