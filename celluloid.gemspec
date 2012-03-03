@@ -12,7 +12,7 @@ Gem::Specification.new do |gem|
 
   gem.authors     = ['Tony Arcieri']
   gem.email       = ['tony.arcieri@gmail.com']
-  gem.homepage    = 'https://github.com/tarcieri/celluloid'
+  gem.homepage    = 'https://github.com/celluloid/celluloid'
   
   gem.required_rubygems_version = '>= 1.3.6'
   
