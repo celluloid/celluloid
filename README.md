@@ -11,7 +11,20 @@ Celluloid provides a simple and natural way to build fault-tolerant concurrent
 programs in Ruby. With Celluloid, you can build systems out of concurrent
 objects just as easily as you build sequential programs out of regular objects.
 Recommended for any developer, including novices, Celluloid should help ease
-your worries about building multithreaded Ruby programs:
+your worries about building multithreaded Ruby programs.
+
+Much of the difficulty with building concurrent programs in Ruby arises because
+the object-oriented mechanisms for structuring code, such as classes and
+inheritance, are separate from the concurrency mechanisms, such as threads and
+locks. Celluloid combines these into a single structure, an active object
+running within a thread, called an "actor".
+
+By combining concurrency with object oriented programming, Celluloid frees you
+up from worry about where to use threads and locks. Celluloid combines them
+together into a single concurrent object oriented programming model,
+encapsulating state in concurrent objects and thus avoiding many of the
+problems associated with multithreaded programming. Celluloid provides many
+features which make concurrent programming simple, easy, and fun:
 
 * __Automatic "deadlock-free" synchronization:__ Celluloid uses a concurrent
   object model which combines method dispatch and thread synchronization.
