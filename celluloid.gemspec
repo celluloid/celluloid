@@ -6,7 +6,7 @@ Gem::Specification.new do |gem|
   gem.name        = 'celluloid'
   gem.version     = Celluloid::VERSION
   gem.platform    = Gem::Platform::RUBY
-  gem.summary     = 'Celluloid is a concurrent object framework inspired by the Actor Model'
+  gem.summary     = 'Actor-based concurrent object framework for Ruby'
   gem.description = 'Celluloid enables people to build concurrent programs out of concurrent objects just as easily as they build sequential programs out of sequential objects'
   gem.licenses    = ['MIT']
 
