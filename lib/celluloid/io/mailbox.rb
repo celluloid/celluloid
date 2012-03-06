@@ -15,7 +15,8 @@ module Celluloid
         @mutex.lock
         begin
           @messages << message
-          @reactor.wakeup
+          current_actor = Thread.current[:actor]
+          @reactor.wakeup unless current_actor && current_actor.mailbox == self
         rescue IOError
           raise MailboxError, "dead recipient"
         ensure @mutex.unlock
@@ -28,7 +29,8 @@ module Celluloid
         @mutex.lock
         begin
           @messages.unshift event
-          @reactor.wakeup
+          current_actor = Thread.current[:actor]
+          @reactor.wakeup unless current_actor && current_actor.mailbox == self
         rescue IOError
           # Silently fail if messages are sent to dead actors
         ensure @mutex.unlock
