@@ -149,7 +149,7 @@ Contributing to Celluloid::IO
 License
 -------
 
-Copyright (c) 2011 Tony Arcieri. Distributed under the MIT License. See
+Copyright (c) 2012 Tony Arcieri. Distributed under the MIT License. See
 LICENSE.txt for further details.
 
 Contains code originally from the RubySpec project also under the MIT License
