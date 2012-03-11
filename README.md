@@ -38,7 +38,9 @@ Like Celluloid::IO? [Join the Google Group](http://groups.google.com/group/cellu
 Supported Platforms
 -------------------
 
-Celluloid::IO works on Ruby 1.9.2+, JRuby 1.6 (in 1.9 mode), and Rubinius 2.0.
+Celluloid::IO requires Ruby 1.9 support on all Ruby VMs.
+
+Supported VMs are Ruby 1.9.3, JRuby 1.6, and Rubinius 2.0.
 
 To use JRuby in 1.9 mode, you'll need to pass the "--1.9" command line option
 to the JRuby executable, or set the "JRUBY_OPTS=--1.9" environment variable.
