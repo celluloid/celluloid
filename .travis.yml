@@ -4,4 +4,6 @@ rvm:
   - ruby-head
   - jruby-19mode
   - jruby-head
-  - rbx-19mode
+
+# See https://github.com/rubinius/rubinius/issues/1611
+#  - rbx-19mode
