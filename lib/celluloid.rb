@@ -92,7 +92,7 @@ module Celluloid
     # Create a new actor
     def new(*args, &block)
       proxy = Actor.new(allocate).proxy
-      proxy.send(:__send__, :initialize, *args, &block)
+      proxy._send_(:initialize, *args, &block)
       proxy
     end
     alias_method :spawn, :new
@@ -104,7 +104,7 @@ module Celluloid
 
       proxy = Actor.new(allocate).proxy
       current_actor.link proxy
-      proxy.send(:__send__, :initialize, *args, &block)
+      proxy._send_(:initialize, *args, &block)
       proxy
     end
     alias_method :spawn_link, :new_link

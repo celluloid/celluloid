@@ -9,12 +9,12 @@ module Celluloid
       @mailbox, @klass = mailbox, klass
     end
 
-    def send(meth, *args, &block)
-      Actor.call @mailbox, :send, meth, *args, &block
+    def _send_(meth, *args, &block)
+      Actor.call @mailbox, :__send__, meth, *args, &block
     end
 
     def class
-      Actor.call @mailbox, :send, :class
+      Actor.call @mailbox, :__send__, :class
     end
 
     def is_a?(klass)
@@ -57,7 +57,7 @@ module Celluloid
       raise DeadActorError, "actor already terminated" unless alive?
 
       begin
-        send :terminate
+        _send_ :terminate
       rescue DeadActorError
         # In certain cases this is thrown during termination. This is likely
         # a bug in Celluloid's internals, but it shouldn't affect the caller.
