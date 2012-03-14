@@ -71,6 +71,7 @@ module Celluloid
 
         @as = options['as']
         @args = options['args'] || []
+        raise ":args should be an Array" unless @args.kind_of? Array
       end
 
       def supervise
