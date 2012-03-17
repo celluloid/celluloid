@@ -163,6 +163,24 @@ shared_context "a Celluloid Actor" do |included_module|
     actor.wrapped_object.should be_a actor_class
   end
 
+  it "stores thread locals" do
+    class ThreadLocalStore
+      include Celluloid
+
+      def []=(key, value)
+        Thread.current[key] = value
+      end
+
+      def [](key)
+        Thread.current[key]
+      end
+    end
+
+    store = ThreadLocalStore.new
+    store[:foobar] = 42
+    store[:foobar].should == 42
+  end
+
   describe 'mocking methods' do
     let(:actor) { actor_class.new "Troy McClure" }
 
