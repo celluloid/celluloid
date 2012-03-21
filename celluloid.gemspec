@@ -13,13 +13,14 @@ Gem::Specification.new do |gem|
   gem.authors     = ['Tony Arcieri']
   gem.email       = ['tony.arcieri@gmail.com']
   gem.homepage    = 'https://github.com/celluloid/celluloid'
-  
+
   gem.required_rubygems_version = '>= 1.3.6'
-  
+
   gem.files        = Dir['README.md', 'lib/**/*', 'spec/support/**/*']
   gem.require_path = 'lib'
 
   gem.add_development_dependency 'rake'
   gem.add_development_dependency 'rspec'
+  gem.add_development_dependency 'guard-rspec'
   gem.add_development_dependency 'benchmark_suite'
 end
