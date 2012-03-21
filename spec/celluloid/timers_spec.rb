@@ -1,6 +1,8 @@
 require 'spec_helper'
 
 describe Celluloid::Timers do
+  Q = Celluloid::Timer::QUANTUM
+
   it "sleeps until the next timer" do
     interval = 0.1
     started_at = Time.now
@@ -23,8 +25,6 @@ describe Celluloid::Timers do
   it "fires timers in the correct order" do
     result = []
 
-    Q = Celluloid::Timer::QUANTUM
-
     subject.add(Q * 2) { result << :two }
     subject.add(Q * 3) { result << :three }
     subject.add(Q * 1) { result << :one }
@@ -33,5 +33,22 @@ describe Celluloid::Timers do
     subject.fire
 
     result.should == [:one, :two, :three]
+  end
+
+  describe "recurring timers" do
+    it "should continue to fire the timers at each interval" do
+      result = []
+
+      subject.add(Q * 3, true) { result << :foo }
+
+      sleep Q * 3
+      subject.fire
+      result.should == [:foo]
+
+      sleep Q * 3
+      subject.fire
+      subject.fire
+      result.should == [:foo, :foo]
+    end
   end
 end

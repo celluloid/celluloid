@@ -379,7 +379,13 @@ shared_context "a Celluloid Actor" do |included_module|
           after(n) { @fired = true }
         end
 
-        def fired?; @fired end
+        def fire_every(n)
+          @fired = 0
+          every(n) { @fired += 1 }
+        end
+
+        def fired?; !!@fired end
+        def fired; @fired end
       end
     end
 
@@ -410,6 +416,22 @@ shared_context "a Celluloid Actor" do |included_module|
 
       sleep(interval + Celluloid::Timer::QUANTUM) # wonky! #/
       actor.should be_fired
+    end
+
+    it "schedules recurring timers which fire in the future" do
+      actor = @klass.new
+
+      interval = Celluloid::Timer::QUANTUM * 10
+      started_at = Time.now
+
+      timer = actor.fire_every(interval)
+      actor.fired.should be == 0
+
+      sleep(interval + Celluloid::Timer::QUANTUM) # wonky! #/
+      actor.fired.should be == 1
+
+      2.times { sleep(interval + Celluloid::Timer::QUANTUM) } # wonky! #/
+      actor.fired.should be == 3
     end
 
     it "cancels timers before they fire" do
