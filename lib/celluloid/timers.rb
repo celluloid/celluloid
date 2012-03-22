@@ -6,8 +6,8 @@ module Celluloid
     end
 
     # Call the given block after the given interval
-    def add(interval, &block)
-      Timer.new(self, interval, block)
+    def add(interval, recurring = false, &block)
+      Timer.new(self, interval, recurring, block)
     end
 
     # Wait for the next timer and fire it
@@ -75,10 +75,10 @@ module Celluloid
     # firing of timers
     QUANTUM = 0.02
 
-    attr_reader :interval, :time
+    attr_reader :interval, :time, :recurring
 
-    def initialize(timers, interval, block)
-      @timers, @interval = timers, interval
+    def initialize(timers, interval, recurring, block)
+      @timers, @interval, @recurring = timers, interval, recurring
       @block = block
 
       reset
@@ -102,6 +102,7 @@ module Celluloid
 
     # Fire the block
     def fire
+      reset if recurring
       @block.call
     end
     alias_method :call, :fire
