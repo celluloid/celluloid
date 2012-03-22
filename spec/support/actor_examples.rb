@@ -1,5 +1,7 @@
 shared_context "a Celluloid Actor" do |included_module|
-  class ExampleCrash < StandardError; end
+  class ExampleCrash < StandardError
+    attr_accessor :foo
+  end
 
   let :actor_class do
     Class.new do
@@ -31,8 +33,10 @@ shared_context "a Celluloid Actor" do |included_module|
         raise ExampleCrash, "the spec purposely crashed me :("
       end
 
-      def crash_with_abort(reason)
-        abort ExampleCrash.new(reason)
+      def crash_with_abort(reason, foo = nil)
+        example_crash = ExampleCrash.new(reason)
+        example_crash.foo = foo
+        abort example_crash
       end
 
       def internal_hello
@@ -131,9 +135,18 @@ shared_context "a Celluloid Actor" do |included_module|
   it "raises exceptions in the caller when abort is called, but keeps running" do
     actor = actor_class.new "Al Pacino"
 
+    e = nil
+
     expect do
-      actor.crash_with_abort "You die motherfucker!"
+      begin
+        actor.crash_with_abort "You die motherfucker!", :bar
+      rescue => ex
+        e = ex
+        raise
+      end
     end.to raise_exception(ExampleCrash, "You die motherfucker!")
+
+    e.foo.should be == :bar
 
     actor.should be_alive
   end
