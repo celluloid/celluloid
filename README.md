@@ -19,6 +19,16 @@ Supported VMs are Ruby 1.9.3, JRuby 1.6, and Rubinius 2.0.
 To use JRuby in 1.9 mode, you'll need to pass the "--1.9" command line option
 to the JRuby executable, or set the "JRUBY_OPTS=--1.9" environment variable.
 
+## 0MQ Socket Types
+
+The following 0MQ socket types are supported (see [sockets.rb][socketsrb] for more info)
+
+[socketsrb]: https://github.com/celluloid/celluloid-zmq/blob/master/lib/celluloid/zmq/sockets.rb
+
+* ReqSocket / RepSocket
+* PushSocket / PullSocket
+* PubSocket / SubSocket
+
 ## Usage
 
 ```ruby
