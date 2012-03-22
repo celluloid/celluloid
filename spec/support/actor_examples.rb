@@ -8,6 +8,7 @@ shared_context "a Celluloid Actor" do |included_module|
 
       def initialize(name)
         @name = name
+        @delegate = [:bar]
       end
 
       def change_name(new_name)
@@ -40,6 +41,24 @@ shared_context "a Celluloid Actor" do |included_module|
 
       def external_hello
         "Hello"
+      end
+
+      def method_missing(method_name, *args, &block)
+        if delegates?(method_name)
+          @delegate.send method_name, *args, &block
+        else
+          super
+        end
+      end
+
+      def respond_to?(method_name)
+        super || delegates?(method_name)
+      end
+
+      private
+
+      def delegates?(method_name)
+        @delegate.respond_to?(method_name)
       end
     end
   end
@@ -85,6 +104,12 @@ shared_context "a Celluloid Actor" do |included_module|
     ponycopter = klass.new
     actor = actor_class.new ponycopter
     ponycopter.greet_by_proxy(actor).should == "Hi, I'm a ponycopter!"
+  end
+
+  it "properly handles method_missing" do
+    actor = actor_class.new "Method Missing"
+    actor.should respond_to(:first)
+    actor.first.should be == :bar
   end
 
   it "raises NoMethodError when a nonexistent method is called" do
