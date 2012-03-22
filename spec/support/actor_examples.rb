@@ -132,8 +132,8 @@ shared_context "a Celluloid Actor" do |included_module|
     actor = actor_class.new "Al Pacino"
 
     expect do
-      actor.crash_with_abort ExampleCrash.new("You die motherfucker!")
-    end.to raise_exception(ExampleCrash)
+      actor.crash_with_abort "You die motherfucker!"
+    end.to raise_exception(ExampleCrash, "You die motherfucker!")
 
     actor.should be_alive
   end
