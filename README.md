@@ -3,10 +3,14 @@
 [![Build Status](https://secure.travis-ci.org/celluloid/celluloid-zmq.png?branch=master)](http://travis-ci.org/celluloid/celluloid-zmq)
 
 Celluloid::ZMQ provides Celluloid actors that can interact with [0MQ sockets][0mq].
-Underneath, it's built on the [ffi-rzmq][ffi-rzmq] library.
+Underneath, it's built on the [ffi-rzmq][ffi-rzmq] library. Celluloid::ZMQ was
+primarily created for the purpose of writing [DCell][dcell], distributed Celluloid
+over 0MQ, so before you go building your own distributed Celluloid systems with
+Celluloid::ZMQ, be sure to give DCell a look and decide if it fits your purposes.
 
 [0mq]: http://www.zeromq.org/
 [ffi-rzmq]: https://github.com/chuckremes/ffi-rzmq
+[dcell]: https://github.com/celluloid/dcell
 
 It provides different `Celluloid::ZMQ::Socket` classes which can be initialized
 then sent `bind` or `connect`. Once bound or connected, the socket can
