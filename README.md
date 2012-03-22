@@ -1,14 +1,25 @@
 Celluloid::ZMQ
 ==============
 
-This gem uses the ffi-rzmq library to provide Celluloid actors that can
-interact with 0MQ sockets.
+Celluloid::ZMQ provides Celluloid actors that can interact with 0MQ sockets.
+Underneath, it's build on the [ffi-rzmq][ffi-rzmq] library.
 
-It provides different `Celluloid::ZMQ::Socket`s which can be initialized
+[ffi-rzmq]: https://github.com/chuckremes/ffi-rzmq
+
+It provides different `Celluloid::ZMQ::Socket` classes which can be initialized
 then sent `bind` or `connect`. Once bound or connected, the socket can
 `read` or `send` depending on whether it's readable or writable.
 
-Example Usage:
+## Supported Platforms
+
+Celluloid::IO requires Ruby 1.9 support on all Ruby VMs.
+
+Supported VMs are Ruby 1.9.3, JRuby 1.6, and Rubinius 2.0.
+
+To use JRuby in 1.9 mode, you'll need to pass the "--1.9" command line option
+to the JRuby executable, or set the "JRUBY_OPTS=--1.9" environment variable.
+
+## Usage
 
 ```ruby
 require 'celluloid/zmq'
