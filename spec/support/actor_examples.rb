@@ -136,17 +136,19 @@ shared_context "a Celluloid Actor" do |included_module|
     actor = actor_class.new "Al Pacino"
 
     e = nil
+    line = nil
 
     expect do
       begin
-        actor.crash_with_abort "You die motherfucker!", :bar
+        line = __LINE__; actor.crash_with_abort "You die motherfucker!", :bar
       rescue => ex
         e = ex
         raise
       end
     end.to raise_exception(ExampleCrash, "You die motherfucker!")
 
-    e.foo.should be == :bar
+    e.backtrace[3].should include([__FILE__, line].join(':')) # Check the backtrace is appropriate to the caller
+    e.foo.should be == :bar # Check the exception maintains instance variables
 
     actor.should be_alive
   end
