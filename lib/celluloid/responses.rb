@@ -17,7 +17,7 @@ module Celluloid
       if super.is_a? AbortError
         # Aborts are caused by caller error, so ensure they capture the
         # caller's backtrace instead of the receiver's
-        raise super.cause.exception(super.cause.message)
+        raise super.cause.exception
       else
         raise super
       end
