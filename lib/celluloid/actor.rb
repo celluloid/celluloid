@@ -184,6 +184,13 @@ module Celluloid
       end
     end
 
+    # Schedule a block to run at the given time
+    def every(interval)
+      @timers.add(interval, true) do
+        Task.new(:timer) { yield }.resume
+      end
+    end
+
     # Sleep for the given amount of time
     def sleep(interval)
       if Celluloid.exclusive?

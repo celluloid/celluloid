@@ -261,6 +261,11 @@ module Celluloid
     Thread.current[:actor].after(interval, &block)
   end
 
+  # Call a block every given interval, returning a Celluloid::Timer object
+  def every(interval, &block)
+    Thread.current[:actor].every(interval, &block)
+  end
+
   # Perform a blocking or computationally intensive action inside an
   # asynchronous thread pool, allowing the caller to continue processing other
   # messages in its mailbox in the meantime
