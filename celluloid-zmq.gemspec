@@ -6,7 +6,7 @@ Gem::Specification.new do |gem|
   gem.email         = ["tony.arcieri@gmail.com"]
   gem.description   = "Celluloid bindings to the ffi-rzmq library"
   gem.summary       = "Celluloid::ZMQ provides concurrent Celluloid actors that can listen for 0MQ events"
-  gem.homepage      = "http://github.com/tarcieri/dcell"
+  gem.homepage      = "http://github.com/celluloid/celluloid-zmq"
 
   gem.name          = "celluloid-zmq"
   gem.version       = Celluloid::ZMQ::VERSION
