@@ -1,5 +1,6 @@
 ![Celluloid::ZMQ](https://github.com/celluloid/celluloid-zmq/raw/master/logo.png)
 =================
+[![Build Status](https://secure.travis-ci.org/celluloid/celluloid-zmq.png?branch=master)](http://travis-ci.org/celluloid/celluloid-zmq)
 
 Celluloid::ZMQ provides Celluloid actors that can interact with 0MQ sockets.
 Underneath, it's build on the [ffi-rzmq][ffi-rzmq] library.
