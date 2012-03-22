@@ -2,9 +2,10 @@
 =================
 [![Build Status](https://secure.travis-ci.org/celluloid/celluloid-zmq.png?branch=master)](http://travis-ci.org/celluloid/celluloid-zmq)
 
-Celluloid::ZMQ provides Celluloid actors that can interact with 0MQ sockets.
+Celluloid::ZMQ provides Celluloid actors that can interact with [0MQ sockets][0mq].
 Underneath, it's built on the [ffi-rzmq][ffi-rzmq] library.
 
+[0mq]: http://www.zeromq.org/
 [ffi-rzmq]: https://github.com/chuckremes/ffi-rzmq
 
 It provides different `Celluloid::ZMQ::Socket` classes which can be initialized
@@ -13,7 +14,8 @@ then sent `bind` or `connect`. Once bound or connected, the socket can
 
 ## Supported Platforms
 
-Celluloid::IO requires Ruby 1.9 support on all Ruby VMs.
+Celluloid::IO requires Ruby 1.9 support on all Ruby VMs. You will also need
+the ZeroMQ library installed as it's accessed via FFI.
 
 Supported VMs are Ruby 1.9.3, JRuby 1.6, and Rubinius 2.0.
 
