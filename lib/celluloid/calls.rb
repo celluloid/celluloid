@@ -12,7 +12,16 @@ module Celluloid
         raise NoMethodError, "undefined method `#{@method}' for #{obj.inspect}"
       end
 
-      arity = obj.method(@method).arity
+      begin
+        arity = obj.method(@method).arity
+      rescue NameError
+        # If the object claims it responds to a method, but it doesn't exist,
+        # then we have to assume method_missing will do what it says
+        @arguments.unshift(@method)
+        @method = :method_missing
+        return
+      end
+
       if arity >= 0
         if arguments.size != arity
           raise ArgumentError, "wrong number of arguments (#{arguments.size} for #{arity})"
@@ -38,7 +47,7 @@ module Celluloid
     def dispatch(obj)
       begin
         check_signature(obj)
-      rescue Exception => ex
+      rescue => ex
         respond ErrorResponse.new(self, AbortError.new(ex))
         return
       end
