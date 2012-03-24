@@ -51,6 +51,11 @@ module Celluloid
       end
     end
 
+    # Generate a Universally Unique Identifier
+    def uuid
+      Celluloid::UUID.generate
+    end
+
     # Define an exception handler for actor crashes
     def exception_handler(&block)
       Logger.exception_handler(&block)
@@ -316,6 +321,7 @@ require 'celluloid/signals'
 require 'celluloid/task'
 require 'celluloid/timers'
 require 'celluloid/thread_pool'
+require 'celluloid/uuid'
 
 require 'celluloid/actor'
 require 'celluloid/future'

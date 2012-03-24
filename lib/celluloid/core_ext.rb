@@ -2,6 +2,8 @@ require 'celluloid/fiber'
 
 # Monkeypatch Thread to allow lazy access to its Celluloid::Mailbox
 class Thread
+  attr_accessor :uuid_counter, :uuid_limit
+
   # Retrieve the mailbox for the current thread or lazily initialize it
   def self.mailbox
     current[:mailbox] ||= Celluloid::Mailbox.new
