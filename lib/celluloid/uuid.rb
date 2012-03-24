@@ -1,4 +1,4 @@
-require 'openssl'
+require 'securerandom'
 
 module Celluloid
   # Clearly Ruby doesn't have enough UUID libraries
@@ -6,7 +6,7 @@ module Celluloid
   # If there's a better UUID library I can use with similar multithreaded
   # performance, I certainly wouldn't mind using a gem for this!
   module UUID
-    values = OpenSSL::Random.random_bytes(9).unpack("H*").first.match(/(.{8})(.{4})(.{3})(.{3})/)
+    values = SecureRandom.hex(9).match(/(.{8})(.{4})(.{3})(.{3})/)
     PREFIX = "#{values[1]}-#{values[2]}-4#{values[3]}-8#{values[4]}".freeze
     BLOCK_SIZE = 10_000
 
