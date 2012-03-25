@@ -8,7 +8,7 @@ module Celluloid
   module UUID
     values = SecureRandom.hex(9).match(/(.{8})(.{4})(.{3})(.{3})/)
     PREFIX = "#{values[1]}-#{values[2]}-4#{values[3]}-8#{values[4]}".freeze
-    BLOCK_SIZE = 10_000
+    BLOCK_SIZE = 0x10000
 
     @counter = 0
     @counter_mutex = Mutex.new
