@@ -7,12 +7,12 @@ module Celluloid
     # Takes a class of actor to pool and a hash of options:
     #
     # * initial_size: how many actors to eagerly create
-    # * max_size: maximum number of actors (default nil, unlimited)
+    # * max_size: maximum number of actors (default one actor per CPU core)
     # * args: an array of arguments to pass to the actor's initialize
     def initialize(klass, options = {})
       opts = {
         :initial_size => 1,
-        :max_size     => nil,
+        :max_size     => Celluloid.cores,
         :args         => []
       }.merge(options)
 

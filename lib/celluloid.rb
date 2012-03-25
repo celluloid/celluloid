@@ -56,6 +56,13 @@ module Celluloid
       Celluloid::UUID.generate
     end
 
+    # Obtain the number of CPUs in the system
+    def cores
+      CPUCounter.cores
+    end
+    alias_method :cpus, :cores
+    alias_method :ncpus, :cores
+
     # Define an exception handler for actor crashes
     def exception_handler(&block)
       Logger.exception_handler(&block)
@@ -307,6 +314,7 @@ require 'celluloid/version'
 require 'celluloid/actor_proxy'
 require 'celluloid/calls'
 require 'celluloid/core_ext'
+require 'celluloid/cpu_counter'
 require 'celluloid/events'
 require 'celluloid/fiber'
 require 'celluloid/fsm'
