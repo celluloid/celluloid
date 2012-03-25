@@ -53,7 +53,7 @@ module Celluloid
 
     # Generate a Universally Unique Identifier
     def uuid
-      Celluloid::UUID.generate
+      UUID.generate
     end
 
     # Obtain the number of CPUs in the system
@@ -74,7 +74,7 @@ module Celluloid
     def shutdown
       Timeout.timeout(SHUTDOWN_TIMEOUT) do
         actors = Actor.all
-        Celluloid::Logger.info "Terminating #{actors.size} actors..." if actors.size > 0
+        Logger.info "Terminating #{actors.size} actors..." if actors.size > 0
 
         # Actors cannot self-terminate, you must do it for them
         terminators = actors.each do |actor|
@@ -91,7 +91,7 @@ module Celluloid
           end
         end
 
-        Celluloid::Logger.info "Shutdown completed cleanly"
+        Logger.info "Shutdown completed cleanly"
       end
     end
   end
