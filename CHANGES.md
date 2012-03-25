@@ -1,3 +1,9 @@
+HEAD
+----
+* Obtain UUIDs with Celluloid.uuid
+* Obtain the number of CPU cores available with Celluloid.cores
+* Celluloid::Pool defaults to one actor per CPU core max by default
+
 0.9.0
 -----
 * Celluloid::Pool supervises pools of actors
