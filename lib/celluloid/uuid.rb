@@ -26,7 +26,7 @@ module Celluloid
       end
 
       counter = thread.uuid_counter
-      if thread.uuid_counter >= thread.uuid_limit
+      if thread.uuid_counter >= (thread.uuid_limit - 1)
         thread.uuid_counter = thread.uuid_limit = nil
       else
         thread.uuid_counter += 1
