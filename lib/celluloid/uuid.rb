@@ -21,12 +21,12 @@ module Celluloid
           block_base = @counter
           @counter += BLOCK_SIZE
           thread.uuid_counter = block_base
-          thread.uuid_limit   = @counter
+          thread.uuid_limit   = @counter - 1
         end
       end
 
       counter = thread.uuid_counter
-      if thread.uuid_counter >= (thread.uuid_limit - 1)
+      if thread.uuid_counter >= thread.uuid_limit
         thread.uuid_counter = thread.uuid_limit = nil
       else
         thread.uuid_counter += 1
