@@ -1,5 +1,6 @@
-HEAD
-----
+0.9.1
+-----
+* Recurring timers with Celluloid#every(n) { ... }
 * Obtain UUIDs with Celluloid.uuid
 * Obtain the number of CPU cores available with Celluloid.cores
 * Celluloid::Pool defaults to one actor per CPU core max by default
