@@ -3,6 +3,7 @@ module Celluloid
   class Pool
     include Celluloid
     trap_exit :crash_handler
+    attr_reader :max_actors
 
     # Takes a class of actor to pool and a hash of options:
     #
@@ -10,9 +11,10 @@ module Celluloid
     # * max_size: maximum number of actors (default one actor per CPU core)
     # * args: an array of arguments to pass to the actor's initialize
     def initialize(klass, options = {})
+      raise ArgumentError, "A Pool has a minimum size of 2" if options[:max_size] && options[:max_size] < 2
       opts = {
         :initial_size => 1,
-        :max_size     => Celluloid.cores,
+        :max_size     => [Celluloid.cores, 2].max,
         :args         => []
       }.merge(options)
 
