@@ -55,17 +55,7 @@ module Celluloid
     # Terminate the associated actor
     def terminate
       raise DeadActorError, "actor already terminated" unless alive?
-
-      begin
-        _send_ :terminate
-      rescue DeadActorError
-        # In certain cases this is thrown during termination. This is likely
-        # a bug in Celluloid's internals, but it shouldn't affect the caller.
-        # FIXME: track this down and fix it, or at the very least log it
-      end
-
-      # Always return nil until a dependable exit value can be obtained
-      nil
+      @mailbox.system_event TerminationRequest.new
     end
 
     # method_missing black magic to call bang predicate methods asynchronously

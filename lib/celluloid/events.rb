@@ -11,4 +11,7 @@ module Celluloid
       super reason.to_s
     end
   end
+  
+  # Request for an actor to terminate
+  class TerminationRequest < SystemEvent; end
 end

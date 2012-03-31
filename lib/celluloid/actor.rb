@@ -96,11 +96,6 @@ module Celluloid
       end
     end
 
-    # Is this actor alive?
-    def alive?
-      @running
-    end
-
     # Is this actor running in exclusive mode?
     def exclusive?
       @exclusive
@@ -117,7 +112,6 @@ module Celluloid
     # Terminate this actor
     def terminate
       @running = false
-      nil
     end
 
     # Send a signal with the given name to all waiting methods
@@ -144,6 +138,8 @@ module Celluloid
           rescue ExitEvent => exit_event
             Task.new(:exit_handler) { handle_exit_event exit_event }.resume
             retry
+          rescue TerminationRequest
+            break
           end
 
           if message
