@@ -2,7 +2,9 @@ rvm:
   - 1.9.3
   - ruby-head
   - jruby-19mode
-  - jruby-head
+
+# Getting a deadlock in the nonblocking connect code :(
+#  - jruby-head
 
 # See https://github.com/rubinius/rubinius/issues/1611
 #  - rbx-19mode
