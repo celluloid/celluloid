@@ -26,20 +26,60 @@ module Celluloid
         end
       end
 
+      # Request exclusive control for a particular operation
+      # Type should be one of :r (read) or :w (write)
+      def acquire_ownership(type)
+        return unless Thread.current[:actor]
+
+        case type
+        when :r
+          ivar = :@read_owner
+        when :w
+          ivar = :@write_owner
+        else raise ArgumentError, "invalid ownership type: #{type}"
+        end
+
+        Actor.current.wait(self) while instance_variable_get(ivar)
+        instance_variable_set(ivar, Task.current)
+      end
+
+      # Release ownership for a particular operation
+      # Type should be one of :r (read) or :w (write)
+      def release_ownership(type)
+        return unless Thread.current[:actor]
+
+        case type
+        when :r
+          ivar = :@read_owner
+        when :w
+          ivar = :@write_owner
+        else raise ArgumentError, "invalid ownership type: #{type}"
+        end
+
+        raise "not owner" unless instance_variable_get(ivar) == Task.current
+        instance_variable_set(ivar, nil)
+        Actor.current.signal(self)
+      end
+
       def read(length, buffer = nil)
         buffer ||= ''
         remaining = length
 
-        until remaining.zero?
-          begin
-            str = readpartial(remaining)
-          rescue EOFError
-            return if length == remaining
-            return buffer
-          end
+        acquire_ownership :r
+        begin
+          until remaining.zero?
+            begin
+              str = readpartial(remaining)
+            rescue EOFError
+              return if length == remaining
+              return buffer
+            end
 
-          buffer << str
-          remaining -= str.length
+            buffer << str
+            remaining -= str.length
+          end
+        ensure
+          release_ownership :r
         end
 
         buffer
@@ -63,27 +103,24 @@ module Celluloid
         total_written = 0
 
         remaining = string
-        while total_written < length
-          begin
-            written = write_nonblock(remaining)
-          rescue ::IO::WaitWritable
-            wait_writable
-            retry
-          rescue EOFError
-            return total_written
-          end
+        acquire_ownership :w
 
-          total_written += written
-          if written < remaining.length
-            # Avoid mutating string itself, but we can mutate the remaining data
-            if remaining.equal?(string)
-              # Copy the remaining data so as to avoid mutating string
-              # Note if we have a large amount of data remaining this could be slow
-              remaining = string[written..-1]
-            else
-              remaining.slice!(0, written)
+        begin
+          while total_written < length
+            begin
+              written = write_nonblock(remaining)
+            rescue ::IO::WaitWritable
+              wait_writable
+              retry
+            rescue EOFError
+              return total_written
             end
+
+            total_written += written
+            remaining.slice!(0, written) if written < remaining.length
           end
+        ensure
+          release_ownership :w
         end
 
         total_written
