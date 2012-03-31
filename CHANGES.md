@@ -1,3 +1,8 @@
+HEAD
+----
+* #terminate now uses system messages, making termination take priority over
+  other pending methods. This also makes #terminate asynchronous.
+
 0.9.1
 -----
 * Recurring timers with Celluloid#every(n) { ... }
