@@ -54,6 +54,12 @@ module Celluloid
 
     # Terminate the associated actor
     def terminate
+      terminate!
+      Thread.pass while alive?
+    end
+
+    # Terminate the associated actor asynchronously
+    def terminate!
       raise DeadActorError, "actor already terminated" unless alive?
       @mailbox.system_event TerminationRequest.new
     end

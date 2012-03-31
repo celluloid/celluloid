@@ -1,7 +1,8 @@
 HEAD
 ----
 * #terminate now uses system messages, making termination take priority over
-  other pending methods. This also makes #terminate asynchronous.
+  other pending methods
+* #terminate! provides asynchronous termination
 
 0.9.1
 -----
