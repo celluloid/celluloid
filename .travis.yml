@@ -2,9 +2,7 @@ rvm:
   - 1.9.3
   - ruby-head
   - jruby-19mode
-
-# Non-blocking connect is causing deadlocks on jruby-head
-#  - jruby-head
+  - jruby-head
 
 # See https://github.com/rubinius/rubinius/issues/1611
 #  - rbx-19mode
