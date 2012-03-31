@@ -19,8 +19,6 @@ module Celluloid
 
       # Wait until the current object is writable
       def wait_writable
-        actor = Thread.current[:actor]
-
         if evented?
           Celluloid.current_actor.wait_writable(self.to_io)
         else
