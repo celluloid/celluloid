@@ -1,3 +1,7 @@
+HEAD
+----
+* True non-blocking connect support (async DNS support still pending)
+
 0.9.0
 -----
 * TCPServer, TCPSocket, and UDPSocket classes in Celluloid::IO namespace
