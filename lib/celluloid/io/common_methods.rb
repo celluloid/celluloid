@@ -76,7 +76,7 @@ module Celluloid
           total_written += written
           if written < remaining.length
             # Avoid mutating string itself, but we can mutate the remaining data
-            if remaining == string
+            if remaining.equal?(string)
               # Copy the remaining data so as to avoid mutating string
               # Note if we have a large amount of data remaining this could be slow
               remaining = string[written..-1]
