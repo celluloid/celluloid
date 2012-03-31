@@ -92,7 +92,7 @@ class Smoker
     puts "#{name} sits down at table"
 
     # DON'T USE SELF ACROSS ACTORS!
-    table.smokers << current_actor
+    table.smokers << Actor.current
     @table = table
 
     @machine.transition :procuring
@@ -234,7 +234,7 @@ class Table
 
   def initialize
     @smokers = []
-    @waitress = Waitress.new(current_actor) # DON'T USE SELF!
+    @waitress = Waitress.new(Actor.current) # DON'T USE SELF!
     @items = nil
   end
 

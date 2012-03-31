@@ -23,6 +23,13 @@ module Celluloid
     attr_reader :proxy, :tasks, :links, :mailbox
 
     class << self
+      # Obtain the current actor
+      def current
+        actor = Thread.current[:actor]
+        raise NotActorError, "not in actor scope" unless actor
+        actor.proxy
+      end
+      
       # Invoke a method on the given actor via its mailbox
       def call(mailbox, meth, *args, &block)
         call = SyncCall.new(Thread.mailbox, meth, args, block)

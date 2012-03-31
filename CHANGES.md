@@ -1,5 +1,6 @@
 HEAD
 ----
+* Celluloid::Actor.current is now the de facto way to obtain the current actor
 * #terminate now uses system messages, making termination take priority over
   other pending methods
 * #terminate! provides asynchronous termination

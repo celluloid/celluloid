@@ -25,11 +25,8 @@ module Celluloid
 
     # Obtain the currently running actor (if one exists)
     def current_actor
-      actor = Thread.current[:actor]
-      raise NotActorError, "not in actor scope" unless actor
-      actor.proxy
+      Actor.current
     end
-    alias_method :current, :current_actor
 
     # Receive an asynchronous message
     def receive(timeout = nil, &block)
@@ -111,7 +108,7 @@ module Celluloid
 
     # Create a new actor and link to the current one
     def new_link(*args, &block)
-      current_actor = Celluloid.current_actor
+      current_actor = Actor.current
       raise NotActorError, "can't link outside actor context" unless current_actor
 
       proxy = Actor.new(allocate).proxy
@@ -207,7 +204,7 @@ module Celluloid
 
   # Obtain the current_actor
   def current_actor
-    Celluloid.current_actor
+    Actor.current
   end
 
   # Obtain the running tasks for this actor
@@ -229,13 +226,13 @@ module Celluloid
 
   # Link this actor to another, allowing it to crash or react to errors
   def link(actor)
-    actor.notify_link current_actor
+    actor.notify_link Actor.current
     notify_link actor
   end
 
   # Remove links to another actor
   def unlink(actor)
-    actor.notify_unlink current_actor
+    actor.notify_unlink Actor.current
     notify_unlink actor
   end
 
