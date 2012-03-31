@@ -28,7 +28,8 @@ module Celluloid
         @messages << message
         @condition.signal
         nil
-      ensure @mutex.unlock
+      ensure
+        @mutex.unlock rescue nil
       end
     end
 
@@ -41,7 +42,8 @@ module Celluloid
           @condition.signal
         end
         nil
-      ensure @mutex.unlock
+      ensure
+        @mutex.unlock rescue nil
       end
     end
 
@@ -71,7 +73,8 @@ module Celluloid
         end until message
 
         message
-      ensure @mutex.unlock
+      ensure
+        @mutex.unlock rescue nil
       end
     end
 
@@ -100,7 +103,8 @@ module Celluloid
         messages = @messages
         @messages = []
         @dead = true
-      ensure @mutex.unlock
+      ensure
+        @mutex.unlock rescue nil
       end
 
       messages.each { |msg| msg.cleanup if msg.respond_to? :cleanup }
