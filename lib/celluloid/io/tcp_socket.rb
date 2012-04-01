@@ -41,7 +41,7 @@ module Celluloid
         unless @addr
           # TODO: suppport asynchronous DNS
           # Even EventMachine doesn't do async DNS by default o_O
-          @addr = Resolv::DNS.new.getaddress(remote_host)
+          @addr = DNSResolver.new.resolve(remote_host)
         end
 
         case @addr

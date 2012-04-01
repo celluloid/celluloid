@@ -1,8 +1,9 @@
+require 'forwardable'
 require 'celluloid/io/version'
 
-require 'forwardable'
 require 'celluloid'
 require 'celluloid/io/common_methods'
+require 'celluloid/io/dns_resolver'
 require 'celluloid/io/mailbox'
 require 'celluloid/io/reactor'
 
