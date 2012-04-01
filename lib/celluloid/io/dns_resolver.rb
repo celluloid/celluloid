@@ -1,3 +1,5 @@
+require 'resolv'
+
 module Celluloid
   module IO
     # Asynchronous DNS resolver using Celluloid::IO::UDPSocket
@@ -31,6 +33,8 @@ module Celluloid
       
       def initialize
         @nameservers, @hosts = self.class.nameservers, self.class.hosts
+        
+        # TODO: fall back on other nameservers if the first one is unavailable
         @server = @nameservers.first
 
         # The non-blocking secret sauce is here, as this is actually a
@@ -39,6 +43,21 @@ module Celluloid
       end
       
       def resolve(hostname)
+        host = @hosts[hostname]
+        if host
+          begin
+            return Resolv::IPv4.create(host)
+          rescue ArgumentError
+          end
+
+          begin
+            return Resolv::IPv6.create(host)
+          rescue ArgumentError
+          end
+          
+          raise Resolv::ResolvError, "invalid entry in hosts file: #{host}"
+        end
+        
         query = Resolv::DNS::Message.new
         query.id = self.class.generate_id
         query.rd = 1
