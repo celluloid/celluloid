@@ -32,6 +32,9 @@ module Celluloid
       def initialize
         @nameservers, @hosts = self.class.nameservers, self.class.hosts
         @server = @nameservers.first
+
+        # The non-blocking secret sauce is here, as this is actually a
+        # Celluloid::IO::UDPSocket
         @socket = UDPSocket.new
       end
       
