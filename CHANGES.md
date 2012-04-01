@@ -1,8 +1,8 @@
 HEAD
 ----
-* read/write operations are now atomic across tasks
-* True non-blocking connect support (async DNS support still pending)
-* non-blocking DNS resolution support
+* Read/write operations are now atomic across tasks
+* True non-blocking connect support
+* Non-blocking DNS resolution support
 
 0.9.0
 -----
