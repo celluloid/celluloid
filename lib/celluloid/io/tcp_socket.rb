@@ -41,7 +41,11 @@ module Celluloid
         unless @addr
           # TODO: suppport asynchronous DNS
           # Even EventMachine doesn't do async DNS by default o_O
-          @addr = DNSResolver.new.resolve(remote_host)
+          addrs = Array(DNSResolver.new.resolve(remote_host))
+          raise Resolv::ResolvError, "DNS result has no information for #{remote_host}" if addrs.empty?
+          
+          # Pseudorandom round-robin DNS support :/
+          @addr = addrs[rand(addrs.size)]
         end
 
         case @addr
