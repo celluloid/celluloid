@@ -46,12 +46,7 @@ module Celluloid
         response = Resolv::DNS::Message.decode(data)
         
         addrs = []
-        response.each_answer do |name, ttl, value|
-          case value
-          when Resolv::DNS::Resource::IN::A, Resolv::DNS::Resource::IN::AAAA
-            addrs << Resolv::IPv4.create(value.address.to_s)
-          end
-        end
+        response.each_answer { |name, ttl, value| addrs << value.address }
         
         return if addrs.empty?
         return addrs.first if addrs.size == 1
