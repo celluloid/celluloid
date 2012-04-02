@@ -4,6 +4,7 @@ module Celluloid
       # Create a new socket
       def initialize(type)
         @socket = Celluloid::ZMQ.context.socket ::ZMQ.const_get(type.to_s.upcase)
+        @options = { ::ZMQ::LINGER => 0 }
       end
 
       # Connect to the given 0MQ address
@@ -15,14 +16,18 @@ module Celluloid
         true
       end
 
+      def setsockopt(option, value)
+        @options[option] = value
+
+        unless ::ZMQ::Util.resultcode_ok? @socket.setsockopt(option, value)
+          @socket.close
+          raise IOError, "couldn't set ZMQ option #{option}: #{::ZMQ::Util.error_string}"
+        end
+      end
+
       # Bind to the given 0MQ address
       # Address should be in the form: tcp://1.2.3.4:5678/
       def bind(addr)
-        unless ::ZMQ::Util.resultcode_ok? @socket.setsockopt(::ZMQ::LINGER, 0)
-          @socket.close
-          raise IOError, "couldn't set ZMQ::LINGER: #{::ZMQ::Util.error_string}"
-        end
-
         unless ::ZMQ::Util.resultcode_ok? @socket.bind(addr)
           raise IOError, "couldn't bind to #{addr}: #{::ZMQ::Util.error_string}"
         end
@@ -48,6 +53,17 @@ module Celluloid
 
     # Readable 0MQ sockets have a read method
     module ReadableSocket
+      # always set LINGER on readable sockets
+      def bind(addr)
+        setsockopt(::ZMQ::LINGER, @options[::ZMQ::LINGER])
+        super(addr)
+      end
+
+      def connect(addr)
+        setsockopt(::ZMQ::LINGER, @options[::ZMQ::LINGER])
+        super(addr)
+      end
+
       # Read a message from the socket
       def read(buffer = '')
         Celluloid.current_actor.wait_readable(@socket) if evented?
