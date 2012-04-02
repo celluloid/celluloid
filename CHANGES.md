@@ -1,3 +1,8 @@
+0.10.0
+------
+* Factor celluloid-zmq into its own gem
+* #linger= support
+
 0.9.0
 -----
 * New 0MQ APIs which wrap ffi-rzmq's

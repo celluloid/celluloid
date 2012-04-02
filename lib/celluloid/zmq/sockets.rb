@@ -1,10 +1,12 @@
 module Celluloid
   module ZMQ
+    attr_reader :linger
+
     class Socket
       # Create a new socket
       def initialize(type)
         @socket = Celluloid::ZMQ.context.socket ::ZMQ.const_get(type.to_s.upcase)
-        @options = { ::ZMQ::LINGER => 0 }
+        @linger = 0
       end
 
       # Connect to the given 0MQ address
@@ -16,12 +18,11 @@ module Celluloid
         true
       end
 
-      def setsockopt(option, value)
-        @options[option] = value
+      def linger=(value)
+        @linger = value || -1
 
-        unless ::ZMQ::Util.resultcode_ok? @socket.setsockopt(option, value)
-          @socket.close
-          raise IOError, "couldn't set ZMQ option #{option}: #{::ZMQ::Util.error_string}"
+        unless ::ZMQ::Util.resultcode_ok? @socket.setsockopt(::ZMQ::LINGER, value)
+          raise IOError, "couldn't set linger: #{::ZMQ::Util.error_string}"
         end
       end
 
@@ -55,12 +56,12 @@ module Celluloid
     module ReadableSocket
       # always set LINGER on readable sockets
       def bind(addr)
-        setsockopt(::ZMQ::LINGER, @options[::ZMQ::LINGER])
+        self.linger = @linger
         super(addr)
       end
 
       def connect(addr)
-        setsockopt(::ZMQ::LINGER, @options[::ZMQ::LINGER])
+        self.linger = @linger
         super(addr)
       end
 
