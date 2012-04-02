@@ -1,5 +1,5 @@
-HEAD
-----
+0.10.0
+------
 * Read/write operations are now atomic across tasks
 * True non-blocking connect support
 * Non-blocking DNS resolution support
