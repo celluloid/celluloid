@@ -68,7 +68,10 @@ module Celluloid
         response = Resolv::DNS::Message.decode(data)
         
         addrs = []
-        response.each_answer { |name, ttl, value| addrs << value.address }
+        # The answer might include IN::CNAME entries so filters them out
+        # to include IN::A & IN::AAAA entries only.
+        response.each_answer { |name, ttl, value| addrs << (value.respond_to?(:address) ? value.address : nil) }
+        addrs.compact!
         
         return if addrs.empty?
         return addrs.first if addrs.size == 1
