@@ -40,7 +40,7 @@ module Celluloid
         wait :ready
       end
 
-      actor = @actors.pop
+      actor = @actors.shift
       if actor
         @idle_actors -= 1
       else
