@@ -130,10 +130,9 @@ classes instead of the core Ruby TCPSocket and TCPServer classes.
 Status
 ------
 
-The rudiments of TCPServer and TCPSocket are in place and ready to use.
-Several methods are still missing. Making new connections with
-Celluloid::IO::TCPSocket.new works, however it presently does blocking DNS
-resolution and connect so it can stall the reactor loop.
+The rudiments of TCPServer and TCPSocket are in place and ready to use. It is now
+fully nonblocking, including DNS resolution, which effectively makes Celluloid::IO
+feature complete as a nonblocking I/O system.
 
 Basic UDPSocket support is in place. On JRuby, recvfrom makes a blocking call
 as the underlying recvfrom_nonblock call is not supported by JRuby.
