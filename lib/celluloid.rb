@@ -289,8 +289,9 @@ module Celluloid
     # bang methods are async calls
     if meth.to_s.match(/!$/)
       unbanged_meth = meth.to_s.sub(/!$/, '')
-      call = AsyncCall.new(@mailbox, unbanged_meth, args, block)
-
+      args.unshift unbanged_meth
+      
+      call = AsyncCall.new(@mailbox, :__send__, args, block)
       begin
         Thread.current[:actor].mailbox << call
       rescue MailboxError

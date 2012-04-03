@@ -58,6 +58,16 @@ shared_context "a Celluloid Actor" do |included_module|
       def respond_to?(method_name)
         super || delegates?(method_name)
       end
+      
+      def call_private
+        zomg_private!
+      end
+      
+      def zomg_private
+        @private_called = true
+      end
+      private :zomg_private
+      attr_reader :private_called
 
       private
 
@@ -172,6 +182,12 @@ shared_context "a Celluloid Actor" do |included_module|
     actor = actor_class.new "Troy McClure"
     actor.change_name_async "Charlie Sheen"
     actor.greet.should == "Hi, I'm Charlie Sheen"
+  end
+  
+  it "allows an actor to call private methods asynchronously with a bang" do
+    actor = actor_class.new "Troy McClure"
+    actor.call_private
+    actor.private_called.should be_true
   end
 
   it "knows if it's inside actor scope" do
