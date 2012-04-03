@@ -96,7 +96,7 @@ module Celluloid
       @running   = true
       @exclusive = false
 
-      @thread = ThreadPool.get do
+      @thread = InternalPool.get do
         Thread.current[:actor]   = self
         Thread.current[:mailbox] = @mailbox
         run

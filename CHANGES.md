@@ -1,3 +1,10 @@
+0.11.0
+------
+* Celluloid::ThreadPool renamed to Celluloid::InternalPool to emphasize its...
+  internalness
+* Support for asynchronously calling private methods inside actors
+* Async call exception logs now contain the failed method
+
 0.10.0
 ------
 * Celluloid::Actor.current is now the de facto way to obtain the current actor

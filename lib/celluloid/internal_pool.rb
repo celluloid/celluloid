@@ -2,7 +2,7 @@ require 'thread'
 
 module Celluloid
   # Maintain a thread pool FOR SPEED!!
-  module ThreadPool
+  module InternalPool
     @pool = []
     @mutex = Mutex.new
 

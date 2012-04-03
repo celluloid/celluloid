@@ -13,7 +13,7 @@ module Celluloid
 
       if block
         @call = SyncCall.new(self, :call, args)
-        ThreadPool.get do
+        InternalPool.get do
           begin
             @call.dispatch(block)
           rescue
