@@ -1,3 +1,7 @@
+def actor_global_method(var)
+  var * 5
+end
+
 shared_context "a Celluloid Actor" do |included_module|
   class ExampleCrash < StandardError
     attr_accessor :foo
@@ -19,6 +23,12 @@ shared_context "a Celluloid Actor" do |included_module|
 
       def change_name_async(new_name)
         change_name! new_name
+      end
+
+      # This overrides Kernel#actor_global_method, ActorProxy should call this
+      # method and not Kernel#actor_global_method.
+      def actor_global_method(var)
+        var * 3
       end
 
       def greet
@@ -124,6 +134,12 @@ shared_context "a Celluloid Actor" do |included_module|
     actor = actor_class.new "Method Missing"
     actor.should respond_to(:first)
     actor.first.should be == :bar
+  end
+
+  it "properly handles methods defined in Kernel module" do
+    actor = actor_class.new "Kernel"
+    Kernel.send(:actor_global_method, 10).should == 50
+    actor.actor_global_method(10).should == 30
   end
 
   it "raises NoMethodError when a nonexistent method is called" do
