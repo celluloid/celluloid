@@ -1,5 +1,6 @@
-0.11.0
+0.10.1
 ------
+* Celluloid::Pool now provides round-robin distribution among actors
 * Celluloid::ThreadPool renamed to Celluloid::InternalPool to emphasize its...
   internalness
 * Support for asynchronously calling private methods inside actors
