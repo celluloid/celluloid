@@ -7,10 +7,6 @@ describe Celluloid::Registry do
     def sing_for(person)
       "o/~ Happy birthday, #{person}"
     end
-    
-    def whats_your_name
-      Actor.name
-    end
   end
 
   it "registers Actors" do
@@ -31,6 +27,6 @@ describe Celluloid::Registry do
   
   it "knows its name once registered" do
     Celluloid::Actor[:marilyn] = Marilyn.new
-    Celluloid::Actor[:marilyn].whats_your_name.should == :marilyn
+    Celluloid::Actor[:marilyn].name.should == :marilyn
   end
 end

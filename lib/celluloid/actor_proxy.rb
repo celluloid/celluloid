@@ -17,6 +17,10 @@ module Celluloid
       Actor.call @mailbox, :__send__, :class
     end
 
+    def name
+      Actor.call @mailbox, :name
+    end
+
     def is_a?(klass)
       Actor.call @mailbox, :is_a?, klass
     end

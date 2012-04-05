@@ -207,6 +207,11 @@ module Celluloid
     Actor.current
   end
 
+  # Obtain the name of the current actor
+  def name
+    Actor.name
+  end
+
   # Obtain the running tasks for this actor
   def tasks
     Thread.current[:actor].tasks.to_a
