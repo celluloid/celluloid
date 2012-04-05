@@ -6,5 +6,5 @@ require 'celluloid'
 require 'benchmark/ips'
 
 Benchmark.ips do |ips|
-  ips.report("uuid") { |n| Celluloid.uuid }
+  ips.report("uuid") { Celluloid.uuid }
 end
