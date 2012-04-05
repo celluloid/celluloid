@@ -20,7 +20,7 @@ module Celluloid
   # messages.
   class Actor
     extend Registry
-    attr_reader :proxy, :tasks, :links, :mailbox
+    attr_reader :proxy, :tasks, :links, :mailbox, :name
 
     class << self
       # Obtain the current actor
@@ -28,6 +28,13 @@ module Celluloid
         actor = Thread.current[:actor]
         raise NotActorError, "not in actor scope" unless actor
         actor.proxy
+      end
+      
+      # Obtain the name of the current actor
+      def name
+        actor = Thread.current[:actor]
+        raise NotActorError, "not in actor scope" unless actor
+        actor.name
       end
       
       # Invoke a method on the given actor via its mailbox
@@ -95,6 +102,7 @@ module Celluloid
       @timers    = Timers.new
       @running   = true
       @exclusive = false
+      @name      = nil
 
       @thread = InternalPool.get do
         Thread.current[:actor]   = self
@@ -144,6 +152,9 @@ module Celluloid
             message = @mailbox.receive(timeout)
           rescue ExitEvent => exit_event
             Task.new(:exit_handler) { handle_exit_event exit_event }.resume
+            retry
+          rescue NamingRequest => ex
+            @name = ex.name
             retry
           rescue TerminationRequest
             break
