@@ -8,3 +8,6 @@ rvm:
 
 # See https://github.com/rubinius/rubinius/issues/1611
 #  - rbx-19mode
+
+notifications:
+  irc: "irc.freenode.org#celluloid"
