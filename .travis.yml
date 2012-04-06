@@ -5,3 +5,6 @@ rvm:
   - jruby-head
   - rbx-18mode
   - rbx-19mode
+
+notifications:
+  irc: "irc.freenode.org#celluloid"
