@@ -57,7 +57,7 @@ module Celluloid
       
       def method_missing(method, *args, &block)
         if respond_to?(method)
-          future :execute, method, *args, &block
+          execute, method, *args, &block
         else
           super
         end

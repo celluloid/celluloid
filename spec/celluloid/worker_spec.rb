@@ -18,7 +18,7 @@ describe Celluloid::Worker do
   subject { MyWorker.pool }
   
   it "processes work units synchronously" do
-    subject.process.value.should == :done
+    subject.process.should == :done
   end
   
   it "processes work units asynchronously" do
