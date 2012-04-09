@@ -1,9 +1,11 @@
-0.10.1
-------
+HEAD
+----
+* Celluloid::Worker provides a background worker model
 * Celluloid::Pool now provides round-robin distribution among actors
-* Celluloid::ThreadPool renamed to Celluloid::InternalPool to emphasize its...
+* Celluloid::ThreadPool renamed to Celluloid::InternalPool to emphasize its
   internalness
 * Support for asynchronously calling private methods inside actors
+* Future is now an instance method on all actors
 * Async call exception logs now contain the failed method
 
 0.10.0

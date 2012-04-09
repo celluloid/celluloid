@@ -288,6 +288,11 @@ module Celluloid
     # Celluloid::Future, which uses an Actor to run the block
     Future.new(&block).value
   end
+  
+  # Handle calls to future within an actor itself
+  def future(meth, *args, &block)
+    Actor.future Thread.current[:actor].mailbox, meth, *args, &block
+  end
 
   # Process async calls via method_missing
   def method_missing(meth, *args, &block)
@@ -296,7 +301,7 @@ module Celluloid
       unbanged_meth = meth.to_s.sub(/!$/, '')
       args.unshift unbanged_meth
       
-      call = AsyncCall.new(@mailbox, :__send__, args, block)
+      call = AsyncCall.new(nil, :__send__, args, block)
       begin
         Thread.current[:actor].mailbox << call
       rescue MailboxError
@@ -338,3 +343,4 @@ require 'celluloid/actor'
 require 'celluloid/future'
 require 'celluloid/group'
 require 'celluloid/supervisor'
+require 'celluloid/worker'
