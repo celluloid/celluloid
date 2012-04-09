@@ -70,8 +70,7 @@ module Celluloid
         options = options.inject({}) { |h,(k,v)| h[k.to_s] = v; h }
 
         @as = options['as']
-        @args = options['args'] || []
-        raise ":args should be an Array" unless @args.kind_of? Array
+        @args = options['args'] ? Array(options['args']) : []
       end
 
       def supervise

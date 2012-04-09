@@ -28,7 +28,7 @@ module Celluloid
         raise ArgumentError, "minimum pool size is 2" if @size && @size < 2
         
         @size ||= [Celluloid.cores, 2].max
-        @args = options[:args]
+        @args = options[:args] ? Array(options[:args]) : []
         
         @worker_class = worker_class
         @idle = @size.times.map { worker_class.new(*@args) }
