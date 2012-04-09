@@ -80,10 +80,11 @@ are the preferred platforms as they support true thread-level parallelism when
 executing Ruby code, whereas MRI/YARV is constrained by a global interpreter
 lock (GIL) and can only execute one thread at a time.
 
-To use JRuby in 1.9 mode, you'll need to pass the "--1.9" command line option
-to the JRuby executable, or set the "JRUBY_OPTS=--1.9" environment variable.
+Celluloid requires Ruby 1.9 mode on all interpreters. This works out of the
+box on MRI/YARV, and requires the following flags elsewhere:
 
-On Rubinius, pass the -X19 flag to use 1.9 mode.
+* JRuby: --1.9 command line option, or JRUBY_OPTS=--1.9 environment variable
+* rbx: -X19 command line option
 
 Additional Reading
 ------------------
