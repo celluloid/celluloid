@@ -24,7 +24,10 @@ module Celluloid
       trap_exit :crash_handler
       
       def initialize(worker_class, options = {})
-        @size = options[:size] || Celluloid.cores
+        @size = options[:size]
+        raise ArgumentError, "minimum pool size is 2" if @size && @size < 2
+        
+        @size ||= Celluloid.cores
         @args = options[:args]
         
         @worker_class = worker_class

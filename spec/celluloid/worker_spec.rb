@@ -21,7 +21,7 @@ describe Celluloid::Worker do
     subject.process.should == :done
   end
   
-  it "processes work units asynchronously", :pending => ENV['CI'] do
+  it "processes work units asynchronously" do
     queue = Queue.new
     subject.process!(queue)
     queue.pop.should == :done
