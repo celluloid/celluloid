@@ -19,7 +19,8 @@ module Celluloid
           @reactor.wakeup unless current_actor && current_actor.mailbox == self
         rescue IOError
           raise MailboxError, "dead recipient"
-        ensure @mutex.unlock
+        ensure
+          @mutex.unlock rescue nil
         end
         nil
       end
@@ -33,14 +34,15 @@ module Celluloid
           @reactor.wakeup unless current_actor && current_actor.mailbox == self
         rescue IOError
           # Silently fail if messages are sent to dead actors
-        ensure @mutex.unlock
+        ensure
+          @mutex.unlock rescue nil
         end
         nil
       end
 
       # Receive a message from the Mailbox
       def receive(timeout = nil, &block)
-        message = next_message(&block)
+        message = next_message(block)
 
         until message
           if timeout
@@ -53,13 +55,23 @@ module Celluloid
           end
           
           @reactor.run_once(wait_interval)
-          message = next_message(&block)
+          message = next_message(block)
         end
 
         message
       rescue IOError
         shutdown # force shutdown of the mailbox
         raise MailboxShutdown, "mailbox shutdown called during receive"
+      end
+      
+      # Obtain the next message from the mailbox that matches the given block
+      def next_message(block)
+        @mutex.lock
+        begin
+          super(&block)
+        ensure
+          @mutex.unlock rescue nil
+        end
       end
 
       # Cleanup any IO objects this Mailbox may be using
