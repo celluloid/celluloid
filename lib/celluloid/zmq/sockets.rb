@@ -1,13 +1,12 @@
 module Celluloid
   module ZMQ
-    attr_reader :linger
-
     class Socket
       # Create a new socket
       def initialize(type)
         @socket = Celluloid::ZMQ.context.socket ::ZMQ.const_get(type.to_s.upcase)
         @linger = 0
       end
+      attr_reader :linger
 
       # Connect to the given 0MQ address
       # Address should be in the form: tcp://1.2.3.4:5678/
