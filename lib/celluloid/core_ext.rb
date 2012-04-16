@@ -10,11 +10,11 @@ class Thread
   end
 
   # Receive a message either as an actor or through the local mailbox
-  def self.receive(&block)
+  def self.receive(timeout = nil, &block)
     if Celluloid.actor?
-      Celluloid.receive(&block)
+      Celluloid.receive(timeout, &block)
     else
-      mailbox.receive(&block)
+      mailbox.receive(timeout, &block)
     end
   end
 end

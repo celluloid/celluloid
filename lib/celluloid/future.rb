@@ -36,7 +36,7 @@ module Celluloid
     end
 
     # Obtain the value for this Future
-    def value
+    def value(timeout = nil)
       ready = result = nil
 
       begin
@@ -61,12 +61,16 @@ module Celluloid
       end
 
       unless ready
-        result = Thread.receive do |msg|
+        result = Thread.receive(timeout) do |msg|
           msg.is_a?(Future::Result) && msg.future == self
         end
       end
 
-      result.value
+      if result
+        result.value
+      else
+        raise "Timed out"
+      end
     end
     alias_method :call, :value
 
