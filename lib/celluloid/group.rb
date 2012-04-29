@@ -2,12 +2,12 @@ module Celluloid
   # Supervise collections of actors as a group
   class Group
     include Celluloid
-    trap_exit :restart_supervisor
+    trap_exit :restart_actor
 
     class << self
       # Actors or sub-applications to be supervised
-      def supervisables
-        @supervisables ||= []
+      def members
+        @members ||= []
       end
 
       # Start this application (and watch it with a supervisor)
@@ -21,7 +21,7 @@ module Celluloid
           # Take five, toplevel supervisor
           sleep 5 while supervisor.alive?
 
-          Logger.error "!!! Celluloid::Application #{self} crashed. Restarting..."
+          Logger.error "!!! Celluloid::Group #{self} crashed. Restarting..."
         end
       end
 
@@ -31,54 +31,60 @@ module Celluloid
       # * as: register this application in the Celluloid::Actor[] directory
       # * args: start the actor with the given arguments
       def supervise(klass, options = {})
-        supervisables << Supervisable.new(klass, options)
+        members << Member.new(klass, options)
       end
     end
 
-    # Start the application
+    # Start the group
     def initialize
-      @supervisors = {}
+      @actors = {}
 
       # This is some serious lolcode, but like... start the supervisors for
-      # this application
-      self.class.supervisables.each do |supervisable|
-        supervisor = supervisable.supervise
-        @supervisors[supervisor] = supervisable
+      # this group
+      self.class.members.each do |member|
+        actor = member.start
+        @actors[actor] = member
       end
     end
 
-    # Restart a crashed supervisor
-    def restart_supervisor(supervisor, reason)
-      supervisable = @supervisors.delete supervisor
-      raise "a supervisable went missing. This shouldn't be!" unless supervisable
+    # Terminate the group
+    def finalize
+      @actors.each do |actor, _|
+        begin
+          actor.terminate
+        rescue DeadActorError
+        end
+      end
+    end
+
+    # Restart a crashed actor
+    def restart_actor(actor, reason)
+      member = @actors.delete actor
+      raise "a group member went missing. This shouldn't be!" unless member
 
       # Ignore supervisors that shut down cleanly
       return unless reason
 
-      supervisor = supervisable.supervise
-      @supervisors[supervisor] = supervisable
+      actor = member.start
+      @actors[actor] = member
     end
 
-    # A subcomponent of an application to be supervised
-    class Supervisable
-      attr_reader :klass, :as, :args
-
+    # A member of the group
+    class Member
       def initialize(klass, options = {})
         @klass = klass
 
         # Stringify keys :/
         options = options.inject({}) { |h,(k,v)| h[k.to_s] = v; h }
 
-        @as = options['as']
+        @name = options['as']
         @args = options['args'] ? Array(options['args']) : []
       end
 
-      def supervise
-        Supervisor.new_link(@as, @klass, *@args)
+      def start
+        actor = @klass.new_link(*@args)
+        Actor[@name] = actor if @name
       end
     end
   end
-
-  # Legacy support for the old name. Going away soon!
-  Application = Group
 end
