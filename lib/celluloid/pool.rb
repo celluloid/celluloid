@@ -1,5 +1,5 @@
 module Celluloid
-  # Pools provide groups of actors which can service requests
+  # DEPRECATED: please use Celluloid::Worker instead
   class Pool
     include Celluloid
     trap_exit :crash_handler
