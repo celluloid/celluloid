@@ -177,6 +177,12 @@ shared_context "a Celluloid Actor" do |included_module|
     actor.change_name! "Charlie Sheen"
     actor.greet.should == "Hi, I'm Charlie Sheen"
   end
+  
+  it "handles asynchronous calls via #async" do
+    actor = actor_class.new "Troy McClure"
+    actor.async :change_name, "Charlie Sheen"
+    actor.greet.should == "Hi, I'm Charlie Sheen"
+  end
 
   it "handles asynchronous calls to itself" do
     actor = actor_class.new "Troy McClure"

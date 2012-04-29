@@ -7,7 +7,7 @@ HEAD
 * Support for asynchronously calling private methods inside actors
 * Future is now an instance method on all actors
 * Async call exception logs now contain the failed method
-* 
+* MyActor#async makes async calls for those who dislike the predicate syntax
 
 0.10.0
 ------

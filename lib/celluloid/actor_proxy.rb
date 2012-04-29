@@ -53,6 +53,12 @@ module Celluloid
     rescue DeadActorError
       "#<Celluloid::Actor(#{@klass}) dead>"
     end
+    
+    # Make an asynchronous call to an actor, for those who don't like the
+    # predicate syntax. TIMTOWTDI!
+    def async(method_name, *args, &block)
+      Actor.async @mailbox, method_name, *args, &block
+    end
 
     # Create a Celluloid::Future which calls a given method
     def future(method_name, *args, &block)
