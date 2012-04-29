@@ -1,5 +1,6 @@
 HEAD
 ----
+* Celluloid::Application constant permanently removed
 * Celluloid::Worker provides a background worker model
 * Celluloid::Pool deprecated in favor of Celluloid::Worker
 * Celluloid::ThreadPool renamed to Celluloid::InternalPool to emphasize its
