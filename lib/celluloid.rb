@@ -285,8 +285,13 @@ module Celluloid
   # messages in its mailbox in the meantime
   def defer(&block)
     # This implementation relies on the present implementation of
-    # Celluloid::Future, which uses an Actor to run the block
+    # Celluloid::Future, which uses a thread from InternalPool to run the block
     Future.new(&block).value
+  end
+  
+  # Handle async calls within an actor itself
+  def async(meth, *args, &block)
+    Actor.async Thread.current[:actor].mailbox, meth, *args, &block
   end
   
   # Handle calls to future within an actor itself
