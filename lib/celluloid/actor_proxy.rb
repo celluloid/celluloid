@@ -7,6 +7,9 @@ module Celluloid
 
     def initialize(mailbox, klass = "Object")
       @mailbox, @klass = mailbox, klass
+      
+      # Cache "unbanged" versions of methods, e.g. :foobar! => :foobar
+      @unbanged_methods = {}
     end
 
     def _send_(meth, *args, &block)
@@ -70,11 +73,13 @@ module Celluloid
 
     # method_missing black magic to call bang predicate methods asynchronously
     def method_missing(meth, *args, &block)
-      meth = meth.to_s
-
       # bang methods are async calls
       if meth.match(/!$/)
-        meth.sub!(/!$/, '')
+        # This operation is idempotent and therefore thread-safe
+        # The worst case is that the string transformation on the right will
+        # run multiple times and make a little more work for the GC
+        meth = @unbanged_methods[meth] ||= meth.to_s.sub(/!$/, '').to_sym
+        
         Actor.async @mailbox, meth, *args, &block
       else
         Actor.call  @mailbox, meth, *args, &block
