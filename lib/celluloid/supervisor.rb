@@ -24,7 +24,7 @@ module Celluloid
     end
 
     def finalize
-      @actor.terminate if @actor
+      @actor.terminate if @actor and @actor.alive?
     end
 
     def start_actor(start_attempts = 3, sleep_interval = 30)
