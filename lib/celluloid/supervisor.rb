@@ -8,12 +8,17 @@ module Celluloid
     # Retrieve the actor this supervisor is supervising
     attr_reader :actor
 
-    def self.supervise(klass, *args, &block)
-      new(nil, klass, *args, &block)
-    end
+    class << self
+      # Define the root of the supervision tree
+      attr_accessor :root
 
-    def self.supervise_as(name, klass, *args, &block)
-      new(name, klass, *args, &block)
+      def supervise(klass, *args, &block)
+        new(nil, klass, *args, &block)
+      end
+
+      def supervise_as(name, klass, *args, &block)
+        new(name, klass, *args, &block)
+      end
     end
 
     def initialize(name, klass, *args, &block)

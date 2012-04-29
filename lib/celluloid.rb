@@ -73,8 +73,11 @@ module Celluloid
         actors = Actor.all
         Logger.info "Terminating #{actors.size} actors..." if actors.size > 0
 
+        # Attempt to shut down the supervision tree, if available
+        Supervisor.root.terminate if Supervisor.root
+
         # Actors cannot self-terminate, you must do it for them
-        terminators = actors.each do |actor|
+        terminators = Actor.all.each do |actor|
           begin
             actor.future(:terminate)
           rescue DeadActorError, MailboxError
