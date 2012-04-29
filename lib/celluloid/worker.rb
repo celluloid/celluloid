@@ -31,27 +31,35 @@ module Celluloid
         @args = options[:args] ? Array(options[:args]) : []
         
         @worker_class = worker_class
-        @idle = @size.times.map { worker_class.new(*@args) }
+        @idle = @size.times.map { worker_class.new_link(*@args) }
       end
       
       # Execute the given method within a worker
       def execute(method, *args, &block)
-        wait :ready while @idle.empty?
-        worker = @idle.shift
+        worker = provision_worker
         
         begin
-          worker.send method, *args, &block
+          worker._send_ method, *args, &block
         ensure
-          if worker.alive?
-            @idle << worker
-            signal :ready if @idle.size == 1
-          end
+          @idle << worker if worker.alive?
         end
       end
       
+      # Provision a new worker
+      def provision_worker
+        while @idle.empty?
+          # Using exclusive mode blocks incoming messages, so they don't pile
+          # up as waiting Celluloid::Tasks
+          response = exclusive { receive { |msg| msg.is_a? Response } }
+          Thread.current[:actor].handle_message(response)
+        end
+        @idle.shift
+      end
+
       # Spawn a new worker for every crashed one
-      def crash_handler
-        @idle << worker_class.new(*args)
+      def crash_handler(actor, reason)
+        return unless reason # don't restart workers that exit cleanly
+        @idle << @worker_class.new_link(*@args)
       end
       
       def respond_to?(method)
