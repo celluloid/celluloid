@@ -23,6 +23,10 @@ module Celluloid
       start_actor
     end
 
+    def finalize
+      @actor.terminate if @actor
+    end
+
     def start_actor(start_attempts = 3, sleep_interval = 30)
       failures = 0
 
