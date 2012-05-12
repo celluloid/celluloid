@@ -344,6 +344,7 @@ require 'celluloid/registry'
 require 'celluloid/responses'
 require 'celluloid/signals'
 require 'celluloid/task'
+require 'celluloid/thread_handle'
 require 'celluloid/timers'
 require 'celluloid/uuid'
 

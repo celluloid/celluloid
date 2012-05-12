@@ -94,7 +94,6 @@ module Celluloid
     def initialize(subject)
       @subject   = subject
       @mailbox   = subject.class.mailbox_factory
-      @proxy     = ActorProxy.new(@mailbox, subject.class.to_s)
       @tasks     = Set.new
       @links     = Links.new
       @signals   = Signals.new
@@ -104,11 +103,13 @@ module Celluloid
       @exclusive = false
       @name      = nil
 
-      @thread = InternalPool.get do
+      handle = ThreadHandle.new do
         Thread.current[:actor]   = self
         Thread.current[:mailbox] = @mailbox
         run
       end
+      
+      @proxy = ActorProxy.new(@mailbox, handle, subject.class.to_s)
     end
 
     # Is this actor running in exclusive mode?
