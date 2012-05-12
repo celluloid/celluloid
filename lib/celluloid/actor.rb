@@ -174,8 +174,9 @@ module Celluloid
       end
 
       shutdown
-    rescue => ex
+    rescue Exception => ex
       handle_crash(ex)
+      raise unless ex.is_a? StandardError
     end
 
     # How long to wait until the next timer fires
