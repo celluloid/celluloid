@@ -73,7 +73,7 @@ module Celluloid
     # The timer system is guaranteed (at least by the specs) to be this precise
     # during normal operation. Long blocking calls within actors will delay the
     # firing of timers
-    QUANTUM = 0.05
+    QUANTUM = 0.02
 
     attr_reader :interval, :time, :recurring
 
