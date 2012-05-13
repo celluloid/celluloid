@@ -20,7 +20,7 @@ module Celluloid
   # messages.
   class Actor
     extend Registry
-    attr_reader :proxy, :tasks, :links, :mailbox, :name
+    attr_reader :subject, :proxy, :tasks, :links, :mailbox, :thread, :name
 
     class << self
       # Obtain the current actor
@@ -103,13 +103,13 @@ module Celluloid
       @exclusive = false
       @name      = nil
 
-      handle = ThreadHandle.new do
+      @thread = ThreadHandle.new do
         Thread.current[:actor]   = self
         Thread.current[:mailbox] = @mailbox
         run
       end
       
-      @proxy = ActorProxy.new(@mailbox, handle, subject.class.to_s)
+      @proxy = ActorProxy.new(self)
     end
 
     # Is this actor running in exclusive mode?

@@ -5,8 +5,8 @@ module Celluloid
   class ActorProxy
     attr_reader :mailbox
 
-    def initialize(mailbox, handle, klass = "Object")
-      @mailbox, @handle, @klass = mailbox, handle, klass
+    def initialize(actor)
+      @mailbox, @thread, @klass = actor.mailbox, actor.thread, actor.subject.class.to_s
       
       # Cache "unbanged" versions of methods, e.g. :foobar! => :foobar
       @unbanged_methods = {}
