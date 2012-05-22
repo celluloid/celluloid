@@ -262,7 +262,8 @@ module Celluloid
 
     # Run the user-defined finalizer, if one is set
     def run_finalizer
-      @subject.finalize if @subject.respond_to? :finalize
+      return unless @subject.respond_to? :finalize
+      Task.new(:finalizer) { @subject.finalize }.resume
     rescue => ex
       Logger.crash("#{@subject.class}#finalize crashed!", ex)
     end
