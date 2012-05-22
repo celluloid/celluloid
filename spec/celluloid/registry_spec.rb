@@ -29,4 +29,14 @@ describe Celluloid::Registry do
     Celluloid::Actor[:marilyn] = Marilyn.new
     Celluloid::Actor[:marilyn].name.should == :marilyn
   end
+
+  describe :clear do
+    it "should return a hash of registered actors and remove them from the registry" do
+      Celluloid::Actor[:marilyn] ||= Marliyn.new
+      rval = Celluloid::Actor.clear_registry
+      rval.should be_kind_of(Hash)
+      rval.should have_key(:marilyn)
+      rval[:marilyn].wrapped_object.should be_instance_of(Marilyn)
+    end
+  end
 end
