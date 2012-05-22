@@ -86,6 +86,13 @@ module Celluloid
         message
       end
       alias_method :<<, :send
+
+      def send_multiple(messages)
+        unless ::ZMQ::Util.resultcode_ok? @socket.send_strings(messages, flags)
+          raise IOError, "error sending 0MQ message: #{::ZMQ::Util.error_string}"
+        end
+        messages
+      end
     end
 
     # ReqSockets are the counterpart of RepSockets (REQ/REP)
