@@ -88,7 +88,7 @@ module Celluloid
       alias_method :<<, :send
 
       def send_multiple(messages)
-        unless ::ZMQ::Util.resultcode_ok? @socket.send_strings(messages, flags)
+        unless ::ZMQ::Util.resultcode_ok? @socket.send_strings(messages)
           raise IOError, "error sending 0MQ message: #{::ZMQ::Util.error_string}"
         end
         messages
