@@ -76,6 +76,15 @@ module Celluloid
       raise DeadActorError, "actor already terminated" unless alive?
       @mailbox.system_event TerminationRequest.new
     end
+    
+    # Forcibly kill a given actor
+    def kill
+      @thread.kill
+      begin
+        @mailbox.shutdown
+      rescue DeadActorError
+      end
+    end
 
     # method_missing black magic to call bang predicate methods asynchronously
     def method_missing(meth, *args, &block)

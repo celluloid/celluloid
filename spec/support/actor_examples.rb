@@ -249,6 +249,14 @@ shared_context "a Celluloid Actor" do |included_module|
       sleep 0.5 # hax
       actor.should_not be_alive
     end
+    
+    it "kills" do
+      actor = actor_class.new "Woody Harrelson"
+      actor.should be_alive
+      actor.kill
+      sleep 0.5 # hax
+      actor.should_not be_alive
+    end
 
     it "raises DeadActorError if called after terminated" do
       actor = actor_class.new "Arnold Schwarzenegger"
