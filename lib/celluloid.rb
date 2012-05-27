@@ -141,6 +141,11 @@ module Celluloid
     def pool(options = {})
       PoolManager.new(self, options)
     end
+    
+    # Run an actor in the foreground
+    def run(*args, &block)
+      new(*args, &block).join
+    end
 
     # Trap errors from actors we're linked to when they exit
     def trap_exit(callback)
