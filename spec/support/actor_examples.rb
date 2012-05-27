@@ -246,7 +246,7 @@ shared_context "a Celluloid Actor" do |included_module|
       actor = actor_class.new "Arnold Schwarzenegger"
       actor.should be_alive
       actor.terminate
-      sleep 0.5 # hax
+      actor.join
       actor.should_not be_alive
     end
     
@@ -254,7 +254,7 @@ shared_context "a Celluloid Actor" do |included_module|
       actor = actor_class.new "Woody Harrelson"
       actor.should be_alive
       actor.kill
-      sleep 0.5 # hax
+      actor.join
       actor.should_not be_alive
     end
 
