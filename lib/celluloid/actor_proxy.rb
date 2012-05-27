@@ -81,12 +81,16 @@ module Celluloid
     def method_missing(meth, *args, &block)
       # bang methods are async calls
       if meth.match(/!$/)
-        # This operation is idempotent and therefore thread-safe
-        # The worst case is that the string transformation on the right will
-        # run multiple times and make a little more work for the GC
-        meth = @unbanged_methods[meth] ||= meth.to_s.sub(/!$/, '').to_sym
+        # Cache "unbanged" symbol names
+        unless unbanged_meth = @unbanged_methods[meth]
+          unbanged_meth = meth.to_s.sub(/!$/, '').to_sym
+          
+          unbanged_methods = @unbanged_methods.dup
+          unbanged_methods[meth] = unbanged_meth
+          @unbanged_methods = unbanged_methods
+        end
         
-        Actor.async @mailbox, meth, *args, &block
+        Actor.async @mailbox, unbanged_meth, *args, &block
       else
         Actor.call  @mailbox, meth, *args, &block
       end
