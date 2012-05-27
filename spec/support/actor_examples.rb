@@ -410,7 +410,7 @@ shared_context "a Celluloid Actor" do |included_module|
       received_obj.should == message
     end
 
-    it "times out after the given interval" do
+    it "times out after the given interval", :pending => ENV['CI'] do
       interval = 0.1
       started_at = Time.now
 
