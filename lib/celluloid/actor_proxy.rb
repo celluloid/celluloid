@@ -7,9 +7,6 @@ module Celluloid
 
     def initialize(actor)
       @mailbox, @thread, @klass = actor.mailbox, actor.thread, actor.subject.class.to_s
-      
-      # Cache "unbanged" versions of methods, e.g. :foobar! => :foobar
-      @unbanged_methods = {}
     end
 
     def _send_(meth, *args, &block)
@@ -95,15 +92,8 @@ module Celluloid
     def method_missing(meth, *args, &block)
       # bang methods are async calls
       if meth.match(/!$/)
-        # Cache "unbanged" symbol names
-        unless unbanged_meth = @unbanged_methods[meth]
-          unbanged_meth = meth.to_s.sub(/!$/, '').to_sym
-          
-          unbanged_methods = @unbanged_methods.dup
-          unbanged_methods[meth] = unbanged_meth
-          @unbanged_methods = unbanged_methods
-        end
-        
+        unbanged_meth = meth.to_s
+        unbanged_meth.slice!(-1, 1)
         Actor.async @mailbox, unbanged_meth, *args, &block
       else
         Actor.call  @mailbox, meth, *args, &block
