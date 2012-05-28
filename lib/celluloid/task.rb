@@ -46,6 +46,7 @@ module Celluloid
         rescue TerminatedError
           # Task was explicitly terminated
         ensure
+          @status = :dead
           actor.tasks.delete self
         end
       end
