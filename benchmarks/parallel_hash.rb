@@ -4,7 +4,7 @@ require 'rubygems'
 require 'bundler/setup'
 require 'celluloid'
 require 'benchmark/ips'
-require File.expand_path("../../examples/worker", __FILE__)
+require File.expand_path("../../examples/pool", __FILE__)
 
 pool = Rehasher.new
 
