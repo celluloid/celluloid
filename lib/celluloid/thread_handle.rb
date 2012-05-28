@@ -19,14 +19,17 @@ module Celluloid
       end
     end
     
+    # Is the thread running?
     def alive?
       @mutex.synchronize { @thread.alive? if @thread }
     end
     
+    # Forcibly kill the thread
     def kill
       !!@mutex.synchronize { @thread.kill if @thread }
     end
     
+    # Join to a running thread, blocking until it terminates
     def join
       @mutex.synchronize { @join.wait(@mutex) if @thread }
       nil
