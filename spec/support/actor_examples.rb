@@ -550,10 +550,8 @@ shared_context "a Celluloid Actor" do |included_module|
     it "knows which tasks are waiting on calls to other actors" do
       actor = @klass.new
 
-      # an alias for Celluloid::Actor#waiting_tasks
       tasks = actor.tasks
       tasks.size.should == 1
-      tasks.first.status.should == :running
 
       future = actor.future(:blocking_call)
       sleep 0.1 # hax! waiting for ^^^ call to actually start
