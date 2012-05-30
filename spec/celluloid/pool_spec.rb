@@ -2,6 +2,8 @@ require 'spec_helper'
 
 describe "Celluloid.pool" do
   before do
+    class ExampleError < StandardError; end
+    
     class MyWorker
       include Celluloid
       
@@ -11,6 +13,10 @@ describe "Celluloid.pool" do
         else
           :done
         end
+      end
+      
+      def crash
+        raise ExampleError, "zomgcrash"
       end
     end
   end
@@ -25,5 +31,10 @@ describe "Celluloid.pool" do
     queue = Queue.new
     subject.process!(queue)
     queue.pop.should == :done
+  end
+  
+  it "handles crashes" do
+    expect { subject.crash }.to raise_error(ExampleError)
+    subject.process.should == :done
   end
 end

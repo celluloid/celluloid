@@ -22,6 +22,8 @@ module Celluloid
       
       begin
         worker._send_ method, *args, &block
+      rescue => ex
+        abort ex
       ensure
         @idle << worker if worker.alive?
       end
