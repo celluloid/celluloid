@@ -3,6 +3,8 @@ HEAD
 * Celluloid::Application constant permanently removed
 * Celluloid::Worker provides a background worker model
 * Celluloid::Pool removed in favor of Celluloid.pool
+* Celluloid::Group renamed to Celluloid::SupervisionGroup, old name is
+  still available and has not been deprecated
 * Celluloid::ThreadPool renamed to Celluloid::InternalPool to emphasize its
   internalness
 * Support for asynchronously calling private methods inside actors

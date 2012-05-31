@@ -368,6 +368,6 @@ require 'celluloid/uuid'
 
 require 'celluloid/actor'
 require 'celluloid/future'
-require 'celluloid/group'
 require 'celluloid/pool_manager'
+require 'celluloid/supervision_group'
 require 'celluloid/supervisor'

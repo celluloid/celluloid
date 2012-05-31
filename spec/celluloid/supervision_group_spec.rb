@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Celluloid::Group do
+describe Celluloid::SupervisionGroup do
   before :all do
     class MyActor
       include Celluloid
@@ -8,7 +8,7 @@ describe Celluloid::Group do
       def running?; :yep; end
     end
 
-    class MyGroup < Celluloid::Group
+    class MyGroup < Celluloid::SupervisionGroup
       supervise MyActor, :as => :example
     end
   end

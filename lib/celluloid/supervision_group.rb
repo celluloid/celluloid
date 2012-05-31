@@ -1,6 +1,6 @@
 module Celluloid
   # Supervise collections of actors as a group
-  class Group
+  class SupervisionGroup
     include Celluloid
     trap_exit :restart_actor
 
@@ -87,4 +87,7 @@ module Celluloid
       end
     end
   end
+
+  # Legacy support for the old name
+  Group = SupervisionGroup
 end
