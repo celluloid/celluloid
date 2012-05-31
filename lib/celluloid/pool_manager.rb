@@ -42,6 +42,7 @@ module Celluloid
 
     # Spawn a new worker for every crashed one
     def crash_handler(actor, reason)
+      @idle.delete actor
       return unless reason # don't restart workers that exit cleanly
       @idle << @worker_class.new_link(*@args)
     end
