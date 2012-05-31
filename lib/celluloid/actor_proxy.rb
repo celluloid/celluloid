@@ -50,7 +50,7 @@ module Celluloid
     rescue DeadActorError
       "#<Celluloid::Actor(#{@klass}) dead>"
     end
-    
+
     # Make an asynchronous call to an actor, for those who don't like the
     # predicate syntax. TIMTOWTDI!
     def async(method_name, *args, &block)
@@ -73,7 +73,7 @@ module Celluloid
       raise DeadActorError, "actor already terminated" unless alive?
       @mailbox.system_event TerminationRequest.new
     end
-    
+
     # Forcibly kill a given actor
     def kill
       @thread.kill
@@ -82,7 +82,7 @@ module Celluloid
       rescue DeadActorError
       end
     end
-    
+
     # Wait for an actor to terminate
     def join
       @thread.join

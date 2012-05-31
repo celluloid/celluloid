@@ -29,14 +29,14 @@ module Celluloid
         raise NotActorError, "not in actor scope" unless actor
         actor.proxy
       end
-      
+
       # Obtain the name of the current actor
       def name
         actor = Thread.current[:actor]
         raise NotActorError, "not in actor scope" unless actor
         actor.name
       end
-      
+
       # Invoke a method on the given actor via its mailbox
       def call(mailbox, meth, *args, &block)
         call = SyncCall.new(Thread.mailbox, meth, args, block)
@@ -108,7 +108,7 @@ module Celluloid
         Thread.current[:mailbox] = @mailbox
         run
       end
-      
+
       @proxy = ActorProxy.new(self)
     end
 

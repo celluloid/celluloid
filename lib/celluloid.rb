@@ -132,7 +132,7 @@ module Celluloid
     def supervise_as(name, *args, &block)
       Supervisor.supervise_as(name, self, *args, &block)
     end
-    
+
     # Create a new pool of workers. Accepts the following options:
     #
     # * size: how many workers to create. Default is worker per CPU core
@@ -141,7 +141,7 @@ module Celluloid
     def pool(options = {})
       PoolManager.new(self, options)
     end
-    
+
     # Run an actor in the foreground
     def run(*args, &block)
       new(*args, &block).join
@@ -310,12 +310,12 @@ module Celluloid
     # Celluloid::Future, which uses a thread from InternalPool to run the block
     Future.new(&block).value
   end
-  
+
   # Handle async calls within an actor itself
   def async(meth, *args, &block)
     Actor.async Thread.current[:actor].mailbox, meth, *args, &block
   end
-  
+
   # Handle calls to future within an actor itself
   def future(meth, *args, &block)
     Actor.future Thread.current[:actor].mailbox, meth, *args, &block
@@ -327,7 +327,7 @@ module Celluloid
     if meth.to_s.match(/!$/)
       unbanged_meth = meth.to_s.sub(/!$/, '')
       args.unshift unbanged_meth
-      
+
       call = AsyncCall.new(nil, :__send__, args, block)
       begin
         Thread.current[:actor].mailbox << call

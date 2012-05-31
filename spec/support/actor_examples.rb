@@ -62,11 +62,11 @@ shared_context "a Celluloid Actor" do |included_module|
       def respond_to?(method_name)
         super || delegates?(method_name)
       end
-      
+
       def call_private
         zomg_private!
       end
-      
+
       def zomg_private
         @private_called = true
       end
@@ -200,7 +200,7 @@ shared_context "a Celluloid Actor" do |included_module|
     actor.change_name! "Charlie Sheen"
     actor.greet.should == "Hi, I'm Charlie Sheen"
   end
-  
+
   it "handles asynchronous calls via #async" do
     actor = actor_class.new "Troy McClure"
     actor.async :change_name, "Charlie Sheen"
@@ -212,7 +212,7 @@ shared_context "a Celluloid Actor" do |included_module|
     actor.change_name_async "Charlie Sheen"
     actor.greet.should == "Hi, I'm Charlie Sheen"
   end
-  
+
   it "allows an actor to call private methods asynchronously with a bang" do
     actor = actor_class.new "Troy McClure"
     actor.call_private
@@ -272,7 +272,7 @@ shared_context "a Celluloid Actor" do |included_module|
       actor.join
       actor.should_not be_alive
     end
-    
+
     it "kills" do
       actor = actor_class.new "Woody Harrelson"
       actor.should be_alive
