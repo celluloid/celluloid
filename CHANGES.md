@@ -1,5 +1,5 @@
-HEAD
-----
+0.11.0
+------
 * Celluloid::Application constant permanently removed
 * Celluloid::Worker provides a background worker model
 * Celluloid::Pool removed in favor of Celluloid.pool
