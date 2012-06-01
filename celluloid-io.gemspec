@@ -15,7 +15,7 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
   gem.version       = Celluloid::IO::VERSION
 
-  gem.add_dependency 'celluloid', '~> 0.10.0'
+  gem.add_dependency 'celluloid', '~> 0.11.0'
   gem.add_dependency 'nio4r',     '>= 0.3.1'
   
   gem.add_development_dependency 'rake'
