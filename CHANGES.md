@@ -11,6 +11,8 @@ HEAD
 * Future is now an instance method on all actors
 * Async call exception logs now contain the failed method
 * MyActor#async makes async calls for those who dislike the predicate syntax
+* abort can now accept a string instead of an exception object and will raise
+  RuntimeError in the caller's context
 
 0.10.0
 ------
