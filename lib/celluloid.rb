@@ -142,6 +142,11 @@ module Celluloid
       PoolManager.new(self, options)
     end
 
+    # Same as pool, but links to the pool manager
+    def pool_link(options = {})
+      PoolManager.new_link(self, options)
+    end
+
     # Run an actor in the foreground
     def run(*args, &block)
       new(*args, &block).join

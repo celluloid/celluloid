@@ -36,7 +36,7 @@ module Celluloid
 
       # Register a pool of actors to be launched on group startup
       def pool(klass)
-        members << Member.new(klass, method: 'pool')
+        members << Member.new(klass, method: 'pool_link')
       end
     end
 
