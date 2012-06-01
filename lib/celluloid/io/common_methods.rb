@@ -61,22 +61,32 @@ module Celluloid
         Actor.current.signal(self)
       end
 
-      def read(length, buffer = nil)
+      def read(length = nil, buffer = nil)
         buffer ||= ''
         remaining = length
 
         acquire_ownership :r
         begin
-          until remaining.zero?
-            begin
-              str = readpartial(remaining)
-            rescue EOFError
-              return if length == remaining
-              return buffer
-            end
+          if length
+            until remaining.zero?
+              begin
+                str = readpartial(remaining)
+              rescue EOFError
+                return if length == remaining
+                return buffer
+              end
 
-            buffer << str
-            remaining -= str.length
+              buffer << str
+              remaining -= str.length
+            end
+          else
+            while true
+              begin
+                buffer << read_nonblock(Socket::SO_RCVBUF)
+              rescue Errno::EAGAIN, EOFError
+                return buffer
+              end
+            end
           end
         ensure
           release_ownership :r
