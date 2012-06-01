@@ -11,8 +11,8 @@ Gem::Specification.new do |gem|
   gem.name          = "celluloid-zmq"
   gem.version       = Celluloid::ZMQ::VERSION
 
-  gem.add_dependency "celluloid",    "~> 0.10.0"
-  gem.add_dependency "celluloid-io", "~> 0.10.0"
+  gem.add_dependency "celluloid",    "~> 0.11.0"
+  gem.add_dependency "celluloid-io", "~> 0.11.0"
   gem.add_dependency "ffi"
   gem.add_dependency "ffi-rzmq"
 
