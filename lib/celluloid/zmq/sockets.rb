@@ -91,6 +91,7 @@ module Celluloid
     # ReqSockets are the counterpart of RepSockets (REQ/REP)
     class ReqSocket < Socket
       include ReadableSocket
+      include WritableSocket
 
       def initialize
         super :req
@@ -99,6 +100,7 @@ module Celluloid
 
     # RepSockets are the counterpart of ReqSockets (REQ/REP)
     class RepSocket < Socket
+      include ReadableSocket
       include WritableSocket
 
       def initialize
