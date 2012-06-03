@@ -1,7 +1,6 @@
 0.11.0
 ------
 * Celluloid::Application constant permanently removed
-* Celluloid::Worker provides a background worker model
 * Celluloid::Pool removed in favor of Celluloid.pool
 * Celluloid::Group renamed to Celluloid::SupervisionGroup, old name is
   still available and has not been deprecated
