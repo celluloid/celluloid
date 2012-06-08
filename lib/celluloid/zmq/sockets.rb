@@ -83,7 +83,7 @@ module Celluloid
           raise IOError, "error sending 0MQ message: #{::ZMQ::Util.error_string}"
         end
 
-        message
+        messages
       end
       alias_method :<<, :send
     end
