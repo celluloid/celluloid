@@ -149,9 +149,7 @@ module Celluloid
     def run
       begin
         while @running
-          message = @mailbox.receive(timeout)
-
-          if message
+          if message = @mailbox.receive(timeout)
             handle_message message
           else
             # No message indicates a timeout
