@@ -25,7 +25,9 @@ end
 Benchmark.ips do |ips|
   ips.report("spawn")       { ExampleActor.new.terminate }
   ips.report("calls")       { example_actor.example_method }
-  ips.report("async calls") { example_actor.example_method! }
+  
+  # FIXME: deadlock?! o_O
+  ips.report("async calls") { example_actor.example_method! } unless RUBY_ENGINE == 'ruby'
   
   ips.report("messages") do |n|
     latch_in << n
