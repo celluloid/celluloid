@@ -1,3 +1,4 @@
+script: rake ci
 rvm:
   - 1.9.3
   - ruby-head
