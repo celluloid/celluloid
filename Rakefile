@@ -1,4 +1,5 @@
 require "bundler/gem_tasks"
 Dir["tasks/**/*.task"].each { |task| load task }
 
-task :default => %w(spec benchmark)
+task :default => :spec
+task :ci      => %w(spec benchmark)
