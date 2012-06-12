@@ -6,10 +6,5 @@ rvm:
 #  - jruby-head # FIXME: timers firing in the wrong order?
   - rbx-19mode
 
-jdk:
-  - openjdk7
-  - oraclejdk7
-  - openjdk6
-
 notifications:
   irc: "irc.freenode.org#celluloid"
