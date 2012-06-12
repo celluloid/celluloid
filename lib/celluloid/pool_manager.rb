@@ -34,7 +34,13 @@ module Celluloid
       while @idle.empty?
         # Using exclusive mode blocks incoming messages, so they don't pile
         # up as waiting Celluloid::Tasks
-        response = exclusive { receive { |msg| msg.is_a? Response } }
+        begin
+          response = exclusive { receive { |msg| msg.is_a? Response } }
+        rescue SystemEvent => event
+          Thread.current[:actor].handle_system_event(event)
+          retry
+        end
+
         Thread.current[:actor].handle_message(response)
       end
       @idle.shift
