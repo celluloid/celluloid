@@ -149,17 +149,7 @@ module Celluloid
     def run
       begin
         while @running
-          begin
-            message = @mailbox.receive(timeout)
-          rescue ExitEvent => exit_event
-            Task.new(:exit_handler) { handle_exit_event exit_event }.resume
-            retry
-          rescue NamingRequest => ex
-            @name = ex.name
-            retry
-          rescue TerminationRequest
-            break
-          end
+          message = @mailbox.receive(timeout)
 
           if message
             handle_message message
@@ -169,6 +159,9 @@ module Celluloid
             @receivers.fire_timers
           end
         end
+      rescue SystemEvent => event
+        handle_system_event event
+        retry
       rescue MailboxShutdown
         # If the mailbox detects shutdown, exit the actor
       end
@@ -218,7 +211,7 @@ module Celluloid
       end
     end
 
-    # Handle an incoming message
+    # Handle standard low-priority messages
     def handle_message(message)
       case message
       when Call
@@ -229,6 +222,18 @@ module Celluloid
         @receivers.handle_message(message)
       end
       message
+    end
+
+    # Handle high-priority system event messages
+    def handle_system_event(event)
+      case event
+      when ExitEvent
+        Task.new(:exit_handler) { handle_exit_event event }.resume
+      when NamingRequest
+        @name = event.name
+      when TerminationRequest
+        @running = false
+      end
     end
 
     # Handle exit events received by this actor
