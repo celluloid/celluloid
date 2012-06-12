@@ -1,6 +1,7 @@
 module Celluloid
   # Manages a fixed-size pool of workers
   # Delegates work (i.e. methods) and supervises workers
+  # Don't use this class directly. Instead use MyKlass.pool
   class PoolManager
     include Celluloid
     trap_exit :crash_handler
@@ -16,21 +17,50 @@ module Celluloid
       @idle = @size.times.map { worker_class.new_link(*@args) }
     end
 
-    # Execute the given method within a worker
-    def execute(method, *args, &block)
-      worker = provision_worker
+    def _send_(method, *args, &block)
+      worker = __provision_worker
 
       begin
         worker._send_ method, *args, &block
-      rescue => ex
+      rescue Exception => ex
         abort ex
       ensure
         @idle << worker if worker.alive?
       end
     end
 
+    # FIXME: This is a rather silly approach that could return the wrong value
+    # in certain cases. A better solution would be nice.
+    def class
+      @worker_class ? @worker_class : super
+    end
+
+    def name
+      _send_ @mailbox, :name
+    end
+
+    def is_a?(klass)
+      _send_ :is_a?, klass
+    end
+
+    def kind_of?(klass)
+      _send_ :kind_of?, klass
+    end
+
+    def methods(include_ancestors = true)
+      _send_ :methods, include_ancestors
+    end
+
+    def to_s
+      _send_ :to_s
+    end
+
+    def inspect
+      _send_ :inspect
+    end
+
     # Provision a new worker
-    def provision_worker
+    def __provision_worker
       while @idle.empty?
         # Using exclusive mode blocks incoming messages, so they don't pile
         # up as waiting Celluloid::Tasks
@@ -59,7 +89,7 @@ module Celluloid
 
     def method_missing(method, *args, &block)
       if respond_to?(method)
-        execute method, *args, &block
+        _send_ method, *args, &block
       else
         super
       end

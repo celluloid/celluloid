@@ -37,4 +37,8 @@ describe "Celluloid.pool" do
     expect { subject.crash }.to raise_error(ExampleError)
     subject.process.should == :done
   end
+
+  it "reports the correct class for workers" do
+    subject.class.should == MyWorker
+  end
 end

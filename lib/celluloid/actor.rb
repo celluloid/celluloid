@@ -92,8 +92,10 @@ module Celluloid
 
     # Wrap the given subject with an Actor
     def initialize(subject)
-      @subject   = subject
-      @mailbox   = subject.class.mailbox_factory
+      @subject      = subject
+      @mailbox      = subject.class.mailbox_factory
+      @exit_handler = subject.class.exit_handler
+
       @tasks     = Set.new
       @links     = Links.new
       @signals   = Signals.new
@@ -235,15 +237,13 @@ module Celluloid
     end
 
     # Handle exit events received by this actor
-    def handle_exit_event(exit_event)
-      exit_handler = @subject.class.exit_handler
-      if exit_handler
-        return @subject.send(exit_handler, exit_event.actor, exit_event.reason)
-      end
+    def handle_exit_event(event)
+      # Run the exit handler if available
+      return @subject.send(@exit_handler, event.actor, event.reason) if @exit_handler
 
       # Reraise exceptions from linked actors
       # If no reason is given, actor terminated cleanly
-      raise exit_event.reason if exit_event.reason
+      raise event.reason if event.reason
     end
 
     # Handle any exceptions that occur within a running actor
