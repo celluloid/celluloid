@@ -37,6 +37,7 @@ describe Celluloid::Registry do
       rval.should be_kind_of(Hash)
       rval.should have_key(:marilyn)
       rval[:marilyn].wrapped_object.should be_instance_of(Marilyn)
+      Celluloid::Actor.registered.should be_empty
     end
   end
 end
