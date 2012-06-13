@@ -39,6 +39,10 @@ shared_context "a Celluloid Actor" do |included_module|
         abort example_crash
       end
 
+      def crash_with_abort_raw(reason)
+        abort reason
+      end
+
       def internal_hello
         external_hello
       end
@@ -58,11 +62,11 @@ shared_context "a Celluloid Actor" do |included_module|
       def respond_to?(method_name)
         super || delegates?(method_name)
       end
-      
+
       def call_private
         zomg_private!
       end
-      
+
       def zomg_private
         @private_called = true
       end
@@ -142,25 +146,44 @@ shared_context "a Celluloid Actor" do |included_module|
     end.to raise_exception(ExampleCrash)
   end
 
-  it "raises exceptions in the caller when abort is called, but keeps running" do
-    actor = actor_class.new "Al Pacino"
+  describe "when #abort is called" do
+    it "raises exceptions in the caller but keeps running" do
+      actor = actor_class.new "Al Pacino"
 
-    e = nil
-    line_no = nil
+      e = nil
+      line_no = nil
 
-    expect do
-      begin
-        line_no = __LINE__; actor.crash_with_abort "You die motherfucker!", :bar
-      rescue => ex
-        e = ex
-        raise
-      end
-    end.to raise_exception(ExampleCrash, "You die motherfucker!")
+      expect do
+        begin
+          line_no = __LINE__; actor.crash_with_abort "You die motherfucker!", :bar
+        rescue => ex
+          e = ex
+          raise
+        end
+      end.to raise_exception(ExampleCrash, "You die motherfucker!")
 
-    e.backtrace.any? { |line| line.include?([__FILE__, line_no].join(':')) }.should be_true # Check the backtrace is appropriate to the caller
-    e.foo.should be == :bar # Check the exception maintains instance variables
+      e.backtrace.any? { |line| line.include?([__FILE__, line_no].join(':')) }.should be_true # Check the backtrace is appropriate to the caller
+      e.foo.should be == :bar # Check the exception maintains instance variables
 
-    actor.should be_alive
+      actor.should be_alive
+    end
+
+    it "converts strings to runtime errors" do
+      actor = actor_class.new "Al Pacino"
+      expect do
+        actor.crash_with_abort_raw "foo"
+      end.to raise_exception(RuntimeError, "foo")
+    end
+
+    it "crashes the caller if we pass neither String nor Exception" do
+      actor = actor_class.new "Al Pacino"
+      expect do
+        actor.crash_with_abort_raw 10
+      end.to raise_exception(TypeError, "Exception object/String expected, but Fixnum received")
+
+      actor.greet rescue nil # Ensure our actor has died.
+      actor.should_not be_alive
+    end
   end
 
   it "raises DeadActorError if methods are synchronously called on a dead actor" do
@@ -177,7 +200,7 @@ shared_context "a Celluloid Actor" do |included_module|
     actor.change_name! "Charlie Sheen"
     actor.greet.should == "Hi, I'm Charlie Sheen"
   end
-  
+
   it "handles asynchronous calls via #async" do
     actor = actor_class.new "Troy McClure"
     actor.async :change_name, "Charlie Sheen"
@@ -189,7 +212,7 @@ shared_context "a Celluloid Actor" do |included_module|
     actor.change_name_async "Charlie Sheen"
     actor.greet.should == "Hi, I'm Charlie Sheen"
   end
-  
+
   it "allows an actor to call private methods asynchronously with a bang" do
     actor = actor_class.new "Troy McClure"
     actor.call_private
@@ -246,7 +269,15 @@ shared_context "a Celluloid Actor" do |included_module|
       actor = actor_class.new "Arnold Schwarzenegger"
       actor.should be_alive
       actor.terminate
-      sleep 0.5 # hax
+      actor.join
+      actor.should_not be_alive
+    end
+
+    it "kills" do
+      actor = actor_class.new "Woody Harrelson"
+      actor.should be_alive
+      actor.kill
+      actor.join
       actor.should_not be_alive
     end
 
@@ -410,7 +441,7 @@ shared_context "a Celluloid Actor" do |included_module|
       received_obj.should == message
     end
 
-    it "times out after the given interval" do
+    it "times out after the given interval", :pending => ENV['CI'] do
       interval = 0.1
       started_at = Time.now
 
@@ -542,10 +573,8 @@ shared_context "a Celluloid Actor" do |included_module|
     it "knows which tasks are waiting on calls to other actors" do
       actor = @klass.new
 
-      # an alias for Celluloid::Actor#waiting_tasks
       tasks = actor.tasks
       tasks.size.should == 1
-      tasks.first.status.should == :running
 
       future = actor.future(:blocking_call)
       sleep 0.1 # hax! waiting for ^^^ call to actually start

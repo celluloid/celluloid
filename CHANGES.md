@@ -1,14 +1,17 @@
-HEAD
-----
+0.11.0
+------
 * Celluloid::Application constant permanently removed
-* Celluloid::Worker provides a background worker model
-* Celluloid::Pool deprecated in favor of Celluloid::Worker
+* Celluloid::Pool removed in favor of Celluloid.pool
+* Celluloid::Group renamed to Celluloid::SupervisionGroup, old name is
+  still available and has not been deprecated
 * Celluloid::ThreadPool renamed to Celluloid::InternalPool to emphasize its
   internalness
 * Support for asynchronously calling private methods inside actors
 * Future is now an instance method on all actors
 * Async call exception logs now contain the failed method
 * MyActor#async makes async calls for those who dislike the predicate syntax
+* abort can now accept a string instead of an exception object and will raise
+  RuntimeError in the caller's context
 
 0.10.0
 ------

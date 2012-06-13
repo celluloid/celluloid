@@ -46,6 +46,7 @@ module Celluloid
         rescue TerminatedError
           # Task was explicitly terminated
         ensure
+          @status = :dead
           actor.tasks.delete self
         end
       end
@@ -57,10 +58,6 @@ module Celluloid
       nil
     rescue FiberError
       raise DeadTaskError, "cannot resume a dead task"
-    rescue RuntimeError => ex
-      # These occur spuriously on 1.9.3 if we shut down an actor with running tasks
-      return if ex.message == ""
-      raise
     end
 
     # Terminate this task

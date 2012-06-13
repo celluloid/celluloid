@@ -7,9 +7,6 @@ module Celluloid
 
     def initialize(actor)
       @mailbox, @thread, @klass = actor.mailbox, actor.thread, actor.subject.class.to_s
-      
-      # Cache "unbanged" versions of methods, e.g. :foobar! => :foobar
-      @unbanged_methods = {}
     end
 
     def _send_(meth, *args, &block)
@@ -53,7 +50,7 @@ module Celluloid
     rescue DeadActorError
       "#<Celluloid::Actor(#{@klass}) dead>"
     end
-    
+
     # Make an asynchronous call to an actor, for those who don't like the
     # predicate syntax. TIMTOWTDI!
     def async(method_name, *args, &block)
@@ -77,16 +74,27 @@ module Celluloid
       @mailbox.system_event TerminationRequest.new
     end
 
+    # Forcibly kill a given actor
+    def kill
+      @thread.kill
+      begin
+        @mailbox.shutdown
+      rescue DeadActorError
+      end
+    end
+
+    # Wait for an actor to terminate
+    def join
+      @thread.join
+    end
+
     # method_missing black magic to call bang predicate methods asynchronously
     def method_missing(meth, *args, &block)
       # bang methods are async calls
       if meth.match(/!$/)
-        # This operation is idempotent and therefore thread-safe
-        # The worst case is that the string transformation on the right will
-        # run multiple times and make a little more work for the GC
-        meth = @unbanged_methods[meth] ||= meth.to_s.sub(/!$/, '').to_sym
-        
-        Actor.async @mailbox, meth, *args, &block
+        unbanged_meth = meth.to_s
+        unbanged_meth.slice!(-1, 1)
+        Actor.async @mailbox, unbanged_meth, *args, &block
       else
         Actor.call  @mailbox, meth, *args, &block
       end

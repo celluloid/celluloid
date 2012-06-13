@@ -13,8 +13,8 @@ require 'celluloid'
 require 'digest/sha2'
 
 class Rehasher
-  include Celluloid::Worker
-  
+  include Celluloid
+
   def rehash(string, rounds)
     raise ArgumentError, "hurr" unless rounds > 1
     penultimate = (rounds - 1).times.inject(string) { |s| Digest::SHA512.digest(s) }
@@ -26,11 +26,11 @@ if $0 == __FILE__
   pool = Rehasher.pool
   puts "Megahashing!"
   if PARALLEL_RUBIES.include?(RUBY_ENGINE)
-    puts "Since you're using a Ruby with parallel execution, this should light up all your cores"
+    puts "Since you're using a Ruby with parallel thread execution, this should light up all your cores"
   elsif RUBY_ENGINE == "ruby"
     puts "Sorry, this Ruby interpreter has a GIL, so this will only use one core"
   end
-  
+
   futures = %w(i am the very model of a modern major general).map do |word|
     pool.future(:rehash, word, 1_000_000)
   end

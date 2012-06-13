@@ -29,14 +29,14 @@ module Celluloid
         raise NotActorError, "not in actor scope" unless actor
         actor.proxy
       end
-      
+
       # Obtain the name of the current actor
       def name
         actor = Thread.current[:actor]
         raise NotActorError, "not in actor scope" unless actor
         actor.name
       end
-      
+
       # Invoke a method on the given actor via its mailbox
       def call(mailbox, meth, *args, &block)
         call = SyncCall.new(Thread.mailbox, meth, args, block)
@@ -92,8 +92,10 @@ module Celluloid
 
     # Wrap the given subject with an Actor
     def initialize(subject)
-      @subject   = subject
-      @mailbox   = subject.class.mailbox_factory
+      @subject      = subject
+      @mailbox      = subject.class.mailbox_factory
+      @exit_handler = subject.class.exit_handler
+
       @tasks     = Set.new
       @links     = Links.new
       @signals   = Signals.new
@@ -108,7 +110,7 @@ module Celluloid
         Thread.current[:mailbox] = @mailbox
         run
       end
-      
+
       @proxy = ActorProxy.new(self)
     end
 
@@ -149,19 +151,7 @@ module Celluloid
     def run
       begin
         while @running
-          begin
-            message = @mailbox.receive(timeout)
-          rescue ExitEvent => exit_event
-            Task.new(:exit_handler) { handle_exit_event exit_event }.resume
-            retry
-          rescue NamingRequest => ex
-            @name = ex.name
-            retry
-          rescue TerminationRequest
-            break
-          end
-
-          if message
+          if message = @mailbox.receive(timeout)
             handle_message message
           else
             # No message indicates a timeout
@@ -169,6 +159,9 @@ module Celluloid
             @receivers.fire_timers
           end
         end
+      rescue SystemEvent => event
+        handle_system_event event
+        retry
       rescue MailboxShutdown
         # If the mailbox detects shutdown, exit the actor
       end
@@ -218,7 +211,7 @@ module Celluloid
       end
     end
 
-    # Handle an incoming message
+    # Handle standard low-priority messages
     def handle_message(message)
       case message
       when Call
@@ -231,16 +224,26 @@ module Celluloid
       message
     end
 
-    # Handle exit events received by this actor
-    def handle_exit_event(exit_event)
-      exit_handler = @subject.class.exit_handler
-      if exit_handler
-        return @subject.send(exit_handler, exit_event.actor, exit_event.reason)
+    # Handle high-priority system event messages
+    def handle_system_event(event)
+      case event
+      when ExitEvent
+        Task.new(:exit_handler) { handle_exit_event event }.resume
+      when NamingRequest
+        @name = event.name
+      when TerminationRequest
+        @running = false
       end
+    end
+
+    # Handle exit events received by this actor
+    def handle_exit_event(event)
+      # Run the exit handler if available
+      return @subject.send(@exit_handler, event.actor, event.reason) if @exit_handler
 
       # Reraise exceptions from linked actors
       # If no reason is given, actor terminated cleanly
-      raise exit_event.reason if exit_event.reason
+      raise event.reason if event.reason
     end
 
     # Handle any exceptions that occur within a running actor
@@ -262,7 +265,8 @@ module Celluloid
 
     # Run the user-defined finalizer, if one is set
     def run_finalizer
-      @subject.finalize if @subject.respond_to? :finalize
+      return unless @subject.respond_to? :finalize
+      Task.new(:finalizer) { @subject.finalize }.resume
     rescue => ex
       Logger.crash("#{@subject.class}#finalize crashed!", ex)
     end

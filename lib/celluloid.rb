@@ -133,6 +133,25 @@ module Celluloid
       Supervisor.supervise_as(name, self, *args, &block)
     end
 
+    # Create a new pool of workers. Accepts the following options:
+    #
+    # * size: how many workers to create. Default is worker per CPU core
+    # * args: array of arguments to pass when creating a worker
+    #
+    def pool(options = {})
+      PoolManager.new(self, options)
+    end
+
+    # Same as pool, but links to the pool manager
+    def pool_link(options = {})
+      PoolManager.new_link(self, options)
+    end
+
+    # Run an actor in the foreground
+    def run(*args, &block)
+      new(*args, &block).join
+    end
+
     # Trap errors from actors we're linked to when they exit
     def trap_exit(callback)
       @exit_handler = callback.to_sym
@@ -177,6 +196,11 @@ module Celluloid
 
   # Raise an exception in caller context, but stay running
   def abort(cause)
+    cause = case cause
+      when String then RuntimeError.new(cause)
+      when Exception then cause
+      else raise TypeError, "Exception object/String expected, but #{cause.class} received"
+    end
     raise AbortError.new(cause)
   end
 
@@ -291,12 +315,12 @@ module Celluloid
     # Celluloid::Future, which uses a thread from InternalPool to run the block
     Future.new(&block).value
   end
-  
+
   # Handle async calls within an actor itself
   def async(meth, *args, &block)
     Actor.async Thread.current[:actor].mailbox, meth, *args, &block
   end
-  
+
   # Handle calls to future within an actor itself
   def future(meth, *args, &block)
     Actor.future Thread.current[:actor].mailbox, meth, *args, &block
@@ -308,7 +332,7 @@ module Celluloid
     if meth.to_s.match(/!$/)
       unbanged_meth = meth.to_s.sub(/!$/, '')
       args.unshift unbanged_meth
-      
+
       call = AsyncCall.new(nil, :__send__, args, block)
       begin
         Thread.current[:actor].mailbox << call
@@ -338,7 +362,6 @@ require 'celluloid/internal_pool'
 require 'celluloid/links'
 require 'celluloid/logger'
 require 'celluloid/mailbox'
-require 'celluloid/pool'
 require 'celluloid/receivers'
 require 'celluloid/registry'
 require 'celluloid/responses'
@@ -350,6 +373,6 @@ require 'celluloid/uuid'
 
 require 'celluloid/actor'
 require 'celluloid/future'
-require 'celluloid/group'
+require 'celluloid/pool_manager'
+require 'celluloid/supervision_group'
 require 'celluloid/supervisor'
-require 'celluloid/worker'

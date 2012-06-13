@@ -24,7 +24,7 @@ describe Celluloid::Registry do
     Celluloid::Actor[:marilyn] = Marilyn.new
     Celluloid::Actor.registered.should include :marilyn
   end
-  
+
   it "knows its name once registered" do
     Celluloid::Actor[:marilyn] = Marilyn.new
     Celluloid::Actor[:marilyn].name.should == :marilyn

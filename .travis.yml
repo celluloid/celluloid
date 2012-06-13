@@ -1,8 +1,9 @@
+script: rake ci
 rvm:
   - 1.9.3
   - ruby-head
   - jruby-19mode
-  - jruby-head
+#  - jruby-head # FIXME: timers firing in the wrong order?
   - rbx-19mode
 
 notifications:

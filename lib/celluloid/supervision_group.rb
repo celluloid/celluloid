@@ -1,6 +1,6 @@
 module Celluloid
   # Supervise collections of actors as a group
-  class Group
+  class SupervisionGroup
     include Celluloid
     trap_exit :restart_actor
 
@@ -25,13 +25,18 @@ module Celluloid
         end
       end
 
-      # Register an actor class or a sub-application class to be launched and
-      # supervised while this application is running. Available options are:
+      # Register an actor class or a sub-group to be launched and supervised
+      # Available options are:
       #
       # * as: register this application in the Celluloid::Actor[] directory
       # * args: start the actor with the given arguments
       def supervise(klass, options = {})
         members << Member.new(klass, options)
+      end
+
+      # Register a pool of actors to be launched on group startup
+      def pool(klass)
+        members << Member.new(klass, method: 'pool_link')
       end
     end
 
@@ -79,12 +84,16 @@ module Celluloid
 
         @name = options['as']
         @args = options['args'] ? Array(options['args']) : []
+        @method = options['method'] || 'new_link'
       end
 
       def start
-        actor = @klass.new_link(*@args)
+        actor = @klass.send(@method, *@args)
         Actor[@name] = actor if @name
       end
     end
   end
+
+  # Legacy support for the old name
+  Group = SupervisionGroup
 end
