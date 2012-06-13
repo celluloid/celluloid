@@ -31,5 +31,16 @@ module Celluloid
     def registered
       @@registry_lock.synchronize { @@registry.keys }
     end
+
+    # removes and returns all registered actors as a hash of `name => actor`
+    # can be used in testing to clear the registry 
+    def clear_registry
+      hash = nil
+      @@registry_lock.synchronize do
+        hash = @@registry.dup
+        @@registry.clear
+      end
+      hash
+    end
   end
 end
