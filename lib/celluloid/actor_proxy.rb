@@ -65,7 +65,8 @@ module Celluloid
     # Terminate the associated actor
     def terminate
       terminate!
-      Thread.pass while alive?
+      join
+      nil
     end
 
     # Terminate the associated actor asynchronously
