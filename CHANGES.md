@@ -1,3 +1,7 @@
+0.11.0
+------
+* "Unofficial" SSL support (via nio4r 0.4.0)
+
 0.10.0
 ------
 * Read/write operations are now atomic across tasks
