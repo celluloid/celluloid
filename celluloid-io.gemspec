@@ -16,7 +16,7 @@ Gem::Specification.new do |gem|
   gem.version       = Celluloid::IO::VERSION
 
   gem.add_dependency 'celluloid', '~> 0.11.0'
-  gem.add_dependency 'nio4r',     '>= 0.3.1'
+  gem.add_dependency 'nio4r',     '>= 0.4.0'
   
   gem.add_development_dependency 'rake'
   gem.add_development_dependency 'rspec'
