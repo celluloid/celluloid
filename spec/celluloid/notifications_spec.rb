@@ -50,4 +50,14 @@ describe Celluloid::Notifications do
     marilyn.mourning.should == "Mr. President"
   end
 
+  it 'allows unsubscribing' do
+    marilyn = Admirer.new
+
+    subscription = marilyn.subscribe("death", :someone_died)
+    marilyn.unsubscribe(subscription)
+
+    president = President.new
+    president.die
+    marilyn.mourning.should be_nil
+  end
 end
