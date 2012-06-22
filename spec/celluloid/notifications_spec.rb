@@ -68,10 +68,10 @@ describe Celluloid::Notifications do
     marilyn.subscribe("death", :someone_died)
     jackie.subscribe("death", :someone_died)
 
-    expect do
-      marilyn.terminate
-      marilyn = nil
-      GC.start
-    end.to change(Celluloid::Notifications.notifier.listeners_for("death"), :size).by(-1)
+    listeners = Celluloid::Notifications.notifier.listeners_for("death").size
+    marilyn.terminate
+    after_listeners = Celluloid::Notifications.notifier.listeners_for("death").size
+
+    after_listeners.should == listeners - 1
   end
 end
