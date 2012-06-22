@@ -35,7 +35,7 @@ module Celluloid
         listeners_for(pattern).any?
       end
 
-      def prune(actor, reason)
+      def prune(actor, reason=nil)
         @subscribers.reject! { |s| s.actor == actor }
         @listeners_for.clear
       end
