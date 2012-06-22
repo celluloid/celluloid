@@ -1,3 +1,5 @@
+require 'weakref'
+
 module Celluloid
   module Notifications
     class Fanout
@@ -30,6 +32,7 @@ module Celluloid
       end
 
       def listeners_for(pattern)
+        gc
         unless @listeners_for[pattern]
           @lock.synchronize do
             @listeners_for[pattern] ||= @subscribers.select { |s| s.subscribed_to?(pattern) }
@@ -41,11 +44,17 @@ module Celluloid
       def listening?(pattern)
         listeners_for(pattern).any?
       end
+
+      def gc
+        @lock.synchronize do
+          @subscribers.reject! { |s| !s.alive? }
+        end
+      end
     end
 
     class Subscriber
       def initialize(mailbox, pattern, method)
-        @mailbox = mailbox
+        @mailbox = WeakRef.new(mailbox)
         @pattern = pattern
         @method = method
       end
@@ -61,6 +70,10 @@ module Celluloid
       def matches?(subscriber_or_pattern)
         self === subscriber_or_pattern ||
           @pattern && @pattern === subscriber_or_pattern
+      end
+
+      def alive?
+        @mailbox.weakref_alive?
       end
     end
 
@@ -80,6 +93,5 @@ module Celluloid
     def unsubscribe(*args)
       Celluloid::Notifications.notifier.unsubscribe(*args)
     end
-
   end
 end

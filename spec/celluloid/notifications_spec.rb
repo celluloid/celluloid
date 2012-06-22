@@ -60,4 +60,18 @@ describe Celluloid::Notifications do
     president.die
     marilyn.mourning.should be_nil
   end
+
+  it 'prunes dead subscriptions' do
+    marilyn = Admirer.new
+    jackie = Admirer.new
+
+    marilyn.subscribe("death", :someone_died)
+    jackie.subscribe("death", :someone_died)
+
+    expect do
+      marilyn.terminate
+      marilyn = nil
+      GC.start
+    end.to change(Celluloid::Notifications.notifier.listeners_for("death"), :size).by(-1)
+  end
 end
