@@ -24,7 +24,7 @@ describe Celluloid::Supervisor do
 
   it "restarts actors when they die" do
     supervisor = Celluloid::Supervisor.supervise(Subordinate, :idle)
-    subordinate = supervisor.actor
+    subordinate = supervisor.actors.first
     subordinate.state.should == :idle
 
     subordinate.crack_the_whip
@@ -36,7 +36,7 @@ describe Celluloid::Supervisor do
     sleep 0.1 # hax to prevent race :(
     subordinate.should_not be_alive
 
-    new_subordinate = supervisor.actor
+    new_subordinate = supervisor.actors.first
     new_subordinate.should_not == subordinate
     new_subordinate.state.should == :idle
   end
@@ -62,7 +62,7 @@ describe Celluloid::Supervisor do
 
   it "creates supervisors via Actor.supervise" do
     supervisor = Subordinate.supervise(:working)
-    subordinate = supervisor.actor
+    subordinate = supervisor.actors.first
     subordinate.state.should == :working
 
     expect do
@@ -71,7 +71,7 @@ describe Celluloid::Supervisor do
     sleep 0.1 # hax to prevent race :(
     subordinate.should_not be_alive
 
-    new_subordinate = supervisor.actor
+    new_subordinate = supervisor.actors.first
     new_subordinate.should_not == subordinate
     new_subordinate.state.should == :working
   end
@@ -87,7 +87,7 @@ describe Celluloid::Supervisor do
     sleep 0.1 # hax to prevent race :(
     subordinate.should_not be_alive
 
-    new_subordinate = supervisor.actor
+    new_subordinate = supervisor.actors.first
     new_subordinate.should_not == subordinate
     new_subordinate.state.should == :working
   end
