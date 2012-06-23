@@ -90,6 +90,7 @@ module Celluloid
       def start
         actor = @klass.send(@method, *@args)
         Actor[@name] = actor if @name
+        actor
       end
     end
   end
