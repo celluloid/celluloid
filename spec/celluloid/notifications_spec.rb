@@ -21,6 +21,20 @@ describe Celluloid::Notifications do
     end
   end
 
+  it 'notifies relevant subscribers' do
+    marilyn = Admirer.new
+    jackie = Admirer.new
+
+    marilyn.subscribe("death", :someone_died)
+    jackie.subscribe("alive", :someone_died)
+
+    president = President.new
+
+    president.die
+    marilyn.mourning.should == "Mr. President"
+    jackie.mourning.should_not == "Mr. President"
+  end
+
   it 'notifies subscribers' do
     marilyn = Admirer.new
     jackie = Admirer.new
