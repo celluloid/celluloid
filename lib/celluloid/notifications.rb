@@ -55,7 +55,7 @@ module Celluloid
       end
 
       def subscribed_to?(pattern)
-        !pattern || pattern === pattern.to_s
+        !pattern || @pattern === pattern.to_s
       end
 
       def matches?(subscriber_or_pattern)
