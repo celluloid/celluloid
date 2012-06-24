@@ -19,10 +19,21 @@ module Celluloid
   # normal Ruby objects wrapped in threads which communicate with asynchronous
   # messages.
   class Actor
-    extend Registry
     attr_reader :subject, :proxy, :tasks, :links, :mailbox, :thread, :name
 
     class << self
+      extend Forwardable
+
+      def_delegators "Celluloid::Registry.root", :[], :[]=
+
+      def registered
+        Registry.root.names
+      end
+
+      def clear_registry
+        Registry.root.clear
+      end
+
       # Obtain the current actor
       def current
         actor = Thread.current[:actor]

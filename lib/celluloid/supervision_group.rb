@@ -6,12 +6,19 @@ module Celluloid
 
     class << self
       # Actors or sub-applications to be supervised
-      def members
-        @members ||= []
+      def blocks
+        @blocks ||= []
       end
 
       # Start this application (and watch it with a supervisor)
-      alias_method :run!, :supervise
+      def run!
+        group = new do |group|
+          blocks.each do |block|
+            block.call(group)
+          end
+        end
+        group
+      end
 
       # Run the application in the foreground with a simple watchdog
       def run
@@ -31,52 +38,68 @@ module Celluloid
       # * as: register this application in the Celluloid::Actor[] directory
       # * args: start the actor with the given arguments
       def supervise(klass, options = {})
-        members << Member.new(klass, options)
+        blocks << lambda do |group|
+          group.add klass, options
+        end
       end
 
       # Register a pool of actors to be launched on group startup
       def pool(klass)
-        members << Member.new(klass, method: 'pool_link')
-      end
-    end
-
-    # Start the group
-    def initialize
-      @actors = {}
-
-      # This is some serious lolcode, but like... start the supervisors for
-      # this group
-      self.class.members.each do |member|
-        actor = member.start
-        @actors[actor] = member
-      end
-    end
-
-    # Terminate the group
-    def finalize
-      @actors.each do |actor, _|
-        begin
-          actor.terminate
-        rescue DeadActorError
+        blocks << lambda do |group|
+          group.pool klass
         end
       end
     end
 
+    # Start the group
+    def initialize(registry = nil)
+      @members = []
+      @registry = registry || Registry.root
+
+      yield self if block_given?
+    end
+
+    def supervise(klass, *args, &block)
+      add(klass, :args => args, :block => block)
+    end
+
+    def supervise_as(name, klass, *args, &block)
+      add(klass, :args => args, :block => block, :as => name)
+    end
+
+    def pool(klass)
+      add(klass, :method => 'pool_link')
+    end
+
+    def add(klass, options)
+      member = Member.new(@registry, klass, options)
+      @members << member
+      member
+    end
+
+    def actors
+      @members.map(&:actor)
+    end
+
+    # Terminate the group
+    def finalize
+      @members.each(&:terminate)
+    end
+
     # Restart a crashed actor
     def restart_actor(actor, reason)
-      member = @actors.delete actor
+      member = @members.find do |member|
+        member.actor == actor
+      end
       raise "a group member went missing. This shouldn't be!" unless member
 
-      # Ignore supervisors that shut down cleanly
-      return unless reason
-
-      actor = member.start
-      @actors[actor] = member
+      member.restart(reason)
     end
 
     # A member of the group
     class Member
-      def initialize(klass, options = {})
+      def initialize(registry, klass, options = {})
+        @registry = registry
         @klass = klass
 
         # Stringify keys :/
@@ -84,13 +107,31 @@ module Celluloid
 
         @name = options['as']
         @args = options['args'] ? Array(options['args']) : []
+        @block = options['block']
         @method = options['method'] || 'new_link'
+
+        start
       end
+      attr_reader :name, :actor
 
       def start
-        actor = @klass.send(@method, *@args)
-        Actor[@name] = actor if @name
-        actor
+        @actor = @klass.send(@method, *@args, &@block)
+        @registry[@name] = @actor if @name
+      end
+
+      def restart(reason)
+        @actor = nil
+        @registry.delete(@name) if @name
+
+        # Ignore supervisors that shut down cleanly
+        return unless reason
+
+        start
+      end
+
+      def terminate
+        @actor.terminate if @actor
+      rescue DeadActorError
       end
     end
   end
