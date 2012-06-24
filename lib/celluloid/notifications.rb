@@ -60,7 +60,7 @@ module Celluloid
 
       def matches?(subscriber_or_pattern)
         self === subscriber_or_pattern ||
-          pattern && pattern === subscriber_or_pattern
+          @pattern && @pattern === subscriber_or_pattern
       end
     end
 
