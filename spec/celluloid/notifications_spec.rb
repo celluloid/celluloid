@@ -6,9 +6,12 @@ describe Celluloid::Notifications do
     include Celluloid::Notifications
 
     attr_reader :mourning
+    attr_reader :mourning_count
 
     def someone_died(topic, name)
       @mourning = name
+      @mourning_count ||= 0
+      @mourning_count += 1
     end
   end
 
@@ -34,6 +37,19 @@ describe Celluloid::Notifications do
     marilyn.mourning.should == "Mr. President"
     jackie.mourning.should_not == "Mr. President"
   end
+
+  it 'allows multiple subscriptions from the same actor' do
+    marilyn = Admirer.new
+
+    marilyn.subscribe("death", :someone_died)
+    marilyn.subscribe("death", :someone_died)
+
+    president = President.new
+
+    president.die
+    marilyn.mourning_count.should == 2
+  end
+
 
   it 'notifies subscribers' do
     marilyn = Admirer.new
@@ -88,4 +104,18 @@ describe Celluloid::Notifications do
 
     after_listeners.should == listeners - 1
   end
+
+  it 'prunes multiple subscriptions from a dead actor' do
+    marilyn = Admirer.new
+
+    marilyn.subscribe("death", :someone_died)
+    marilyn.subscribe("death", :someone_died)
+
+    listeners = Celluloid::Notifications.notifier.listeners_for("death").size
+    marilyn.terminate
+    after_listeners = Celluloid::Notifications.notifier.listeners_for("death").size
+
+    after_listeners.should == listeners - 2
+  end
+
 end
