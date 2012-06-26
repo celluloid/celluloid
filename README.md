@@ -50,7 +50,7 @@ features which make concurrent programming simple, easy, and fun:
   a clean state. Celluloid provides its own implementation of the core
   fault-tolerance concepts in Erlang including [linking](https://github.com/celluloid/celluloid/wiki/Linking),
   [supervisors](https://github.com/celluloid/celluloid/wiki/Supervisors),
-  and [supervision trees](https://github.com/celluloid/celluloid/wiki/Groups).
+  and [supervision groups](https://github.com/celluloid/celluloid/wiki/Supervision-Groups).
 
 * __[Futures](https://github.com/celluloid/celluloid/wiki/futures):__
   Ever wanted to call a method "in the background" and retrieve the
