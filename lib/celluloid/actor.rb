@@ -74,7 +74,7 @@ module Celluloid
       # Invoke a method asynchronously on an actor via its mailbox
       def async(mailbox, meth, *args, &block)
         begin
-          mailbox << AsyncCall.new(Thread.mailbox, meth, args, block)
+          mailbox << AsyncCall.new(meth, args, block)
         rescue MailboxError
           # Silently swallow asynchronous calls to dead actors. There's no way
           # to reliably generate DeadActorErrors for async calls, so users of
