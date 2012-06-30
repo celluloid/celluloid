@@ -1,6 +1,7 @@
 require 'logger'
 require 'thread'
 require 'timeout'
+require 'set'
 
 module Celluloid
   SHUTDOWN_TIMEOUT = 120 # How long actors have to terminate
@@ -169,6 +170,13 @@ module Celluloid
       end
     end
 
+    # Mark methods as running exclusively
+    def exclusive(*methods)
+      @exclusive_methods ||= Set.new
+      @exclusive_methods.merge methods.map(&:to_sym)
+    end
+    attr_reader :exclusive_methods
+
     # Create a mailbox for this actor
     def mailbox_factory
       if defined?(@mailbox_factory)
@@ -295,6 +303,11 @@ module Celluloid
   # actor, not only current message processing.
   def exclusive(&block)
     Thread.current[:actor].exclusive(&block)
+  end
+
+  # Are we currently exclusive
+  def exclusive?
+    Celluloid.exclusive?
   end
 
   # Call a block after a given interval, returning a Celluloid::Timer object

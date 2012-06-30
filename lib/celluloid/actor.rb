@@ -106,6 +106,7 @@ module Celluloid
       @subject      = subject
       @mailbox      = subject.class.mailbox_factory
       @exit_handler = subject.class.exit_handler
+      @exclusives   = subject.class.exclusive_methods
 
       @tasks     = Set.new
       @links     = Links.new
@@ -226,7 +227,11 @@ module Celluloid
     def handle_message(message)
       case message
       when Call
-        Task.new(:message_handler) { message.dispatch(@subject) }.resume
+        if @exclusives && @exclusives.include?(message.method)
+          exclusive { message.dispatch(@subject) }
+        else
+          Task.new(:message_handler) { message.dispatch(@subject) }.resume
+        end
       when Response
         message.call.task.resume message
       else

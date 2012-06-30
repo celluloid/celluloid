@@ -341,6 +341,22 @@ shared_context "a Celluloid Actor" do |included_module|
     end
   end
 
+  context :exclusive do
+    subject do
+      Class.new do
+        include included_module
+        def exclusive_example
+          exclusive?
+        end
+        exclusive :exclusive_example
+      end.new
+    end
+
+    it "supports exclusive methods" do
+      subject.exclusive_example.should be_true
+    end
+  end
+
   context :receiving do
     before do
       @receiver = Class.new do

@@ -1,3 +1,8 @@
+HEAD
+----
+* 'exclusive' class method marks methods as always exclusive and runs them
+  outside of a Fiber (useful if you need more stack than Fibers provide)
+
 0.11.0
 ------
 * Celluloid::Application constant permanently removed
