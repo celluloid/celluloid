@@ -233,7 +233,7 @@ module Celluloid
           Task.new(:message_handler) { message.dispatch(@subject) }.resume
         end
       when Response
-        message.call.task.resume message
+        message.dispatch
       else
         @receivers.handle_message(message)
       end
