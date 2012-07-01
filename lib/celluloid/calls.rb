@@ -1,10 +1,10 @@
 module Celluloid
   # Calls represent requests to an actor
   class Call
-    attr_reader :caller, :method, :arguments, :block
+    attr_reader :method, :arguments, :block
 
-    def initialize(caller, method, arguments = [], block = nil)
-      @caller, @method, @arguments, @block = caller, method, arguments, block
+    def initialize(method, arguments = [], block = nil)
+      @method, @arguments, @block = method, arguments, block
     end
 
     def check_signature(obj)
@@ -37,10 +37,11 @@ module Celluloid
 
   # Synchronous calls wait for a response
   class SyncCall < Call
-    attr_reader :task
+    attr_reader :caller, :task
 
     def initialize(caller, method, arguments = [], block = nil, task = Fiber.current.task)
-      super(caller, method, arguments, block)
+      super(method, arguments, block)
+      @caller = caller
       @task = task
     end
 

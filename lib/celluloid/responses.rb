@@ -6,6 +6,10 @@ module Celluloid
     def initialize(call, value)
       @call, @value = call, value
     end
+
+    def dispatch
+      @call.task.resume self
+    end
   end
 
   # Call completed successfully

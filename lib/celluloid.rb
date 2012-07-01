@@ -346,7 +346,7 @@ module Celluloid
       unbanged_meth = meth.to_s.sub(/!$/, '')
       args.unshift unbanged_meth
 
-      call = AsyncCall.new(nil, :__send__, args, block)
+      call = AsyncCall.new(:__send__, args, block)
       begin
         Thread.current[:actor].mailbox << call
       rescue MailboxError
