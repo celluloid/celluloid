@@ -19,6 +19,14 @@ module Celluloid
       Actor.call @mailbox, :__send__, meth, *args, &block
     end
 
+    def after(interval, &block)
+      Actor.raw_call @mailbox, true, :after, interval, &block
+    end
+
+    def every(interval, &block)
+      Actor.raw_call @mailbox, true, :every, interval, &block
+    end
+
     def inspect
       Actor.call(@mailbox, :inspect).sub(::Celluloid::BARE_OBJECT_WARNING_MESSAGE, "Celluloid::Actor")
     rescue DeadActorError

@@ -98,7 +98,7 @@ module Celluloid
     # Create a new actor
     def new(*args, &block)
       proxy = Actor.new(allocate, actor_options).proxy
-      proxy._send_(:initialize, *args, &block)
+      Actor.raw_call(proxy.mailbox, true, :__send__, :initialize, *args, &block)
       proxy
     end
     alias_method :spawn, :new

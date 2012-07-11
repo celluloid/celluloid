@@ -56,8 +56,8 @@ module Celluloid
       end
 
       # Invoke a method on the given actor via its mailbox
-      def call(mailbox, meth, *args, &block)
-        call = SyncCall.new(Thread.mailbox, meth, args, block)
+      def raw_call(mailbox, remotely, meth, *args, &block)
+        call = SyncCall.new(Thread.mailbox, remotely, meth, args, block)
 
         begin
           mailbox << call
@@ -65,19 +65,30 @@ module Celluloid
           raise DeadActorError, "attempted to call a dead actor"
         end
 
-        result = if Thread.current[:task]
-          Task.suspend(:callwait)
-        else
-          loop do
-            message = Thread.mailbox.receive do |msg|
-              msg.respond_to?(:call) and msg.call == call
+        loop do
+          result = if Thread.current[:task]
+            Task.suspend(:callwait)
+          else
+            loop do
+              message = Thread.mailbox.receive do |msg|
+                msg.respond_to?(:call) and msg.call == call
+              end
+              break message unless message.is_a?(SystemEvent)
+              Thread.current[:actor].handle_system_event(message)
             end
-            break message unless message.is_a?(SystemEvent)
-            Thread.current[:actor].handle_system_event(message)
+          end
+
+          if remotely || result.respond_to?(:value)
+            return result.value
+          else
+            value = block.call(*result.arguments)
+            mailbox << BlockResponse.new(call, value)
           end
         end
+      end
 
-        result.value
+      def call(mailbox, meth, *args, &block)
+        raw_call(mailbox, false, meth, *args, &block)
       end
 
       # Invoke a method asynchronously on an actor via its mailbox
@@ -321,7 +332,7 @@ module Celluloid
         handle_system_event message
       when Call
         task(:message_handler, message.method) { message.dispatch(@subject) }
-      when Response
+      when InvokeBlock, BlockResponse, Response
         message.dispatch
       else
         @receivers.handle_message(message)

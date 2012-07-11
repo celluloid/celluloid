@@ -39,9 +39,10 @@ module Celluloid
   class SyncCall < Call
     attr_reader :caller, :task
 
-    def initialize(caller, method, arguments = [], block = nil, task = Thread.current[:task])
+    def initialize(caller, remotely, method, arguments = [], block = nil, task = Thread.current[:task])
       super(method, arguments, block)
       @caller = caller
+      @remotely = remotely
       @task = task
     end
 
@@ -54,7 +55,7 @@ module Celluloid
       end
 
       begin
-        result = obj.send @method, *@arguments, &@block
+        result = obj.send @method, *@arguments, &block
       rescue Exception => exception
         # Exceptions that occur during synchronous calls are reraised in the
         # context of the caller
@@ -71,6 +72,29 @@ module Celluloid
       end
 
       respond SuccessResponse.new(self, result)
+    end
+
+    def resume(value = nil)
+      @current_task.resume(value)
+    end
+
+    def block
+      if @remotely
+        @block
+      elsif @block
+        lambda do |*values|
+          if @current_task = Thread.current[:task]
+            respond InvokeBlock.new(self, values)
+            # TODO: if respond fails, the Task will never be resumed
+            Task.suspend(:invokeblock)
+          else
+            # TODO: this is calling the block "dangerously" in some random thread
+            # usually this is inside Actor#receive or similar
+            $stderr.puts "WARNING: block running outside of a Task"
+            @block.call(*values)
+          end
+        end
+      end
     end
 
     def cleanup
@@ -102,5 +126,29 @@ module Celluloid
       Logger.crash("#{obj.class}: async call `#{@method}' aborted!", ex.cause)
     end
   end
+
+  class InvokeBlock
+    def initialize(call, arguments)
+      @call = call
+      @arguments = arguments
+    end
+    attr_reader :call, :arguments
+
+    def dispatch
+      @call.task.resume self
+    end
+  end
+
+  class BlockResponse
+    def initialize(call, result)
+      @call = call
+      @result = result
+    end
+
+    def dispatch
+      @call.resume(@result)
+    end
+  end
+
 end
 
