@@ -29,12 +29,6 @@ module Celluloid
       end
     end
 
-    # FIXME: This is a rather silly approach that could return the wrong value
-    # in certain cases. A better solution would be nice.
-    def class
-      @worker_class ? @worker_class : super
-    end
-
     def name
       _send_ @mailbox, :name
     end

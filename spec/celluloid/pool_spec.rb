@@ -38,10 +38,6 @@ describe "Celluloid.pool" do
     subject.process.should == :done
   end
 
-  it "reports the correct class for workers" do
-    subject.class.should == MyWorker
-  end
-
   it "uses a fixed-sized number of threads" do
     # Eagerly evaluate subject to spawn the pool
     subject
