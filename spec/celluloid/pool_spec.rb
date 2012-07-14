@@ -39,11 +39,12 @@ describe "Celluloid.pool" do
   end
 
   it "uses a fixed-sized number of threads" do
-    # Eagerly evaluate subject to spawn the pool
-    subject
+    pool = MyWorker.pool
 
-    thread_count = Thread.list.size
-    100.times.map { subject.future(:process) }.map(&:value)
-    Thread.list.size.should == thread_count
+    actors = Celluloid::Actor.all
+    100.times.map { pool.future(:process) }.map(&:value)
+
+    new_actors = Celluloid::Actor.all - actors
+    new_actors.should eq []
   end
 end
