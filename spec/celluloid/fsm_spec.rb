@@ -1,6 +1,9 @@
 require 'spec_helper'
 
 describe Celluloid::FSM do
+  # Level of accuracy enforced by the tests (50ms)
+  Q = 0.05
+
   before :all do
     class TestMachine
       include Celluloid::FSM
@@ -58,20 +61,20 @@ describe Celluloid::FSM do
   end
 
   it "transitions to states after a specified delay" do
-    interval = Celluloid::Timer::QUANTUM * 10
+    interval = Q * 10
 
     subject.attach DummyActor.new
     subject.transition :another
     subject.transition :done, :delay => interval
 
     subject.state.should == :another
-    sleep interval + Celluloid::Timer::QUANTUM
+    sleep interval + Q
 
     subject.state.should == :done
   end
 
   it "cancels delayed state transitions if another transition is made" do
-    interval = Celluloid::Timer::QUANTUM * 10
+    interval = Q * 10
 
     subject.attach DummyActor.new
     subject.transition :another
@@ -79,7 +82,7 @@ describe Celluloid::FSM do
 
     subject.state.should == :another
     subject.transition :pre_done
-    sleep interval + Celluloid::Timer::QUANTUM
+    sleep interval + Q
 
     subject.state.should == :pre_done
   end

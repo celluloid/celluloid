@@ -1,4 +1,7 @@
 shared_context "a Celluloid Mailbox" do
+  # Level of timer accuracy enforced by the tests (50ms)
+  Q = 0.05
+
   class TestEvent < Celluloid::SystemEvent; end
 
   it "receives messages" do
@@ -47,6 +50,6 @@ shared_context "a Celluloid Mailbox" do
     started_at = Time.now
 
     subject.receive(interval) { false }
-    (Time.now - started_at).should be_within(Celluloid::Timer::QUANTUM).of interval
+    (Time.now - started_at).should be_within(Q).of interval
   end
 end

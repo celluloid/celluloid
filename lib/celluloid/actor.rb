@@ -1,3 +1,5 @@
+require 'timers'
+
 module Celluloid
   # Don't do Actor-like things outside Actor scope
   class NotActorError < StandardError; end
@@ -200,14 +202,14 @@ module Celluloid
 
     # Schedule a block to run at the given time
     def after(interval)
-      @timers.add(interval) do
+      @timers.after(interval) do
         Task.new(:timer) { yield }.resume
       end
     end
 
     # Schedule a block to run at the given time
     def every(interval)
-      @timers.add(interval, true) do
+      @timers.every(interval) do
         Task.new(:timer) { yield }.resume
       end
     end
@@ -218,7 +220,7 @@ module Celluloid
         Kernel.sleep(interval)
       else
         task = Task.current
-        @timers.add(interval) { task.resume }
+        @timers.after(interval) { task.resume }
         Task.suspend :sleeping
       end
     end

@@ -19,6 +19,8 @@ Gem::Specification.new do |gem|
   gem.files        = Dir['README.md', 'lib/**/*', 'spec/support/**/*']
   gem.require_path = 'lib'
 
+  gem.add_runtime_dependency 'timers', '1.0.0.pre'
+
   gem.add_development_dependency 'rake'
   gem.add_development_dependency 'rspec'
   gem.add_development_dependency 'benchmark_suite'
