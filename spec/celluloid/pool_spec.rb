@@ -41,4 +41,13 @@ describe "Celluloid.pool" do
   it "reports the correct class for workers" do
     subject.class.should == MyWorker
   end
+
+  it "uses a fixed-sized number of threads" do
+    # Eagerly evaluate subject to spawn the pool
+    subject
+
+    thread_count = Thread.list.size
+    100.times.map { subject.future(:process) }.map(&:value)
+    Thread.list.size.should == thread_count
+  end
 end
