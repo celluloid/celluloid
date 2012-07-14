@@ -2,6 +2,11 @@ HEAD
 ----
 * 'exclusive' class method marks methods as always exclusive and runs them
   outside of a Fiber (useful if you need more stack than Fibers provide)
+* Celluloid::PoolManager returns its own class when #class is called, instead
+  of proxying to a cell/actor in the pool.
+* #receive now handles SystemEvents internally
+* Celluloid::Timers extracted into the timers gem, which Celluloid now
+  uses for its own timers
 
 0.11.0
 ------
