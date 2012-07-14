@@ -158,7 +158,12 @@ module Celluloid
 
     # Receive an asynchronous message
     def receive(timeout = nil, &block)
-      @receivers.receive(timeout, &block)
+      begin
+        @receivers.receive(timeout, &block)
+      rescue SystemEvent => event
+        handle_system_event(event)
+        retry
+      end
     end
 
     # Run the actor loop
