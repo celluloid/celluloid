@@ -1,5 +1,5 @@
-HEAD
-----
+0.11.1
+------
 * 'exclusive' class method marks methods as always exclusive and runs them
   outside of a Fiber (useful if you need more stack than Fibers provide)
 * Celluloid::PoolManager returns its own class when #class is called, instead
