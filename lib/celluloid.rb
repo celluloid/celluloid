@@ -150,7 +150,7 @@ module Celluloid
 
     # Run an actor in the foreground
     def run(*args, &block)
-      new(*args, &block).join
+      new(*args, &block).__join__
     end
 
     # Trap errors from actors we're linked to when they exit

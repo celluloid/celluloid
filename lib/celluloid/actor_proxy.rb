@@ -65,7 +65,7 @@ module Celluloid
     # Terminate the associated actor
     def terminate
       terminate!
-      join
+      __join__
       nil
     end
 
@@ -85,9 +85,10 @@ module Celluloid
     end
 
     # Wait for an actor to terminate
-    def join
+    def __join__
       @thread.join
     end
+    alias :join :__join__
 
     # method_missing black magic to call bang predicate methods asynchronously
     def method_missing(meth, *args, &block)
