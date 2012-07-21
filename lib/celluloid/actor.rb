@@ -64,9 +64,13 @@ module Celluloid
           # The current task will be automatically resumed when we get a response
           Task.suspend(:callwait).value
         else
-          # Otherwise we're inside a normal thread, so block
-          response = Thread.mailbox.receive do |msg|
-            msg.respond_to?(:call) and msg.call == call
+          # Otherwise we're inside a normal thread or exclusive, so block
+          response = loop do
+            message = Thread.mailbox.receive do |msg|
+              msg.respond_to?(:call) and msg.call == call
+            end
+            break message unless message.is_a?(SystemEvent)
+            Thread.current[:actor].handle_system_event(message)
           end
 
           response.value
