@@ -248,6 +248,20 @@ shared_context "a Celluloid Actor" do |included_module|
       @charlie.linked_to?(@kevin).should be_false
     end
 
+    it "monitors other actors unidirectionally" do
+      @kevin.monitor @charlie
+      @kevin.linked_to?(@charlie).should be_true
+      @charlie.linked_to?(@kevin).should be_false
+    end
+
+    it "unmonitors other actors" do
+      @kevin.monitor @charlie
+      @kevin.unmonitor @charlie
+
+      @kevin.linked_to?(@charlie).should be_false
+      @charlie.linked_to?(@kevin).should be_false
+    end
+
     it "traps exit messages from other actors" do
       boss = Class.new do # like a boss
         include included_module

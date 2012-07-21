@@ -264,17 +264,16 @@ module Celluloid
     Thread.current[:actor].links
   end
 
-  # Link this actor to another, allowing it to crash or react to errors
-  def link(actor)
+  # Watch for exit events from another actor
+  def monitor(actor)
     exclusive do
       actor.mailbox << LinkingRequest.new(Actor.current, :link)
       receive { |msg| msg.is_a?(LinkingResponse) && msg.actor == actor && msg.type == :link }
-      links << actor
     end
   end
 
-  # Remove links to another actor
-  def unlink(actor)
+  # Stop waiting for exit events from another actor
+  def unmonitor(actor)
     exclusive do
       actor.mailbox << LinkingRequest.new(Actor.current, :unlink)
       receive { |msg| msg.is_a?(LinkingResponse) && msg.actor == actor && msg.type == :unlink }
@@ -282,9 +281,21 @@ module Celluloid
     end
   end
 
+  # Link this actor to another, allowing it to crash or react to errors
+  def link(actor)
+    monitor actor
+    links << actor
+  end
+
+  # Remove links to another actor
+  def unlink(actor)
+    unmonitor actor
+    links.delete actor
+  end
+
   # Is this actor linked to another?
   def linked_to?(actor)
-    links.include? actor
+    actor.links.include? Actor.current
   end
 
   # Receive an asynchronous message via the actor protocol
