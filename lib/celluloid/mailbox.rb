@@ -13,9 +13,9 @@ module Celluloid
     alias_method :address, :object_id
 
     def initialize
-      @messages = []
-      @mutex = Mutex.new
-      @dead = false
+      @messages  = []
+      @mutex     = Mutex.new
+      @dead      = false
       @condition = ConditionVariable.new
     end
 
