@@ -266,27 +266,25 @@ module Celluloid
 
   # Link this actor to another, allowing it to crash or react to errors
   def link(actor)
-    actor.notify_link Actor.current
-    notify_link actor
+    exclusive do
+      actor.mailbox << LinkingRequest.new(Actor.current, :link)
+      receive { |msg| msg.is_a?(LinkingResponse) && msg.actor == actor && msg.type == :link }
+      links << actor
+    end
   end
 
   # Remove links to another actor
   def unlink(actor)
-    actor.notify_unlink Actor.current
-    notify_unlink actor
-  end
-
-  def notify_link(actor)
-    links << actor
-  end
-
-  def notify_unlink(actor)
-    links.delete actor
+    exclusive do
+      actor.mailbox << LinkingRequest.new(Actor.current, :unlink)
+      receive { |msg| msg.is_a?(LinkingResponse) && msg.actor == actor && msg.type == :unlink }
+      links.delete actor
+    end
   end
 
   # Is this actor linked to another?
   def linked_to?(actor)
-    Thread.current[:actor].links.include? actor
+    links.include? actor
   end
 
   # Receive an asynchronous message via the actor protocol

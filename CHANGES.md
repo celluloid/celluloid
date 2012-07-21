@@ -1,5 +1,6 @@
 HEAD
 ----
+* Linking is now performed via a SystemEvent
 * SystemEvents are no longer exceptions. Boo exceptions as flow control!
 * Celluloid::Mailbox#system_event eliminated and replaced with Mailbox#<<
   SystemEvents are now automatically high priority

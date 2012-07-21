@@ -251,6 +251,8 @@ module Celluloid
       case event
       when ExitEvent
         Task.new(:exit_handler) { handle_exit_event event }.resume
+      when LinkingRequest
+        event.process(links)
       when NamingRequest
         @name = event.name
       when TerminationRequest
