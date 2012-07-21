@@ -1,3 +1,7 @@
+HEAD
+----
+* SystemEvents are no longer exceptions. Boo exceptions as flow control!
+
 0.11.1
 ------
 * 'exclusive' class method marks methods as always exclusive and runs them

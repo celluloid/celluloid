@@ -158,11 +158,11 @@ module Celluloid
 
     # Receive an asynchronous message
     def receive(timeout = nil, &block)
-      begin
-        @receivers.receive(timeout, &block)
-      rescue SystemEvent => event
-        handle_system_event(event)
-        retry
+      loop do
+        message = @receivers.receive(timeout, &block)
+        break message unless message.is_a?(SystemEvent)
+
+        handle_system_event(message)
       end
     end
 
@@ -178,9 +178,6 @@ module Celluloid
             @receivers.fire_timers
           end
         end
-      rescue SystemEvent => event
-        handle_system_event event
-        retry
       rescue MailboxShutdown
         # If the mailbox detects shutdown, exit the actor
       end
@@ -233,6 +230,8 @@ module Celluloid
     # Handle standard low-priority messages
     def handle_message(message)
       case message
+      when SystemEvent
+        handle_system_event message
       when Call
         if @exclusives && @exclusives.include?(message.method)
           exclusive { message.dispatch(@subject) }

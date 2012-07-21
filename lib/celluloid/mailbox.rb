@@ -92,7 +92,6 @@ module Celluloid
         message = @messages.shift
       end
 
-      raise message if message.is_a? SystemEvent
       message
     end
 
