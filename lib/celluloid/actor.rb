@@ -132,44 +132,6 @@ module Celluloid
       @proxy = ActorProxy.new(self)
     end
 
-    # Is this actor running in exclusive mode?
-    def exclusive?
-      @exclusive
-    end
-
-    # Execute a code block in exclusive mode.
-    def exclusive
-      @exclusive = true
-      yield
-    ensure
-      @exclusive = false
-    end
-
-    # Terminate this actor
-    def terminate
-      @running = false
-    end
-
-    # Send a signal with the given name to all waiting methods
-    def signal(name, value = nil)
-      @signals.send name, value
-    end
-
-    # Wait for the given signal
-    def wait(name)
-      @signals.wait name
-    end
-
-    # Receive an asynchronous message
-    def receive(timeout = nil, &block)
-      loop do
-        message = @receivers.receive(timeout, &block)
-        break message unless message.is_a?(SystemEvent)
-
-        handle_system_event(message)
-      end
-    end
-
     # Run the actor loop
     def run
       begin
@@ -190,6 +152,63 @@ module Celluloid
     rescue Exception => ex
       handle_crash(ex)
       raise unless ex.is_a? StandardError
+    end
+
+    # Terminate this actor
+    def terminate
+      @running = false
+    end
+
+    # Is this actor running in exclusive mode?
+    def exclusive?
+      @exclusive
+    end
+
+    # Execute a code block in exclusive mode.
+    def exclusive
+      @exclusive = true
+      yield
+    ensure
+      @exclusive = false
+    end
+
+    # Perform a linking request with another actor
+    def linking_request(receiver, type)
+      exclusive do
+        receiver.mailbox << LinkingRequest.new(Actor.current, type)
+
+        system_events = []
+        loop do
+          message = @mailbox.receive { |msg| msg.is_a?(LinkingResponse) && msg.actor == receiver && msg.type == type }
+          break unless message.is_a?(SystemEvent)
+
+          # Queue up pending system events to be processed after we've successfully linked
+          system_events << message
+        end
+
+        system_events.each { |ev| handle_system_event(ev) }
+        nil
+      end
+    end
+
+    # Send a signal with the given name to all waiting methods
+    def signal(name, value = nil)
+      @signals.send name, value
+    end
+
+    # Wait for the given signal
+    def wait(name)
+      @signals.wait name
+    end
+
+    # Receive an asynchronous message
+    def receive(timeout = nil, &block)
+      loop do
+        message = @receivers.receive(timeout, &block)
+        break message unless message.is_a?(SystemEvent)
+
+        handle_system_event(message)
+      end
     end
 
     # How long to wait until the next timer fires
