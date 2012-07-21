@@ -31,7 +31,7 @@ module Celluloid
 
     # Send an event message to all actors
     def send_event(event)
-      each { |actor| actor.mailbox.system_event event }
+      each { |actor| actor.mailbox << event }
     end
 
     # Generate a string representation

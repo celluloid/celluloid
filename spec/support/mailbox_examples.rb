@@ -13,7 +13,7 @@ shared_context "a Celluloid Mailbox" do
     subject << :dummy1
     subject << :dummy2
 
-    subject.system_event Celluloid::SystemEvent.new
+    subject << Celluloid::SystemEvent.new
     subject.receive.should be_a(Celluloid::SystemEvent)
   end
 

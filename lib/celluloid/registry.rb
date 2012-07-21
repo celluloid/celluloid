@@ -23,7 +23,7 @@ module Celluloid
         @registry[name.to_sym] = actor
       end
 
-      actor.mailbox.system_event NamingRequest.new(name.to_sym)
+      actor.mailbox << NamingRequest.new(name.to_sym)
     end
 
     # Retrieve an actor by name

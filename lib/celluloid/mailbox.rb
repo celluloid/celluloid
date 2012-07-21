@@ -23,24 +23,19 @@ module Celluloid
     def <<(message)
       @mutex.lock
       begin
-        raise MailboxError, "dead recipient" if @dead
+        if message.is_a?(SystemEvent)
+          # Silently swallow system events sent to dead actors
+          return if @dead
 
-        @messages << message
-        @condition.signal
-        nil
-      ensure
-        @mutex.unlock rescue nil
-      end
-    end
-
-    # Add a high-priority system event to the Mailbox
-    def system_event(event)
-      @mutex.lock
-      begin
-        unless @dead # Silently fail if messages are sent to dead actors
-          @messages.unshift event
-          @condition.signal
+          # SystemEvents are high priority messages so they get added to the
+          # head of our message queue instead of the end
+          @messages.unshift message
+        else
+          raise MailboxError, "dead recipient" if @dead
+          @messages << message
         end
+
+        @condition.signal
         nil
       ensure
         @mutex.unlock rescue nil
