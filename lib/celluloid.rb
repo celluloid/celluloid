@@ -112,11 +112,10 @@ module Celluloid
 
     # Create a new actor and link to the current one
     def new_link(*args, &block)
-      current_actor = Actor.current
-      raise NotActorError, "can't link outside actor context" unless current_actor
+      raise NotActorError, "can't link outside actor context" unless Celluloid.actor?
 
       proxy = Actor.new(allocate).proxy
-      current_actor.link proxy
+      Actor.link(proxy)
       proxy._send_(:initialize, *args, &block)
       proxy
     end
@@ -266,29 +265,32 @@ module Celluloid
 
   # Watch for exit events from another actor
   def monitor(actor)
-    Thread.current[:actor].linking_request(actor, :link)
+    Actor.monitor(actor)
   end
 
   # Stop waiting for exit events from another actor
   def unmonitor(actor)
-    Thread.current[:actor].linking_request(actor, :unlink)
+    Actor.unmonitor(actor)
   end
 
   # Link this actor to another, allowing it to crash or react to errors
   def link(actor)
-    monitor actor
-    links << actor
+    Actor.link(actor)
   end
 
   # Remove links to another actor
   def unlink(actor)
-    unmonitor actor
-    links.delete actor
+    Actor.unlink(actor)
+  end
+
+  # Are we monitoring another actor?
+  def monitoring?(actor)
+    Actor.monitoring?(actor)
   end
 
   # Is this actor linked to another?
   def linked_to?(actor)
-    actor.links.include? Actor.current
+    Actor.linked_to?(actor)
   end
 
   # Receive an asynchronous message via the actor protocol

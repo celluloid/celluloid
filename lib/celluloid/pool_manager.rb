@@ -22,6 +22,14 @@ module Celluloid
 
       begin
         worker._send_ method, *args, &block
+      rescue DeadActorError # if we get a dead actor out of the pool
+        puts "????? got DeadActorError during call, waiting for respawn"
+        wait :respawn_complete
+        puts "????? respawn complete, provisioning worker!"
+        worker = __provision_worker
+        puts "????? done reprovisioning worker, retrying!"
+
+        retry
       rescue Exception => ex
         abort ex
       ensure
@@ -56,9 +64,7 @@ module Celluloid
     # Provision a new worker
     def __provision_worker
       while @idle.empty?
-        # Using exclusive mode blocks incoming messages, so they don't pile
-        # up as waiting Celluloid::Tasks
-        response = exclusive { receive { |msg| msg.is_a? Response } }
+        response = exclusive { receive { |msg| msg.is_a?(Response) } }
         Thread.current[:actor].handle_message(response)
       end
       @idle.shift
@@ -66,9 +72,14 @@ module Celluloid
 
     # Spawn a new worker for every crashed one
     def crash_handler(actor, reason)
+      puts "!!!!! handling crash"
       @idle.delete actor
-      return unless reason # don't restart workers that exit cleanly
+      return unless reason
+
+      puts "!!!!! spawning new actor"
       @idle << @worker_class.new_link(*@args)
+      puts "!!!!! done spawning actor, signaling complete"
+      signal :respawn_complete
     end
 
     def respond_to?(method)

@@ -236,30 +236,39 @@ shared_context "a Celluloid Actor" do |included_module|
 
     it "links to other actors" do
       @kevin.link @charlie
-      @kevin.linked_to?(@charlie).should be_true
-      @charlie.linked_to?(@kevin).should be_true
+      @kevin.monitoring?(@charlie).should be_true
+      @kevin.linked_to?(@charlie).should  be_true
+      @charlie.monitoring?(@kevin).should be_true
+      @charlie.linked_to?(@kevin).should  be_true
     end
 
     it "unlinks from other actors" do
       @kevin.link @charlie
       @kevin.unlink @charlie
 
-      @kevin.linked_to?(@charlie).should be_false
-      @charlie.linked_to?(@kevin).should be_false
+      @kevin.monitoring?(@charlie).should be_false
+      @kevin.linked_to?(@charlie).should  be_false
+      @charlie.monitoring?(@kevin).should be_false
+      @charlie.linked_to?(@kevin).should  be_false
     end
 
     it "monitors other actors unidirectionally" do
       @kevin.monitor @charlie
-      @kevin.linked_to?(@charlie).should be_true
-      @charlie.linked_to?(@kevin).should be_false
+
+      @kevin.monitoring?(@charlie).should be_true
+      @kevin.linked_to?(@charlie).should  be_false
+      @charlie.monitoring?(@kevin).should be_false
+      @charlie.linked_to?(@kevin).should  be_false
     end
 
     it "unmonitors other actors" do
       @kevin.monitor @charlie
       @kevin.unmonitor @charlie
 
-      @kevin.linked_to?(@charlie).should be_false
-      @charlie.linked_to?(@kevin).should be_false
+      @kevin.monitoring?(@charlie).should be_false
+      @kevin.linked_to?(@charlie).should  be_false
+      @charlie.monitoring?(@kevin).should be_false
+      @charlie.linked_to?(@kevin).should  be_false
     end
 
     it "traps exit messages from other actors" do

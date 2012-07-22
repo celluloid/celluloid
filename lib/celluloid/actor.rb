@@ -105,6 +105,40 @@ module Celluloid
         end
         actors
       end
+
+      # Watch for exit events from another actor
+      def monitor(actor)
+        raise NotActorError, "can't link outside actor context" unless Celluloid.actor?
+        Thread.current[:actor].linking_request(actor, :link)
+      end
+
+      # Stop waiting for exit events from another actor
+      def unmonitor(actor)
+        raise NotActorError, "can't link outside actor context" unless Celluloid.actor?
+        Thread.current[:actor].linking_request(actor, :unlink)
+      end
+
+      # Link to another actor
+      def link(actor)
+        monitor actor
+        Thread.current[:actor].links << actor
+      end
+
+      # Unlink from another actor
+      def unlink(actor)
+        unmonitor actor
+        Thread.current[:actor].links.delete actor
+      end
+
+      # Are we monitoring the given actor?
+      def monitoring?(actor)
+        actor.links.include? Actor.current
+      end
+
+      # Are we bidirectionally linked to the given actor?
+      def linked_to?(actor)
+        monitoring?(actor) && Thread.current[:actor].links.include?(actor)
+      end
     end
 
     # Wrap the given subject with an Actor

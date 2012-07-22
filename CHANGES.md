@@ -1,7 +1,9 @@
 HEAD
 ----
 * Linking is now performed via a SystemEvent
-* #monitor and #unmonitor provide unidirectional linking
+* #monitor, #unmonitor, and #monitoring? provide unidirectional linking
+* Celluloid::Actor.link (as well as unlink, linked_to, and monitor) class
+  methods for linking outside an actor class.
 * SystemEvents are no longer exceptions. Boo exceptions as flow control!
 * Celluloid::Mailbox#system_event eliminated and replaced with Mailbox#<<
   SystemEvents are now automatically high priority
