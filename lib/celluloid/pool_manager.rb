@@ -23,11 +23,8 @@ module Celluloid
       begin
         worker._send_ method, *args, &block
       rescue DeadActorError # if we get a dead actor out of the pool
-        puts "????? got DeadActorError during call, waiting for respawn"
         wait :respawn_complete
-        puts "????? respawn complete, provisioning worker!"
         worker = __provision_worker
-        puts "????? done reprovisioning worker, retrying!"
 
         retry
       rescue Exception => ex
@@ -72,13 +69,10 @@ module Celluloid
 
     # Spawn a new worker for every crashed one
     def crash_handler(actor, reason)
-      puts "!!!!! handling crash"
       @idle.delete actor
       return unless reason
 
-      puts "!!!!! spawning new actor"
       @idle << @worker_class.new_link(*@args)
-      puts "!!!!! done spawning actor, signaling complete"
       signal :respawn_complete
     end
 
