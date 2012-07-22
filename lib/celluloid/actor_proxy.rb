@@ -65,7 +65,7 @@ module Celluloid
     # Terminate the associated actor
     def terminate
       terminate!
-      join
+      __join__
       nil
     end
 
@@ -85,8 +85,19 @@ module Celluloid
     end
 
     # Wait for an actor to terminate
-    def join
+    def __join__
       @thread.join
+    end
+    alias :join :__join__
+
+    def __actor_proxy__(methods)
+      (methods || []).each do |m|
+        class << self
+          self
+        end.send :define_method, m do |*args, &block|
+          Actor.call @mailbox, m, *args, &block
+        end
+      end
     end
 
     # method_missing black magic to call bang predicate methods asynchronously

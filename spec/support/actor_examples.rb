@@ -548,4 +548,20 @@ shared_context "a Celluloid Actor" do |included_module|
       actor.tasks.size.should == 1
     end
   end
+
+  context 'method name collisions between poxy and target' do
+    let(:actor_class) do
+      Class.new ExampleActorClass.create(included_module) do
+        def join
+          :join_me
+        end
+        actor_proxy :join
+      end
+    end
+
+    it 'allows overriding by the target' do
+      actor = actor_class.new 'joiner'
+      actor.join.should == :join_me
+    end
+  end
 end

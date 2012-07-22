@@ -105,6 +105,7 @@ module Celluloid
     # Create a new actor
     def new(*args, &block)
       proxy = Actor.new(allocate).proxy
+      proxy.__actor_proxy__ @proxy_method_overrides
       proxy._send_(:initialize, *args, &block)
       proxy
     end
@@ -117,6 +118,7 @@ module Celluloid
 
       proxy = Actor.new(allocate).proxy
       current_actor.link proxy
+      proxy.__actor_proxy__ @proxy_method_overrides
       proxy._send_(:initialize, *args, &block)
       proxy
     end
@@ -150,7 +152,7 @@ module Celluloid
 
     # Run an actor in the foreground
     def run(*args, &block)
-      new(*args, &block).join
+      new(*args, &block).__join__
     end
 
     # Trap errors from actors we're linked to when they exit
@@ -176,6 +178,11 @@ module Celluloid
       @exclusive_methods.merge methods.map(&:to_sym)
     end
     attr_reader :exclusive_methods
+
+    def actor_proxy(*methods)
+      @proxy_method_overrides ||= Set.new
+      @proxy_method_overrides.merge methods.map(&:to_sym)
+    end
 
     # Create a mailbox for this actor
     def mailbox_factory
