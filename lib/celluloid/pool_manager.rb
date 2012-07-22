@@ -25,7 +25,6 @@ module Celluloid
       rescue DeadActorError # if we get a dead actor out of the pool
         wait :respawn_complete
         worker = __provision_worker
-
         retry
       rescue Exception => ex
         abort ex
