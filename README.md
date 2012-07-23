@@ -58,7 +58,7 @@ class Server
   end
 
   def run
-    while true; handle_message! @socket.read; end
+    loop { handle_message! @socket.read }
   end
 
   def handle_message(message)
