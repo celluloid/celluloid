@@ -2,10 +2,10 @@ module AlwaysExclusiveActorClass
   def self.create(included_module)
     Class.new do
       include included_module
+      exclusive
+
       attr_reader :tasks
       
-      always_exclusive
-
       def initialize
         @tasks = []
       end

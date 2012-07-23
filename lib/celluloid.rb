@@ -122,11 +122,6 @@ module Celluloid
     end
     alias_method :spawn_link, :new_link
 
-    def always_exclusive
-      @all_exclusive = true
-    end
-    attr_reader :all_exclusive
-
     # Create a supervisor which ensures an instance of an actor will restart
     # an actor if it fails
     def supervise(*args, &block)
@@ -177,10 +172,15 @@ module Celluloid
 
     # Mark methods as running exclusively
     def exclusive(*methods)
-      @exclusive_methods ||= Set.new
-      @exclusive_methods.merge methods.map(&:to_sym)
+      if methods.empty?
+        @all_exclusive = true
+      else
+        @exclusive_methods ||= Set.new
+        @exclusive_methods.merge methods.map(&:to_sym)
+      end
     end
     attr_reader :exclusive_methods
+    attr_reader :all_exclusive
 
     # Create a mailbox for this actor
     def mailbox_factory
