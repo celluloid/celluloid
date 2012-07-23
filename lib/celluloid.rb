@@ -171,10 +171,15 @@ module Celluloid
 
     # Mark methods as running exclusively
     def exclusive(*methods)
-      @exclusive_methods ||= Set.new
-      @exclusive_methods.merge methods.map(&:to_sym)
+      if methods.empty?
+        @all_exclusive = true
+      else
+        @exclusive_methods ||= Set.new
+        @exclusive_methods.merge methods.map(&:to_sym)
+      end
     end
     attr_reader :exclusive_methods
+    attr_reader :all_exclusive
 
     # Create a mailbox for this actor
     def mailbox_factory

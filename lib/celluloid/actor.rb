@@ -147,6 +147,7 @@ module Celluloid
       @mailbox      = subject.class.mailbox_factory
       @exit_handler = subject.class.exit_handler
       @exclusives   = subject.class.exclusive_methods
+      @all_exclusive = subject.class.all_exclusive
 
       @tasks     = Set.new
       @links     = Links.new
@@ -290,7 +291,7 @@ module Celluloid
       when SystemEvent
         handle_system_event message
       when Call
-        if @exclusives && @exclusives.include?(message.method)
+        if @all_exclusive || (@exclusives && @exclusives.include?(message.method))
           exclusive { message.dispatch(@subject) }
         else
           Task.new(:message_handler) { message.dispatch(@subject) }.resume
