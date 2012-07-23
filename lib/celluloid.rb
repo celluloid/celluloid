@@ -122,6 +122,11 @@ module Celluloid
     end
     alias_method :spawn_link, :new_link
 
+    def always_exclusive
+      @all_exclusive = true
+    end
+    attr_reader :all_exclusive
+
     # Create a supervisor which ensures an instance of an actor will restart
     # an actor if it fails
     def supervise(*args, &block)
