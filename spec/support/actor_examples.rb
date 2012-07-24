@@ -380,6 +380,38 @@ shared_context "a Celluloid Actor" do |included_module|
     end
   end
 
+  context "exclusive classes" do
+    subject do
+      Class.new do
+        include included_module
+        exclusive
+
+        attr_reader :tasks
+
+        def initialize
+          @tasks = []
+        end
+
+        def eat_donuts
+          sleep 3
+          @tasks << 'donuts'
+        end
+
+        def drink_coffee
+          @tasks << 'coffee'
+        end
+      end
+    end
+
+    it "executes two methods in an exclusive order" do
+      actor = subject.new
+      actor.eat_donuts!
+      actor.drink_coffee!
+      sleep 4
+      actor.tasks.should == ['donuts', 'coffee']
+    end
+  end
+
   context :receiving do
     before do
       @receiver = Class.new do
