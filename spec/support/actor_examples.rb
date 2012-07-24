@@ -393,7 +393,7 @@ shared_context "a Celluloid Actor" do |included_module|
         end
 
         def eat_donuts
-          sleep 3
+          sleep 0.1
           @tasks << 'donuts'
         end
 
