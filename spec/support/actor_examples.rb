@@ -393,7 +393,7 @@ shared_context "a Celluloid Actor" do |included_module|
         end
 
         def eat_donuts
-          sleep 0.1
+          sleep Q
           @tasks << 'donuts'
         end
 
@@ -407,7 +407,7 @@ shared_context "a Celluloid Actor" do |included_module|
       actor = subject.new
       actor.eat_donuts!
       actor.drink_coffee!
-      sleep 4
+      sleep Q * 2
       actor.tasks.should == ['donuts', 'coffee']
     end
   end
