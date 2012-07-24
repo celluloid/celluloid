@@ -589,4 +589,19 @@ shared_context "a Celluloid Actor" do |included_module|
       actor.tasks.size.should == 1
     end
   end
+
+  context :use_mailbox do
+    subject do
+      class MyMailbox < Celluloid::Mailbox; end
+
+      Class.new do
+        include included_module
+        use_mailbox MyMailbox
+      end
+    end
+
+    it "uses user-specified mailboxes" do
+      subject.new.mailbox.should be_a MyMailbox
+    end
+  end
 end
