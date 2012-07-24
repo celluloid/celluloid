@@ -10,12 +10,12 @@ class EchoClient
   def initialize(host, port)
     puts "*** Connecting to echo server on #{host}:#{port}"
 
-    @socket = TCPSocket.from_ruby_socket(::TCPSocket.new(host, port))
+    # This is actually creating a Celluloid::IO::TCPSocket
+    @socket = TCPSocket.new(host, port)
   end
 
   def echo(s)
     @socket.write(s)
-    actor = Celluloid.current_actor
     @socket.readpartial(4096)
   end
 
