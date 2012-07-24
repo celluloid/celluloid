@@ -27,12 +27,13 @@ module Celluloid
     # Forcibly kill the thread
     def kill
       !!@mutex.synchronize { @thread.kill if @thread }
+      self
     end
 
     # Join to a running thread, blocking until it terminates
     def join
       @mutex.synchronize { @join.wait(@mutex) if @thread }
-      nil
+      self
     end
   end
 end

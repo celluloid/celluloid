@@ -3,7 +3,7 @@ module Celluloid
   # dispatches calls and casts to normal Ruby objects which are running inside
   # of their own threads.
   class ActorProxy
-    attr_reader :mailbox
+    attr_reader :mailbox, :thread
 
     def initialize(actor)
       @mailbox, @thread, @klass = actor.mailbox, actor.thread, actor.subject.class.to_s
@@ -65,7 +65,7 @@ module Celluloid
     # Terminate the associated actor
     def terminate
       terminate!
-      join
+      Actor.join(self)
       nil
     end
 
@@ -77,16 +77,12 @@ module Celluloid
 
     # Forcibly kill a given actor
     def kill
-      @thread.kill
-      begin
-        @mailbox.shutdown
-      rescue DeadActorError
-      end
+      Actor.kill(self)
     end
 
     # Wait for an actor to terminate
     def join
-      @thread.join
+      Actor.join(self)
     end
 
     # method_missing black magic to call bang predicate methods asynchronously

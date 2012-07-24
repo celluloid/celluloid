@@ -139,6 +139,21 @@ module Celluloid
       def linked_to?(actor)
         monitoring?(actor) && Thread.current[:actor].links.include?(actor)
       end
+
+      # Forcibly kill a given actor
+      def kill(actor)
+        actor.thread.kill
+        begin
+          actor.mailbox.shutdown
+        rescue DeadActorError
+        end
+      end
+
+      # Wait for an actor to terminate
+      def join(actor)
+        actor.thread.join
+        actor
+      end
     end
 
     # Wrap the given subject with an Actor
