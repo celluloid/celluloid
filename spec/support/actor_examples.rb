@@ -603,5 +603,10 @@ shared_context "a Celluloid Actor" do |included_module|
     it "uses user-specified mailboxes" do
       subject.new.mailbox.should be_a MyMailbox
     end
+
+    it "retains custom mailboxes when subclassed" do
+      subclass = Class.new(subject)
+      subclass.new.mailbox.should be_a MyMailbox
+    end
   end
 end

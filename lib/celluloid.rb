@@ -185,8 +185,8 @@ module Celluloid
     def mailbox_factory
       if defined?(@mailbox_factory)
         @mailbox_factory.call
-      elsif defined?(super)
-        super
+      elsif superclass.respond_to? :mailbox_factory
+        superclass.mailbox_factory
       else
         Mailbox.new
       end
