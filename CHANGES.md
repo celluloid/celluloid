@@ -7,6 +7,7 @@ HEAD
 * SystemEvents are no longer exceptions. Boo exceptions as flow control!
 * Celluloid::Mailbox#system_event eliminated and replaced with Mailbox#<<
   SystemEvents are now automatically high priority
+* ActorProxy is now a BasicObject
 * A bug prevented Celluloid subclasses from retaining custom mailboxes
   defined by use_mailbox. This is now fixed.
 

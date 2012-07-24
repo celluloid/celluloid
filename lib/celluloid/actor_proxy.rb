@@ -2,7 +2,7 @@ module Celluloid
   # A proxy object returned from Celluloid::Actor.spawn/spawn_link which
   # dispatches calls and casts to normal Ruby objects which are running inside
   # of their own threads.
-  class ActorProxy
+  class ActorProxy < BasicObject
     attr_reader :mailbox, :thread
 
     def initialize(actor)
