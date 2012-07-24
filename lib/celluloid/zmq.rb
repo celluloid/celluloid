@@ -19,13 +19,15 @@ module Celluloid
       end
 
       # Obtain a 0MQ context (or lazily initialize it)
-      def context(threads = 1)
+      def context(worker_threads = 1)
         return @context if @context
-        @context = ::ZMQ::Context.new(threads)
-        at_exit { @context.terminate }
-        @context
+        @context = ::ZMQ::Context.new(worker_threads)
       end
       alias_method :init, :context
+
+      def terminate
+        @context.terminate
+      end
     end
 
     extend Forwardable
