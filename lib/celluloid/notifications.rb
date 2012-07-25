@@ -51,7 +51,7 @@ module Celluloid
       end
 
       def publish(pattern, *args)
-        Actor.async(actor.mailbox, method, pattern, *args)
+        Actor.async(actor, method, pattern, *args)
       end
 
       def subscribed_to?(pattern)
@@ -68,7 +68,7 @@ module Celluloid
       attr_accessor :notifier
     end
     self.notifier = Fanout.new
-    
+
     def publish(pattern, *args)
       Celluloid::Notifications.notifier.publish(pattern, *args)
     end

@@ -13,76 +13,10 @@ module Celluloid
       Actor.call @mailbox, :__send__, meth, *args, &block
     end
 
-    def class
-      Actor.call @mailbox, :__send__, :class
-    end
-
-    def name
-      Actor.call @mailbox, :name
-    end
-
-    def is_a?(klass)
-      Actor.call @mailbox, :is_a?, klass
-    end
-
-    def kind_of?(klass)
-      Actor.call @mailbox, :kind_of?, klass
-    end
-
-    def respond_to?(meth)
-      Actor.call @mailbox, :respond_to?, meth
-    end
-
-    def methods(include_ancestors = true)
-      Actor.call @mailbox, :methods, include_ancestors
-    end
-
-    def alive?
-      @mailbox.alive?
-    end
-
-    def to_s
-      Actor.call @mailbox, :to_s
-    end
-
     def inspect
-      Actor.call @mailbox, :inspect
+      super
     rescue DeadActorError
       "#<Celluloid::Actor(#{@klass}) dead>"
-    end
-
-    # Make an asynchronous call to an actor, for those who don't like the
-    # predicate syntax. TIMTOWTDI!
-    def async(method_name, *args, &block)
-      Actor.async @mailbox, method_name, *args, &block
-    end
-
-    # Create a Celluloid::Future which calls a given method
-    def future(method_name, *args, &block)
-      Actor.future @mailbox, method_name, *args, &block
-    end
-
-    # Terminate the associated actor
-    def terminate
-      terminate!
-      Actor.join(self)
-      nil
-    end
-
-    # Terminate the associated actor asynchronously
-    def terminate!
-      raise DeadActorError, "actor already terminated" unless alive?
-      @mailbox << TerminationRequest.new
-    end
-
-    # Forcibly kill a given actor
-    def kill
-      Actor.kill(self)
-    end
-
-    # Wait for an actor to terminate
-    def join
-      Actor.join(self)
     end
 
     # method_missing black magic to call bang predicate methods asynchronously
@@ -91,7 +25,7 @@ module Celluloid
       if meth.match(/!$/)
         unbanged_meth = meth.to_s
         unbanged_meth.slice!(-1, 1)
-        Actor.async @mailbox, unbanged_meth, *args, &block
+        Actor.async self, unbanged_meth, *args, &block
       else
         Actor.call  @mailbox, meth, *args, &block
       end
