@@ -13,36 +13,8 @@ module Celluloid
       Actor.call @mailbox, :__send__, meth, *args, &block
     end
 
-    def class
-      Actor.call @mailbox, :__send__, :class
-    end
-
-    def name
-      Actor.call @mailbox, :name
-    end
-
-    def is_a?(klass)
-      Actor.call @mailbox, :is_a?, klass
-    end
-
-    def kind_of?(klass)
-      Actor.call @mailbox, :kind_of?, klass
-    end
-
-    def respond_to?(meth)
-      Actor.call @mailbox, :respond_to?, meth
-    end
-
-    def methods(include_ancestors = true)
-      Actor.call @mailbox, :methods, include_ancestors
-    end
-
-    def to_s
-      Actor.call @mailbox, :to_s
-    end
-
     def inspect
-      Actor.call @mailbox, :inspect
+      super
     rescue DeadActorError
       "#<Celluloid::Actor(#{@klass}) dead>"
     end
