@@ -26,7 +26,7 @@ shared_context "a Celluloid Actor" do |included_module|
 
   it "handles futures for synchronous calls" do
     actor = actor_class.new "Troy McClure"
-    future = actor.future :greet
+    future = Celluloid::Actor.future actor, :greet
     future.value.should == "Hi, I'm Troy McClure"
   end
 
@@ -89,7 +89,7 @@ shared_context "a Celluloid Actor" do |included_module|
       e.backtrace.any? { |line| line.include?([__FILE__, line_no].join(':')) }.should be_true # Check the backtrace is appropriate to the caller
       e.foo.should be == :bar # Check the exception maintains instance variables
 
-      actor.should be_alive
+      Celluloid::Actor.alive?(actor).should be_true
     end
 
     it "converts strings to runtime errors" do
@@ -106,7 +106,7 @@ shared_context "a Celluloid Actor" do |included_module|
       end.to raise_exception(TypeError, "Exception object/String expected, but Fixnum received")
 
       actor.greet rescue nil # Ensure our actor has died.
-      actor.should_not be_alive
+      Celluloid::Actor.alive?(actor).should_not be_true
     end
   end
 
@@ -127,7 +127,7 @@ shared_context "a Celluloid Actor" do |included_module|
 
   it "handles asynchronous calls via #async" do
     actor = actor_class.new "Troy McClure"
-    actor.async :change_name, "Charlie Sheen"
+    Celluloid::Actor.async actor, :change_name, "Charlie Sheen"
     actor.greet.should == "Hi, I'm Charlie Sheen"
   end
 
@@ -191,23 +191,23 @@ shared_context "a Celluloid Actor" do |included_module|
   context :termination do
     it "terminates" do
       actor = actor_class.new "Arnold Schwarzenegger"
-      actor.should be_alive
-      actor.terminate
-      actor.join
-      actor.should_not be_alive
+      Celluloid::Actor.alive?(actor).should be_true
+      Celluloid::Actor.terminate actor
+      Celluloid::Actor.join actor
+      Celluloid::Actor.alive?(actor).should be_false
     end
 
     it "kills" do
       actor = actor_class.new "Woody Harrelson"
-      actor.should be_alive
-      actor.kill
-      actor.join
-      actor.should_not be_alive
+      Celluloid::Actor.alive?(actor).should be_true
+      Celluloid::Actor.kill actor
+      Celluloid::Actor.join actor
+      Celluloid::Actor.alive?(actor).should be_false
     end
 
     it "raises DeadActorError if called after terminated" do
       actor = actor_class.new "Arnold Schwarzenegger"
-      actor.terminate
+      Celluloid::Actor.terminate actor
 
       expect do
         actor.greet

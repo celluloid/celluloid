@@ -80,7 +80,7 @@ module Celluloid
         # Actors cannot self-terminate, you must do it for them
         terminators = Actor.all.each do |actor|
           begin
-            actor.future(:terminate)
+            Actor.future(actor, :terminate)
           rescue DeadActorError, MailboxError
           end
         end
@@ -203,7 +203,7 @@ module Celluloid
 
   # Is this actor alive?
   def alive?
-    Thread.current[:actor].alive?
+    Actor.alive? Thread.current[:actor]
   end
 
   # Raise an exception in caller context, but stay running
@@ -340,12 +340,12 @@ module Celluloid
 
   # Handle async calls within an actor itself
   def async(meth, *args, &block)
-    Actor.async Thread.current[:actor].mailbox, meth, *args, &block
+    Actor.async Thread.current[:actor], meth, *args, &block
   end
 
   # Handle calls to future within an actor itself
   def future(meth, *args, &block)
-    Actor.future Thread.current[:actor].mailbox, meth, *args, &block
+    Actor.future Thread.current[:actor], meth, *args, &block
   end
 
   # Process async calls via method_missing

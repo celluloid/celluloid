@@ -78,9 +78,9 @@ module Celluloid
       end
 
       # Invoke a method asynchronously on an actor via its mailbox
-      def async(mailbox, meth, *args, &block)
+      def async(actor, meth, *args, &block)
         begin
-          mailbox << AsyncCall.new(meth, args, block)
+          actor.mailbox << AsyncCall.new(meth, args, block)
         rescue MailboxError
           # Silently swallow asynchronous calls to dead actors. There's no way
           # to reliably generate DeadActorErrors for async calls, so users of
@@ -90,9 +90,9 @@ module Celluloid
       end
 
       # Call a method asynchronously and retrieve its value later
-      def future(mailbox, meth, *args, &block)
+      def future(actor, meth, *args, &block)
         future = Future.new
-        future.execute(mailbox, meth, args, block)
+        future.execute(actor.mailbox, meth, args, block)
         future
       end
 
@@ -138,6 +138,23 @@ module Celluloid
       # Are we bidirectionally linked to the given actor?
       def linked_to?(actor)
         monitoring?(actor) && Thread.current[:actor].links.include?(actor)
+      end
+
+      def alive?(actor)
+        actor.mailbox.alive?
+      end
+
+      # Terminate a given actor
+      def terminate(actor)
+        terminate! actor
+        Actor.join actor
+        nil
+      end
+
+      # Terminate a given actor asynchronously
+      def terminate!(actor)
+        raise DeadActorError, "actor already terminated" unless alive?(actor)
+        actor.mailbox << TerminationRequest.new
       end
 
       # Forcibly kill a given actor

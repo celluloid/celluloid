@@ -29,7 +29,7 @@ module Celluloid
       rescue Exception => ex
         abort ex
       ensure
-        @idle << worker if worker.alive?
+        @idle << worker if Actor.alive?(worker)
       end
     end
 
