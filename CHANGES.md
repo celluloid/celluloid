@@ -10,6 +10,7 @@ HEAD
 * ActorProxy is now a BasicObject
 * A bug prevented Celluloid subclasses from retaining custom mailboxes
   defined by use_mailbox. This is now fixed.
+* `exclusive` class method without arguments makes the whole actor exclusive
 
 0.11.1
 ------
