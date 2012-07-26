@@ -29,8 +29,8 @@ module Celluloid
       Actor.call @mailbox, :kind_of?, klass
     end
 
-    def respond_to?(meth)
-      Actor.call @mailbox, :respond_to?, meth
+    def respond_to?(meth, include_private = false)
+      Actor.call @mailbox, :respond_to?, meth, include_private
     end
 
     def methods(include_ancestors = true)

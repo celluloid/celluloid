@@ -54,6 +54,12 @@ shared_context "a Celluloid Actor" do |included_module|
     actor.first.should be == :bar
   end
 
+  it "properly handles respond_to with include_private" do
+    actor = actor_class.new "Method missing privates"
+    actor.respond_to?(:zomg_private).should be_false
+    actor.respond_to?(:zomg_private, true).should be_true
+  end
+
   it "raises NoMethodError when a nonexistent method is called" do
     actor = actor_class.new "Billy Bob Thornton"
 
