@@ -55,7 +55,7 @@ module ExampleActorClass
         end
       end
 
-      def respond_to?(method_name)
+      def respond_to?(method_name, include_private = false)
         super || delegates?(method_name)
       end
 
