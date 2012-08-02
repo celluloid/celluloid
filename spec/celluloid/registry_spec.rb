@@ -34,10 +34,15 @@ describe Celluloid::Registry do
     it "should return a hash of registered actors and remove them from the registry" do
       Celluloid::Actor[:marilyn] ||= Marliyn.new
       rval = Celluloid::Actor.clear_registry
-      rval.should be_kind_of(Hash)
-      rval.should have_key(:marilyn)
-      rval[:marilyn].wrapped_object.should be_instance_of(Marilyn)
-      Celluloid::Actor.registered.should be_empty
+      begin
+        rval.should be_kind_of(Hash)
+        rval.should have_key(:marilyn)
+        rval[:marilyn].wrapped_object.should be_instance_of(Marilyn)
+        Celluloid::Actor.registered.should be_empty
+      ensure
+        # Repopulate the registry once we're done
+        rval.each { |key, actor| Celluloid::Actor[key] = actor }
+      end
     end
   end
 end

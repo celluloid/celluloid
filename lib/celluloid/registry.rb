@@ -3,8 +3,8 @@ require 'thread'
 module Celluloid
   # The Registry allows us to refer to specific actors by human-meaningful names
   class Registry
-    def self.root
-      @root ||= new
+    class << self
+      attr_reader :root
     end
 
     def initialize
@@ -48,7 +48,7 @@ module Celluloid
     end
 
     # removes and returns all registered actors as a hash of `name => actor`
-    # can be used in testing to clear the registry 
+    # can be used in testing to clear the registry
     def clear
       hash = nil
       @registry_lock.synchronize do
@@ -57,5 +57,8 @@ module Celluloid
       end
       hash
     end
+
+    # Create the default registry
+    @root = new
   end
 end
