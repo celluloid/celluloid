@@ -39,7 +39,8 @@ module Celluloid
         else raise ArgumentError, "invalid ownership type: #{type}"
         end
 
-        Actor.current.wait(self) while instance_variable_get(ivar)
+        # Celluloid needs a better API here o_O
+        Thread.current[:actor].wait(self) while instance_variable_get(ivar)
         instance_variable_set(ivar, Task.current)
       end
 
@@ -58,7 +59,7 @@ module Celluloid
 
         raise "not owner" unless instance_variable_get(ivar) == Task.current
         instance_variable_set(ivar, nil)
-        Actor.current.signal(self)
+        Thread.current[:actor].signal(self)
       end
 
       def read(length = nil, buffer = nil)
