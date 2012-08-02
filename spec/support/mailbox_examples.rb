@@ -1,7 +1,4 @@
 shared_context "a Celluloid Mailbox" do
-  # Level of timer accuracy enforced by the tests (50ms)
-  Q = 0.05
-
   it "receives messages" do
     message = :ohai
 
@@ -38,6 +35,6 @@ shared_context "a Celluloid Mailbox" do
     started_at = Time.now
 
     subject.receive(interval) { false }
-    (Time.now - started_at).should be_within(Q).of interval
+    (Time.now - started_at).should be_within(TIMER_QUANTUM).of interval
   end
 end
