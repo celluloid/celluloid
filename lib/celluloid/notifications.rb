@@ -1,5 +1,21 @@
 module Celluloid
   module Notifications
+    def self.notifier
+      Actor[:notifications_fanout] or raise DeadActorError, "notifications fanout actor not running"
+    end
+
+    def publish(pattern, *args)
+      Celluloid::Notifications.notifier.publish(pattern, *args)
+    end
+
+    def subscribe(pattern, method)
+      Celluloid::Notifications.notifier.subscribe(Actor.current, pattern, method)
+    end
+
+    def unsubscribe(*args)
+      Celluloid::Notifications.notifier.unsubscribe(*args)
+    end
+
     class Fanout
       include Celluloid
       trap_exit :prune
@@ -62,22 +78,6 @@ module Celluloid
         self === subscriber_or_pattern ||
           @pattern && @pattern === subscriber_or_pattern
       end
-    end
-
-    def self.notifier
-      Actor[:notifications_fanout]
-    end
-    
-    def publish(pattern, *args)
-      Celluloid::Notifications.notifier.publish(pattern, *args)
-    end
-
-    def subscribe(pattern, method)
-      Celluloid::Notifications.notifier.subscribe(Actor.current, pattern, method)
-    end
-
-    def unsubscribe(*args)
-      Celluloid::Notifications.notifier.unsubscribe(*args)
     end
   end
 end
