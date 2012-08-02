@@ -5,10 +5,10 @@ require 'set'
 
 module Celluloid
   SHUTDOWN_TIMEOUT = 120 # How long actors have to terminate
-  @logger = Logger.new STDERR
 
   class << self
-    attr_accessor :logger # Thread-safe logger class
+    attr_accessor :logger     # Thread-safe logger class
+    attr_accessor :task_class # Default task type to use
 
     def included(klass)
       klass.send :extend, ClassMethods
@@ -169,17 +169,21 @@ module Celluloid
       end
     end
 
+    # Define the default task type for this class
+    def task_class(klass = nil)
+      klass ? @task_class = klass : @task_class
+    end
+
     # Mark methods as running exclusively
     def exclusive(*methods)
       if methods.empty?
-        @all_exclusive = true
-      else
+        @exclusive_methods = :all
+      elsif @exclusive_methods != :all
         @exclusive_methods ||= Set.new
         @exclusive_methods.merge methods.map(&:to_sym)
       end
     end
     attr_reader :exclusive_methods
-    attr_reader :all_exclusive
 
     # Create a mailbox for this actor
     def mailbox_factory
@@ -398,3 +402,5 @@ require 'celluloid/pool_manager'
 require 'celluloid/supervision_group'
 require 'celluloid/supervisor'
 require 'celluloid/notifications'
+
+require 'celluloid/boot'

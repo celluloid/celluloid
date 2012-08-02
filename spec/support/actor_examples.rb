@@ -587,7 +587,7 @@ shared_context "a Celluloid Actor" do |included_module|
       tasks.size.should == 2
 
       blocking_task = tasks.find { |t| t.status != :running }
-      blocking_task.should be_a Celluloid::Task
+      blocking_task.should be_a Celluloid.task_class
       blocking_task.status.should == :callwait
 
       actor.blocker.unblock
@@ -597,22 +597,37 @@ shared_context "a Celluloid Actor" do |included_module|
   end
 
   context :use_mailbox do
-    subject do
-      class MyMailbox < Celluloid::Mailbox; end
+    class ExampleMailbox < Celluloid::Mailbox; end
 
+    subject do
       Class.new do
         include included_module
-        use_mailbox MyMailbox
+        use_mailbox ExampleMailbox
       end
     end
 
     it "uses user-specified mailboxes" do
-      subject.new.mailbox.should be_a MyMailbox
+      subject.new.mailbox.should be_a ExampleMailbox
     end
 
     it "retains custom mailboxes when subclassed" do
       subclass = Class.new(subject)
-      subclass.new.mailbox.should be_a MyMailbox
+      subclass.new.mailbox.should be_a ExampleMailbox
+    end
+  end
+
+  context :task_class do
+    class ExampleTask < Celluloid::TaskFiber; end
+
+    subject do
+      Class.new do
+        include included_module
+        task_class ExampleTask
+      end
+    end
+
+    it "uses user-specified tasks" do
+      subject.new.tasks.first.should be_a ExampleTask
     end
   end
 end

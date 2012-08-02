@@ -39,7 +39,7 @@ module Celluloid
   class SyncCall < Call
     attr_reader :caller, :task
 
-    def initialize(caller, method, arguments = [], block = nil, task = Fiber.current.task)
+    def initialize(caller, method, arguments = [], block = nil, task = Thread.current[:task])
       super(method, arguments, block)
       @caller = caller
       @task = task

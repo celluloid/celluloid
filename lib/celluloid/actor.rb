@@ -162,7 +162,7 @@ module Celluloid
       @mailbox      = subject.class.mailbox_factory
       @exit_handler = subject.class.exit_handler
       @exclusives   = subject.class.exclusive_methods
-      @all_exclusive = subject.class.all_exclusive
+      @task_class   = subject.class.task_class || Celluloid.task_class
 
       @tasks     = Set.new
       @links     = Links.new
@@ -276,17 +276,13 @@ module Celluloid
     end
 
     # Schedule a block to run at the given time
-    def after(interval)
-      @timers.after(interval) do
-        Task.new(:timer) { yield }.resume
-      end
+    def after(interval, &block)
+      @timers.after(interval) { task(:timer, &block) }
     end
 
     # Schedule a block to run at the given time
-    def every(interval)
-      @timers.every(interval) do
-        Task.new(:timer) { yield }.resume
-      end
+    def every(interval, &block)
+      @timers.every(interval) { task(:timer, &block) }
     end
 
     # Sleep for the given amount of time
@@ -306,11 +302,7 @@ module Celluloid
       when SystemEvent
         handle_system_event message
       when Call
-        if @all_exclusive || (@exclusives && @exclusives.include?(message.method))
-          exclusive { message.dispatch(@subject) }
-        else
-          Task.new(:message_handler) { message.dispatch(@subject) }.resume
-        end
+        task(:message_handler, message.method) { message.dispatch(@subject) }
       when Response
         message.dispatch
       else
@@ -323,7 +315,7 @@ module Celluloid
     def handle_system_event(event)
       case event
       when ExitEvent
-        Task.new(:exit_handler) { handle_exit_event event }.resume
+        task(:exit_handler, @exit_handler) { handle_exit_event event }
       when LinkingRequest
         event.process(links)
       when NamingRequest
@@ -363,7 +355,7 @@ module Celluloid
     # Run the user-defined finalizer, if one is set
     def run_finalizer
       return unless @subject.respond_to? :finalize
-      Task.new(:finalizer) { @subject.finalize }.resume
+      task(:finalizer, :finalize) { @subject.finalize }
     rescue => ex
       Logger.crash("#{@subject.class}#finalize crashed!", ex)
     end
@@ -375,6 +367,15 @@ module Celluloid
       tasks.each { |task| task.terminate }
     rescue => ex
       Logger.crash("#{@subject.class}: CLEANUP CRASHED!", ex)
+    end
+
+    # Run a method inside a task unless it's exclusive
+    def task(task_type, method_name = nil, &block)
+      if @exclusives && method_name && (@exclusives == :all || @exclusives.include?(method_name))
+        exclusive { block.call }
+      else
+        @task_class.new(:message_handler, &block).resume
+      end
     end
   end
 end

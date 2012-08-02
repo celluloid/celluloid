@@ -64,10 +64,9 @@ module Celluloid
       end
     end
 
-    class << self
-      attr_accessor :notifier
+    def self.notifier
+      Actor[:notifications_fanout]
     end
-    self.notifier = Fanout.new
     
     def publish(pattern, *args)
       Celluloid::Notifications.notifier.publish(pattern, *args)

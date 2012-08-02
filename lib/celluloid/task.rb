@@ -1,30 +1,31 @@
+#
+# Tasks are interruptable/resumable execution contexts used to run methods
+# This file provides two implementations: one using Threads and one using
+# Fibers. The Fiber-based implementation is used by default
+#
+
 module Celluloid
   # Trying to resume a dead task
   class DeadTaskError < StandardError; end
 
-  # Tasks are interruptable/resumable execution contexts used to run methods
-  class Task
-    class TerminatedError < StandardError; end # kill a running fiber
-
-    attr_reader   :type
-    attr_accessor :status
-
+  # Methods for interfacing with the current task
+  module Task
     # Obtain the current task
     def self.current
-      Fiber.current.task or raise "no task for this Fiber"
+      Thread.current[:task] or raise "not within a task context"
     end
 
     # Suspend the running task, deferring to the scheduler
     def self.suspend(status)
-      task = Task.current
-      task.status = status
-
-      result = Fiber.yield
-      raise TerminatedError, "task was terminated" if result == TerminatedError
-      task.status = :running
-
-      result
+      Task.current.suspend(status)
     end
+  end
+
+  # Tasks with a Fiber backend
+  class TaskFiber
+    class TerminatedError < StandardError; end # kill a running fiber
+
+    attr_reader :type, :status
 
     # Run the given block within a task
     def initialize(type)
@@ -38,7 +39,7 @@ module Celluloid
         @status = :running
         Thread.current[:actor]   = actor
         Thread.current[:mailbox] = mailbox
-        Fiber.current.task = self
+        Thread.current[:task]    = self
         actor.tasks << self
 
         begin
@@ -50,6 +51,16 @@ module Celluloid
           actor.tasks.delete self
         end
       end
+    end
+
+    # Suspend the current task, changing the status to the given argument
+    def suspend(status)
+      @status = status
+      result = Fiber.yield
+      raise TerminatedError, "task was terminated" if result == TerminatedError
+      @status = :running
+
+      result
     end
 
     # Resume a suspended task, giving it a value to return if needed

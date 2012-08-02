@@ -18,8 +18,3 @@ class Thread
     end
   end
 end
-
-class Fiber
-  # Celluloid::Task associated with this Fiber
-  attr_accessor :task
-end
