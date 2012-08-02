@@ -42,6 +42,7 @@ describe Celluloid::Registry do
       ensure
         # Repopulate the registry once we're done
         rval.each { |key, actor| Celluloid::Actor[key] = actor }
+        STDERR.puts "[clear test] Registered is: #{Celluloid::Actor.registered.inspect}"
       end
     end
   end
