@@ -1,7 +1,6 @@
 module Celluloid
   module Notifications
     def self.notifier
-      STDERR.puts "[getting notifier] Registered is: #{Celluloid::Actor.registered.inspect}"
       Actor[:notifications_fanout] or raise DeadActorError, "notifications fanout actor not running"
     end
 

@@ -14,5 +14,3 @@ end
 
 # Timer accuracy enforced by the tests (50ms)
 TIMER_QUANTUM = 0.05
-
-STDERR.puts "[boot] Registered is: #{Celluloid::Actor.registered.inspect}"
