@@ -33,7 +33,7 @@ describe "Celluloid.pool" do
     queue.pop.should == :done
   end
 
-  it "handles crashes", :pending => (RUBY_ENGINE == 'rbx') do
+  it "handles crashes" do
     expect { subject.crash }.to raise_error(ExampleError)
     subject.process.should == :done
   end
