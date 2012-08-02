@@ -9,7 +9,7 @@ module Celluloid
 
     def check_signature(obj)
       unless obj.respond_to? @method
-        raise NoMethodError, "undefined method `#{@method}' for #{obj.inspect}"
+        raise NoMethodError, "undefined method `#{@method}' for #{obj.to_s}"
       end
 
       begin

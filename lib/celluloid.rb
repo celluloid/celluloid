@@ -4,6 +4,8 @@ require 'timeout'
 require 'set'
 
 module Celluloid
+  extend self # expose all instance methods as singleton methods
+
   SHUTDOWN_TIMEOUT = 120 # How long actors have to terminate
 
   class << self
@@ -11,42 +13,13 @@ module Celluloid
     attr_accessor :task_class # Default task type to use
 
     def included(klass)
-      klass.send :extend, ClassMethods
+      klass.send :extend,  ClassMethods
+      klass.send :include, InstanceMethods
     end
 
     # Are we currently inside of an actor?
     def actor?
       !!Thread.current[:actor]
-    end
-
-    # Is current actor running in exclusive mode?
-    def exclusive?
-      actor? and Thread.current[:actor].exclusive?
-    end
-
-    # Obtain the currently running actor (if one exists)
-    def current_actor
-      Actor.current
-    end
-
-    # Receive an asynchronous message
-    def receive(timeout = nil, &block)
-      actor = Thread.current[:actor]
-      if actor
-        actor.receive(timeout, &block)
-      else
-        Thread.mailbox.receive(timeout, &block)
-      end
-    end
-
-    # Sleep letting the actor continue processing messages
-    def sleep(interval)
-      actor = Thread.current[:actor]
-      if actor
-        actor.sleep(interval)
-      else
-        Kernel.sleep interval
-      end
     end
 
     # Generate a Universally Unique Identifier
@@ -67,8 +40,6 @@ module Celluloid
     end
 
     # Shut down all running actors
-    # FIXME: This should probably attempt a graceful shutdown of the supervision
-    # tree before iterating through all actors and telling them to terminate.
     def shutdown
       Timeout.timeout(SHUTDOWN_TIMEOUT) do
         actors = Actor.all
@@ -201,8 +172,53 @@ module Celluloid
     end
   end
 
+  # These are methods we don't want added to the Celluloid singleton but to be
+  # defined on all classes that use Celluloid
+  module InstanceMethods
+    # Obtain the Ruby object the actor is wrapping. This should ONLY be used
+    # for a limited set of use cases like runtime metaprogramming. Interacting
+    # directly with the wrapped object foregoes any kind of thread safety that
+    # Celluloid would ordinarily provide you, and the object is guaranteed to
+    # be shared with at least the actor thread. Tread carefully.
+    def wrapped_object; self; end
+
+    def inspect
+      str = "#<Celluloid::Actor(#{self.class}:0x#{object_id.to_s(16)})"
+      ivars = instance_variables.map do |ivar|
+        "#{ivar}=#{instance_variable_get(ivar).inspect}"
+      end
+
+      str << " " << ivars.join(' ') unless ivars.empty?
+      str << ">"
+    end
+
+    # Process async calls via method_missing
+    def method_missing(meth, *args, &block)
+      # bang methods are async calls
+      if meth.to_s.match(/!$/)
+        unbanged_meth = meth.to_s.sub(/!$/, '')
+        args.unshift unbanged_meth
+
+        call = AsyncCall.new(:__send__, args, block)
+        begin
+          Thread.current[:actor].mailbox << call
+        rescue MailboxError
+          # Silently swallow asynchronous calls to dead actors. There's no way
+          # to reliably generate DeadActorErrors for async calls, so users of
+          # async calls should find other ways to deal with actors dying
+          # during an async call (i.e. linking/supervisors)
+        end
+
+        return
+      end
+
+      super
+    end
+  end
+
   #
-  # Instance methods
+  # The following methods are available on both the Celluloid singleton and
+  # directly inside of all classes that include Celluloid
   #
 
   # Is this actor alive?
@@ -223,16 +239,6 @@ module Celluloid
   # Terminate this actor
   def terminate
     Thread.current[:actor].terminate
-  end
-
-  def inspect
-    str = "#<Celluloid::Actor(#{self.class}:0x#{object_id.to_s(16)})"
-    ivars = instance_variables.map do |ivar|
-      "#{ivar}=#{instance_variable_get(ivar).inspect}"
-    end
-
-    str << " " << ivars.join(' ') unless ivars.empty?
-    str << ">"
   end
 
   # Send a signal with the given name to all waiting methods
@@ -259,13 +265,6 @@ module Celluloid
   def tasks
     Thread.current[:actor].tasks.to_a
   end
-
-  # Obtain the Ruby object the actor is wrapping. This should ONLY be used
-  # for a limited set of use cases like runtime metaprogramming. Interacting
-  # directly with the wrapped object foregoes any kind of thread safety that
-  # Celluloid would ordinarily provide you, and the object is guaranteed to
-  # be shared with at least the actor thread. Tread carefully.
-  def wrapped_object; self; end
 
   # Obtain the Celluloid::Links for this actor
   def links
@@ -304,12 +303,22 @@ module Celluloid
 
   # Receive an asynchronous message via the actor protocol
   def receive(timeout = nil, &block)
-    Celluloid.receive(timeout, &block)
+    actor = Thread.current[:actor]
+    if actor
+      actor.receive(timeout, &block)
+    else
+      Thread.mailbox.receive(timeout, &block)
+    end
   end
 
-  # Sleep while letting the actor continue to receive messages
+  # Sleep letting the actor continue processing messages
   def sleep(interval)
-    Celluloid.sleep(interval)
+    actor = Thread.current[:actor]
+    if actor
+      actor.sleep(interval)
+    else
+      Kernel.sleep interval
+    end
   end
 
   # Run given block in an exclusive mode: all synchronous calls block the whole
@@ -320,7 +329,8 @@ module Celluloid
 
   # Are we currently exclusive
   def exclusive?
-    Celluloid.exclusive?
+    actor = Thread.current[:actor]
+    actor && actor.exclusive?
   end
 
   # Call a block after a given interval, returning a Celluloid::Timer object
@@ -350,29 +360,6 @@ module Celluloid
   # Handle calls to future within an actor itself
   def future(meth, *args, &block)
     Actor.future Thread.current[:actor].mailbox, meth, *args, &block
-  end
-
-  # Process async calls via method_missing
-  def method_missing(meth, *args, &block)
-    # bang methods are async calls
-    if meth.to_s.match(/!$/)
-      unbanged_meth = meth.to_s.sub(/!$/, '')
-      args.unshift unbanged_meth
-
-      call = AsyncCall.new(:__send__, args, block)
-      begin
-        Thread.current[:actor].mailbox << call
-      rescue MailboxError
-        # Silently swallow asynchronous calls to dead actors. There's no way
-        # to reliably generate DeadActorErrors for async calls, so users of
-        # async calls should find other ways to deal with actors dying
-        # during an async call (i.e. linking/supervisors)
-      end
-
-      return
-    end
-
-    super
   end
 end
 
