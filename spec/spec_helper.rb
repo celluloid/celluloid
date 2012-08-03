@@ -3,8 +3,8 @@ require 'bundler/setup'
 require 'celluloid'
 require 'celluloid/rspec'
 
-# Squelch the logger (comment out this line if you want it on for debugging)
-Celluloid.logger = nil
+logfile = File.open(File.expand_path("../../log/test.log", __FILE__), 'a')
+Celluloid.logger = Logger.new(logfile)
 
 Dir['./spec/support/*.rb'].map {|f| require f }
 
