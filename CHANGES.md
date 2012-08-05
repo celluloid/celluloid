@@ -1,6 +1,7 @@
 HEAD
 ----
 * All methods in the Celluloid module are now available on its singleton
+* Celluloid::Group constant removed. Please use Celluloid::SupervisionGroup
 * Linking is now performed via a SystemEvent
 * #monitor, #unmonitor, and #monitoring? provide unidirectional linking
 * Celluloid::Actor.link (as well as unlink, linked_to, and monitor) class

@@ -135,7 +135,4 @@ module Celluloid
       end
     end
   end
-
-  # Legacy support for the old name
-  Group = SupervisionGroup
 end
