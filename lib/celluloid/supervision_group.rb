@@ -28,7 +28,7 @@ module Celluloid
           # Take five, toplevel supervisor
           sleep 5 while supervisor.alive?
 
-          Logger.error "!!! Celluloid::Group #{self} crashed. Restarting..."
+          Logger.error "!!! Celluloid::SupervisionGroup #{self} crashed. Restarting..."
         end
       end
 
