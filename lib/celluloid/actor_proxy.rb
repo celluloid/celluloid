@@ -71,7 +71,7 @@ module Celluloid
 
     # Terminate the associated actor asynchronously
     def terminate!
-      raise DeadActorError, "actor already terminated" unless alive?
+      ::Kernel.raise DeadActorError, "actor already terminated" unless alive?
       @mailbox << TerminationRequest.new
     end
 
