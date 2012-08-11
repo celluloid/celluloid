@@ -54,7 +54,7 @@ module Celluloid
             actor.future(:terminate)
           rescue DeadActorError, MailboxError
           end
-        end
+        end.compact
 
         terminators.each do |terminator|
           begin
