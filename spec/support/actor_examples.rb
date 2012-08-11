@@ -219,6 +219,15 @@ shared_context "a Celluloid Actor" do |included_module|
         actor.greet
       end.to raise_exception(Celluloid::DeadActorError)
     end
+
+    it "raises the right DeadActorError if terminate! called after terminated" do
+      actor = actor_class.new "Arnold Schwarzenegger"
+      actor.terminate
+
+      expect do
+        actor.terminate!
+      end.to raise_exception(Celluloid::DeadActorError, "actor already terminated")
+    end
   end
 
   context :current_actor do
