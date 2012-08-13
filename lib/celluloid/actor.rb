@@ -7,6 +7,9 @@ module Celluloid
   # Trying to do something to a dead actor
   class DeadActorError < StandardError; end
 
+  # A timeout occured before the given request could complete
+  class TimeoutError < StandardError; end
+
   # The caller made an error, not the current actor
   class AbortError < StandardError
     attr_reader :cause
@@ -16,6 +19,8 @@ module Celluloid
       super "caused by #{cause.inspect}: #{cause.to_s}"
     end
   end
+
+  LINKING_TIMEOUT = 5 # linking times out after 5 seconds
 
   # Actors are Celluloid's concurrency primitive. They're implemented as
   # normal Ruby objects wrapped in threads which communicate with asynchronous
@@ -225,19 +230,29 @@ module Celluloid
     # Perform a linking request with another actor
     def linking_request(receiver, type)
       exclusive do
-        receiver.mailbox << LinkingRequest.new(Actor.current, type)
+        start_time = Time.now
 
+        receiver.mailbox << LinkingRequest.new(Actor.current, type)
         system_events = []
         loop do
-          message = @mailbox.receive { |msg| msg.is_a?(LinkingResponse) && msg.actor == receiver && msg.type == type }
-          break unless message.is_a?(SystemEvent)
+          wait_interval = start_time + LINKING_TIMEOUT - Time.now
+          message = @mailbox.receive(wait_interval) do |msg|
+            msg.is_a?(LinkingResponse) && msg.actor == receiver && msg.type == type
+          end
 
-          # Queue up pending system events to be processed after we've successfully linked
-          system_events << message
+          case message
+          when LinkingResponse
+            # We're done!
+            system_events.each { |ev| handle_system_event(ev) }
+            return
+          when NilClass
+            raise TimeoutError, "linking timeout of #{LINKING_TIMEOUT} seconds exceeded"
+          when SystemEvent
+            # Queue up pending system events to be processed after we've successfully linked
+            system_events << message
+          else raise 'wtf'
+          end
         end
-
-        system_events.each { |ev| handle_system_event(ev) }
-        nil
       end
     end
 
