@@ -39,12 +39,16 @@ describe "Celluloid.pool" do
   end
 
   it "uses a fixed-sized number of threads" do
-    pool = MyWorker.pool
+    subject # eagerly evaluate the pool to spawn it
 
     actors = Celluloid::Actor.all
-    100.times.map { pool.future(:process) }.map(&:value)
+    100.times.map { subject.future(:process) }.map(&:value)
 
     new_actors = Celluloid::Actor.all - actors
     new_actors.should eq []
+  end
+
+  it "terminates" do
+    expect { subject.terminate }.to_not raise_exception
   end
 end

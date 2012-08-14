@@ -13,6 +13,11 @@ module Celluloid
       Actor.call @mailbox, :__send__, meth, *args, &block
     end
 
+    # Needed for storing proxies in data structures
+    def hash
+      ::Kernel.hash
+    end
+
     def class
       Actor.call @mailbox, :__send__, :class
     end

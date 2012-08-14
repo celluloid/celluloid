@@ -1,3 +1,5 @@
+require 'set'
+
 module Celluloid
   # Manages a fixed-size pool of workers
   # Delegates work (i.e. methods) and supervises workers
@@ -7,14 +9,28 @@ module Celluloid
     trap_exit :crash_handler
 
     def initialize(worker_class, options = {})
-      @size = options[:size]
-      raise ArgumentError, "minimum pool size is 2" if @size && @size < 2
-
-      @size ||= [Celluloid.cores, 2].max
-      @args = options[:args] ? Array(options[:args]) : []
+      @size = options[:size] || [Celluloid.cores, 2].max
+      raise ArgumentError, "minimum pool size is 2" if @size < 2
 
       @worker_class = worker_class
+      @args = options[:args] ? Array(options[:args]) : []
+
       @idle = @size.times.map { worker_class.new_link(*@args) }
+
+      # FIXME: Another data structure (e.g. Set) would be more appropriate
+      # here except it causes MRI to crash :o
+      @busy = []
+    end
+
+    def finalize
+      terminators = (@idle + @busy).each do |actor|
+        begin
+          actor.future(:terminate)
+        rescue DeadActorError, MailboxError
+        end
+      end
+
+      terminators.compact.each { |terminator| terminator.value rescue nil }
     end
 
     def _send_(method, *args, &block)
@@ -29,7 +45,10 @@ module Celluloid
       rescue Exception => ex
         abort ex
       ensure
-        @idle << worker if worker.alive?
+        if worker.alive?
+          @idle << worker
+          @busy.delete worker
+        end
       end
     end
 
@@ -60,14 +79,20 @@ module Celluloid
     # Provision a new worker
     def __provision_worker
       while @idle.empty?
+        # Wait for responses from one of the busy workers
         response = exclusive { receive { |msg| msg.is_a?(Response) } }
         Thread.current[:actor].handle_message(response)
       end
-      @idle.shift
+
+      worker = @idle.shift
+      @busy << worker
+
+      worker
     end
 
     # Spawn a new worker for every crashed one
     def crash_handler(actor, reason)
+      @busy.delete actor
       @idle.delete actor
       return unless reason
 
@@ -76,7 +101,7 @@ module Celluloid
     end
 
     def respond_to?(method)
-      super || (@worker_class ? @worker_class.instance_methods.include?(method.to_sym) : false)
+      super || @worker_class.instance_methods.include?(method.to_sym)
     end
 
     def method_missing(method, *args, &block)
