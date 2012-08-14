@@ -32,7 +32,9 @@ module Celluloid
       @type   = type
       @status = :new
 
-      actor   = Thread.current[:actor]
+      actor = Thread.current[:actor]
+      raise NotActorError, "can't create tasks outside of actors" unless actor
+
       mailbox = Thread.current[:mailbox]
 
       @fiber = Fiber.new do
