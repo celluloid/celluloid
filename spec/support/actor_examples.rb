@@ -199,15 +199,15 @@ shared_context "a Celluloid Actor" do |included_module|
       actor = actor_class.new "Arnold Schwarzenegger"
       actor.should be_alive
       actor.terminate
-      actor.join
+      Celluloid::Actor.join(actor)
       actor.should_not be_alive
     end
 
     it "kills" do
       actor = actor_class.new "Woody Harrelson"
       actor.should be_alive
-      actor.kill
-      actor.join
+      Celluloid::Actor.kill(actor)
+      Celluloid::Actor.join(actor)
       actor.should_not be_alive
     end
 
