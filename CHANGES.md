@@ -1,6 +1,8 @@
 HEAD
 ----
 * All methods in the Celluloid module are now available on its singleton
+* The #join and #kill methods are no longer available on the actor proxy.
+  Please use Celluloid::Actor.join(actor) and .kill(actor) instead.
 * Celluloid::Group constant removed. Please use Celluloid::SupervisionGroup
 * Linking is now performed via a SystemEvent
 * #monitor, #unmonitor, and #monitoring? provide unidirectional linking

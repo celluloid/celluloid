@@ -80,16 +80,6 @@ module Celluloid
       @mailbox << TerminationRequest.new
     end
 
-    # Forcibly kill a given actor
-    def kill
-      Actor.kill(self)
-    end
-
-    # Wait for an actor to terminate
-    def join
-      Actor.join(self)
-    end
-
     # method_missing black magic to call bang predicate methods asynchronously
     def method_missing(meth, *args, &block)
       # bang methods are async calls
