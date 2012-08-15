@@ -4,16 +4,15 @@ HEAD
 * The #join and #kill methods are no longer available on the actor proxy.
   Please use Celluloid::Actor.join(actor) and .kill(actor) instead.
 * Celluloid::Group constant removed. Please use Celluloid::SupervisionGroup
-* Linking is now performed via a SystemEvent
 * #monitor, #unmonitor, and #monitoring? provide unidirectional linking
-* Celluloid::Actor.link (as well as unlink, linked_to, and monitor) class
-  methods for linking outside an actor class.
+* Linking is now performed via a SystemEvent
 * SystemEvents are no longer exceptions. Boo exceptions as flow control!
 * Celluloid::Mailbox#system_event eliminated and replaced with Mailbox#<<
   SystemEvents are now automatically high priority
 * The task_class class method can be used to override the class used for
   tasks, allowing different task implementations to be configured on an
   actor-by-actor-basis
+* Celluloid::TaskThread provides tasks backed by Threads instead of Fibers
 * ActorProxy is now a BasicObject
 * A bug prevented Celluloid subclasses from retaining custom mailboxes
   defined by use_mailbox. This is now fixed.
