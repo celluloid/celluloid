@@ -78,14 +78,15 @@ module Celluloid
     # Writable 0MQ sockets have a send method
     module WritableSocket
       # Send a message to the socket
-      def send(*messages)
+      def write(*messages)
         unless ::ZMQ::Util.resultcode_ok? @socket.send_strings messages.flatten
           raise IOError, "error sending 0MQ message: #{::ZMQ::Util.error_string}"
         end
 
         messages
       end
-      alias_method :<<, :send
+      alias_method :<<, :write
+      alias_method :send, :write # deprecated
     end
 
     # ReqSockets are the counterpart of RepSockets (REQ/REP)
