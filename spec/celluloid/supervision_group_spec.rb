@@ -19,4 +19,26 @@ describe Celluloid::SupervisionGroup do
 
     Celluloid::Actor[:example].should be_running
   end
+
+  context "pool" do
+    before :all do
+      class MyActor
+        attr_reader :args
+        def initialize *args
+          @args = *args
+        end
+      end
+      class MyGroup
+        pool MyActor, :as => :example_pool, :args => 'foo'
+      end
+    end
+    
+    it "runs applications and passes args" do
+      MyGroup.run!
+      sleep 0.001 # startup time hax
+
+      Celluloid::Actor[:example_pool].should be_running
+      Celluloid::Actor[:example_pool].args.should == ['foo']
+    end
+  end
 end

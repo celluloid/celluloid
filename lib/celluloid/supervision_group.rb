@@ -113,16 +113,23 @@ module Celluloid
         options = options.inject({}) { |h,(k,v)| h[k.to_s] = v; h }
 
         @name = options['as']
-        @args = options['args'] ? Array(options['args']) : []
         @block = options['block']
+        @args = options['args'] ? Array(options['args']) : []
         @method = options['method'] || 'new_link'
+        @pool = @method == 'pool_link'
 
         start
       end
       attr_reader :name, :actor
 
       def start
-        @actor = @klass.send(@method, *@args, &@block)
+        # when it is a pool, then we don't splat the args
+        # and we need to extract the pool size if set
+        if @pool
+          @actor = @klass.send(@method, {:args => @args}, &@block)
+        else
+          @actor = @klass.send(@method, *@args, &@block)
+        end
         @registry[@name] = @actor if @name
       end
 
