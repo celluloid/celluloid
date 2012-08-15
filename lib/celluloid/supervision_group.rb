@@ -72,9 +72,7 @@ module Celluloid
     end
 
     def pool(klass, options = {})
-      # stringify keys :/
-      options = options.inject({}) { |h,k,v| h[k.to_s] = v; h }
-      options['method'] = 'pool_link'
+      options[:method] = 'pool_link'
       add(klass, options)
     end
 
