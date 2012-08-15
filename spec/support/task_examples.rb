@@ -7,10 +7,11 @@ shared_context "a Celluloid Task" do |task_class|
     end
   end
 
-  let(:task_type) { :foobar }
-  let(:actor)     { MockActor.new }
+  let(:task_type)     { :foobar }
+  let(:suspend_state) { :doing_something }
+  let(:actor)         { MockActor.new }
 
-  subject { task_class.new(task_type) { 42 } }
+  subject { task_class.new(task_type) { Celluloid::Task.suspend(suspend_state) } }
 
   before :each do
     Thread.current[:actor] = actor
@@ -20,9 +21,16 @@ shared_context "a Celluloid Task" do |task_class|
     Thread.current[:actor] = nil
   end
 
+  it "begins with status :new" do
+    subject.status.should == :new
+  end
+
   it "resumes" do
     subject.should be_running
     subject.resume
+    subject.status.should == suspend_state
+    subject.resume
     subject.should_not be_running
   end
+
 end
