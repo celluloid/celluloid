@@ -44,9 +44,13 @@ module Celluloid
       end
 
       # Register a pool of actors to be launched on group startup
-      def pool(klass)
+      # Available options are:
+      #
+      # * as: register this application in the Celluloid::Actor[] directory
+      # * args: start the actor pool with the given arguments
+      def pool(klass, options = {})
         blocks << lambda do |group|
-          group.pool klass
+          group.pool klass, options
         end
       end
     end
@@ -67,8 +71,11 @@ module Celluloid
       add(klass, :args => args, :block => block, :as => name)
     end
 
-    def pool(klass)
-      add(klass, :method => 'pool_link')
+    def pool(klass, options = {})
+      # stringify keys :/
+      options = options.inject({}) { |h,k,v| h[k.to_s] = v; h }
+      options['method'] = 'pool_link'
+      add(klass, options)
     end
 
     def add(klass, options)
