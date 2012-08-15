@@ -72,9 +72,7 @@ module Celluloid
     end
 
     def pool(klass, options = {})
-      # stringify keys :/
-      options = options.inject({}) { |h,k,v| h[k.to_s] = v; h }
-      options['method'] = 'pool_link'
+      options[:method] = 'pool_link'
       add(klass, options)
     end
 
@@ -113,16 +111,27 @@ module Celluloid
         options = options.inject({}) { |h,(k,v)| h[k.to_s] = v; h }
 
         @name = options['as']
-        @args = options['args'] ? Array(options['args']) : []
         @block = options['block']
+        @args = options['args'] ? Array(options['args']) : []
         @method = options['method'] || 'new_link'
+        @pool = @method == 'pool_link'
+        @pool_size = options['size'] if @pool
 
         start
       end
       attr_reader :name, :actor
 
       def start
-        @actor = @klass.send(@method, *@args, &@block)
+        # when it is a pool, then we don't splat the args
+        # and we need to extract the pool size if set
+        if @pool
+          options = {:args => @args}.tap do |hash|
+            hash[:size] = @pool_size if @pool_size
+          end
+          @actor = @klass.send(@method, options, &@block)
+        else
+          @actor = @klass.send(@method, *@args, &@block)
+        end
         @registry[@name] = @actor if @name
       end
 
