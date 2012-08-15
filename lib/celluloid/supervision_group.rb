@@ -115,6 +115,7 @@ module Celluloid
         @args = options['args'] ? Array(options['args']) : []
         @method = options['method'] || 'new_link'
         @pool = @method == 'pool_link'
+        @pool_size = options['size'] if @pool
 
         start
       end
@@ -124,7 +125,10 @@ module Celluloid
         # when it is a pool, then we don't splat the args
         # and we need to extract the pool size if set
         if @pool
-          @actor = @klass.send(@method, {:args => @args}, &@block)
+          options = {:args => @args}.tap do |hash|
+            hash[:size] = @pool_size if @pool_size
+          end
+          @actor = @klass.send(@method, options, &@block)
         else
           @actor = @klass.send(@method, *@args, &@block)
         end
