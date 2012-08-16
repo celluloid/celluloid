@@ -49,7 +49,7 @@ module Celluloid
 
     # Terminate this task
     def terminate
-      resume TerminatedError.new("task was terminated") if @fiber.alive?
+      resume Task::TerminatedError.new("task was terminated") if @fiber.alive?
     rescue FiberError
       # If we're getting this the task should already be dead
     end
