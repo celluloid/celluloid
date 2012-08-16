@@ -1,5 +1,7 @@
 HEAD
 ----
+* Actors will automatically terminate all other actors they are linked to
+  even when they exit cleanly unless they are trapping exits
 * All methods in the Celluloid module are now available on its singleton
 * The #join and #kill methods are no longer available on the actor proxy.
   Please use Celluloid::Actor.join(actor) and .kill(actor) instead.

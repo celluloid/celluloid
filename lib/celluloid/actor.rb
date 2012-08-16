@@ -345,9 +345,14 @@ module Celluloid
       # Run the exit handler if available
       return @subject.send(@exit_handler, event.actor, event.reason) if @exit_handler
 
-      # Reraise exceptions from linked actors
-      # If no reason is given, actor terminated cleanly
-      raise event.reason if event.reason
+      if event.reason
+        # Reraise exceptions from linked actors
+        raise event.reason
+      else
+        # If no reason is given, actor terminated cleanly
+        Logger.info "#{@subject.class} terminating in response to linked actor"
+        @running = false
+      end
     end
 
     # Handle any exceptions that occur within a running actor
