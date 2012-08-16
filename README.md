@@ -81,6 +81,21 @@ or visit us on IRC at #celluloid on freenode
 Yes, many users are now running Celluloid in production by using
 [Sidekiq](https://github.com/mperham/sidekiq)
 
+Installation
+------------
+
+Add this line to your application's Gemfile:
+
+    gem 'celluloid'
+
+And then execute:
+
+    $ bundle
+
+Or install it yourself as:
+
+    $ gem install celluloid
+
 Supported Platforms
 -------------------
 
