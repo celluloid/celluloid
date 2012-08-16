@@ -18,7 +18,8 @@ module Celluloid
       def self.nameservers(config = RESOLV_CONF)
         File.read(config).scan(/^\s*nameserver\s+([0-9.:]+)/).flatten
       end
-      
+
+      # FIXME: Y U NO Resolv::Hosts?     
       def self.hosts(hostfile = HOSTS)
         hosts = {}
         File.open(hostfile) do |f|
