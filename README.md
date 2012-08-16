@@ -17,7 +17,7 @@ Much of the difficulty with building concurrent programs in Ruby arises because
 the object-oriented mechanisms for structuring code, such as classes and
 inheritance, are separate from the concurrency mechanisms, such as threads and
 locks. Celluloid combines these into a single structure, an active object
-running within a thread, called an "actor".
+running within a thread, called an "actor", or in Celluloid vernacular, a "cell".
 
 By combining concurrency with object oriented programming, Celluloid frees you
 up from worry about where to use threads and locks. Celluloid combines them
