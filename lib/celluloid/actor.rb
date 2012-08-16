@@ -162,12 +162,12 @@ module Celluloid
     end
 
     # Wrap the given subject with an Actor
-    def initialize(subject)
+    def initialize(subject, options = {})
       @subject      = subject
-      @mailbox      = subject.class.mailbox_factory
-      @exit_handler = subject.class.exit_handler
-      @exclusives   = subject.class.exclusive_methods
-      @task_class   = subject.class.task_class || Celluloid.task_class
+      @mailbox      = options[:mailbox] || Mailbox.new
+      @exit_handler = options[:exit_handler]
+      @exclusives   = options[:exclusive_methods]
+      @task_class   = options[:task_class] || Celluloid.task_class
 
       @tasks     = Set.new
       @links     = Links.new

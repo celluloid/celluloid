@@ -75,7 +75,7 @@ module Celluloid
   module ClassMethods
     # Create a new actor
     def new(*args, &block)
-      proxy = Actor.new(allocate).proxy
+      proxy = Actor.new(allocate, actor_options).proxy
       proxy._send_(:initialize, *args, &block)
       proxy
     end
@@ -85,7 +85,7 @@ module Celluloid
     def new_link(*args, &block)
       raise NotActorError, "can't link outside actor context" unless Celluloid.actor?
 
-      proxy = Actor.new(allocate).proxy
+      proxy = Actor.new(allocate, actor_options).proxy
       Actor.link(proxy)
       proxy._send_(:initialize, *args, &block)
       proxy
@@ -128,9 +128,6 @@ module Celluloid
       @exit_handler = callback.to_sym
     end
 
-    # Obtain the exit handler for this actor
-    attr_reader :exit_handler
-
     # Configure a custom mailbox factory
     def use_mailbox(klass = nil, &block)
       if block
@@ -141,8 +138,8 @@ module Celluloid
     end
 
     # Define the default task type for this class
-    def task_class(klass = nil)
-      klass ? @task_class = klass : @task_class
+    def task_class(klass)
+      @task_class = klass
     end
 
     # Mark methods as running exclusively
@@ -154,7 +151,6 @@ module Celluloid
         @exclusive_methods.merge methods.map(&:to_sym)
       end
     end
-    attr_reader :exclusive_methods
 
     # Create a mailbox for this actor
     def mailbox_factory
@@ -165,6 +161,16 @@ module Celluloid
       else
         Mailbox.new
       end
+    end
+
+    # Configuration options for Actor#new
+    def actor_options
+      {
+        :mailbox => mailbox_factory,
+        :exit_handler => @exit_handler,
+        :exclusive_methods => @exclusive_methods,
+        :task_class => @task_class,
+      }
     end
 
     def ===(other)
