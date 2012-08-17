@@ -38,7 +38,7 @@ module Celluloid
 
     def delete(name)
       @registry_lock.synchronize do
-        @registry[name.to_sym]
+        @registry.delete name.to_sym
       end
     end
 
