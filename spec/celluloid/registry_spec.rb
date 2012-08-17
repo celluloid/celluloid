@@ -48,7 +48,7 @@ describe Celluloid::Registry do
 
   describe :clear do
     it "should return a hash of registered actors and remove them from the registry" do
-      Celluloid::Actor[:marilyn] ||= Marliyn.new
+      Celluloid::Actor[:marilyn] ||= Marilyn.new
       rval = Celluloid::Actor.clear_registry
       begin
         rval.should be_kind_of(Hash)
