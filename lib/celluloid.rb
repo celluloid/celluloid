@@ -49,16 +49,16 @@ module Celluloid
         Supervisor.root.terminate if Supervisor.root
 
         # Actors cannot self-terminate, you must do it for them
-        terminators = Actor.all.map do |actor|
+        Actor.all.each do |actor|
           begin
-            actor.future(:terminate)
+            actor.terminate!
           rescue DeadActorError, MailboxError
           end
-        end.compact
+        end
 
-        terminators.each do |terminator|
+        Actor.all.each do |actor|
           begin
-            terminator.value
+            Actor.join(actor)
           rescue DeadActorError, MailboxError
           end
         end
