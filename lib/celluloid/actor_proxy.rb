@@ -50,6 +50,10 @@ module Celluloid
       Actor.call @mailbox, :methods, include_ancestors
     end
 
+    def method(name)
+      Method.new(self, name)
+    end
+
     def alive?
       @mailbox.alive?
     end
