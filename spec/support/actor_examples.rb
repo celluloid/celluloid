@@ -19,6 +19,12 @@ shared_context "a Celluloid Actor" do |included_module|
     end.should be_true
   end
 
+  it "can be stored in hashes" do
+    actor = actor_class.new "Troy McClure"
+    actor.hash.should_not == Kernel.hash
+    actor.object_id.should_not == Kernel.object_id
+  end
+
   it "handles synchronous calls" do
     actor = actor_class.new "Troy McClure"
     actor.greet.should == "Hi, I'm Troy McClure"
