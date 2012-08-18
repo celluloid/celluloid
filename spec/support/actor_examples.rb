@@ -30,6 +30,11 @@ shared_context "a Celluloid Actor" do |included_module|
     actor.greet.should == "Hi, I'm Troy McClure"
   end
 
+  it "handles synchronous calls via #method" do
+    method = actor_class.new("Troy McClure").method(:greet)
+    method.call.should == "Hi, I'm Troy McClure"
+  end
+
   it "handles futures for synchronous calls" do
     actor = actor_class.new "Troy McClure"
     future = actor.future :greet
