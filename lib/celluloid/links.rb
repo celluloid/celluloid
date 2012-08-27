@@ -1,5 +1,3 @@
-require 'thread'
-
 module Celluloid
   # Linked actors send each other system events
   class Links
