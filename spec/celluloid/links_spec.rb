@@ -52,12 +52,4 @@ describe Celluloid::Links do
     first_actor.mailbox.should == ["only first actor", "both actors"]
     second_actor.mailbox.should == ["both actors"]
   end
-
-  it 'is inspectable' do
-    subject.inspect.should == "#<Celluloid::Links[]>"
-    subject << first_actor
-    subject.inspect.should == "#<Celluloid::Links[#<struct mailbox=[]>]>"
-    subject << second_actor
-    subject.inspect.should == "#<Celluloid::Links[#<struct mailbox=[]>,#<struct mailbox=[]>]>"
-  end
 end
