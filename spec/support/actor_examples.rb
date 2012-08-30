@@ -472,8 +472,6 @@ shared_context "a Celluloid Actor" do |included_module|
   end
 
   context :timers do
-    # Level of accuracy enforced by the tests (50ms)
-    Q = 0.05
 
     before do
       @klass = Class.new do

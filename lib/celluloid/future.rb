@@ -35,6 +35,11 @@ module Celluloid
       receiver << @call
     end
 
+    # Check if this future has a value yet
+    def ready?
+      @ready
+    end
+
     # Obtain the value for this Future
     def value(timeout = nil)
       ready = result = nil
