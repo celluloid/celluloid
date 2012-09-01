@@ -91,6 +91,9 @@ module Celluloid
     end
     alias_method :<<, :signal
 
+    # Is the future ready yet?
+    def ready?; @ready; end
+
     # Inspect this Celluloid::Future
     alias_method :inspect, :to_s
 
