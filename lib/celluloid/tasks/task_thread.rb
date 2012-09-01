@@ -7,16 +7,13 @@ module Celluloid
     def initialize(type)
       @type   = type
       @status = :new
-      @lock   = Mutex.new
-      @value  = nil
-      @waiter = nil
+      @yield  = Queue.new
+      @resume = Queue.new
 
       actor, mailbox = Thread.current[:actor], Thread.current[:mailbox]
       raise NotActorError, "can't create tasks outside of actors" unless actor
 
       @thread = InternalPool.get do
-        Thread.stop # mimic fiber behavior
-
         @status = :running
         Thread.current[:actor]   = actor
         Thread.current[:mailbox] = mailbox
@@ -24,7 +21,7 @@ module Celluloid
         actor.tasks << self
 
         begin
-          yield
+          @yield.push(yield(@resume.pop))
         rescue Task::TerminatedError
           # Task was explicitly terminated
         ensure
@@ -38,10 +35,8 @@ module Celluloid
     # Suspend the current task, changing the status to the given argument
     def suspend(status)
       @status = status
-      @waiter.run
-      Thread.stop
-      result = @value
-      @value = nil
+      @yield.push(nil)
+      result = @resume.pop
 
       raise result if result.is_a?(Task::TerminatedError)
       @status = :running
@@ -51,13 +46,9 @@ module Celluloid
 
     # Resume a suspended task, giving it a value to return if needed
     def resume(value = nil)
-      @lock.synchronize do
-        @value  = value
-        @waiter = Thread.current
-        @thread.run
-        Thread.stop
-        @waiter = nil
-      end
+      raise DeadTaskError, "cannot resume a dead task" unless @thread.alive?
+      @resume.push(value)
+      @yield.pop
       nil
     rescue ThreadError
       raise DeadTaskError, "cannot resume a dead task"
