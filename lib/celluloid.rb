@@ -166,10 +166,10 @@ module Celluloid
     # Configuration options for Actor#new
     def actor_options
       {
-        :mailbox => mailbox_factory,
-        :exit_handler => @exit_handler,
+        :mailbox           => mailbox_factory,
+        :exit_handler      => @exit_handler,
         :exclusive_methods => @exclusive_methods,
-        :task_class => @task_class,
+        :task_class        => @task_class
       }
     end
 
