@@ -14,6 +14,8 @@ module Celluloid
       raise NotActorError, "can't create tasks outside of actors" unless actor
 
       @thread = InternalPool.get do
+        @resume.pop
+
         @status = :running
         Thread.current[:actor]   = actor
         Thread.current[:mailbox] = mailbox
@@ -21,7 +23,7 @@ module Celluloid
         actor.tasks << self
 
         begin
-          @yield.push(yield(@resume.pop))
+          @yield.push(yield)
         rescue Task::TerminatedError
           # Task was explicitly terminated
         ensure
