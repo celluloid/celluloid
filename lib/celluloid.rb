@@ -381,8 +381,12 @@ module Celluloid
   end
 
   # Handle calls to future within an actor itself
-  def future(meth, *args, &block)
-    Actor.future Thread.current[:actor].mailbox, meth, *args, &block
+  def future(meth = nil, *args, &block)
+    if meth
+      Actor.future Thread.current[:actor].mailbox, meth, *args, &block
+    else
+      Thread.current[:actor].proxy.future
+    end
   end
 end
 
