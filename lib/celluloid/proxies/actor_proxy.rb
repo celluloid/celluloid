@@ -6,6 +6,9 @@ module Celluloid
 
     def initialize(actor)
       @mailbox, @thread, @klass = actor.mailbox, actor.thread, actor.subject.class.to_s
+
+      @async_proxy  = AsyncProxy.new(actor)
+      @future_proxy = FutureProxy.new(actor)
     end
 
     def class
@@ -59,7 +62,7 @@ module Celluloid
       if method_name
         Actor.async @mailbox, method_name, *args, &block
       else
-        AsyncProxy.new(@mailbox, @klass)
+        @async_proxy
       end
     end
 
@@ -68,7 +71,7 @@ module Celluloid
       if method_name
         Actor.future @mailbox, method_name, *args, &block
       else
-        FutureProxy.new(@mailbox, @klass)
+        @future_proxy
       end
     end
 

@@ -3,8 +3,8 @@ module Celluloid
   class FutureProxy < AbstractProxy
     attr_reader :mailbox
 
-    def initialize(mailbox, klass)
-      @mailbox, @klass = mailbox, klass
+    def initialize(actor)
+      @mailbox, @klass = actor.mailbox, actor.subject.class.to_s
     end
 
     def inspect
