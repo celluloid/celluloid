@@ -436,7 +436,7 @@ shared_context "a Celluloid Actor" do |included_module|
         end
 
         def eat_donuts
-          sleep Q
+          sleep Celluloid::TIMER_QUANTUM
           @tasks << 'donuts'
         end
 
@@ -450,7 +450,7 @@ shared_context "a Celluloid Actor" do |included_module|
       actor = subject.new
       actor.eat_donuts!
       actor.drink_coffee!
-      sleep Q * 2
+      sleep Celluloid::TIMER_QUANTUM * 2
       actor.tasks.should == ['donuts', 'coffee']
     end
   end
@@ -484,7 +484,7 @@ shared_context "a Celluloid Actor" do |included_module|
       started_at = Time.now
 
       receiver.receive(interval) { false }.should be_nil
-      (Time.now - started_at).should be_within(Q).of interval
+      (Time.now - started_at).should be_within(Celluloid::TIMER_QUANTUM).of interval
     end
   end
 
@@ -526,7 +526,7 @@ shared_context "a Celluloid Actor" do |included_module|
 
       # Sleep long enough to ensure we're actually seeing behavior when asleep
       # but not so long as to delay the test suite unnecessarily
-      interval = Q * 10
+      interval = Celluloid::TIMER_QUANTUM * 10
       started_at = Time.now
 
       future = actor.future(:do_sleep, interval)
@@ -534,49 +534,49 @@ shared_context "a Celluloid Actor" do |included_module|
       actor.should be_sleeping
 
       future.value
-      (Time.now - started_at).should be_within(Q).of interval
+      (Time.now - started_at).should be_within(Celluloid::TIMER_QUANTUM).of interval
     end
 
     it "schedules timers which fire in the future" do
       actor = @klass.new
 
-      interval = Q * 10
+      interval = Celluloid::TIMER_QUANTUM * 10
       started_at = Time.now
 
       timer = actor.fire_after(interval)
       actor.should_not be_fired
 
-      sleep(interval + Q) # wonky! #/
+      sleep(interval + Celluloid::TIMER_QUANTUM) # wonky! #/
       actor.should be_fired
     end
 
     it "schedules recurring timers which fire in the future" do
       actor = @klass.new
 
-      interval = Q * 10
+      interval = Celluloid::TIMER_QUANTUM * 10
       started_at = Time.now
 
       timer = actor.fire_every(interval)
       actor.fired.should be == 0
 
-      sleep(interval + Q) # wonky! #/
+      sleep(interval + Celluloid::TIMER_QUANTUM) # wonky! #/
       actor.fired.should be == 1
 
-      2.times { sleep(interval + Q) } # wonky! #/
+      2.times { sleep(interval + Celluloid::TIMER_QUANTUM) } # wonky! #/
       actor.fired.should be == 3
     end
 
     it "cancels timers before they fire" do
       actor = @klass.new
 
-      interval = Q * 10
+      interval = Celluloid::TIMER_QUANTUM * 10
       started_at = Time.now
 
       timer = actor.fire_after(interval)
       actor.should_not be_fired
       timer.cancel
 
-      sleep(interval + Q) # wonky! #/
+      sleep(interval + Celluloid::TIMER_QUANTUM) # wonky! #/
       actor.should_not be_fired
     end
   end

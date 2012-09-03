@@ -19,9 +19,9 @@ describe Celluloid::Future do
   end
 
   it "knows if it's got a value yet" do
-    future = Celluloid::Future.new { sleep Q * 5 }
+    future = Celluloid::Future.new { sleep Celluloid::TIMER_QUANTUM * 5 }
     future.should_not be_ready
-    sleep Q * 6
+    sleep Celluloid::TIMER_QUANTUM * 6
     future.should be_ready
   end
 

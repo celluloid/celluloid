@@ -58,20 +58,20 @@ describe Celluloid::FSM do
   end
 
   it "transitions to states after a specified delay" do
-    interval = TIMER_QUANTUM * 10
+    interval = Celluloid::TIMER_QUANTUM * 10
 
     subject.attach DummyActor.new
     subject.transition :another
     subject.transition :done, :delay => interval
 
     subject.state.should == :another
-    sleep interval + TIMER_QUANTUM
+    sleep interval + Celluloid::TIMER_QUANTUM
 
     subject.state.should == :done
   end
 
   it "cancels delayed state transitions if another transition is made" do
-    interval = Q * 10
+    interval = Celluloid::TIMER_QUANTUM * 10
 
     subject.attach DummyActor.new
     subject.transition :another
@@ -79,7 +79,7 @@ describe Celluloid::FSM do
 
     subject.state.should == :another
     subject.transition :pre_done
-    sleep interval + TIMER_QUANTUM
+    sleep interval + Celluloid::TIMER_QUANTUM
 
     subject.state.should == :pre_done
   end

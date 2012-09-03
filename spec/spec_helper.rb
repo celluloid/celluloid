@@ -6,9 +6,6 @@ require 'celluloid/rspec'
 logfile = File.open(File.expand_path("../../log/test.log", __FILE__), 'a')
 Celluloid.logger = Logger.new(logfile)
 
-# Level of accuracy enforced by the tests (50ms)
-Q = 0.05
-
 Dir['./spec/support/*.rb'].map {|f| require f }
 
 RSpec.configure do |config|
