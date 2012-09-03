@@ -7,29 +7,32 @@ module Celluloid
     def initialize(type)
       @type   = type
       @status = :new
-      @yield  = Queue.new
-      @resume = Queue.new
+
+      @resume_queue = Queue.new
+      @yield_mutex  = Mutex.new
+      @yield_cond   = ConditionVariable.new
 
       actor, mailbox = Thread.current[:actor], Thread.current[:mailbox]
       raise NotActorError, "can't create tasks outside of actors" unless actor
 
       @thread = InternalPool.get do
-        @resume.pop
-
-        @status = :running
-        Thread.current[:actor]   = actor
-        Thread.current[:mailbox] = mailbox
-        Thread.current[:task]    = self
-        actor.tasks << self
-
         begin
+          value = @resume_queue.pop
+          raise value if value.is_a?(Task::TerminatedError)
+
+          @status = :running
+          Thread.current[:actor]   = actor
+          Thread.current[:mailbox] = mailbox
+          Thread.current[:task]    = self
+          actor.tasks << self
+
           yield
         rescue Task::TerminatedError
           # Task was explicitly terminated
         ensure
           @status = :dead
           actor.tasks.delete self
-          @yield.push nil
+          @yield_cond.signal
         end
       end
     end
@@ -37,20 +40,24 @@ module Celluloid
     # Suspend the current task, changing the status to the given argument
     def suspend(status)
       @status = status
-      @yield.push(nil)
-      result = @resume.pop
+      @yield_cond.signal
+      value = @resume_queue.pop
 
-      raise result if result.is_a?(Task::TerminatedError)
+      raise value if value.is_a?(Task::TerminatedError)
       @status = :running
 
-      result
+      value
     end
 
     # Resume a suspended task, giving it a value to return if needed
     def resume(value = nil)
       raise DeadTaskError, "cannot resume a dead task" unless @thread.alive?
-      @resume.push(value)
-      @yield.pop
+
+      @yield_mutex.synchronize do
+        @resume_queue.push(value)
+        @yield_cond.wait(@yield_mutex)
+      end
+
       nil
     rescue ThreadError
       raise DeadTaskError, "cannot resume a dead task"
