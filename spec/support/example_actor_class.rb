@@ -13,8 +13,12 @@ module ExampleActorClass
         @name = new_name
       end
 
-      def change_name_async(new_name)
+      def change_name_with_a_bang(new_name)
         change_name! new_name
+      end
+
+      def change_name_async(new_name)
+        async.change_name new_name
       end
 
       def greet

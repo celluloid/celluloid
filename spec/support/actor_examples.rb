@@ -160,7 +160,13 @@ shared_context "a Celluloid Actor" do |included_module|
     actor.greet.should == "Hi, I'm Charlie Sheen"
   end
 
-  it "supports asynchronous calls to itself" do
+  it "supports method! syntax for asynchronous calls to itself" do
+    actor = actor_class.new "Troy McClure"
+    actor.change_name_with_a_bang "Charlie Sheen"
+    actor.greet.should == "Hi, I'm Charlie Sheen"
+  end
+
+  it "supports async.method syntax for asynchronous calls to itself" do
     actor = actor_class.new "Troy McClure"
     actor.change_name_async "Charlie Sheen"
     actor.greet.should == "Hi, I'm Charlie Sheen"
