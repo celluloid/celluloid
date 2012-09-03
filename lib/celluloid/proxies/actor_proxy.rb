@@ -2,32 +2,25 @@ module Celluloid
   # A proxy object returned from Celluloid::Actor.spawn/spawn_link which
   # dispatches calls and casts to normal Ruby objects which are running inside
   # of their own threads.
-  class ActorProxy < BasicObject
+  class ActorProxy < AbstractProxy
     attr_reader :mailbox, :thread
 
     def initialize(actor)
       @mailbox, @thread, @klass = actor.mailbox, actor.thread, actor.subject.class.to_s
     end
 
+    def class
+      Actor.call @mailbox, :__send__, :class
+    end
+
     def _send_(meth, *args, &block)
       Actor.call @mailbox, :__send__, meth, *args, &block
     end
 
-    # Needed for storing proxies in data structures
-    needed = [:object_id, :__id__, :hash] - instance_methods
-    if needed.any?
-      include ::Kernel.dup.module_eval {
-        undef_method *(instance_methods - needed)
-        self
-      }
-
-      # rubinius bug?  These methods disappear when we include hacked kernel
-      define_method :==, ::BasicObject.instance_method(:==) unless instance_methods.include?(:==)
-      alias_method(:equal?, :==) unless instance_methods.include?(:equal?)
-    end
-
-    def class
-      Actor.call @mailbox, :__send__, :class
+    def inspect
+      Actor.call @mailbox, :inspect
+    rescue DeadActorError
+      "#<Celluloid::Actor(#{@klass}) dead>"
     end
 
     def name
@@ -62,16 +55,14 @@ module Celluloid
       Actor.call @mailbox, :to_s
     end
 
-    def inspect
-      Actor.call @mailbox, :inspect
-    rescue DeadActorError
-      "#<Celluloid::Actor(#{@klass}) dead>"
-    end
-
     # Make an asynchronous call to an actor, for those who don't like the
     # predicate syntax. TIMTOWTDI!
-    def async(method_name, *args, &block)
-      Actor.async @mailbox, method_name, *args, &block
+    def async(method_name = nil, *args, &block)
+      if method_name
+        Actor.async @mailbox, method_name, *args, &block
+      else
+        AsyncProxy.new(@mailbox, @klass)
+      end
     end
 
     # Create a Celluloid::Future which calls a given method

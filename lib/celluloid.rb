@@ -370,7 +370,7 @@ module Celluloid
 end
 
 require 'celluloid/version'
-require 'celluloid/actor_proxy'
+
 require 'celluloid/calls'
 require 'celluloid/core_ext'
 require 'celluloid/cpu_counter'
@@ -389,6 +389,10 @@ require 'celluloid/system_events'
 require 'celluloid/task'
 require 'celluloid/thread_handle'
 require 'celluloid/uuid'
+
+require 'celluloid/proxies/abstract_proxy'
+require 'celluloid/proxies/actor_proxy'
+require 'celluloid/proxies/async_proxy'
 
 require 'celluloid/actor'
 require 'celluloid/future'
