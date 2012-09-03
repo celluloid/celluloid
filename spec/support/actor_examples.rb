@@ -380,7 +380,6 @@ shared_context "a Celluloid Actor" do |included_module|
       obj.should be_signaled
     end
 
-    # FIXME: This is deadlocking on Travis, and may still have issues
     it "sends values along with signals" do
       obj = @signaler.new
       obj.should_not be_signaled
