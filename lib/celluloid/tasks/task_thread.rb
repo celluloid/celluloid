@@ -17,16 +17,15 @@ module Celluloid
 
       @thread = InternalPool.get do
         begin
-          value = @resume_queue.pop
-          raise value if value.is_a?(Task::TerminatedError)
+          unless @resume_queue.pop.is_a?(Task::TerminatedError)
+            @status = :running
+            Thread.current[:actor]   = actor
+            Thread.current[:mailbox] = mailbox
+            Thread.current[:task]    = self
+            actor.tasks << self
 
-          @status = :running
-          Thread.current[:actor]   = actor
-          Thread.current[:mailbox] = mailbox
-          Thread.current[:task]    = self
-          actor.tasks << self
-
-          yield
+            yield
+          end
         rescue Task::TerminatedError
           # Task was explicitly terminated
         ensure
