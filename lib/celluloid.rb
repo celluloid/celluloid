@@ -143,8 +143,16 @@ module Celluloid
     end
 
     # Define the default task type for this class
-    def task_class(klass)
-      @task_class = klass
+    def task_class(klass = nil)
+      if klass
+        @task_class = klass
+      elsif defined?(@task_class)
+        @task_class
+      elsif superclass.respond_to? :task_class
+        superclass.task_class
+      else
+        Celluloid.task_class
+      end
     end
 
     # Mark methods as running exclusively
@@ -174,7 +182,7 @@ module Celluloid
         :mailbox           => mailbox_factory,
         :exit_handler      => @exit_handler,
         :exclusive_methods => @exclusive_methods,
-        :task_class        => @task_class
+        :task_class        => task_class
       }
     end
 

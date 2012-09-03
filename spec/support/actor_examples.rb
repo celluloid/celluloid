@@ -675,8 +675,13 @@ shared_context "a Celluloid Actor" do |included_module|
       end
     end
 
-    it "uses user-specified tasks" do
+    it "overrides the task class" do
       subject.new.tasks.first.should be_a ExampleTask
+    end
+
+    it "retains custom task classes when subclassed" do
+      subclass = Class.new(subject)
+      subclass.new.tasks.first.should be_a ExampleTask
     end
   end
 end

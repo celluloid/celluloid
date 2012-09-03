@@ -59,7 +59,7 @@ module Celluloid
 
     # Nicer string inspect for tasks
     def inspect
-      "<Celluloid::Task:0x#{object_id.to_s(16)} @type=#{@type.inspect}, @status=#{@status.inspect}>"
+      "<Celluloid::TaskFiber:0x#{object_id.to_s(16)} @type=#{@type.inspect}, @status=#{@status.inspect}>"
     end
   end
 end
