@@ -191,7 +191,7 @@ module Celluloid
     def run
       begin
         while @running
-          if message = @mailbox.receive(timeout)
+          if message = @mailbox.receive(timeout_interval)
             handle_message message
           else
             # No message indicates a timeout
@@ -277,7 +277,7 @@ module Celluloid
     end
 
     # How long to wait until the next timer fires
-    def timeout
+    def timeout_interval
       i1 = @timers.wait_interval
       i2 = @receivers.wait_interval
 
