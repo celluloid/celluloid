@@ -393,6 +393,7 @@ require 'celluloid/uuid'
 require 'celluloid/proxies/abstract_proxy'
 require 'celluloid/proxies/actor_proxy'
 require 'celluloid/proxies/async_proxy'
+require 'celluloid/proxies/future_proxy'
 
 require 'celluloid/actor'
 require 'celluloid/future'

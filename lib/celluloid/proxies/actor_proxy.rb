@@ -1,7 +1,6 @@
 module Celluloid
-  # A proxy object returned from Celluloid::Actor.spawn/spawn_link which
-  # dispatches calls and casts to normal Ruby objects which are running inside
-  # of their own threads.
+  # A proxy object returned from Celluloid::Actor.new/new_link which converts
+  # the normal Ruby method protocol into an inter-actor message protocol
   class ActorProxy < AbstractProxy
     attr_reader :mailbox, :thread
 
@@ -55,8 +54,7 @@ module Celluloid
       Actor.call @mailbox, :to_s
     end
 
-    # Make an asynchronous call to an actor, for those who don't like the
-    # predicate syntax. TIMTOWTDI!
+    # Obtain an async proxy or explicitly invoke a named async method
     def async(method_name = nil, *args, &block)
       if method_name
         Actor.async @mailbox, method_name, *args, &block
@@ -65,9 +63,13 @@ module Celluloid
       end
     end
 
-    # Create a Celluloid::Future which calls a given method
-    def future(method_name, *args, &block)
-      Actor.future @mailbox, method_name, *args, &block
+    # Obtain a future proxy or explicitly invoke a named future method
+    def future(method_name = nil, *args, &block)
+      if method_name
+        Actor.future @mailbox, method_name, *args, &block
+      else
+        FutureProxy.new(@mailbox, @klass)
+      end
     end
 
     # Terminate the associated actor

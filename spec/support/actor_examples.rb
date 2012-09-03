@@ -25,19 +25,25 @@ shared_context "a Celluloid Actor" do |included_module|
     actor.object_id.should_not == Kernel.object_id
   end
 
-  it "handles synchronous calls" do
+  it "supports synchronous calls" do
     actor = actor_class.new "Troy McClure"
     actor.greet.should == "Hi, I'm Troy McClure"
   end
 
-  it "handles synchronous calls via #method" do
+  it "supports synchronous calls via #method" do
     method = actor_class.new("Troy McClure").method(:greet)
     method.call.should == "Hi, I'm Troy McClure"
   end
 
-  it "handles futures for synchronous calls" do
+  it "supports future(:method) syntax for synchronous future calls" do
     actor = actor_class.new "Troy McClure"
     future = actor.future :greet
+    future.value.should == "Hi, I'm Troy McClure"
+  end
+
+  it "supports future.method syntax for synchronous future calls" do
+    actor = actor_class.new "Troy McClure"
+    future = actor.future.greet
     future.value.should == "Hi, I'm Troy McClure"
   end
 
@@ -136,25 +142,25 @@ shared_context "a Celluloid Actor" do |included_module|
     end.to raise_exception(Celluloid::DeadActorError)
   end
 
-  it "handles asynchronous calls" do
+  it "supports method! syntax for asynchronous calls" do
     actor = actor_class.new "Troy McClure"
     actor.change_name! "Charlie Sheen"
     actor.greet.should == "Hi, I'm Charlie Sheen"
   end
 
-  it "handles asynchronous calls via async(:meth)" do
+  it "supports async(:method) syntax for asynchronous calls" do
     actor = actor_class.new "Troy McClure"
     actor.async :change_name, "Charlie Sheen"
     actor.greet.should == "Hi, I'm Charlie Sheen"
   end
 
-  it "handles asynchronous calls via async.meth" do
+  it "supports async.method syntax for asynchronous calls" do
     actor = actor_class.new "Troy McClure"
     actor.async.change_name "Charlie Sheen"
     actor.greet.should == "Hi, I'm Charlie Sheen"
   end
 
-  it "handles asynchronous calls to itself" do
+  it "supports asynchronous calls to itself" do
     actor = actor_class.new "Troy McClure"
     actor.change_name_async "Charlie Sheen"
     actor.greet.should == "Hi, I'm Charlie Sheen"
