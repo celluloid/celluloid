@@ -133,8 +133,13 @@ module Celluloid
       if block
         @mailbox_factory = block
       else
-        @mailbox_factory = proc { klass.new }
+        mailbox_class(klass)
       end
+    end
+
+    # Define the mailbox class for this class
+    def mailbox_class(klass)
+      @mailbox_factory = proc { klass.new }
     end
 
     # Define the default task type for this class

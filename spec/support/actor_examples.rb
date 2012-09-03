@@ -645,6 +645,26 @@ shared_context "a Celluloid Actor" do |included_module|
     end
   end
 
+  context :mailbox_class do
+    class ExampleMailbox < Celluloid::Mailbox; end
+
+    subject do
+      Class.new do
+        include included_module
+        mailbox_class ExampleMailbox
+      end
+    end
+
+    it "overrides the mailbox class" do
+      subject.new.mailbox.should be_a ExampleMailbox
+    end
+
+    it "retains custom mailboxes when subclassed" do
+      subclass = Class.new(subject)
+      subclass.new.mailbox.should be_a ExampleMailbox
+    end
+  end
+
   context :task_class do
     class ExampleTask < Celluloid::TaskFiber; end
 
