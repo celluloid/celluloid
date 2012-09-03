@@ -23,13 +23,13 @@ module Celluloid
         actor.tasks << self
 
         begin
-          @yield.push(yield)
+          yield
         rescue Task::TerminatedError
           # Task was explicitly terminated
         ensure
           @status = :dead
           actor.tasks.delete self
-          @waiter.run if @waiter
+          @yield.push nil
         end
       end
     end
