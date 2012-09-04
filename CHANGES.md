@@ -1,3 +1,7 @@
+0.12.0
+------
+* Tracking release for Celluloid 0.12.0
+
 0.11.0
 ------
 * "Unofficial" SSL support (via nio4r 0.4.0)
