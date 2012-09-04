@@ -1,5 +1,5 @@
-HEAD
-----
+0.12.0
+------
 * Alternative async syntax: actor.async.method in lieu of actor.method!
   Original syntax still available but will be removed in Celluloid 1.0
 * Alternative future syntax: actor.future.method in lieu of future(:method)
