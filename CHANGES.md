@@ -1,3 +1,7 @@
+0.12.0
+------
+* Tracking release for Celluloid 0.12.0
+
 0.10.0
 ------
 * Factor celluloid-zmq into its own gem
