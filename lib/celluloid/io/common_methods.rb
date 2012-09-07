@@ -63,7 +63,7 @@ module Celluloid
       end
 
       def read(length = nil, buffer = nil)
-        buffer ||= ''
+        buffer ||= ''.force_encoding(Encoding::ASCII_8BIT)
         remaining = length
 
         acquire_ownership :r
@@ -97,7 +97,7 @@ module Celluloid
       end
 
       def readpartial(length, buffer = nil)
-        buffer ||= ''
+        buffer ||= ''.force_encoding(Encoding::ASCII_8BIT)
 
         begin
           read_nonblock(length, buffer)
