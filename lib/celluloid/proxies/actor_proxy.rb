@@ -20,7 +20,7 @@ module Celluloid
     end
 
     def inspect
-      Actor.call @mailbox, :inspect
+      Actor.call(@mailbox, :inspect).sub(::Celluloid::BARE_OBJECT_WARNING_MESSAGE, "Celluloid::Actor")
     rescue DeadActorError
       "#<Celluloid::Actor(#{@klass}) dead>"
     end

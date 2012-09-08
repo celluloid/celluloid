@@ -6,7 +6,11 @@ require 'set'
 module Celluloid
   extend self # expose all instance methods as singleton methods
 
-  SHUTDOWN_TIMEOUT = 120 # How long actors have to terminate
+  # How long actors have to terminate
+  SHUTDOWN_TIMEOUT = 120
+
+  # Warning message added to Celluloid objects accessed outside their actors
+  BARE_OBJECT_WARNING_MESSAGE = "WARNING: BARE CELLULOID OBJECT "
 
   class << self
     attr_accessor :logger     # Thread-safe logger class
@@ -202,7 +206,7 @@ module Celluloid
     def wrapped_object; self; end
 
     def inspect
-      str = "#<Celluloid::Actor(#{self.class}:0x#{object_id.to_s(16)})"
+      str = "#<#{Celluloid::BARE_OBJECT_WARNING_MESSAGE}(#{self.class}:0x#{object_id.to_s(16)})"
       ivars = instance_variables.map do |ivar|
         "#{ivar}=#{instance_variable_get(ivar).inspect}"
       end

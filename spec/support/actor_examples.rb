@@ -207,6 +207,13 @@ shared_context "a Celluloid Actor" do |included_module|
     actor.wrapped_object.should be_a actor_class
   end
 
+  it "warns about leaked wrapped objects via #inspect" do
+    actor = actor_class.new "Troy McClure"
+
+    actor.inspect.should_not include Celluloid::BARE_OBJECT_WARNING_MESSAGE
+    actor.wrapped_object.inspect.should include Celluloid::BARE_OBJECT_WARNING_MESSAGE
+  end
+
   describe 'mocking methods' do
     let(:actor) { actor_class.new "Troy McClure" }
 
