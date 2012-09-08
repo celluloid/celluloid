@@ -240,11 +240,6 @@ module Celluloid
   # directly inside of all classes that include Celluloid
   #
 
-  # Is this actor alive?
-  def alive?
-    Thread.current[:actor].alive?
-  end
-
   # Raise an exception in caller context, but stay running
   def abort(cause)
     cause = case cause
