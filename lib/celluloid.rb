@@ -198,12 +198,21 @@ module Celluloid
   # These are methods we don't want added to the Celluloid singleton but to be
   # defined on all classes that use Celluloid
   module InstanceMethods
-    # Obtain the Ruby object the actor is wrapping. This should ONLY be used
-    # for a limited set of use cases like runtime metaprogramming. Interacting
-    # directly with the wrapped object foregoes any kind of thread safety that
+    # Obtain the bare Ruby object the actor is wrapping. This is useful for
+    # only a limited set of use cases like runtime metaprogramming. Interacting
+    # directly with the bare object foregoes any kind of thread safety that
     # Celluloid would ordinarily provide you, and the object is guaranteed to
     # be shared with at least the actor thread. Tread carefully.
-    def wrapped_object; self; end
+    #
+    # Bare objects can be identified via #inspect output:
+    #
+    #     >> actor
+    #      => #<Celluloid::Actor(Foo:0x3fefcb77c194)>
+    #     >> actor.bare_object
+    #      => #<WARNING: BARE CELLULOID OBJECT (Foo:0x3fefcb77c194)>
+    #
+    def bare_object; self; end
+    alias_method :wrapped_object, :bare_object
 
     def inspect
       str = "#<#{Celluloid::BARE_OBJECT_WARNING_MESSAGE}(#{self.class}:0x#{object_id.to_s(16)})"
