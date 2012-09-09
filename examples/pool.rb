@@ -32,7 +32,7 @@ if $0 == __FILE__
   end
 
   futures = %w(i am the very model of a modern major general).map do |word|
-    pool.future(:rehash, word, 1_000_000)
+    pool.future.rehash(word, 1_000_000)
   end
 
   p futures.map(&:value)
