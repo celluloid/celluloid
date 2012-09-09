@@ -27,7 +27,7 @@ hasher = Hasher.new("super secret initialization data")
 
 # Ask the hasher to perform a complex computation. However, since we're using
 # a future, this doesn't block the current thread
-future = hasher.future(:add, "some data to be hashed")
+future = hasher.future.add("some data to be hashed")
 
 # We've kicked off the hasher, but this thread can continue performing other
 # activities while the hasher runs in the background
