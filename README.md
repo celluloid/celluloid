@@ -35,6 +35,37 @@ and kqueue.
 
 Like Celluloid::IO? [Join the Google Group](http://groups.google.com/group/celluloid-ruby)
 
+When should I use Celluloid::IO?
+--------------------------------
+
+Unlike systems like Node.js, Celluloid does not require that all I/O be
+"evented". Celluloid fully supports any libraries that support blocking I/O
+and for the *overwhelming majority* of use cases blocking I/O is more than
+sufficient. Using blocking I/O means that any Ruby library you want will
+Just Work without resorting to any kind of theatrics.
+
+Celluloid::IO exists for a few reasons:
+
+* During a blocking I/O operation, Celluloid actors cannot respond to incoming
+  messages to their mailboxes. They will process messages as soon as the
+  method containing a blocking I/O operation completes, however until this
+  happens the entire actor is blocked. If you would like to multiplex both
+  message processing and I/O operations, you will want to use Celluloid::IO.
+  This is especially important for *indefinite* blocking operations, such as
+  listening for incoming TCP connections.
+* Celluloid uses a native thread per actor. While native threads aren't
+  particularly expensive in Ruby (~20kB of RAM), you can use less RAM using
+  Celluloid::IO. You might consider using Celluloid::IO over an 
+  actor-per-connection if you are dealing with 10,000 connections or more.
+* The goal of Celluloid::IO is to fully integrate it into the Celluloid
+  ecosystem, including DCell. DCell will hopefully eventually support
+  serializable I/O handles that you can seamlessly transfer between nodes.
+
+All that said, if you are just starting out with Celluloid, you probably want
+to start off using blocking I/O until you understand the fundamentals of
+Celluloid and have encountered one of the above reasons for switching
+over to Celluloid::IO.
+
 Supported Platforms
 -------------------
 
