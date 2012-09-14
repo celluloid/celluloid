@@ -111,7 +111,7 @@ module Celluloid
     end
 
     def incident_topic
-      "log.incident"
+      "log.incident.#{@progname}"
     end
   end
 end

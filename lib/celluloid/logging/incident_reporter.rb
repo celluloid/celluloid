@@ -5,7 +5,7 @@ module Celluloid
     include Celluloid::Notifications
 
     def initialize
-      subscribe("log.incident", :report)
+      subscribe(/log\.incident/, :report)
     end
 
     def report(topic, incident)
