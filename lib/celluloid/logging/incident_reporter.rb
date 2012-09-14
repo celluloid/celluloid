@@ -12,9 +12,9 @@ module Celluloid
       end
     end
 
-    def initialize
+    def initialize(*args)
       subscribe(/log\.incident/, :report)
-      @logger = ::Logger.new(STDERR)
+      @logger = ::Logger.new(*args)
       @logger.formatter = Formatter.new
     end
 
