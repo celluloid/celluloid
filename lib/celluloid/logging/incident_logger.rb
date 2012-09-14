@@ -50,39 +50,54 @@ module Celluloid
       @level = options[:level] || DEBUG
       @threshold = options[:threshold] || ERROR
       @sizelimit = options[:sizelimit] || 100
-      @buffers = Hash.new { |h, k| h[k] = RingBuffer.new(@sizelimit) }
+
+      @buffers = Hash.new do |progname_hash, progname| 
+        progname_hash[progname] = Hash.new do |severity_hash, severity|
+          severity_hash[severity] = RingBuffer.new(@sizelimit)
+        end
+      end
     end
 
     # add an event.
-    def add(severity, message=nil, options={}, &block)
-      event = Event.new(severity, message, @progname, &block)
-
+    def add(severity, message=nil, progname=nil, &block)
+      progname ||= @progname
       severity ||= UNKNOWN
+
       if severity < @level
         return event.id
       end
 
-      @buffers[severity] << event
+      if message.nil? && !block_given?
+        message = progname
+        progname = @progname
+      end
+
+      event = Event.new(severity, message, progname, &block)
+
+      @buffers[progname][severity] << event
 
       if severity >= @threshold
-        publish("log.#{@progname}", create_incident(event))
+        publish("log.incident", create_incident(event))
       end
       event.id
     end
     alias :log :add
 
-    def trace   (message=nil, options={}, &block); add(TRACE,   message, options, &block); end
-    def debug   (message=nil, options={}, &block); add(DEBUG,   message, options, &block); end
-    def info    (message=nil, options={}, &block); add(INFO,    message, options, &block); end
-    def warn    (message=nil, options={}, &block); add(WARN,    message, options, &block); end
-    def error   (message=nil, options={}, &block); add(ERROR,   message, options, &block); end
-    def fatal   (message=nil, options={}, &block); add(FATAL,   message, options, &block); end
-    def unknown (message=nil, options={}, &block); add(UNKNOWN, message, options, &block); end
+    # See docs for Logger#info
+    def trace   (progname=nil, &block); add(TRACE,   nil, progname, &block); end
+    def debug   (progname=nil, &block); add(DEBUG,   nil, progname, &block); end
+    def info    (progname=nil, &block); add(INFO,    nil, progname, &block); end
+    def warn    (progname=nil, &block); add(WARN,    nil, progname, &block); end
+    def error   (progname=nil, &block); add(ERROR,   nil, progname, &block); end
+    def fatal   (progname=nil, &block); add(FATAL,   nil, progname, &block); end
+    def unknown (progname=nil, &block); add(UNKNOWN, nil, progname, &block); end
 
     def flush
       messages = []
-      @buffers.each do |severity, buffer|
-        messages += buffer.flush
+      @buffers.each do |progname, severities|
+        severities.each do |severity, buffer|
+          messages += buffer.flush
+        end
       end
       messages.sort
     end
@@ -93,6 +108,10 @@ module Celluloid
 
     def create_incident(event=nil)
       Incident.new(flush, event)
+    end
+
+    def incident_topic
+      "log.incident"
     end
   end
 end
