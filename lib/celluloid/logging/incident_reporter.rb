@@ -8,7 +8,7 @@ module Celluloid
     # get the time from the event
     class Formatter < ::Logger::Formatter
       def call(severity, time, progname, msg)
-        super(severity, msg.timestamp, progname, msg.message)
+        super(severity, msg.time, progname, msg.message)
       end
     end
 
