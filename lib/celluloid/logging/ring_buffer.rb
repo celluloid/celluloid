@@ -32,18 +32,34 @@ module Celluloid
 
     def shift
       @mutex.synchronize do
-        return nil if empty?
-        value, @buffer[@start] = @buffer[@start], nil
-        @start = (@start + 1) % @size
-        @count -= 1
-        value
+        remove_element
       end
+    end
+
+    def flush
+      values = []
+      @mutex.synchronize do
+        while !empty?
+          values << remove_element
+        end
+      end
+      values
     end
 
     def clear
       @buffer = Array.new(@size)
       @start = 0
       @count = 0
+    end
+
+    private
+
+    def remove_element
+      return nil if empty?
+      value, @buffer[@start] = @buffer[@start], nil
+      @start = (@start + 1) % @size
+      @count -= 1
+      value
     end
   end
 end
