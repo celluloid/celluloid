@@ -1,7 +1,7 @@
 module Celluloid
   # A proxy object returned from Celluloid::Actor.new/new_link which converts
   # the normal Ruby method protocol into an inter-actor message protocol
-  class ActorProxy < AbstractProxy
+  class ActorProxy
     attr_reader :mailbox, :thread
 
     def initialize(actor)
