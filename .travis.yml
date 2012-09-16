@@ -5,7 +5,7 @@ rvm:
   - ruby-head
   - jruby-19mode
 #  - jruby-head # FIXME: timers firing in the wrong order?
-  - rbx-19mode
+#  - rbx-19mode # crashing: http://travis-ci.org/#!/celluloid/celluloid/jobs/2469781
 
 notifications:
   irc: "irc.freenode.org#celluloid"
