@@ -76,6 +76,10 @@ module Celluloid
       _send_ :inspect
     end
 
+    def size
+      @size
+    end
+
     # Provision a new worker
     def __provision_worker
       while @idle.empty?
