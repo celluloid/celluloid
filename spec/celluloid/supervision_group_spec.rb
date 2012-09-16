@@ -39,7 +39,7 @@ describe Celluloid::SupervisionGroup do
 
       Celluloid::Actor[:example_pool].should be_running
       Celluloid::Actor[:example_pool].args.should == ['foo']
-      Celluloid::Actor[:example_pool].instance_variable_get("@size").should == 3
+      Celluloid::Actor[:example_pool].size.should == 3
     end
   end
 end
