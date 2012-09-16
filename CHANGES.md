@@ -1,3 +1,8 @@
+HEAD
+----
+* Revert BasicObject proxies for now... they are causing problems
+* String inspect that reveals bare object leaks
+
 0.12.0
 ------
 * Alternative async syntax: actor.async.method in lieu of actor.method!
