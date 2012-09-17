@@ -11,9 +11,11 @@ module Celluloid
     end
 
     # Merge two incidents together. This may be useful if two incidents occur at the same time.
-    def merge(other_incident)
-      merged_events = (events + other_incident.events).sort
-      Incident.new(merged_events, triggering_event)
+    def merge(*other_incidents)
+      merged_events = other_incidents.flatten.inject(events) do |events, incident|
+        events += incident.events
+      end
+      Incident.new(merged_events.sort, triggering_event)
     end
   end
 end
