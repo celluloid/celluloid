@@ -12,9 +12,8 @@ module Celluloid
 
     # Merge two incidents together. This may be useful if two incidents occur at the same time.
     def merge(other_incident)
-      @events += other_incident.events
-      @events = @events.sort
-      self
+      merged_events = (events + other_incident.events).sort
+      Incident.new(merged_events, triggering_event)
     end
   end
 end
