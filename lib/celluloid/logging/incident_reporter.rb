@@ -20,12 +20,14 @@ module Celluloid
 
     def report(topic, incident)
 
-      puts "INCIDENT"
-      puts "===================="
+      header = "INCIDENT"
+      header << " AT #{incident.triggering_event.time}" if incident.triggering_event
+      @logger << header
+      @logger << "===================="
       incident.events.each do |event|
         @logger.add(event.severity, event, event.progname)
       end
-      puts "===================="
+      @logger << "===================="
     end
   end
 end
