@@ -72,7 +72,7 @@ module Celluloid
         progname = @progname
       end
 
-      event = Event.new(severity, message, progname, &block)
+      event = LogEvent.new(severity, message, progname, &block)
 
       @buffers[progname][severity] << event
 

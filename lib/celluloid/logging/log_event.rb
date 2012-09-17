@@ -1,6 +1,6 @@
 module Celluloid
   # Wraps a single log event.
-  class Event
+  class LogEvent
     attr_accessor :id, :severity, :message, :progname, :time
 
     def initialize(severity, message, progname, time=Time.now, &block)
