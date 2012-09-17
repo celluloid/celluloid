@@ -25,7 +25,6 @@ module Celluloid
     end
     include Severity
 
-    include Celluloid
     include Celluloid::Notifications
 
     # The progname (facility) for this instance.
@@ -51,9 +50,12 @@ module Celluloid
       @threshold = options[:threshold] || ERROR
       @sizelimit = options[:sizelimit] || 100
 
+      @buffer_mutex = Mutex.new
       @buffers = Hash.new do |progname_hash, progname| 
-        progname_hash[progname] = Hash.new do |severity_hash, severity|
-          severity_hash[severity] = RingBuffer.new(@sizelimit)
+        @buffer_mutex.synchronize do
+          progname_hash[progname] = Hash.new do |severity_hash, severity|
+            severity_hash[severity] = RingBuffer.new(@sizelimit)
+          end
         end
       end
     end
@@ -94,16 +96,20 @@ module Celluloid
 
     def flush
       messages = []
-      @buffers.each do |progname, severities|
-        severities.each do |severity, buffer|
-          messages += buffer.flush
+      @buffer_mutex.synchronize do
+        @buffers.each do |progname, severities|
+          severities.each do |severity, buffer|
+            messages += buffer.flush
+          end
         end
       end
       messages.sort
     end
     
     def clear
-      @buffers.each { |buffer| buffer.clear }
+      @buffer_mutex.synchronize do
+        @buffers.each { |buffer| buffer.clear }
+      end
     end
 
     def create_incident(event=nil)
