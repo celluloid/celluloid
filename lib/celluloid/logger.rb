@@ -5,22 +5,22 @@ module Celluloid
 
     # Send a debug message
     def debug(string)
-      Celluloid.logger.debug(string) if Celluloid.logger && Celluloid.logger.alive?
+      Celluloid.logger.debug(string) if Celluloid.logger || (Celluloid.logger.respond_to?(:alive?) && Celluloid.logger.alive?)
     end
 
     # Send a info message
     def info(string)
-      Celluloid.logger.info(string) if Celluloid.logger && Celluloid.logger.alive?
+      Celluloid.logger.info(string) if Celluloid.logger || (Celluloid.logger.respond_to?(:alive?) && Celluloid.logger.alive?)
     end
 
     # Send a warning message
     def warn(string)
-      Celluloid.logger.warn(string) if Celluloid.logger && Celluloid.logger.alive?
+      Celluloid.logger.warn(string) if Celluloid.logger || (Celluloid.logger.respond_to?(:alive?) && Celluloid.logger.alive?)
     end
 
     # Send an error message
     def error(string)
-      Celluloid.logger.error(string) if Celluloid.logger && Celluloid.logger.alive?
+      Celluloid.logger.error(string) if Celluloid.logger || (Celluloid.logger.respond_to?(:alive?) && Celluloid.logger.alive?)
     end
 
     # Handle a crash
