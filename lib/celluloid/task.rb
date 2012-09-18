@@ -2,6 +2,9 @@ require 'celluloid/tasks/task_fiber'
 require 'celluloid/tasks/task_thread'
 
 module Celluloid
+  # Asked to do task-related things outside a task
+  class NotTaskError < StandardError; end
+
   # Trying to resume a dead task
   class DeadTaskError < StandardError; end
 
@@ -11,7 +14,7 @@ module Celluloid
 
     # Obtain the current task
     def self.current
-      Thread.current[:task] or raise "not within a task context"
+      Thread.current[:task] or raise NotTaskError, "not within a task context"
     end
 
     # Suspend the running task, deferring to the scheduler
