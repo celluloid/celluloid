@@ -23,11 +23,12 @@ module Celluloid
       header = "INCIDENT"
       header << " AT #{incident.triggering_event.time}" if incident.triggering_event
       @logger << header
-      @logger << "===================="
+      @logger << "\n"
+      @logger << "====================\n"
       incident.events.each do |event|
         @logger.add(event.severity, event, event.progname)
       end
-      @logger << "===================="
+      @logger << "====================\n"
     end
   end
 end
