@@ -58,6 +58,10 @@ module Celluloid
           end
         end
       end
+
+      # When the IncidentLogger itself encounters an error, it falls back to logging to stderr
+      @fallback_logger = ::Logger.new(STDERR)
+      @fallback_logger.progname = "FALLBACK"
     end
 
     # add an event.
@@ -79,7 +83,11 @@ module Celluloid
       @buffers[progname][severity] << event
 
       if severity >= @threshold
-        publish("log.incident", create_incident(event))
+        begin
+          Celluloid::Notifications.notifier.publish("log.incident", create_incident(event))
+        rescue => ex
+          @fallback_logger.error(ex)
+        end
       end
       event.id
     end
