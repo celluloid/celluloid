@@ -1,8 +1,13 @@
+require 'forwardable'
+
 module Celluloid
   # An abstraction around threads from the InternalPool which ensures we don't
   # accidentally do things to threads which have been returned to the pool,
   # such as, say, killing them
   class ThreadHandle
+    extend Forwardable
+    def_delegators :@thread, :backtrace
+
     def initialize
       @mutex = Mutex.new
       @join  = ConditionVariable.new
