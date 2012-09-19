@@ -65,7 +65,7 @@ module Celluloid
           raise DeadActorError, "attempted to call a dead actor"
         end
 
-        if Celluloid.actor? and not Celluloid.exclusive?
+        if Celluloid.actor? && !Celluloid.exclusive?
           # The current task will be automatically resumed when we get a response
           Task.suspend(:callwait).value
         else
