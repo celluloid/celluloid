@@ -175,7 +175,7 @@ module Celluloid
       @receivers = Receivers.new
       @timers    = Timers.new
       @running   = true
-      @exclusive = false
+      @exclusive = true
       @name      = nil
 
       @thread = ThreadHandle.new do
@@ -389,7 +389,12 @@ module Celluloid
       if @exclusives && (@exclusives == :all || @exclusives.include?(method_name))
         exclusive { block.call }
       else
-        @task_class.new(:message_handler, &block).resume
+        @exclusive = false
+        begin
+          @task_class.new(task_type, &block).resume
+        ensure
+          @exclusive = true
+        end
       end
     end
   end
