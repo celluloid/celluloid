@@ -16,9 +16,11 @@ module Celluloid
       subscribe(/log\.incident/, :report)
       @logger = ::Logger.new(*args)
       @logger.formatter = Formatter.new
+      @silenced = false
     end
 
     def report(topic, incident)
+      return if @silenced
 
       header = "INCIDENT"
       header << " AT #{incident.triggering_event.time}" if incident.triggering_event
@@ -29,6 +31,18 @@ module Celluloid
         @logger.add(event.severity, event, event.progname)
       end
       @logger << "====================\n"
+    end
+
+    def silence
+      @silenced = true
+    end
+
+    def unsilence
+      @silenced = false
+    end
+
+    def silenced?
+      @silenced
     end
   end
 end
