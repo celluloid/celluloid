@@ -389,7 +389,7 @@ module Celluloid
       if @exclusives && (@exclusives == :all || @exclusives.include?(method_name))
         exclusive { block.call }
       else
-        @task_class.new(:message_handler, &block).resume
+        @task_class.new(task_type, &block).resume
       end
     end
   end
