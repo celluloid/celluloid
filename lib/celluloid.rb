@@ -38,6 +38,12 @@ module Celluloid
     alias_method :cpus, :cores
     alias_method :ncpus, :cores
 
+    # Perform a stack dump of all actors to the given output object
+    def stack_dump(output = STDERR)
+      Celluloid::StackDumper.dump(output)
+    end
+    alias_method :dump, :stack_dump
+
     # Define an exception handler for actor crashes
     def exception_handler(&block)
       Logger.exception_handler(&block)
