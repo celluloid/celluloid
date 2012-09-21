@@ -2,6 +2,8 @@ HEAD
 ----
 * Revert BasicObject proxies for now... they are causing problems
 * String inspect that reveals bare object leaks
+* Fix bug reporting proper task statuses
+* Initial thread dumper support
 * Remove Celluloid#alive? as it cannot be called in any manner that will ever
   return anything but true, rendering it useless
 
