@@ -447,5 +447,6 @@ require 'celluloid/pool_manager'
 require 'celluloid/supervision_group'
 require 'celluloid/supervisor'
 require 'celluloid/notifications'
+require 'celluloid/logging'
 
 require 'celluloid/boot'
