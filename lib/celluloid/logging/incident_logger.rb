@@ -84,7 +84,7 @@ module Celluloid
 
       if severity >= @threshold
         begin
-          Celluloid::Notifications.notifier.publish("log.incident", create_incident(event))
+          Celluloid::Notifications.notifier.async.publish("log.incident", create_incident(event))
         rescue => ex
           @fallback_logger.error(ex)
         end
