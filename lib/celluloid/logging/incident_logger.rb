@@ -25,8 +25,6 @@ module Celluloid
     end
     include Severity
 
-    include Celluloid::Notifications
-
     # The progname (facility) for this instance.
     attr_accessor :progname
 
