@@ -48,6 +48,10 @@ module Celluloid
       @threshold = options[:threshold] || ERROR
       @sizelimit = options[:sizelimit] || 100
 
+      # firehose is on by default, this option is here in case of performance
+      # problems publishing every message.
+      @firehose = options[:firehose] || true
+
       @buffer_mutex = Mutex.new
       @buffers = Hash.new do |progname_hash, progname| 
         @buffer_mutex.synchronize do
@@ -125,10 +129,12 @@ module Celluloid
     end
 
     def publish_event(event)
-      begin
-        Celluloid::Notifications.notifier.async.publish(firehose_topic, event)
-      rescue => ex
-        @fallback_logger.error(ex)
+      if @firehose
+        begin
+          Celluloid::Notifications.notifier.async.publish(firehose_topic, event)
+        rescue => ex
+          @fallback_logger.error(ex)
+        end
       end
 
       if event.severity >= @threshold
