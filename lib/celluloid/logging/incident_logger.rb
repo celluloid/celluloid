@@ -79,14 +79,8 @@ module Celluloid
       event = LogEvent.new(severity, message, progname, &block)
 
       @buffers[progname][severity] << event
+      publish_event(event)
 
-      if severity >= @threshold
-        begin
-          Celluloid::Notifications.notifier.async.publish(incident_topic, create_incident(event))
-        rescue => ex
-          @fallback_logger.error(ex)
-        end
-      end
       event.id
     end
     alias :log :add
@@ -124,6 +118,26 @@ module Celluloid
 
     def incident_topic
       "log.incident.#{@progname}"
+    end
+
+    def firehose_topic
+      "log.firehose.#{@progname}"
+    end
+
+    def publish_event(event)
+      begin
+        Celluloid::Notifications.notifier.async.publish(firehose_topic, event)
+      rescue => ex
+        @fallback_logger.error(ex)
+      end
+
+      if event.severity >= @threshold
+        begin
+          Celluloid::Notifications.notifier.async.publish(incident_topic, create_incident(event))
+        rescue => ex
+          @fallback_logger.error(ex)
+        end
+      end
     end
   end
 end
