@@ -1,4 +1,7 @@
 module Celluloid
+  # Logs events when they occur. Unlike the IncidentReporter, this will be ALL
+  # events above the configured log level, not just incident-generating events.
+  # Takes same arguments as Logger.new.
   class FirehoseConsumer
     include Celluloid
     include Celluloid::Notifications

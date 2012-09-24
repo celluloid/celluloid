@@ -1,5 +1,5 @@
 module Celluloid
-  # Subscribes to log incident topics to report on them.
+  # Logs incidents when they occur. Takes same arguments as Logger.new.
   class IncidentReporter
     include Celluloid
     include Celluloid::Notifications
