@@ -13,7 +13,7 @@ module Celluloid
     end
 
     def initialize(*args)
-      subscribe(/log\.incident/, :report)
+      subscribe(/^log\.incident/, :report)
       @logger = ::Logger.new(*args)
       @logger.formatter = Formatter.new
       @silenced = false
