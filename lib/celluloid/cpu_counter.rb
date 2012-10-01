@@ -6,7 +6,7 @@ module Celluloid
     when 'darwin'
       @cores = Integer(`sysctl hw.ncpu`[/\d+/])
     when 'linux'
-      @cores = File.read("/proc/cpuinfo").scan(/core id\s+: \d+/).uniq.size
+      @cores = File.read("/proc/cpuinfo").scan(/(?:core id|processor)\s+: \d+/).uniq.size
     when 'mingw', 'mswin'
       @cores = Integer(`SET NUMBER_OF_PROCESSORS`[/\d+/])
     else
