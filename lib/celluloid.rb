@@ -2,6 +2,7 @@ require 'logger'
 require 'thread'
 require 'timeout'
 require 'set'
+require 'facter'
 
 module Celluloid
   extend self # expose all instance methods as singleton methods
@@ -33,7 +34,8 @@ module Celluloid
 
     # Obtain the number of CPUs in the system
     def cores
-      CPUCounter.cores
+      core_count = Facter.fact(:processorcount).value
+      Integer(core_count)
     end
     alias_method :cpus, :cores
     alias_method :ncpus, :cores
@@ -418,7 +420,6 @@ require 'celluloid/version'
 
 require 'celluloid/calls'
 require 'celluloid/core_ext'
-require 'celluloid/cpu_counter'
 require 'celluloid/fiber'
 require 'celluloid/fsm'
 require 'celluloid/internal_pool'

@@ -21,6 +21,7 @@ Gem::Specification.new do |gem|
   gem.require_path = 'lib'
 
   gem.add_runtime_dependency 'timers', '>= 1.0.0'
+  gem.add_runtime_dependency 'facter', '>= 1.6.12'
 
   gem.add_development_dependency 'rake'
   gem.add_development_dependency 'rspec'
