@@ -83,4 +83,15 @@ describe Celluloid::FSM do
 
     subject.state.should == :pre_done
   end
+
+  context "actor is not set" do
+    let(:subject) { TestMachine.new }
+
+    context "transition is delayed" do
+      it "raises an unattached error" do
+        expect { subject.transition :another, :delay => 100 } \
+          .to raise_error(Celluloid::FSM::UnattachedError)
+      end
+    end
+  end
 end
