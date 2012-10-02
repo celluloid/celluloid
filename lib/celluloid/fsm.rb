@@ -84,6 +84,24 @@ module Celluloid
     #
     # Note: making additional state transitions will cancel delayed transitions
     def transition(state_name, options = {})
+      new_state = validate_and_sanitize_new_state(state_name)
+      return unless new_state
+
+      if handle_delayed_transitions(new_state, options[:delay])
+        return @delayed_transition
+      end
+
+      transition_with_callbacks!(new_state)
+    end
+
+    # Immediate state transition with no sanity checks, or callbacks. "Dangerous!"
+    def transition!(state_name)
+      @state = state_name
+    end
+
+    protected
+
+    def validate_and_sanitize_new_state(state_name)
       state_name = state_name.to_sym
 
       return if current_state_name == state_name
@@ -100,19 +118,8 @@ module Celluloid
         raise ArgumentError, "invalid state for #{self.class}: #{state_name}"
       end
 
-      if handle_delayed_transitions(new_state, options[:delay])
-        return @delayed_transition
-      end
-
-      transition_with_callbacks!(new_state)
+      new_state
     end
-
-    # Immediate state transition with no sanity checks, or callbacks. "Dangerous!"
-    def transition!(state_name)
-      @state = state_name
-    end
-
-    protected
 
     def transition_with_callbacks!(state_name)
       transition! state_name.name
