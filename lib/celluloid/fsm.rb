@@ -101,21 +101,8 @@ module Celluloid
         raise ArgumentError, "invalid state for #{self.class}: #{state_name}"
       end
 
-
-      if options[:delay]
-        raise UnattachedError, "can't delay unless attached" unless @actor
-        @delayed_transition.cancel if @delayed_transition
-
-        @delayed_transition = @actor.after(options[:delay]) do
-          transition_with_callbacks!(new_state)
-        end
-
+      if handle_delayed_transitions(new_state, options[:delay])
         return @delayed_transition
-      end
-
-      if defined?(@delayed_transition) and @delayed_transition
-        @delayed_transition.cancel
-        @delayed_transition = nil
       end
 
       transition_with_callbacks!(new_state)
@@ -131,6 +118,24 @@ module Celluloid
     def transition_with_callbacks!(state_name)
       transition! state_name.name
       state_name.call(self)
+    end
+
+    def handle_delayed_transitions(new_state, delay)
+      if delay
+        raise UnattachedError, "can't delay unless attached" unless @actor
+        @delayed_transition.cancel if @delayed_transition
+
+        @delayed_transition = @actor.after(delay) do
+          transition_with_callbacks!(new_state)
+        end
+
+        return @delayed_transition
+      end
+
+      if defined?(@delayed_transition) and @delayed_transition
+        @delayed_transition.cancel
+        @delayed_transition = nil
+      end
     end
 
     # FSM states as declared by Celluloid::FSM.state
