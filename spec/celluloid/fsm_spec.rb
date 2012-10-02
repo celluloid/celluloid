@@ -94,4 +94,17 @@ describe Celluloid::FSM do
       end
     end
   end
+
+  context "transitioning to an invalid state" do
+    let(:subject) { TestMachine.new }
+
+    it "raises an argument error" do
+      expect { subject.transition :invalid_state }.to raise_error(ArgumentError)
+    end
+
+    it "should not call transition! if the state is :default" do
+      subject.should_not_receive :transition!
+      subject.transition :default
+    end
+  end
 end
