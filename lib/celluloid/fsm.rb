@@ -85,19 +85,18 @@ module Celluloid
     # Note: making additional state transitions will cancel delayed transitions
     def transition(state_name, options = {})
       state_name = state_name.to_sym
-      current_state = self.class.states[@state]
 
-      return if current_state && current_state.name == state_name
+      return if current_state_name == state_name
 
       if current_state and not current_state.valid_transition? state_name
         valid = current_state.transitions.map(&:to_s).join(", ")
         raise ArgumentError, "#{self.class} can't change state from '#{@state}' to '#{state_name}', only to: #{valid}"
       end
 
-      new_state = self.class.states[state_name]
+      new_state = states[state_name]
 
       unless new_state
-        return if state_name == self.class.default_state
+        return if state_name == default_state
         raise ArgumentError, "invalid state for #{self.class}: #{state_name}"
       end
 
@@ -118,6 +117,22 @@ module Celluloid
     def transition_with_callbacks!(state_name)
       transition! state_name.name
       state_name.call(self)
+    end
+
+    def states
+      self.class.states
+    end
+
+    def default_state
+      self.class.default_state
+    end
+
+    def current_state
+      states[@state]
+    end
+
+    def current_state_name
+      current_state && current_state.name || ''
     end
 
     def handle_delayed_transitions(new_state, delay)
