@@ -1,5 +1,7 @@
-HEAD
-----
+0.12.1
+------
+* Fix bug in unsetting of exclusive mode
+* New incident report system for providing better debugging reports
 * Revert BasicObject proxies for now... they are causing problems
 * String inspect that reveals bare object leaks
 * Fix bug reporting proper task statuses
