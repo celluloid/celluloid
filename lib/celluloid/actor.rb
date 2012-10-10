@@ -65,11 +65,9 @@ module Celluloid
           raise DeadActorError, "attempted to call a dead actor"
         end
 
-        if Celluloid.actor? && !Celluloid.exclusive?
-          # The current task will be automatically resumed when we get a response
+        if Thread.current[:task]
           Task.suspend(:callwait).value
         else
-          # Otherwise we're inside a normal thread or exclusive, so block
           response = loop do
             message = Thread.mailbox.receive do |msg|
               msg.respond_to?(:call) and msg.call == call
