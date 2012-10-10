@@ -422,11 +422,19 @@ shared_context "a Celluloid Actor" do |included_module|
           exclusive?
         end
         exclusive :exclusive_example
+
+        def nested_exclusive_example
+          exclusive { exclusive { nil }; Celluloid.exclusive? }
+        end
       end.new
     end
 
     it "supports exclusive methods" do
       subject.exclusive_example.should be_true
+    end
+
+    it "remains in exclusive mode inside nested blocks" do
+      subject.nested_exclusive_example.should be_true
     end
   end
 

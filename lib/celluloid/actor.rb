@@ -219,10 +219,16 @@ module Celluloid
 
     # Execute a code block in exclusive mode.
     def exclusive
-      @exclusive = true
-      yield
-    ensure
-      @exclusive = false
+      if @exclusive
+        yield
+      else
+        begin
+          @exclusive = true
+          yield
+        ensure
+          @exclusive = false
+        end
+      end
     end
 
     # Perform a linking request with another actor
