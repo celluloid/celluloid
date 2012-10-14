@@ -163,6 +163,7 @@ module Celluloid
     def initialize(subject, options = {})
       @subject      = subject
       @mailbox      = options[:mailbox] || Mailbox.new
+      @proxy_class  = options[:proxy_class] || ActorProxy
       @exit_handler = options[:exit_handler]
       @exclusives   = options[:exclusive_methods]
       @task_class   = options[:task_class] || Celluloid.task_class
@@ -181,8 +182,8 @@ module Celluloid
         Thread.current[:mailbox] = @mailbox
         run
       end
-
-      @proxy = ActorProxy.new(self)
+      
+      @proxy = @proxy_class.new(self)
     end
 
     # Run the actor loop
