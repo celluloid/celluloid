@@ -4,13 +4,8 @@ rvm:
   - 1.9.3
   - ruby-head
   - jruby-19mode
-  - jruby-head # FIXME: timers firing in the wrong order?
+  - jruby-head
   - rbx-19mode 
-
-matrix:
-  allow_failures:
-    - rvm: jruby-head
-    - rvm: rbx-19mode
 
 notifications:
   irc: "irc.freenode.org#celluloid"
