@@ -285,6 +285,24 @@ shared_context "a Celluloid Actor" do |included_module|
       @charlie = actor_class.new "Charlie Sheen"
     end
 
+    let(:supervisor_class) do
+      Class.new do # like a boss
+        include included_module
+        trap_exit :lambaste_subordinate
+
+        def initialize(name)
+          @name = name
+          @subordinate_lambasted = false
+        end
+
+        def subordinate_lambasted?; @subordinate_lambasted; end
+
+        def lambaste_subordinate(actor, reason)
+          @subordinate_lambasted = true
+        end
+      end
+    end
+
     it "links to other actors" do
       @kevin.link @charlie
       @kevin.monitoring?(@charlie).should be_true
@@ -323,23 +341,20 @@ shared_context "a Celluloid Actor" do |included_module|
     end
 
     it "traps exit messages from other actors" do
-      boss = Class.new do # like a boss
-        include included_module
-        trap_exit :lambaste_subordinate
+      chuck = supervisor_class.new "Chuck Lorre"
+      chuck.link @charlie
 
-        def initialize(name)
-          @name = name
-          @subordinate_lambasted = false
-        end
+      expect do
+        @charlie.crash
+      end.to raise_exception(ExampleCrash)
 
-        def subordinate_lambasted?; @subordinate_lambasted; end
+      sleep 0.1 # hax to prevent a race between exit handling and the next call
+      chuck.should be_subordinate_lambasted
+    end
 
-        def lambaste_subordinate(actor, reason)
-          @subordinate_lambasted = true
-        end
-      end
-
-      chuck = boss.new "Chuck Lorre"
+    it "traps exit messages from other actors in subclasses" do
+      supervisor_subclass = Class.new(supervisor_class)
+      chuck = supervisor_subclass.new "Chuck Lorre"
       chuck.link @charlie
 
       expect do

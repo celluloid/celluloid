@@ -146,9 +146,16 @@ module Celluloid
     end
 
     # Trap errors from actors we're linked to when they exit
-    def trap_exit(callback)
-      @exit_handler = callback.to_sym
+    def exit_handler(callback = nil)
+      if callback
+        @exit_handler = callback.to_sym
+      elsif defined?(@exit_handler)
+        @exit_handler
+      elsif superclass.respond_to? :exit_handler
+        superclass.exit_handler
+      end
     end
+    alias_method :trap_exit, :exit_handler
 
     # Configure a custom mailbox factory
     def use_mailbox(klass = nil, &block)
@@ -202,7 +209,7 @@ module Celluloid
     def actor_options
       {
         :mailbox           => mailbox_factory,
-        :exit_handler      => @exit_handler,
+        :exit_handler      => exit_handler,
         :exclusive_methods => @exclusive_methods,
         :task_class        => task_class
       }
