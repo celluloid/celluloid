@@ -65,19 +65,19 @@ module Celluloid
           raise DeadActorError, "attempted to call a dead actor"
         end
 
-        if Thread.current[:task]
-          Task.suspend(:callwait).value
+        result = if Thread.current[:task]
+          Task.suspend(:callwait)
         else
-          response = loop do
+          loop do
             message = Thread.mailbox.receive do |msg|
               msg.respond_to?(:call) and msg.call == call
             end
             break message unless message.is_a?(SystemEvent)
             Thread.current[:actor].handle_system_event(message)
           end
-
-          response.value
         end
+
+        result.value
       end
 
       # Invoke a method asynchronously on an actor via its mailbox
