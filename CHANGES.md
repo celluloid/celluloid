@@ -1,3 +1,7 @@
+master
+------
+* Bugfix: Ensure exclusive mode works correctly for per-method case
+
 0.12.1
 ------
 * Fix bug in unsetting of exclusive mode

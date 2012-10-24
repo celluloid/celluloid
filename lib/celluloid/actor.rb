@@ -389,7 +389,7 @@ module Celluloid
 
     # Run a method inside a task unless it's exclusive
     def task(task_type, method_name = nil, &block)
-      if @exclusives && (@exclusives == :all || @exclusives.include?(method_name))
+      if @exclusives && (@exclusives == :all || @exclusives.include?(method_name.to_sym))
         exclusive { block.call }
       else
         @task_class.new(task_type, &block).resume
