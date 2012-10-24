@@ -433,7 +433,16 @@ shared_context "a Celluloid Actor" do |included_module|
     subject do
       Class.new do
         include included_module
-        def exclusive_example
+
+        attr_reader :tasks
+
+        def initialize
+          @tasks = []
+        end
+
+        def exclusive_example(input = nil, sleep = false)
+          sleep Celluloid::TIMER_QUANTUM if sleep
+          @tasks << input
           exclusive?
         end
         exclusive :exclusive_example
@@ -450,6 +459,13 @@ shared_context "a Celluloid Actor" do |included_module|
 
     it "remains in exclusive mode inside nested blocks" do
       subject.nested_exclusive_example.should be_true
+    end
+
+    it "executes the method in an exclusive order" do
+      subject.exclusive_example! :one, true
+      subject.exclusive_example! :two
+      sleep Celluloid::TIMER_QUANTUM * 2
+      subject.tasks.should == [:one, :two]
     end
   end
 
