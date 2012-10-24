@@ -53,6 +53,8 @@ module Celluloid
 
     # Readable 0MQ sockets have a read method
     module ReadableSocket
+      extend Forwardable
+
       # always set LINGER on readable sockets
       def bind(addr)
         self.linger = @linger
@@ -73,6 +75,9 @@ module Celluloid
         end
         buffer
       end
+
+      # Multiparts message ?
+      def_delegator :@socket, :more_parts?
     end
 
     # Writable 0MQ sockets have a send method
