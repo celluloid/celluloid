@@ -1,6 +1,11 @@
-master
+0.12.3
 ------
 * Bugfix: Ensure exclusive mode works correctly for per-method case
+* Bugfix: Exit handlers were not being inherited correctly
+
+0.12.2
+------
+* Disable IncidentReporter by default
 
 0.12.1
 ------
