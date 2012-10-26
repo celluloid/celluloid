@@ -1,26 +1,18 @@
-require 'logger'
 module Celluloid
-  # Subscribes to log incident topics to report on them.
+  # Logs incidents when they occur. Takes same arguments as Logger.new.
   class IncidentReporter
     include Celluloid
     include Celluloid::Notifications
-
-    # get the time from the event
-    class Formatter < ::Logger::Formatter
-      def call(severity, time, progname, msg)
-        super(severity, msg.time, progname, msg.message)
-      end
-    end
+    include Celluloid::SilencedLogger
 
     def initialize(*args)
-      subscribe(/log\.incident/, :report)
+      subscribe(/^log\.incident/, :report)
       @logger = ::Logger.new(*args)
-      @logger.formatter = Formatter.new
-      @silenced = false
+      @logger.formatter = Celluloid::LogEventFormatter.new
     end
 
     def report(topic, incident)
-      return if @silenced
+      return if silenced?
 
       header = "INCIDENT"
       header << " AT #{incident.triggering_event.time}" if incident.triggering_event
@@ -31,18 +23,6 @@ module Celluloid
         @logger.add(event.severity, event, event.progname)
       end
       @logger << "====================\n"
-    end
-
-    def silence
-      @silenced = true
-    end
-
-    def unsilence
-      @silenced = false
-    end
-
-    def silenced?
-      @silenced
     end
   end
 end

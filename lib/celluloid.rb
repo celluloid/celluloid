@@ -1,4 +1,3 @@
-require 'logger'
 require 'thread'
 require 'timeout'
 require 'set'
