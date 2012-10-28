@@ -170,6 +170,10 @@ module Celluloid
     def mailbox_class(klass)
       @mailbox_factory = proc { klass.new }
     end
+    
+    def proxy_class(klass)
+      @proxy_factory = proc { klass }
+    end
 
     # Define the default task type for this class
     def task_class(klass = nil)
@@ -204,11 +208,22 @@ module Celluloid
         Mailbox.new
       end
     end
+    
+    def proxy_factory
+      if defined?(@proxy_factory)
+        @proxy_factory.call
+      elsif superclass.respond_to?(:proxy_factory)
+        superclass.proxy_factory
+      else
+        nil
+      end
+    end
 
     # Configuration options for Actor#new
     def actor_options
       {
         :mailbox           => mailbox_factory,
+        :proxy_class       => proxy_factory,
         :exit_handler      => exit_handler,
         :exclusive_methods => @exclusive_methods,
         :task_class        => task_class
