@@ -10,7 +10,10 @@ module Celluloid
       @async_proxy  = AsyncProxy.new(actor)
       @future_proxy = FutureProxy.new(actor)
     end
-
+    
+    # allow querying the real class
+    alias :__class__ :class
+    
     def class
       Actor.call @mailbox, :__send__, :class
     end

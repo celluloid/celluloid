@@ -676,6 +676,26 @@ shared_context "a Celluloid Actor" do |included_module|
       actor.tasks.size.should == 1
     end
   end
+  
+  context :proxy_class do
+    class ExampleProxy < Celluloid::ActorProxy; end
+
+    subject do
+      Class.new do
+        include included_module
+        proxy_class ExampleProxy
+      end
+    end
+
+    it "uses user-specified proxy" do
+      subject.new.__class__.should == ExampleProxy
+    end
+
+    it "retains custom proxy when subclassed" do
+      subclass = Class.new(subject)
+      subclass.new.__class__.should == ExampleProxy
+    end
+  end
 
   context :use_mailbox do
     class ExampleMailbox < Celluloid::Mailbox; end
