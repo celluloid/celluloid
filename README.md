@@ -63,8 +63,9 @@ features which make concurrent programming simple, easy, and fun:
 
 You can also build distributed systems with Celluloid using its
 [sister project DCell](https://github.com/celluloid/dcell). Evented IO similar
-to EventMachine (with a synchronous API) is available through the
-[Celluloid::IO](https://github.com/celluloid/celluloid-io) library.
+to EventMachine (with a synchronous API instead of callback/deferrable soup)
+is available through the [Celluloid::IO](https://github.com/celluloid/celluloid-io)
+library.
 
 Like Celluloid? [Join the Google Group](http://groups.google.com/group/celluloid-ruby)
 or visit us on IRC at #celluloid on freenode
