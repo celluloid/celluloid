@@ -66,16 +66,19 @@ You can also build distributed systems with Celluloid using its
 to EventMachine (with a synchronous API) is available through the
 [Celluloid::IO](https://github.com/celluloid/celluloid-io) library.
 
-[Please see the Celluloid Wiki](https://github.com/celluloid/celluloid/wiki)
-for more detailed documentation and usage notes.
-
 Like Celluloid? [Join the Google Group](http://groups.google.com/group/celluloid-ruby)
 or visit us on IRC at #celluloid on freenode
 
 ### Is It "Production Ready™"?
 
 Yes, many users are now running Celluloid in production by using
-[Sidekiq](https://github.com/mperham/sidekiq)
+[Sidekiq](https://github.com/mperham/sidekiq) and [Adhearsion](http://adhearsion.com/)
+
+Documentation
+-------------
+
+[Please see the Celluloid Wiki](https://github.com/celluloid/celluloid/wiki)
+for more detailed documentation and usage notes.
 
 Installation
 ------------
