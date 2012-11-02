@@ -12,7 +12,7 @@ module Celluloid
       @forwards = nil
 
       if block
-        @call = SyncCall.new(self, :call, args)
+        @call = SyncCall.new(self, false, :call, args)
         InternalPool.get do
           begin
             @call.dispatch(block)
@@ -29,7 +29,7 @@ module Celluloid
     def execute(receiver, method, args, block)
       @mutex.synchronize do
         raise "already calling" if @call
-        @call = SyncCall.new(self, method, args, block)
+        @call = SyncCall.new(self, false, method, args, block)
       end
 
       receiver << @call
