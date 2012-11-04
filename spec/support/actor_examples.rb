@@ -440,12 +440,30 @@ shared_context "a Celluloid Actor" do |included_module|
           @tasks = []
         end
 
-        def exclusive_example(input = nil, sleep = false)
-          sleep Celluloid::TIMER_QUANTUM if sleep
-          @tasks << input
-          exclusive?
+        def log_task(task)
+          @tasks << task
         end
-        exclusive :exclusive_example
+
+        def exclusive_with_block_log_task(task)
+          exclusive do
+            sleep Celluloid::TIMER_QUANTUM
+            log_task(task)
+          end
+        end
+
+        def exclusive_log_task(task)
+          sleep Celluloid::TIMER_QUANTUM
+          log_task(task)
+        end
+        exclusive :exclusive_log_task
+
+        def check_not_exclusive
+          Celluloid.exclusive?
+        end
+
+        def check_exclusive
+          exclusive { Celluloid.exclusive? }
+        end
 
         def nested_exclusive_example
           exclusive { exclusive { nil }; Celluloid.exclusive? }
@@ -453,19 +471,27 @@ shared_context "a Celluloid Actor" do |included_module|
       end.new
     end
 
-    it "supports exclusive methods" do
-      subject.exclusive_example.should be_true
+    it "executes methods in the proper order with block form" do
+      subject.async.exclusive_with_block_log_task(:one)
+      subject.async.log_task(:two)
+      sleep Celluloid::TIMER_QUANTUM * 2
+      subject.tasks.should == [:one, :two]
+    end
+
+    it "executes methods in the proper order with a class-level annotation" do
+      subject.async.exclusive_log_task :one
+      subject.async.log_task :two
+      sleep Celluloid::TIMER_QUANTUM * 2
+      subject.tasks.should == [:one, :two]
+    end
+
+    it "knows when it's in exclusive mode" do
+      subject.check_not_exclusive.should be_false
+      subject.check_exclusive.should be_true
     end
 
     it "remains in exclusive mode inside nested blocks" do
       subject.nested_exclusive_example.should be_true
-    end
-
-    it "executes the method in an exclusive order" do
-      subject.exclusive_example! :one, true
-      subject.exclusive_example! :two
-      sleep Celluloid::TIMER_QUANTUM * 2
-      subject.tasks.should == [:one, :two]
     end
   end
 

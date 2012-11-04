@@ -65,7 +65,7 @@ module Celluloid
           raise DeadActorError, "attempted to call a dead actor"
         end
 
-        if Thread.current[:task]
+        if Thread.current[:task] && !Celluloid.exclusive?
           Task.suspend(:callwait).value
         else
           response = loop do
@@ -307,7 +307,8 @@ module Celluloid
 
     # Sleep for the given amount of time
     def sleep(interval)
-      if task = Thread.current[:task]
+      task = Thread.current[:task]
+      if task && !Celluloid.exclusive?
         @timers.after(interval) { task.resume }
         Task.suspend :sleeping
       else
