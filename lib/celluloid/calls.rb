@@ -24,12 +24,12 @@ module Celluloid
 
       if arity >= 0
         if arguments.size != arity
-          raise ArgumentError, "wrong number of arguments (#{arguments.size} for #{arity})"
+          raise ArgumentError, "wrong number of arguments (#{arguments.size} for #{arity}) for method #{@method}"
         end
       elsif arity < -1
         mandatory_args = -arity - 1
         if arguments.size < mandatory_args
-          raise ArgumentError, "wrong number of arguments (#{arguments.size} for #{mandatory_args})"
+          raise ArgumentError, "wrong number of arguments (#{arguments.size} for #{mandatory_args}) for method #{@method}"
         end
       end
     end
