@@ -55,7 +55,7 @@ module Celluloid
     def shutdown
       Timeout.timeout(SHUTDOWN_TIMEOUT) do
         actors = Actor.all
-        Logger.info "Terminating #{actors.size} actors..." if actors.size > 0
+        Logger.debug "Terminating #{actors.size} actors..." if actors.size > 0
 
         # Attempt to shut down the supervision tree, if available
         Supervisor.root.terminate if Supervisor.root
@@ -75,7 +75,7 @@ module Celluloid
           end
         end
 
-        Logger.info "Shutdown completed cleanly"
+        Logger.debug "Shutdown completed cleanly"
       end
     end
   end
