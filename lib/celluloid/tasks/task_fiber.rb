@@ -1,4 +1,6 @@
 module Celluloid
+  class FiberStackError < StandardError; end
+
   # Tasks with a Fiber backend
   class TaskFiber
     attr_reader :type, :status
@@ -43,8 +45,10 @@ module Celluloid
     def resume(value = nil)
       @fiber.resume value
       nil
-    rescue FiberError
-      raise DeadTaskError, "cannot resume a dead task"
+    rescue SystemStackError => ex
+      raise FiberStackError, "#{ex} (please see https://github.com/celluloid/celluloid/wiki/Fiber-stack-errors)"
+    rescue FiberError => ex
+      raise DeadTaskError, "cannot resume a dead task (#{ex})"
     end
 
     # Terminate this task
