@@ -81,6 +81,13 @@ Documentation
 [Please see the Celluloid Wiki](https://github.com/celluloid/celluloid/wiki)
 for more detailed documentation and usage notes.
 
+The following API documentation is also available:
+
+* [YARD API documentation](http://rubydoc.info/gems/celluloid/frames)
+* [Celluloid module (primary API)](http://rubydoc.info/gems/celluloid/Celluloid)
+* [Celluloid class methods](http://rubydoc.info/gems/celluloid/Celluloid/ClassMethods)
+* [All Celluloid classes](http://rubydoc.info/gems/celluloid/index)
+
 Installation
 ------------
 
