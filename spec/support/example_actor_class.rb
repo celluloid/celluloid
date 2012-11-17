@@ -25,6 +25,10 @@ module ExampleActorClass
         "Hi, I'm #{@name}"
       end
 
+      def block(time)
+        sleep time
+      end
+
       def run(*args)
         yield(*args)
       end

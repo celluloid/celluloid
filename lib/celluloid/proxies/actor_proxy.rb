@@ -53,6 +53,10 @@ module Celluloid
       @mailbox.alive?
     end
 
+    def mailbox_size
+      @mailbox.size
+    end
+
     def to_s
       Actor.call @mailbox, :to_s
     end

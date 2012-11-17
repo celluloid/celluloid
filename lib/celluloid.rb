@@ -313,6 +313,11 @@ module Celluloid
     Actor.name
   end
 
+  # Obtain the current actor's mailbox
+  def mailbox
+    current_actor.mailbox
+  end
+
   # Obtain the running tasks for this actor
   def tasks
     Thread.current[:actor].tasks.to_a

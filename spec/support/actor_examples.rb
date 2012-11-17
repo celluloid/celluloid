@@ -214,6 +214,12 @@ shared_context "a Celluloid Actor" do |included_module|
     actor.wrapped_object.inspect.should include Celluloid::BARE_OBJECT_WARNING_MESSAGE
   end
 
+  it "returns the mailbox size" do
+    actor = actor_class.new "Mr. Bean"
+    actor.async.block(0.1)
+    actor.mailbox_size.should eq 1
+  end
+
   describe 'mocking methods' do
     let(:actor) { actor_class.new "Troy McClure" }
 

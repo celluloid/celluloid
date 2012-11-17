@@ -10,7 +10,7 @@ module Celluloid
 
     def initialize(worker_class, options = {})
       @size = options[:size] || [Celluloid.cores, 2].max
-      raise ArgumentError, "minimum pool size is 2" if @size < 2
+      raise ArgumentError, "minimum pool size is 1" if @size < 1
 
       @worker_class = worker_class
       @args = options[:args] ? Array(options[:args]) : []
@@ -80,13 +80,23 @@ module Celluloid
       @size
     end
 
+    def grow(n)
+      n.times { @idle << @worker_class.new_link(*@args) }
+      @size += n
+    end
+
+    def shrink(n)
+      n.times do
+        break if @size == 0
+        wait_for_worker
+        @idle.shift.future(:terminate)
+        @size -= 1
+      end
+    end
+
     # Provision a new worker
     def __provision_worker
-      while @idle.empty?
-        # Wait for responses from one of the busy workers
-        response = exclusive { receive { |msg| msg.is_a?(Response) } }
-        Thread.current[:actor].handle_message(response)
-      end
+      wait_for_worker
 
       worker = @idle.shift
       @busy << worker
@@ -113,6 +123,16 @@ module Celluloid
         _send_ method, *args, &block
       else
         super
+      end
+    end
+
+    protected
+
+    def wait_for_worker
+      while @idle.empty?
+        # Wait for responses from one of the busy workers
+        response = exclusive { receive { |msg| msg.is_a?(Response) } }
+        Thread.current[:actor].handle_message(response)
       end
     end
   end
