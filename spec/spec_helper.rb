@@ -20,7 +20,7 @@ def within_io_actor(&block)
   actor = ExampleActor.new
   actor.wrap(&block)
 ensure
-  actor.terminate
+  actor.terminate if actor.alive?
 end
 
 def with_tcp_server
@@ -41,8 +41,11 @@ def with_connected_sockets
     begin
       yield peer, client
     ensure
-      client.close
-      peer.close
+      begin
+        client.close
+        peer.close
+      rescue
+      end
     end
   end
 end

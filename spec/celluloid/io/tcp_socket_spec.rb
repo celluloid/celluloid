@@ -72,6 +72,21 @@ describe Celluloid::IO::TCPSocket do
         peer.read(payload.size).should eq payload
       end
     end
+
+    it "raises Errno::ECONNREFUSED when the connection is refused" do
+      expect {
+        within_io_actor { ::TCPSocket.new(example_addr, example_port) }
+      }.to raise_error(Errno::ECONNREFUSED)
+    end
+
+    it "raises EOFError when partial reading from a closed socket" do
+      with_connected_sockets do |subject, peer|
+        peer.close
+        expect {
+          within_io_actor { subject.readpartial(payload.size) }
+        }.to raise_error(EOFError)
+      end
+    end
   end
 
   context "elsewhere in Ruby" do
