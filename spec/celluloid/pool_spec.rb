@@ -21,7 +21,7 @@ describe "Celluloid.pool" do
     end
   end
 
-  subject { MyWorker.pool }
+  subject { MyWorker.pool(size: 2) }
 
   it "processes work units synchronously" do
     subject.process.should == :done
@@ -50,5 +50,21 @@ describe "Celluloid.pool" do
 
   it "terminates" do
     expect { subject.terminate }.to_not raise_exception
+  end
+
+  it "grows the number of workers" do
+    expect { subject.grow(1) }.to change(subject, :size).by(1)
+  end
+
+  it "shrinks the number of workers" do
+    expect { subject.shrink(1) }.to change(subject, :size).by(-1)
+  end
+
+  it "does not shrink the pool below zero" do
+    expect { subject.shrink(100) }.to change(subject, :size).to(0)
+  end
+
+  it "requires at least one worker" do
+    expect { MyWorker.pool(size: 0) }.to raise_error(ArgumentError, 'minimum pool size is 1')
   end
 end

@@ -105,6 +105,11 @@ module Celluloid
       true
     end
 
+    # Number of queued messages
+    def size
+      @messages.size
+    end
+
     # Is the mailbox alive?
     def alive?
       !@dead
