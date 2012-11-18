@@ -76,6 +76,21 @@ shared_context "a Celluloid Actor" do |included_module|
     actor.respond_to?(:zomg_private).should be_false
     actor.respond_to?(:zomg_private, true).should be_true
   end
+  
+  it "gives klass, when actor die" do
+    actor = actor_class.new "term"
+
+    actor.is_a?(actor_class).should == true
+    actor.is_a?(Exception).should == false
+    actor.kind_of?(actor_class).should == true
+    actor.class.should == actor_class                        
+    
+    actor.terminate
+    actor.is_a?(actor_class).should == true
+    actor.is_a?(Exception).should == false
+    actor.kind_of?(actor_class).should == true    
+    actor.class.should == actor_class    
+  end
 
   it "raises NoMethodError when a nonexistent method is called" do
     actor = actor_class.new "Billy Bob Thornton"

@@ -5,6 +5,7 @@ module Celluloid
     attr_reader :mailbox, :thread
 
     def initialize(actor)
+      @subject = actor.subject
       @mailbox, @thread, @klass = actor.mailbox, actor.thread, actor.subject.class.to_s
 
       @async_proxy  = AsyncProxy.new(actor)
@@ -15,7 +16,7 @@ module Celluloid
     alias :__class__ :class
     
     def class
-      Actor.call @mailbox, :__send__, :class
+      @subject.class
     end
 
     def _send_(meth, *args, &block)
@@ -33,11 +34,11 @@ module Celluloid
     end
 
     def is_a?(klass)
-      Actor.call @mailbox, :is_a?, klass
+      @subject.is_a?(klass)
     end
 
     def kind_of?(klass)
-      Actor.call @mailbox, :kind_of?, klass
+      @subject.kind_of?(klass)
     end
 
     def respond_to?(meth, include_private = false)
