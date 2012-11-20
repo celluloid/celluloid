@@ -37,9 +37,9 @@ module Celluloid
 
     # The buffer size limit. Each log level will retain this number of messages
     # at maximum.
-    attr_accessor :sizelimit
+    attr_reader :sizelimit
 
-    attr_accessor :buffers
+    attr_reader :buffers
 
     # Create a new IncidentLogger.
     def initialize(progname=nil, options={})
