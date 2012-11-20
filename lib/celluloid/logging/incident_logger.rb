@@ -82,7 +82,7 @@ module Celluloid
 
       event = LogEvent.new(severity, message, progname, &block)
 
-      @buffers[progname][severity] << event
+      buffer_for(progname, severity) << event
       publish_event(event)
 
       event.id
@@ -144,6 +144,14 @@ module Celluloid
           @fallback_logger.error(ex)
         end
       end
+    end
+
+    def buffer_for(progname=nil, severity)
+      @buffers[progname || @progname][severity]
+    end
+
+    def buffers_for(progname)
+      @buffers[progname]
     end
   end
 end
