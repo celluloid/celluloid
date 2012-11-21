@@ -16,5 +16,15 @@ module Celluloid
     def <=>(other)
       @id <=> other.id
     end
+
+    def to_hash
+      {
+        id: id,
+        severity: IncidentLogger::Severity.severity_to_string(severity),
+        message: message,
+        progname: progname,
+        time: time
+      }
+    end
   end
 end

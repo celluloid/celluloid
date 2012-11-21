@@ -17,5 +17,13 @@ module Celluloid
       end
       Incident.new(merged_events.sort, triggering_event)
     end
+
+    def to_hash
+      {
+        pid: pid,
+        triggering_event: triggering_event.to_hash,
+        events: events.collect { |e| e.to_hash }
+      }
+    end
   end
 end
