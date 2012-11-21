@@ -22,6 +22,7 @@ module Celluloid
         end
       end
 
+      extend self
     end
     include Severity
 
