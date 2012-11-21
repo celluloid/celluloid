@@ -1,5 +1,5 @@
 module Celluloid
-  class TestFirehoseConsumer
+  class TestEventReporter
     include Celluloid
     include Celluloid::Notifications
 
@@ -7,7 +7,7 @@ module Celluloid
 
     def initialize
       @events = []
-      subscribe(/^log\.firehose/, :consume)
+      subscribe(/^log\.event/, :consume)
     end
 
     def consume(topic, event)

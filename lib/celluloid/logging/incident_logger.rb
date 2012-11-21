@@ -52,9 +52,9 @@ module Celluloid
       @threshold = options[:threshold] || ERROR
       @sizelimit = options[:sizelimit] || 100
 
-      # firehose is on by default, this option is here in case of performance
-      # problems publishing every message.
-      @firehose = options.has_key?(:firehose) ? options[:firehose] : true
+      # Event publishing is on by default, but can be disabled in case of
+      # performance problems publishing every message.
+      @publish_events = options.has_key?(:publish_events) ? options[:publish_events] : true
 
       @buffer_mutex = Mutex.new
       @buffers = Hash.new do |progname_hash, progname| 
@@ -127,14 +127,14 @@ module Celluloid
       "log.incident.#{@progname}"
     end
 
-    def firehose_topic
-      "log.firehose.#{@progname}"
+    def event_topic
+      "log.event.#{@progname}"
     end
 
     def publish_event(event)
-      if @firehose
+      if @publish_events
         begin
-          Celluloid::Notifications.notifier.async.publish(firehose_topic, event)
+          Celluloid::Notifications.notifier.async.publish(event_topic, event)
         rescue => ex
           fallback_logger.error(ex)
         end

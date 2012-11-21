@@ -151,8 +151,8 @@ describe Celluloid::IncidentLogger do
     logger.buffer_for(DEBUG).shift.message.should == "1"
   end
 
-  it "should publish all events to the firehose" do
-    consumer = Celluloid::TestFirehoseConsumer.new
+  it "should publish all events" do
+    consumer = Celluloid::TestEventReporter.new
     logger.debug("debug")
     sleep Celluloid::TIMER_QUANTUM
     consumer.events.size.should == 1
@@ -160,9 +160,9 @@ describe Celluloid::IncidentLogger do
     consumer.terminate
   end
 
-  it "should turn off the firehose if directed" do
-    consumer = Celluloid::TestFirehoseConsumer.new
-    logger = described_class.new(nil, firehose: false)
+  it "should turn off event publishing if directed" do
+    consumer = Celluloid::TestEventReporter.new
+    logger = described_class.new(nil, publish_events: false)
     logger.debug("debug")
     consumer.events.should be_empty
     consumer.terminate
