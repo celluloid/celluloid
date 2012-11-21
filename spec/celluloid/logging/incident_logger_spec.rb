@@ -81,6 +81,7 @@ describe Celluloid::IncidentLogger do
       buffer.should be_empty
     end
 
+    sleep Celluloid::TIMER_QUANTUM
     test_reporter.incidents.size.should == 1
     incident = test_reporter.incidents.first
 
@@ -153,7 +154,8 @@ describe Celluloid::IncidentLogger do
   it "should publish all events to the firehose" do
     consumer = Celluloid::TestFirehoseConsumer.new
     logger.debug("debug")
-    consumer.events.should_not be_empty
+    sleep Celluloid::TIMER_QUANTUM
+    consumer.events.size.should == 1
     consumer.events.first.message.should == "debug"
     consumer.terminate
   end
