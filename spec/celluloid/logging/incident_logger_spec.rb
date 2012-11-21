@@ -130,9 +130,25 @@ describe Celluloid::IncidentLogger do
     logger.buffer_for("other_name", UNKNOWN).shift.message.should == "unknown"
   end
 
-  #TODO fallback
-  #TODO ring buffer
+  it "should log to fallback logger if publish fails" do
+    logger.fallback_logger.should be_a(::Logger)
+    stream = StringIO.new
+    logger.fallback_logger = Logger.new(stream)
+    begin
+      # killing notifier will cause logger to crash
+      Celluloid::Notifications.notifier.terminate
+      logger.add(ERROR, "test error")
+      stream.size.should_not == 0
+    ensure
+      Celluloid::Notifications::Fanout.supervise_as :notifications_fanout
+    end
+  end
 
-  #TODO reporting specs
+  it "should cycle buffer when it fills up" do
+    logger = described_class.new(nil, sizelimit: 5)
+    6.times { |i| logger.debug(i.to_s) }
+    logger.buffer_for(DEBUG).shift.message.should == "1"
+  end
+
   #TODO thread safety
 end
