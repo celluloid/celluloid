@@ -39,6 +39,10 @@ module Celluloid
     # at maximum.
     attr_reader :sizelimit
 
+    # When the IncidentLogger itself encounters an error, it logs to the fallback
+    # logger.
+    attr_accessor :fallback_logger
+
     attr_reader :buffers
 
     # Create a new IncidentLogger.
@@ -61,7 +65,6 @@ module Celluloid
         end
       end
 
-      # When the IncidentLogger itself encounters an error, it falls back to logging to stderr
       @fallback_logger = ::Logger.new(STDERR)
       @fallback_logger.progname = "FALLBACK"
     end
@@ -133,7 +136,7 @@ module Celluloid
         begin
           Celluloid::Notifications.notifier.async.publish(firehose_topic, event)
         rescue => ex
-          @fallback_logger.error(ex)
+          fallback_logger.error(ex)
         end
       end
 
@@ -141,7 +144,7 @@ module Celluloid
         begin
           Celluloid::Notifications.notifier.async.publish(incident_topic, create_incident(event))
         rescue => ex
-          @fallback_logger.error(ex)
+          fallback_logger.error(ex)
         end
       end
     end
