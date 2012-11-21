@@ -54,7 +54,7 @@ module Celluloid
 
       # firehose is on by default, this option is here in case of performance
       # problems publishing every message.
-      @firehose = options[:firehose] || true
+      @firehose = options.has_key?(:firehose) ? options[:firehose] : true
 
       @buffer_mutex = Mutex.new
       @buffers = Hash.new do |progname_hash, progname| 
