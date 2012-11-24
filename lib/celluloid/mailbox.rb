@@ -13,9 +13,9 @@ module Celluloid
     alias_method :address, :object_id
 
     def initialize
-      @messages = []
-      @mutex = Mutex.new
-      @dead = false
+      @messages  = []
+      @mutex     = Mutex.new
+      @dead      = false
       @condition = ConditionVariable.new
     end
 
@@ -23,25 +23,22 @@ module Celluloid
     def <<(message)
       @mutex.lock
       begin
-        raise MailboxError, "dead recipient" if @dead
+        if message.is_a?(SystemEvent)
+          # Silently swallow system events sent to dead actors
+          return if @dead
 
-        @messages << message
+          # SystemEvents are high priority messages so they get added to the
+          # head of our message queue instead of the end
+          @messages.unshift message
+        else
+          raise MailboxError, "dead recipient" if @dead
+          @messages << message
+        end
+
         @condition.signal
         nil
-      ensure @mutex.unlock
-      end
-    end
-
-    # Add a high-priority system event to the Mailbox
-    def system_event(event)
-      @mutex.lock
-      begin
-        unless @dead # Silently fail if messages are sent to dead actors
-          @messages.unshift event
-          @condition.signal
-        end
-        nil
-      ensure @mutex.unlock
+      ensure
+        @mutex.unlock rescue nil
       end
     end
 
@@ -71,7 +68,8 @@ module Celluloid
         end until message
 
         message
-      ensure @mutex.unlock
+      ensure
+        @mutex.unlock rescue nil
       end
     end
 
@@ -89,7 +87,6 @@ module Celluloid
         message = @messages.shift
       end
 
-      raise message if message.is_a? SystemEvent
       message
     end
 
@@ -100,7 +97,8 @@ module Celluloid
         messages = @messages
         @messages = []
         @dead = true
-      ensure @mutex.unlock
+      ensure
+        @mutex.unlock rescue nil
       end
 
       messages.each { |msg| msg.cleanup if msg.respond_to? :cleanup }

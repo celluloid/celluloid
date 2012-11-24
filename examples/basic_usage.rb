@@ -30,12 +30,12 @@ p actor.count
 # This increments @count by 1 and prints 1
 p actor.increment
 
-# Adding ! to the end of any method makes the call asynchronous. This means a
-# request to execute the method will be sent to an actor, and we have no idea
+# By using actor.async, you can make calls asynchronously. This immediately
+# requests execution of method by sending a message, and we have no idea
 # whether or not that request will actually complete because we don't wait
 # for a response. Async calls immediately return nil regardless of how long
 # the method takes to execute. Therefore, this will print nil.
-p actor.increment! 41
+p actor.async.increment 41
 
 # In practice, the asynchronous call made above will increment the count before
 # we get here. However, do not rely on this behavior! Asynchronous methods are

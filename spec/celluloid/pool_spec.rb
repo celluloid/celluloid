@@ -1,56 +1,54 @@
 require 'spec_helper'
 
-describe Celluloid::Pool do
+describe "Celluloid.pool" do
   before do
     class ExampleError < StandardError; end
 
-    class ExampleActor
+    class MyWorker
       include Celluloid
-      def working?; true end
-      def crash; raise ExampleError, 'the spec purposely crashed me'; end
+
+      def process(queue = nil)
+        if queue
+          queue << :done
+        else
+          :done
+        end
+      end
+
+      def crash
+        raise ExampleError, "zomgcrash"
+      end
     end
   end
 
-  subject { Celluloid::Pool.new ExampleActor }
+  subject { MyWorker.pool }
 
-  it "gets actors from the pool" do
-    subject.get.should be_working
+  it "processes work units synchronously" do
+    subject.process.should == :done
   end
 
-  it "gets and automatically returns actors with a block" do
-    block_called = false
-    subject.idle_count.should == 1
-
-    subject.get do |actor|
-      actor.should be_working
-      block_called = true
-    end
-
-    block_called.should be_true
-    subject.idle_count.should == 1
+  it "processes work units asynchronously" do
+    queue = Queue.new
+    subject.process!(queue)
+    queue.pop.should == :done
   end
 
-  it "returns actors to the pool" do
-    actor = subject.get
-    subject.idle_count.should == 0
-    subject.put actor
-    subject.idle_count.should == 1
+  it "handles crashes" do
+    expect { subject.crash }.to raise_error(ExampleError)
+    subject.process.should == :done
   end
 
-  it "knows the number of running actors" do
-    subject.size.should == 1
+  it "uses a fixed-sized number of threads" do
+    subject # eagerly evaluate the pool to spawn it
+
+    actors = Celluloid::Actor.all
+    100.times.map { subject.future(:process) }.map(&:value)
+
+    new_actors = Celluloid::Actor.all - actors
+    new_actors.should eq []
   end
 
-  it "knows the number of idle actors" do
-    subject.idle_count.should == 1
-    subject.get
-
-    subject.idle_count.should == 0
-  end
-
-  it "tracks the number of idle actors properly even in the event of crashes" do
-    subject.idle_count.should == 1
-    expect { subject.get { |actor| actor.crash } }.to raise_exception(ExampleError)
-    subject.idle_count.should == 0
+  it "terminates" do
+    expect { subject.terminate }.to_not raise_exception
   end
 end

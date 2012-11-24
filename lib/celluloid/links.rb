@@ -1,55 +1,35 @@
-require 'thread'
-
 module Celluloid
-  # Thread safe storage of inter-actor links
+  # Linked actors send each other system events
   class Links
     include Enumerable
 
     def initialize
       @links = {}
-      @lock  = Mutex.new
     end
 
     # Add an actor to the current links
     def <<(actor)
-      @lock.synchronize do
-        @links[actor.mailbox.address] = actor
-      end
-      actor
+      @links[actor.mailbox.address] = actor
     end
 
     # Do links include the given actor?
     def include?(actor)
-      @lock.synchronize do
-        @links.has_key? actor.mailbox.address
-      end
+      @links.has_key? actor.mailbox.address
     end
 
     # Remove an actor from the links
     def delete(actor)
-      @lock.synchronize do
-        @links.delete actor.mailbox.address
-      end
-      actor
+      @links.delete actor.mailbox.address
     end
 
     # Iterate through all links
     def each
-      @lock.synchronize do
-        @links.each { |_, actor| yield(actor) }
-      end
-    end
-
-    # Map across links
-    def map
-      result = []
-      each { |actor| result << yield(actor) }
-      result
+      @links.each { |_, actor| yield(actor) }
     end
 
     # Send an event message to all actors
     def send_event(event)
-      each { |actor| actor.mailbox.system_event event }
+      each { |actor| actor.mailbox << event }
     end
 
     # Generate a string representation

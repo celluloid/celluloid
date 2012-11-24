@@ -26,7 +26,7 @@ Benchmark.ips do |ips|
   ips.report("spawn")       { ExampleActor.new.terminate }
   ips.report("calls")       { example_actor.example_method }
   ips.report("async calls") { example_actor.example_method! }
-  
+
   ips.report("messages") do |n|
     latch_in << n
     for i in 0..n; mailbox << :message; end

@@ -2,7 +2,7 @@ require 'thread'
 
 module Celluloid
   # Maintain a thread pool FOR SPEED!!
-  module ThreadPool
+  module InternalPool
     @pool = []
     @mutex = Mutex.new
 
@@ -15,11 +15,13 @@ module Celluloid
       # Get a thread from the pool, running the given block
       def get(&block)
         @mutex.synchronize do
-          if @pool.empty?
-            thread = create
-          else
-            thread = @pool.shift
-          end
+          begin
+            if @pool.empty?
+              thread = create
+            else
+              thread = @pool.shift
+            end
+          end until thread.status # handle crashed threads
 
           thread[:queue] << block
           thread

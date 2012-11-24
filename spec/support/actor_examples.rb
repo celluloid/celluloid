@@ -1,48 +1,9 @@
 shared_context "a Celluloid Actor" do |included_module|
-  class ExampleCrash < StandardError; end
-
-  let :actor_class do
-    Class.new do
-      include included_module
-      attr_reader :name
-
-      def initialize(name)
-        @name = name
-      end
-
-      def change_name(new_name)
-        @name = new_name
-      end
-
-      def change_name_async(new_name)
-        change_name! new_name
-      end
-
-      def greet
-        "Hi, I'm #{@name}"
-      end
-
-      def run(*args)
-        yield(*args)
-      end
-
-      def crash
-        raise ExampleCrash, "the spec purposely crashed me :("
-      end
-
-      def crash_with_abort(reason)
-        abort ExampleCrash.new(reason)
-      end
-
-      def internal_hello
-        external_hello
-      end
-
-      def external_hello
-        "Hello"
-      end
-    end
+  class ExampleCrash < StandardError
+    attr_accessor :foo
   end
+
+  let(:actor_class) { ExampleActorClass.create(included_module) }
 
   it "returns the actor's class, not the proxy's" do
     actor = actor_class.new "Troy McClure"
@@ -58,14 +19,31 @@ shared_context "a Celluloid Actor" do |included_module|
     end.should be_true
   end
 
-  it "handles synchronous calls" do
+  it "can be stored in hashes" do
+    actor = actor_class.new "Troy McClure"
+    actor.hash.should_not == Kernel.hash
+    actor.object_id.should_not == Kernel.object_id
+  end
+
+  it "supports synchronous calls" do
     actor = actor_class.new "Troy McClure"
     actor.greet.should == "Hi, I'm Troy McClure"
   end
 
-  it "handles futures for synchronous calls" do
+  it "supports synchronous calls via #method" do
+    method = actor_class.new("Troy McClure").method(:greet)
+    method.call.should == "Hi, I'm Troy McClure"
+  end
+
+  it "supports future(:method) syntax for synchronous future calls" do
     actor = actor_class.new "Troy McClure"
     future = actor.future :greet
+    future.value.should == "Hi, I'm Troy McClure"
+  end
+
+  it "supports future.method syntax for synchronous future calls" do
+    actor = actor_class.new "Troy McClure"
+    future = actor.future.greet
     future.value.should == "Hi, I'm Troy McClure"
   end
 
@@ -87,6 +65,18 @@ shared_context "a Celluloid Actor" do |included_module|
     ponycopter.greet_by_proxy(actor).should == "Hi, I'm a ponycopter!"
   end
 
+  it "properly handles method_missing" do
+    actor = actor_class.new "Method Missing"
+    actor.should respond_to(:first)
+    actor.first.should be == :bar
+  end
+
+  it "properly handles respond_to with include_private" do
+    actor = actor_class.new "Method missing privates"
+    actor.respond_to?(:zomg_private).should be_false
+    actor.respond_to?(:zomg_private, true).should be_true
+  end
+
   it "raises NoMethodError when a nonexistent method is called" do
     actor = actor_class.new "Billy Bob Thornton"
 
@@ -103,14 +93,44 @@ shared_context "a Celluloid Actor" do |included_module|
     end.to raise_exception(ExampleCrash)
   end
 
-  it "raises exceptions in the caller when abort is called, but keeps running" do
-    actor = actor_class.new "Al Pacino"
+  describe "when #abort is called" do
+    it "raises exceptions in the caller but keeps running" do
+      actor = actor_class.new "Al Pacino"
 
-    expect do
-      actor.crash_with_abort ExampleCrash.new("You die motherfucker!")
-    end.to raise_exception(ExampleCrash)
+      e = nil
+      line_no = nil
 
-    actor.should be_alive
+      expect do
+        begin
+          line_no = __LINE__; actor.crash_with_abort "You die motherfucker!", :bar
+        rescue => ex
+          e = ex
+          raise
+        end
+      end.to raise_exception(ExampleCrash, "You die motherfucker!")
+
+      e.backtrace.any? { |line| line.include?([__FILE__, line_no].join(':')) }.should be_true # Check the backtrace is appropriate to the caller
+      e.foo.should be == :bar # Check the exception maintains instance variables
+
+      actor.should be_alive
+    end
+
+    it "converts strings to runtime errors" do
+      actor = actor_class.new "Al Pacino"
+      expect do
+        actor.crash_with_abort_raw "foo"
+      end.to raise_exception(RuntimeError, "foo")
+    end
+
+    it "crashes the caller if we pass neither String nor Exception" do
+      actor = actor_class.new "Al Pacino"
+      expect do
+        actor.crash_with_abort_raw 10
+      end.to raise_exception(TypeError, "Exception object/String expected, but Fixnum received")
+
+      actor.greet rescue nil # Ensure our actor has died.
+      actor.should_not be_alive
+    end
   end
 
   it "raises DeadActorError if methods are synchronously called on a dead actor" do
@@ -122,16 +142,40 @@ shared_context "a Celluloid Actor" do |included_module|
     end.to raise_exception(Celluloid::DeadActorError)
   end
 
-  it "handles asynchronous calls" do
+  it "supports method! syntax for asynchronous calls" do
     actor = actor_class.new "Troy McClure"
     actor.change_name! "Charlie Sheen"
     actor.greet.should == "Hi, I'm Charlie Sheen"
   end
 
-  it "handles asynchronous calls to itself" do
+  it "supports async(:method) syntax for asynchronous calls" do
+    actor = actor_class.new "Troy McClure"
+    actor.async :change_name, "Charlie Sheen"
+    actor.greet.should == "Hi, I'm Charlie Sheen"
+  end
+
+  it "supports async.method syntax for asynchronous calls" do
+    actor = actor_class.new "Troy McClure"
+    actor.async.change_name "Charlie Sheen"
+    actor.greet.should == "Hi, I'm Charlie Sheen"
+  end
+
+  it "supports method! syntax for asynchronous calls to itself" do
+    actor = actor_class.new "Troy McClure"
+    actor.change_name_with_a_bang "Charlie Sheen"
+    actor.greet.should == "Hi, I'm Charlie Sheen"
+  end
+
+  it "supports async.method syntax for asynchronous calls to itself" do
     actor = actor_class.new "Troy McClure"
     actor.change_name_async "Charlie Sheen"
     actor.greet.should == "Hi, I'm Charlie Sheen"
+  end
+
+  it "allows an actor to call private methods asynchronously with a bang" do
+    actor = actor_class.new "Troy McClure"
+    actor.call_private
+    actor.private_called.should be_true
   end
 
   it "knows if it's inside actor scope" do
@@ -163,6 +207,7 @@ shared_context "a Celluloid Actor" do |included_module|
     actor.wrapped_object.should be_a actor_class
   end
 
+<<<<<<< HEAD
   it "stores thread locals" do
     class ThreadLocalStore
       include Celluloid
@@ -179,6 +224,13 @@ shared_context "a Celluloid Actor" do |included_module|
     store = ThreadLocalStore.new
     store[:foobar] = 42
     store[:foobar].should == 42
+=======
+  it "warns about leaked wrapped objects via #inspect" do
+    actor = actor_class.new "Troy McClure"
+
+    actor.inspect.should_not include Celluloid::BARE_OBJECT_WARNING_MESSAGE
+    actor.wrapped_object.inspect.should include Celluloid::BARE_OBJECT_WARNING_MESSAGE
+>>>>>>> master
   end
 
   describe 'mocking methods' do
@@ -202,7 +254,15 @@ shared_context "a Celluloid Actor" do |included_module|
       actor = actor_class.new "Arnold Schwarzenegger"
       actor.should be_alive
       actor.terminate
-      sleep 0.5 # hax
+      Celluloid::Actor.join(actor)
+      actor.should_not be_alive
+    end
+
+    it "kills" do
+      actor = actor_class.new "Woody Harrelson"
+      actor.should be_alive
+      Celluloid::Actor.kill(actor)
+      Celluloid::Actor.join(actor)
       actor.should_not be_alive
     end
 
@@ -213,6 +273,15 @@ shared_context "a Celluloid Actor" do |included_module|
       expect do
         actor.greet
       end.to raise_exception(Celluloid::DeadActorError)
+    end
+
+    it "raises the right DeadActorError if terminate! called after terminated" do
+      actor = actor_class.new "Arnold Schwarzenegger"
+      actor.terminate
+
+      expect do
+        actor.terminate!
+      end.to raise_exception(Celluloid::DeadActorError, "actor already terminated")
     end
   end
 
@@ -235,22 +304,8 @@ shared_context "a Celluloid Actor" do |included_module|
       @charlie = actor_class.new "Charlie Sheen"
     end
 
-    it "links to other actors" do
-      @kevin.link @charlie
-      @kevin.linked_to?(@charlie).should be_true
-      @charlie.linked_to?(@kevin).should be_true
-    end
-
-    it "unlinks from other actors" do
-      @kevin.link @charlie
-      @kevin.unlink @charlie
-
-      @kevin.linked_to?(@charlie).should be_false
-      @charlie.linked_to?(@kevin).should be_false
-    end
-
-    it "traps exit messages from other actors" do
-      boss = Class.new do # like a boss
+    let(:supervisor_class) do
+      Class.new do # like a boss
         include included_module
         trap_exit :lambaste_subordinate
 
@@ -265,8 +320,60 @@ shared_context "a Celluloid Actor" do |included_module|
           @subordinate_lambasted = true
         end
       end
+    end
 
-      chuck = boss.new "Chuck Lorre"
+    it "links to other actors" do
+      @kevin.link @charlie
+      @kevin.monitoring?(@charlie).should be_true
+      @kevin.linked_to?(@charlie).should  be_true
+      @charlie.monitoring?(@kevin).should be_true
+      @charlie.linked_to?(@kevin).should  be_true
+    end
+
+    it "unlinks from other actors" do
+      @kevin.link @charlie
+      @kevin.unlink @charlie
+
+      @kevin.monitoring?(@charlie).should be_false
+      @kevin.linked_to?(@charlie).should  be_false
+      @charlie.monitoring?(@kevin).should be_false
+      @charlie.linked_to?(@kevin).should  be_false
+    end
+
+    it "monitors other actors unidirectionally" do
+      @kevin.monitor @charlie
+
+      @kevin.monitoring?(@charlie).should be_true
+      @kevin.linked_to?(@charlie).should  be_false
+      @charlie.monitoring?(@kevin).should be_false
+      @charlie.linked_to?(@kevin).should  be_false
+    end
+
+    it "unmonitors other actors" do
+      @kevin.monitor @charlie
+      @kevin.unmonitor @charlie
+
+      @kevin.monitoring?(@charlie).should be_false
+      @kevin.linked_to?(@charlie).should  be_false
+      @charlie.monitoring?(@kevin).should be_false
+      @charlie.linked_to?(@kevin).should  be_false
+    end
+
+    it "traps exit messages from other actors" do
+      chuck = supervisor_class.new "Chuck Lorre"
+      chuck.link @charlie
+
+      expect do
+        @charlie.crash
+      end.to raise_exception(ExampleCrash)
+
+      sleep 0.1 # hax to prevent a race between exit handling and the next call
+      chuck.should be_subordinate_lambasted
+    end
+
+    it "traps exit messages from other actors in subclasses" do
+      supervisor_subclass = Class.new(supervisor_class)
+      chuck = supervisor_subclass.new "Chuck Lorre"
       chuck.link @charlie
 
       expect do
@@ -326,7 +433,6 @@ shared_context "a Celluloid Actor" do |included_module|
       obj.should be_signaled
     end
 
-    # FIXME: This is deadlocking on Travis, and may still have issues
     it "sends values along with signals" do
       obj = @signaler.new
       obj.should_not be_signaled
@@ -339,6 +445,104 @@ shared_context "a Celluloid Actor" do |included_module|
 
       obj.send_signal(:foobar).should be_true
       future.value.should == :foobar
+    end
+  end
+
+  context :exclusive do
+    subject do
+      Class.new do
+        include included_module
+
+        attr_reader :tasks
+
+        def initialize
+          @tasks = []
+        end
+
+        def log_task(task)
+          @tasks << task
+        end
+
+        def exclusive_with_block_log_task(task)
+          exclusive do
+            sleep Celluloid::TIMER_QUANTUM
+            log_task(task)
+          end
+        end
+
+        def exclusive_log_task(task)
+          sleep Celluloid::TIMER_QUANTUM
+          log_task(task)
+        end
+        exclusive :exclusive_log_task
+
+        def check_not_exclusive
+          Celluloid.exclusive?
+        end
+
+        def check_exclusive
+          exclusive { Celluloid.exclusive? }
+        end
+
+        def nested_exclusive_example
+          exclusive { exclusive { nil }; Celluloid.exclusive? }
+        end
+      end.new
+    end
+
+    it "executes methods in the proper order with block form" do
+      subject.async.exclusive_with_block_log_task(:one)
+      subject.async.log_task(:two)
+      sleep Celluloid::TIMER_QUANTUM * 2
+      subject.tasks.should == [:one, :two]
+    end
+
+    it "executes methods in the proper order with a class-level annotation" do
+      subject.async.exclusive_log_task :one
+      subject.async.log_task :two
+      sleep Celluloid::TIMER_QUANTUM * 2
+      subject.tasks.should == [:one, :two]
+    end
+
+    it "knows when it's in exclusive mode" do
+      subject.check_not_exclusive.should be_false
+      subject.check_exclusive.should be_true
+    end
+
+    it "remains in exclusive mode inside nested blocks" do
+      subject.nested_exclusive_example.should be_true
+    end
+  end
+
+  context "exclusive classes" do
+    subject do
+      Class.new do
+        include included_module
+        exclusive
+
+        attr_reader :tasks
+
+        def initialize
+          @tasks = []
+        end
+
+        def eat_donuts
+          sleep Celluloid::TIMER_QUANTUM
+          @tasks << 'donuts'
+        end
+
+        def drink_coffee
+          @tasks << 'coffee'
+        end
+      end
+    end
+
+    it "executes two methods in an exclusive order" do
+      actor = subject.new
+      actor.eat_donuts!
+      actor.drink_coffee!
+      sleep Celluloid::TIMER_QUANTUM * 2
+      actor.tasks.should == ['donuts', 'coffee']
     end
   end
 
@@ -366,16 +570,17 @@ shared_context "a Celluloid Actor" do |included_module|
       received_obj.should == message
     end
 
-    it "times out after the given interval" do
+    it "times out after the given interval", :pending => ENV['CI'] do
       interval = 0.1
       started_at = Time.now
 
       receiver.receive(interval) { false }.should be_nil
-      (Time.now - started_at).should be_within(Celluloid::Timer::QUANTUM).of interval
+      (Time.now - started_at).should be_within(Celluloid::TIMER_QUANTUM).of interval
     end
   end
 
   context :timers do
+
     before do
       @klass = Class.new do
         include included_module
@@ -397,7 +602,13 @@ shared_context "a Celluloid Actor" do |included_module|
           after(n) { @fired = true }
         end
 
-        def fired?; @fired end
+        def fire_every(n)
+          @fired = 0
+          every(n) { @fired += 1 }
+        end
+
+        def fired?; !!@fired end
+        def fired; @fired end
       end
     end
 
@@ -406,7 +617,7 @@ shared_context "a Celluloid Actor" do |included_module|
 
       # Sleep long enough to ensure we're actually seeing behavior when asleep
       # but not so long as to delay the test suite unnecessarily
-      interval = Celluloid::Timer::QUANTUM * 10
+      interval = Celluloid::TIMER_QUANTUM * 10
       started_at = Time.now
 
       future = actor.future(:do_sleep, interval)
@@ -414,33 +625,49 @@ shared_context "a Celluloid Actor" do |included_module|
       actor.should be_sleeping
 
       future.value
-      (Time.now - started_at).should be_within(Celluloid::Timer::QUANTUM).of interval
+      (Time.now - started_at).should be_within(Celluloid::TIMER_QUANTUM).of interval
     end
 
     it "schedules timers which fire in the future" do
       actor = @klass.new
 
-      interval = Celluloid::Timer::QUANTUM * 10
+      interval = Celluloid::TIMER_QUANTUM * 10
       started_at = Time.now
 
       timer = actor.fire_after(interval)
       actor.should_not be_fired
 
-      sleep(interval + Celluloid::Timer::QUANTUM) # wonky! #/
+      sleep(interval + Celluloid::TIMER_QUANTUM) # wonky! #/
       actor.should be_fired
+    end
+
+    it "schedules recurring timers which fire in the future" do
+      actor = @klass.new
+
+      interval = Celluloid::TIMER_QUANTUM * 10
+      started_at = Time.now
+
+      timer = actor.fire_every(interval)
+      actor.fired.should be == 0
+
+      sleep(interval + Celluloid::TIMER_QUANTUM) # wonky! #/
+      actor.fired.should be == 1
+
+      2.times { sleep(interval + Celluloid::TIMER_QUANTUM) } # wonky! #/
+      actor.fired.should be == 3
     end
 
     it "cancels timers before they fire" do
       actor = @klass.new
 
-      interval = Celluloid::Timer::QUANTUM * 10
+      interval = Celluloid::TIMER_QUANTUM * 10
       started_at = Time.now
 
       timer = actor.fire_after(interval)
       actor.should_not be_fired
       timer.cancel
 
-      sleep(interval + Celluloid::Timer::QUANTUM) # wonky! #/
+      sleep(interval + Celluloid::TIMER_QUANTUM) # wonky! #/
       actor.should_not be_fired
     end
   end
@@ -476,10 +703,8 @@ shared_context "a Celluloid Actor" do |included_module|
     it "knows which tasks are waiting on calls to other actors" do
       actor = @klass.new
 
-      # an alias for Celluloid::Actor#waiting_tasks
       tasks = actor.tasks
       tasks.size.should == 1
-      tasks.first.status.should == :running
 
       future = actor.future(:blocking_call)
       sleep 0.1 # hax! waiting for ^^^ call to actually start
@@ -488,12 +713,92 @@ shared_context "a Celluloid Actor" do |included_module|
       tasks.size.should == 2
 
       blocking_task = tasks.find { |t| t.status != :running }
-      blocking_task.should be_a Celluloid::Task
+      blocking_task.should be_a Celluloid.task_class
       blocking_task.status.should == :callwait
 
       actor.blocker.unblock
       sleep 0.1 # hax again :(
       actor.tasks.size.should == 1
+    end
+  end
+  
+  context :proxy_class do
+    class ExampleProxy < Celluloid::ActorProxy; end
+
+    subject do
+      Class.new do
+        include included_module
+        proxy_class ExampleProxy
+      end
+    end
+
+    it "uses user-specified proxy" do
+      subject.new.__class__.should == ExampleProxy
+    end
+
+    it "retains custom proxy when subclassed" do
+      subclass = Class.new(subject)
+      subclass.new.__class__.should == ExampleProxy
+    end
+  end
+
+  context :use_mailbox do
+    class ExampleMailbox < Celluloid::Mailbox; end
+
+    subject do
+      Class.new do
+        include included_module
+        use_mailbox ExampleMailbox
+      end
+    end
+
+    it "uses user-specified mailboxes" do
+      subject.new.mailbox.should be_a ExampleMailbox
+    end
+
+    it "retains custom mailboxes when subclassed" do
+      subclass = Class.new(subject)
+      subclass.new.mailbox.should be_a ExampleMailbox
+    end
+  end
+
+  context :mailbox_class do
+    class ExampleMailbox < Celluloid::Mailbox; end
+
+    subject do
+      Class.new do
+        include included_module
+        mailbox_class ExampleMailbox
+      end
+    end
+
+    it "overrides the mailbox class" do
+      subject.new.mailbox.should be_a ExampleMailbox
+    end
+
+    it "retains custom mailboxes when subclassed" do
+      subclass = Class.new(subject)
+      subclass.new.mailbox.should be_a ExampleMailbox
+    end
+  end
+
+  context :task_class do
+    class ExampleTask < Celluloid::TaskFiber; end
+
+    subject do
+      Class.new do
+        include included_module
+        task_class ExampleTask
+      end
+    end
+
+    it "overrides the task class" do
+      subject.new.tasks.first.should be_a ExampleTask
+    end
+
+    it "retains custom task classes when subclassed" do
+      subclass = Class.new(subject)
+      subclass.new.tasks.first.should be_a ExampleTask
     end
   end
 end

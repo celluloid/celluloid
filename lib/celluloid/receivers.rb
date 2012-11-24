@@ -1,4 +1,5 @@
 require 'set'
+require 'timers'
 
 module Celluloid
   # Allow methods to directly interact with the actor protocol
@@ -16,7 +17,7 @@ module Celluloid
         receiver = Receiver.new block
 
         if timeout
-          receiver.timer = @timers.add(timeout) do
+          receiver.timer = @timers.after(timeout) do
             @receivers.delete receiver
             receiver.resume
           end

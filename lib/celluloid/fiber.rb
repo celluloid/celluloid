@@ -24,9 +24,8 @@ rescue LoadError => ex
       # Just in case subsequent JRuby releases have broken fibers :/
       raise ex
     end
-  elsif defined? Rubinius
-    # If we're on Rubinius, we can still work in 1.8 mode
-    Fiber = Rubinius::Fiber
+  elsif defined?(RUBY_ENGINE) && RUBY_ENGINE == "rbx"
+    raise LoadError, "Celluloid requires Rubinius 1.9 mode. Please pass the -X19 flag."
   else
     raise ex
   end
