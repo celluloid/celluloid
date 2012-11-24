@@ -91,8 +91,8 @@ class Smoker
   def sit(table)
     puts "#{name} sits down at table"
 
-    # DON'T USE SELF ACROSS ACTORS!
-    table.smokers << current_actor
+    # Always use Actor.current instead of self when talking to other actors
+    table.smokers << Actor.current
     @table = table
 
     @machine.transition :procuring
@@ -116,7 +116,7 @@ class Smoker
   def check_table
     if @table.empty?
       puts "#{name} whistles at waitress... get me smokes!"
-      @table.waitress.whistle! # We'll decide what to do when the waitress arrives
+      @table.waitress.async.whistle # We'll decide what to do when the waitress arrives
     end
   end
 
@@ -137,7 +137,7 @@ class Smoker
     items = @table.take
 
     puts "#{name} whistles for the waitress because the table is empty"
-    @table.waitress.whistle!
+    @table.waitress.async.whistle
 
     tobacco = find_item items, Tobacco
     paper   = find_item items, Paper
@@ -214,7 +214,7 @@ class Waitress
     end
 
     puts "Waitress tells #{receiver.name} he can smoke now"
-    receiver.notify_ready!
+    receiver.async.notify_ready
     note_smokers
   end
 
@@ -234,7 +234,7 @@ class Table
 
   def initialize
     @smokers = []
-    @waitress = Waitress.new(current_actor) # DON'T USE SELF!
+    @waitress = Waitress.new(Actor.current) # Always use Actor.current instead of self!
     @items = nil
   end
 

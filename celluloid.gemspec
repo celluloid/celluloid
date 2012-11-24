@@ -13,11 +13,15 @@ Gem::Specification.new do |gem|
   gem.authors     = ['Tony Arcieri']
   gem.email       = ['tony.arcieri@gmail.com']
   gem.homepage    = 'https://github.com/celluloid/celluloid'
-  
+
+  gem.required_ruby_version     = '>= 1.9.2'
   gem.required_rubygems_version = '>= 1.3.6'
-  
+
   gem.files        = Dir['README.md', 'lib/**/*', 'spec/support/**/*']
   gem.require_path = 'lib'
+
+  gem.add_runtime_dependency 'timers', '>= 1.0.0'
+  gem.add_runtime_dependency 'facter', '>= 1.6.12'
 
   gem.add_development_dependency 'rake'
   gem.add_development_dependency 'rspec'

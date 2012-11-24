@@ -1,26 +1,35 @@
 module Celluloid
   # Calls represent requests to an actor
   class Call
-    attr_reader :caller, :method, :arguments, :block
+    attr_reader :method, :arguments, :block
 
-    def initialize(caller, method, arguments = [], block = nil)
-      @caller, @method, @arguments, @block = caller, method, arguments, block
+    def initialize(method, arguments = [], block = nil)
+      @method, @arguments, @block = method, arguments, block
     end
 
     def check_signature(obj)
       unless obj.respond_to? @method
-        raise NoMethodError, "undefined method `#{@method}' for #{obj.inspect}"
+        raise NoMethodError, "undefined method `#{@method}' for #{obj.to_s}"
       end
 
-      arity = obj.method(@method).arity
+      begin
+        arity = obj.method(@method).arity
+      rescue NameError
+        # If the object claims it responds to a method, but it doesn't exist,
+        # then we have to assume method_missing will do what it says
+        @arguments.unshift(@method)
+        @method = :method_missing
+        return
+      end
+
       if arity >= 0
         if arguments.size != arity
-          raise ArgumentError, "wrong number of arguments (#{arguments.size} for #{arity})"
+          raise ArgumentError, "wrong number of arguments (#{arguments.size} for #{arity}) for method #{@method}"
         end
       elsif arity < -1
         mandatory_args = -arity - 1
         if arguments.size < mandatory_args
-          raise ArgumentError, "wrong number of arguments (#{arguments.size} for #{mandatory_args})"
+          raise ArgumentError, "wrong number of arguments (#{arguments.size} for #{mandatory_args}) for method #{@method}"
         end
       end
     end
@@ -28,17 +37,18 @@ module Celluloid
 
   # Synchronous calls wait for a response
   class SyncCall < Call
-    attr_reader :task
+    attr_reader :caller, :task
 
-    def initialize(caller, method, arguments = [], block = nil, task = Fiber.current.task)
-      super(caller, method, arguments, block)
+    def initialize(caller, method, arguments = [], block = nil, task = Thread.current[:task])
+      super(method, arguments, block)
+      @caller = caller
       @task = task
     end
 
     def dispatch(obj)
       begin
         check_signature(obj)
-      rescue Exception => ex
+      rescue => ex
         respond ErrorResponse.new(self, AbortError.new(ex))
         return
       end
@@ -82,14 +92,14 @@ module Celluloid
       begin
         check_signature(obj)
       rescue Exception => ex
-        Logger.crash("#{obj.class}: async call failed!", ex)
+        Logger.crash("#{obj.class}: async call `#{@method}' failed!", ex)
         return
       end
 
       obj.send(@method, *@arguments, &@block)
     rescue AbortError => ex
       # Swallow aborted async calls, as they indicate the caller made a mistake
-      Logger.crash("#{obj.class}: async call aborted!", ex)
+      Logger.crash("#{obj.class}: async call `#{@method}' aborted!", ex.cause)
     end
   end
 end

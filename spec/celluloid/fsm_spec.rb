@@ -58,20 +58,20 @@ describe Celluloid::FSM do
   end
 
   it "transitions to states after a specified delay" do
-    interval = Celluloid::Timer::QUANTUM * 10
+    interval = Celluloid::TIMER_QUANTUM * 10
 
     subject.attach DummyActor.new
     subject.transition :another
     subject.transition :done, :delay => interval
 
     subject.state.should == :another
-    sleep interval + Celluloid::Timer::QUANTUM
+    sleep interval + Celluloid::TIMER_QUANTUM
 
     subject.state.should == :done
   end
 
   it "cancels delayed state transitions if another transition is made" do
-    interval = Celluloid::Timer::QUANTUM * 10
+    interval = Celluloid::TIMER_QUANTUM * 10
 
     subject.attach DummyActor.new
     subject.transition :another
@@ -79,8 +79,32 @@ describe Celluloid::FSM do
 
     subject.state.should == :another
     subject.transition :pre_done
-    sleep interval + Celluloid::Timer::QUANTUM
+    sleep interval + Celluloid::TIMER_QUANTUM
 
     subject.state.should == :pre_done
+  end
+
+  context "actor is not set" do
+    let(:subject) { TestMachine.new }
+
+    context "transition is delayed" do
+      it "raises an unattached error" do
+        expect { subject.transition :another, :delay => 100 } \
+          .to raise_error(Celluloid::FSM::UnattachedError)
+      end
+    end
+  end
+
+  context "transitioning to an invalid state" do
+    let(:subject) { TestMachine.new }
+
+    it "raises an argument error" do
+      expect { subject.transition :invalid_state }.to raise_error(ArgumentError)
+    end
+
+    it "should not call transition! if the state is :default" do
+      subject.should_not_receive :transition!
+      subject.transition :default
+    end
   end
 end

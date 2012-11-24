@@ -1,3 +1,87 @@
+0.12.3
+------
+* Bugfix: Ensure exclusive mode works correctly for per-method case
+* Bugfix: Exit handlers were not being inherited correctly
+
+0.12.2
+------
+* Disable IncidentReporter by default
+
+0.12.1
+------
+* Fix bug in unsetting of exclusive mode
+* New incident report system for providing better debugging reports
+* Revert BasicObject proxies for now... they are causing problems
+* String inspect that reveals bare object leaks
+* Fix bug reporting proper task statuses
+* Initial thread dumper support
+* Remove Celluloid#alive? as it cannot be called in any manner that will ever
+  return anything but true, rendering it useless
+* Use Facter to get CPU count
+
+0.12.0
+------
+* Alternative async syntax: actor.async.method in lieu of actor.method!
+  Original syntax still available but will be removed in Celluloid 1.0
+* Alternative future syntax: actor.future.method in lieu of future(:method)
+* All methods in the Celluloid module are now available on its singleton
+* The #join and #kill methods are no longer available on the actor proxy.
+  Please use Celluloid::Actor.join(actor) and .kill(actor) instead.
+* Celluloid::Future#ready? can be used to query for future readiness
+* Celluloid::Group constant removed. Please use Celluloid::SupervisionGroup
+* #monitor, #unmonitor, and #monitoring? provide unidirectional linking
+* Linking is now performed via a SystemEvent
+* SystemEvents are no longer exceptions. Boo exceptions as flow control!
+* Celluloid::Mailbox#system_event eliminated and replaced with Mailbox#<<
+  SystemEvents are now automatically high priority
+* The task_class class method can be used to override the class used for
+  tasks, allowing different task implementations to be configured on an
+  actor-by-actor-basis
+* Celluloid::TaskThread provides tasks backed by Threads instead of Fibers
+* ActorProxy is now a BasicObject
+* A bug prevented Celluloid subclasses from retaining custom mailboxes
+  defined by use_mailbox. This is now fixed.
+* `exclusive` class method without arguments makes the whole actor exclusive
+
+0.11.1
+------
+* 'exclusive' class method marks methods as always exclusive and runs them
+  outside of a Fiber (useful if you need more stack than Fibers provide)
+* Celluloid::PoolManager returns its own class when #class is called, instead
+  of proxying to a cell/actor in the pool.
+* #receive now handles SystemEvents internally
+* Celluloid::Timers extracted into the timers gem, which Celluloid now
+  uses for its own timers
+
+0.11.0
+------
+* Celluloid::Application constant permanently removed
+* Celluloid::Pool removed in favor of Celluloid.pool
+* Celluloid::Group renamed to Celluloid::SupervisionGroup, old name is
+  still available and has not been deprecated
+* Celluloid::ThreadPool renamed to Celluloid::InternalPool to emphasize its
+  internalness
+* Support for asynchronously calling private methods inside actors
+* Future is now an instance method on all actors
+* Async call exception logs now contain the failed method
+* MyActor#async makes async calls for those who dislike the predicate syntax
+* abort can now accept a string instead of an exception object and will raise
+  RuntimeError in the caller's context
+
+0.10.0
+------
+* Celluloid::Actor.current is now the de facto way to obtain the current actor
+* #terminate now uses system messages, making termination take priority over
+  other pending methods
+* #terminate! provides asynchronous termination
+
+0.9.1
+-----
+* Recurring timers with Celluloid#every(n) { ... }
+* Obtain UUIDs with Celluloid.uuid
+* Obtain the number of CPU cores available with Celluloid.cores
+* Celluloid::Pool defaults to one actor per CPU core max by default
+
 0.9.0
 -----
 * Celluloid::Pool supervises pools of actors

@@ -1,4 +1,4 @@
-![Celluloid](https://github.com/celluloid/celluloid/raw/master/logo.png)
+![Celluloid](https://raw.github.com/celluloid/celluloid-logos/master/celluloid/celluloid.png)
 =========
 [![Build Status](https://secure.travis-ci.org/celluloid/celluloid.png?branch=master)](http://travis-ci.org/celluloid/celluloid)
 [![Dependency Status](https://gemnasium.com/celluloid/celluloid.png)](https://gemnasium.com/celluloid/celluloid)
@@ -17,7 +17,7 @@ Much of the difficulty with building concurrent programs in Ruby arises because
 the object-oriented mechanisms for structuring code, such as classes and
 inheritance, are separate from the concurrency mechanisms, such as threads and
 locks. Celluloid combines these into a single structure, an active object
-running within a thread, called an "actor".
+running within a thread, called an "actor", or in Celluloid vernacular, a "cell".
 
 By combining concurrency with object oriented programming, Celluloid frees you
 up from worry about where to use threads and locks. Celluloid combines them
@@ -50,7 +50,7 @@ features which make concurrent programming simple, easy, and fun:
   a clean state. Celluloid provides its own implementation of the core
   fault-tolerance concepts in Erlang including [linking](https://github.com/celluloid/celluloid/wiki/Linking),
   [supervisors](https://github.com/celluloid/celluloid/wiki/Supervisors),
-  and [supervision trees](https://github.com/celluloid/celluloid/wiki/Groups).
+  and [supervision groups](https://github.com/celluloid/celluloid/wiki/Supervision-Groups).
 
 * __[Futures](https://github.com/celluloid/celluloid/wiki/futures):__
   Ever wanted to call a method "in the background" and retrieve the
@@ -63,27 +63,65 @@ features which make concurrent programming simple, easy, and fun:
 
 You can also build distributed systems with Celluloid using its
 [sister project DCell](https://github.com/celluloid/dcell). Evented IO similar
-to EventMachine (with a synchronous API) is available through the
-[Celluloid::IO](https://github.com/celluloid/celluloid-io) library.
-
-[Please see the Celluloid Wiki](https://github.com/celluloid/celluloid/wiki)
-for more detailed documentation and usage notes.
+to EventMachine (with a synchronous API instead of callback/deferrable soup)
+is available through the [Celluloid::IO](https://github.com/celluloid/celluloid-io)
+library.
 
 Like Celluloid? [Join the Google Group](http://groups.google.com/group/celluloid-ruby)
 or visit us on IRC at #celluloid on freenode
 
+### Is It "Production Ready™"?
+
+Yes, many users are now running Celluloid in production by using
+[Sidekiq](http://sidekiq.org) and [Adhearsion](http://adhearsion.com/)
+
+Documentation
+-------------
+
+[Please see the Celluloid Wiki](https://github.com/celluloid/celluloid/wiki)
+for more detailed documentation and usage notes.
+
+The following API documentation is also available:
+
+* [YARD API documentation](http://rubydoc.info/gems/celluloid/frames)
+* [Celluloid module (primary API)](http://rubydoc.info/gems/celluloid/Celluloid)
+* [Celluloid class methods](http://rubydoc.info/gems/celluloid/Celluloid/ClassMethods)
+* [All Celluloid classes](http://rubydoc.info/gems/celluloid/index)
+
+Installation
+------------
+
+Add this line to your application's Gemfile:
+
+    gem 'celluloid'
+
+And then execute:
+
+    $ bundle
+
+Or install it yourself as:
+
+    $ gem install celluloid
+
+Inside of your Ruby program do:
+
+    require 'celluloid'
+
+...to pull it in as a dependency.
+
 Supported Platforms
 -------------------
 
-Celluloid works on Ruby 1.9.2+, JRuby 1.6 (in 1.9 mode), and Rubinius 2.0. JRuby
-or Rubinius are the preferred platforms as they support true hardware-level
-parallelism when running Ruby code, whereas MRI/YARV is constrained by a global
-interpreter lock (GIL).
+Celluloid works on Ruby 1.9.3, JRuby 1.6, and Rubinius 2.0. JRuby or Rubinius
+are the preferred platforms as they support true thread-level parallelism when
+executing Ruby code, whereas MRI/YARV is constrained by a global interpreter
+lock (GIL) and can only execute one thread at a time.
 
-To use JRuby in 1.9 mode, you'll need to pass the "--1.9" command line option
-to the JRuby executable, or set the "JRUBY_OPTS=--1.9" environment variable.
+Celluloid requires Ruby 1.9 mode on all interpreters. This works out of the
+box on MRI/YARV, and requires the following flags elsewhere:
 
-Celluloid works on Rubinius in either 1.8 or 1.9 mode.
+* JRuby: --1.9 command line option, or JRUBY_OPTS=--1.9 environment variable
+* rbx: -X19 command line option
 
 Additional Reading
 ------------------

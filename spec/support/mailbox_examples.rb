@@ -1,6 +1,4 @@
 shared_context "a Celluloid Mailbox" do
-  class TestEvent < Celluloid::SystemEvent; end
-
   it "receives messages" do
     message = :ohai
 
@@ -8,22 +6,12 @@ shared_context "a Celluloid Mailbox" do
     subject.receive.should == message
   end
 
-  it "raises system events when received" do
-    subject.system_event TestEvent.new("example")
-
-    expect do
-      subject.receive
-    end.to raise_exception(TestEvent)
-  end
-
   it "prioritizes system events over other messages" do
     subject << :dummy1
     subject << :dummy2
-    subject.system_event TestEvent.new("example")
 
-    expect do
-      subject.receive
-    end.to raise_exception(TestEvent)
+    subject << Celluloid::SystemEvent.new
+    subject.receive.should be_a(Celluloid::SystemEvent)
   end
 
   it "selectively receives messages with a block" do
@@ -47,6 +35,6 @@ shared_context "a Celluloid Mailbox" do
     started_at = Time.now
 
     subject.receive(interval) { false }
-    (Time.now - started_at).should be_within(Celluloid::Timer::QUANTUM).of interval
+    (Time.now - started_at).should be_within(Celluloid::TIMER_QUANTUM).of interval
   end
 end

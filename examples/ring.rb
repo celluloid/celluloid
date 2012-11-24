@@ -14,7 +14,7 @@ class Ring
     end
 
     def around(n)
-      @link.around! n
+      @link.async.around n
     end
   end
 
@@ -32,7 +32,7 @@ class Ring
       raise ArgumentError, "I can't go around a negative number of times"
     end
 
-    around! n
+    async.around n
     wait :done
   end
 
@@ -41,7 +41,7 @@ class Ring
     if n.zero?
       signal :done
     else
-      @node.around! n - 1
+      @node.async.around n - 1
     end
   end
 end
