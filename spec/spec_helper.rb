@@ -11,10 +11,13 @@ class ExampleActor
   end
 end
 
-EXAMPLE_PORT = 10000 + rand(10000)
+EXAMPLE_PORT = 12345
 
 def example_addr; '127.0.0.1'; end
 def example_port; EXAMPLE_PORT; end
+def example_ssl_port; EXAMPLE_PORT + 1; end
+
+def fixture_dir; Pathname.new File.expand_path("../fixtures", __FILE__); end
 
 def within_io_actor(&block)
   actor = ExampleActor.new

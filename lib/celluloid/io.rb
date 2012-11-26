@@ -11,6 +11,8 @@ require 'celluloid/io/tcp_server'
 require 'celluloid/io/tcp_socket'
 require 'celluloid/io/udp_socket'
 
+require 'celluloid/io/ssl_socket'
+
 module Celluloid
   # Actors with evented IO support
   module IO
