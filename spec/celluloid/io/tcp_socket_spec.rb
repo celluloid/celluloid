@@ -11,7 +11,7 @@ describe Celluloid::IO::TCPSocket do
       peer = thread.value
 
       peer << payload
-      within_ssl_actor { socket.read(payload.size) }.should eq payload
+      within_io_actor { socket.read(payload.size) }.should eq payload
 
       server.close
       socket.close
