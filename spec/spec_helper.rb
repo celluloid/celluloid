@@ -15,6 +15,7 @@ EXAMPLE_PORT = 10000 + rand(10000)
 
 def example_addr; '127.0.0.1'; end
 def example_port; EXAMPLE_PORT; end
+def example_sock; '/tmp/cell_sock'; end
 
 def within_io_actor(&block)
   actor = ExampleActor.new
@@ -32,10 +33,37 @@ def with_tcp_server
   end
 end
 
+def with_unix_server
+  server = Celluloid::IO::UNIXServer.open(example_sock)
+  begin
+    yield server
+  ensure
+    server.close
+    File.delete(example_sock)
+  end                  
+end
+
 def with_connected_sockets
   with_tcp_server do |server|
     # FIXME: client isn't actually a Celluloid::IO::TCPSocket yet
     client = ::TCPSocket.new(example_addr, example_port)
+    peer = server.accept
+
+    begin
+      yield peer, client
+    ensure
+      begin
+        client.close
+        peer.close
+      rescue
+      end
+    end
+  end
+end
+
+def with_connected_unix_sockets
+  with_unix_server do |server|
+    client = Celluloid::IO::UNIXSocket.new(example_sock)
     peer = server.accept
 
     begin

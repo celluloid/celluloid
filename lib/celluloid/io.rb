@@ -10,6 +10,8 @@ require 'celluloid/io/reactor'
 require 'celluloid/io/tcp_server'
 require 'celluloid/io/tcp_socket'
 require 'celluloid/io/udp_socket'
+require 'celluloid/io/unix_server'
+require 'celluloid/io/unix_socket'
 
 module Celluloid
   # Actors with evented IO support
