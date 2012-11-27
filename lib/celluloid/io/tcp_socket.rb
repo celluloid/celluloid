@@ -39,8 +39,6 @@ module Celluloid
 
         # Guess it's not an IP address, so let's try DNS
         unless @addr
-          # TODO: suppport asynchronous DNS
-          # Even EventMachine doesn't do async DNS by default o_O
           addrs = Array(DNSResolver.new.resolve(remote_host))
           raise Resolv::ResolvError, "DNS result has no information for #{remote_host}" if addrs.empty?
           
