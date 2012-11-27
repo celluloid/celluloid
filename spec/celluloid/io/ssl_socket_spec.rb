@@ -20,7 +20,8 @@ describe Celluloid::IO::SSLSocket do
       client_context = OpenSSL::SSL::SSLContext.new
       client_context.cert = OpenSSL::X509::Certificate.new fixture_dir.join("client.crt").read
       client_context.key  = OpenSSL::PKey::RSA.new fixture_dir.join("client.key").read
-      ssl_socket = OpenSSL::SSL::SSLSocket.new client, client_context
+
+      ssl_socket = within_io_actor { Celluloid::IO::SSLSocket.new client, client_context }
 
       ssl_socket.connect
       ssl_peer = thread.value
