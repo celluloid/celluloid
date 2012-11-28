@@ -5,8 +5,8 @@ module Celluloid
       attr_reader :reactor
 
       def initialize(reactor = nil)
-        @messages = []
-        @mutex = Mutex.new
+        super()
+        # @condition won't be used in the class.
         @reactor = reactor || Reactor.new
       end
 
