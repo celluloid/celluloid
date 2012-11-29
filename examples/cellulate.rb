@@ -27,8 +27,9 @@ rescue => e
   puts "We failed because we dont know the future: #{e}"
 end
 puts "#{base_fibber.class} methods count before conversion: #{base_fibber.methods.count}"
-base_fibber.extend(Cellulate)
-base_fibber = base_fibber.cellulate
+base_fibber.extend(Celluloid::Cellulate)
+# call protected method
+base_fibber = base_fibber.send(:cellulate)
 puts "#{base_fibber.class} methods count after conversion: #{base_fibber.methods.count}"
 
 base_future = base_fibber.future(:fib,11)
