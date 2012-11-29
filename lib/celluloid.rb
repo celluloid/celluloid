@@ -20,6 +20,8 @@ module Celluloid
     def included(klass)
       klass.send :extend,  ClassMethods
       klass.send :include, InstanceMethods
+      # set nil to avoid unintialization warning.
+      klass.instance_variable_set(:@exclusive_methods, nil)
     end
 
     # Are we currently inside of an actor?
