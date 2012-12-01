@@ -364,6 +364,18 @@ shared_context "a Celluloid Actor" do |included_module|
       sleep 0.1 # hax to prevent a race between exit handling and the next call
       chuck.should be_subordinate_lambasted
     end
+
+    it "unlinks from a dead linked actor" do
+      chuck = supervisor_class.new "Chuck Lorre"
+      chuck.link @charlie
+
+      expect do
+        @charlie.crash
+      end.to raise_exception(ExampleCrash)
+
+      sleep 0.1 # hax to prevent a race between exit handling and the next call
+      chuck.links.count.should == 0
+    end
   end
 
   context :signaling do
@@ -702,7 +714,7 @@ shared_context "a Celluloid Actor" do |included_module|
       actor.tasks.size.should == 1
     end
   end
-  
+
   context :proxy_class do
     class ExampleProxy < Celluloid::ActorProxy; end
 
