@@ -182,7 +182,7 @@ module Celluloid
         Thread.current[:mailbox] = @mailbox
         run
       end
-      
+
       @proxy = @proxy_class.new(self)
     end
 
