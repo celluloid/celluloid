@@ -347,6 +347,8 @@ module Celluloid
 
     # Handle exit events received by this actor
     def handle_exit_event(event)
+      @links.delete event.actor
+
       # Run the exit handler if available
       return @subject.send(@exit_handler, event.actor, event.reason) if @exit_handler
 
