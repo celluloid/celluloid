@@ -211,6 +211,7 @@ shared_context "a Celluloid Actor" do |included_module|
     actor = actor_class.new "Troy McClure"
 
     actor.inspect.should_not include Celluloid::BARE_OBJECT_WARNING_MESSAGE
+    actor.inspect_thunk.should_not include Celluloid::BARE_OBJECT_WARNING_MESSAGE
     actor.wrapped_object.inspect.should include Celluloid::BARE_OBJECT_WARNING_MESSAGE
   end
 

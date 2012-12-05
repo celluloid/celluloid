@@ -21,6 +21,7 @@ module Celluloid
   end
 
   LINKING_TIMEOUT = 5 # linking times out after 5 seconds
+  OWNER_IVAR = :@celluloid_owner # reference to owning actor
 
   # Actors are Celluloid's concurrency primitive. They're implemented as
   # normal Ruby objects wrapped in threads which communicate with asynchronous
@@ -184,6 +185,7 @@ module Celluloid
       end
 
       @proxy = @proxy_class.new(self)
+      @subject.instance_variable_set(OWNER_IVAR, self)
     end
 
     # Run the actor loop

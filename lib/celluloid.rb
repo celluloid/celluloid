@@ -254,14 +254,29 @@ module Celluloid
     def bare_object; self; end
     alias_method :wrapped_object, :bare_object
 
+    # Are we being invoked in a different thread from our owner?
+    def leaked?
+      @celluloid_owner != Thread.current[:actor]
+    end
+
     def inspect
-      str = "#<#{Celluloid::BARE_OBJECT_WARNING_MESSAGE}(#{self.class}:0x#{object_id.to_s(16)})"
-      ivars = instance_variables.map do |ivar|
-        "#{ivar}=#{instance_variable_get(ivar).inspect}"
+      str = "#<"
+
+      if leaked?
+        str << Celluloid::BARE_OBJECT_WARNING_MESSAGE
+      else
+        str << "Celluloid::Actor"
       end
 
-      str << " " << ivars.join(' ') unless ivars.empty?
-      str << ">"
+      str << "(#{self.class}:0x#{object_id.to_s(16)})"
+      str << " " unless instance_variables.empty?
+
+      instance_variables.each do |ivar|
+        next if ivar == Celluloid::OWNER_IVAR
+        str << "#{ivar}=#{instance_variable_get(ivar).inspect} "
+      end
+
+      str.sub!(/\s$/, '>')
     end
 
     # Process async calls via method_missing

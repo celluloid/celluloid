@@ -51,6 +51,10 @@ module ExampleActorClass
         "Hello"
       end
 
+      def inspect_thunk
+        inspect
+      end
+
       def method_missing(method_name, *args, &block)
         if delegates?(method_name)
           @delegate.send method_name, *args, &block
