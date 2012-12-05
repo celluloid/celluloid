@@ -214,18 +214,18 @@ shared_context "a Celluloid Actor" do |included_module|
     actor.wrapped_object.inspect.should include Celluloid::BARE_OBJECT_WARNING_MESSAGE
   end
 
-  describe 'mocking methods' do
+  context "mocking methods" do
     let(:actor) { actor_class.new "Troy McClure" }
 
     before do
       actor.wrapped_object.should_receive(:external_hello).once.and_return "World"
     end
 
-    it 'works externally via the proxy' do
+    it "works externally via the proxy" do
       actor.external_hello.should == "World"
     end
 
-    it 'works internally when called on self' do
+    it "works internally when called on self" do
       actor.internal_hello.should == "World"
     end
   end
