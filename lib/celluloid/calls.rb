@@ -51,9 +51,9 @@ module Celluloid
 
     def dispatch(obj)
       obj.public_send(@method, *@arguments, &@block)
-    rescue Exception => ex
+    rescue AbortError => ex
       # Swallow aborted async calls, as they indicate the caller made a mistake
-      Logger.crash("#{obj.class}: async call `#@method` aborted!", ex.cause)
+      Logger.debug("#{obj.class}: async call `#@method` aborted!\n#{Logger.format_exception(ex.cause)}")
     end
 
   end
