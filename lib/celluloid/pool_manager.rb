@@ -80,6 +80,14 @@ module Celluloid
       @size
     end
 
+    def busy_size
+      @busy.length
+    end
+
+    def idle_size
+      @idle.length
+    end
+
     # Provision a new worker
     def __provision_worker
       while @idle.empty?
