@@ -1,5 +1,5 @@
-0.12.4.pre
-----------
+0.12.4
+------
 * Bugfix: Clear dead/crashed actors out of links
 * Bugfix: Exclusive mode was broken
 * Bugfix: Celluloid::SupervisionGroup#run was broken
