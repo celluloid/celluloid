@@ -8,7 +8,6 @@
 * Better object leakage detection when inspecting
 * Use #public_send to dispatch Celluloid methods
 * #idle_size and #busy_size for Celluloid::PoolManager
-* Namespace all thread local names with :celluloid_*
 
 0.12.3
 ------
