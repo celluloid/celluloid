@@ -1,3 +1,15 @@
+0.12.4.pre
+----------
+* Bugfix: Clear dead/crashed actors out of links
+* Bugfix: Exclusive mode was broken
+* Bugfix: Celluloid::SupervisionGroup#run was broken
+* Celluloid::ClassMethods#proxy_class allows configurable proxies
+* Improved error messages for Fiber-related problems
+* Better object leakage detection when inspecting
+* Use #public_send to dispatch Celluloid methods
+* #idle_size and #busy_size for Celluloid::PoolManager
+* Namespace all thread local names with :celluloid_*
+
 0.12.3
 ------
 * Bugfix: Ensure exclusive mode works correctly for per-method case
