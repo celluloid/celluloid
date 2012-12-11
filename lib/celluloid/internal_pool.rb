@@ -23,7 +23,7 @@ module Celluloid
             end
           end until thread.status # handle crashed threads
 
-          thread[:queue] << block
+          thread[:celluloid_queue] << block
           thread
         end
       end
@@ -32,7 +32,7 @@ module Celluloid
       def put(thread)
         @mutex.synchronize do
           if @pool.size >= @max_idle
-            thread[:queue] << nil
+            thread[:celluloid_queue] << nil
           else
             @pool << thread
           end
@@ -54,7 +54,7 @@ module Celluloid
           end
         end
 
-        thread[:queue] = queue
+        thread[:celluloid_queue] = queue
         thread
       end
     end

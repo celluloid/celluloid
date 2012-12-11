@@ -6,7 +6,7 @@ class Thread
 
   # Retrieve the mailbox for the current thread or lazily initialize it
   def self.mailbox
-    current[:mailbox] ||= Celluloid::Mailbox.new
+    current[:celluloid_mailbox] ||= Celluloid::Mailbox.new
   end
 
   # Receive a message either as an actor or through the local mailbox
