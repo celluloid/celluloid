@@ -93,7 +93,7 @@ module Celluloid
       while @idle.empty?
         # Wait for responses from one of the busy workers
         response = exclusive { receive { |msg| msg.is_a?(Response) } }
-        Thread.current[:celluloid_actor].handle_message(response)
+        Thread.current[:actor].handle_message(response)
       end
 
       worker = @idle.shift

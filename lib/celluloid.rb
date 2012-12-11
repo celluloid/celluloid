@@ -24,7 +24,7 @@ module Celluloid
 
     # Are we currently inside of an actor?
     def actor?
-      !!Thread.current[:celluloid_actor]
+      !!Thread.current[:actor]
     end
 
     # Generate a Universally Unique Identifier
@@ -256,7 +256,7 @@ module Celluloid
 
     # Are we being invoked in a different thread from our owner?
     def leaked?
-      @celluloid_owner != Thread.current[:celluloid_actor]
+      @celluloid_owner != Thread.current[:actor]
     end
 
     def inspect
@@ -288,7 +288,7 @@ module Celluloid
 
         call = AsyncCall.new(:__send__, args, block)
         begin
-          Thread.current[:celluloid_actor].mailbox << call
+          Thread.current[:actor].mailbox << call
         rescue MailboxError
           # Silently swallow asynchronous calls to dead actors. There's no way
           # to reliably generate DeadActorErrors for async calls, so users of
@@ -320,17 +320,17 @@ module Celluloid
 
   # Terminate this actor
   def terminate
-    Thread.current[:celluloid_actor].terminate
+    Thread.current[:actor].terminate
   end
 
   # Send a signal with the given name to all waiting methods
   def signal(name, value = nil)
-    Thread.current[:celluloid_actor].signal name, value
+    Thread.current[:actor].signal name, value
   end
 
   # Wait for the given signal
   def wait(name)
-    Thread.current[:celluloid_actor].wait name
+    Thread.current[:actor].wait name
   end
 
   # Obtain the current_actor
@@ -345,12 +345,12 @@ module Celluloid
 
   # Obtain the running tasks for this actor
   def tasks
-    Thread.current[:celluloid_actor].tasks.to_a
+    Thread.current[:actor].tasks.to_a
   end
 
   # Obtain the Celluloid::Links for this actor
   def links
-    Thread.current[:celluloid_actor].links
+    Thread.current[:actor].links
   end
 
   # Watch for exit events from another actor
@@ -385,7 +385,7 @@ module Celluloid
 
   # Receive an asynchronous message via the actor protocol
   def receive(timeout = nil, &block)
-    actor = Thread.current[:celluloid_actor]
+    actor = Thread.current[:actor]
     if actor
       actor.receive(timeout, &block)
     else
@@ -395,7 +395,7 @@ module Celluloid
 
   # Sleep letting the actor continue processing messages
   def sleep(interval)
-    actor = Thread.current[:celluloid_actor]
+    actor = Thread.current[:actor]
     if actor
       actor.sleep(interval)
     else
@@ -406,23 +406,23 @@ module Celluloid
   # Run given block in an exclusive mode: all synchronous calls block the whole
   # actor, not only current message processing.
   def exclusive(&block)
-    Thread.current[:celluloid_actor].exclusive(&block)
+    Thread.current[:actor].exclusive(&block)
   end
 
   # Are we currently exclusive
   def exclusive?
-    actor = Thread.current[:celluloid_actor]
+    actor = Thread.current[:actor]
     actor && actor.exclusive?
   end
 
   # Call a block after a given interval, returning a Celluloid::Timer object
   def after(interval, &block)
-    Thread.current[:celluloid_actor].after(interval, &block)
+    Thread.current[:actor].after(interval, &block)
   end
 
   # Call a block every given interval, returning a Celluloid::Timer object
   def every(interval, &block)
-    Thread.current[:celluloid_actor].every(interval, &block)
+    Thread.current[:actor].every(interval, &block)
   end
 
   # Perform a blocking or computationally intensive action inside an
@@ -437,18 +437,18 @@ module Celluloid
   # Handle async calls within an actor itself
   def async(meth = nil, *args, &block)
     if meth
-      Actor.async Thread.current[:celluloid_actor].mailbox, meth, *args, &block
+      Actor.async Thread.current[:actor].mailbox, meth, *args, &block
     else
-      Thread.current[:celluloid_actor].proxy.async
+      Thread.current[:actor].proxy.async
     end
   end
 
   # Handle calls to future within an actor itself
   def future(meth = nil, *args, &block)
     if meth
-      Actor.future Thread.current[:celluloid_actor].mailbox, meth, *args, &block
+      Actor.future Thread.current[:actor].mailbox, meth, *args, &block
     else
-      Thread.current[:celluloid_actor].proxy.future
+      Thread.current[:actor].proxy.future
     end
   end
 end
