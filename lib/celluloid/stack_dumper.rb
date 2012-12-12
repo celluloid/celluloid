@@ -33,7 +33,7 @@ module Celluloid
       end
 
       threads.each do |thread|
-        output << "Thread 0x#{object_id.to_s(16)}:\n"
+        output << "Thread 0x#{thread.object_id.to_s(16)}:\n"
         display_backtrace thread, output
       end
     end
