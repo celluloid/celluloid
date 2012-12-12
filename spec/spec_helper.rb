@@ -2,6 +2,7 @@ require 'rubygems'
 require 'bundler/setup'
 require 'celluloid'
 require 'celluloid/rspec'
+require 'celluloid/internal_pool'
 
 logfile = File.open(File.expand_path("../../log/test.log", __FILE__), 'a')
 Celluloid.logger = Logger.new(logfile)

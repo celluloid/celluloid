@@ -14,8 +14,9 @@ module Celluloid
   BARE_OBJECT_WARNING_MESSAGE = "WARNING: BARE CELLULOID OBJECT "
 
   class << self
-    attr_accessor :logger     # Thread-safe logger class
-    attr_accessor :task_class # Default task type to use
+    attr_accessor :internal_pool # Internal thread pool
+    attr_accessor :logger        # Thread-safe logger class
+    attr_accessor :task_class    # Default task type to use
 
     def included(klass)
       klass.send :extend,  ClassMethods

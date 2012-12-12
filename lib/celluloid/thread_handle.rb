@@ -12,7 +12,7 @@ module Celluloid
       @mutex = Mutex.new
       @join  = ConditionVariable.new
 
-      @thread = InternalPool.get do
+      @thread = Celluloid.internal_pool.get do
         begin
           yield
         ensure
