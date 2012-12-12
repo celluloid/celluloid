@@ -14,7 +14,7 @@ module Celluloid
 
     # Obtain the current task
     def self.current
-      Thread.current[:task] or raise NotTaskError, "not within a task context"
+      Thread.current[:celluloid_task] or raise NotTaskError, "not within a task context"
     end
 
     # Suspend the running task, deferring to the scheduler

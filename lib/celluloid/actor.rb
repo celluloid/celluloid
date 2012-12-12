@@ -44,14 +44,14 @@ module Celluloid
 
       # Obtain the current actor
       def current
-        actor = Thread.current[:actor]
+        actor = Thread.current[:celluloid_actor]
         raise NotActorError, "not in actor scope" unless actor
         actor.proxy
       end
 
       # Obtain the name of the current actor
       def name
-        actor = Thread.current[:actor]
+        actor = Thread.current[:celluloid_actor]
         raise NotActorError, "not in actor scope" unless actor
         actor.name
       end
@@ -66,7 +66,7 @@ module Celluloid
           raise DeadActorError, "attempted to call a dead actor"
         end
 
-        if Thread.current[:task] && !Celluloid.exclusive?
+        if Thread.current[:celluloid_task] && !Celluloid.exclusive?
           Task.suspend(:callwait).value
         else
           response = loop do
@@ -74,7 +74,7 @@ module Celluloid
               msg.respond_to?(:call) and msg.call == call
             end
             break message unless message.is_a?(SystemEvent)
-            Thread.current[:actor].handle_system_event(message)
+            Thread.current[:celluloid_actor].handle_system_event(message)
           end
 
           response.value
@@ -104,7 +104,7 @@ module Celluloid
       def all
         actors = []
         Thread.list.each do |t|
-          actor = t[:actor]
+          actor = t[:celluloid_actor]
           actors << actor.proxy if actor and actor.respond_to?(:proxy)
         end
         actors
@@ -113,25 +113,25 @@ module Celluloid
       # Watch for exit events from another actor
       def monitor(actor)
         raise NotActorError, "can't link outside actor context" unless Celluloid.actor?
-        Thread.current[:actor].linking_request(actor, :link)
+        Thread.current[:celluloid_actor].linking_request(actor, :link)
       end
 
       # Stop waiting for exit events from another actor
       def unmonitor(actor)
         raise NotActorError, "can't link outside actor context" unless Celluloid.actor?
-        Thread.current[:actor].linking_request(actor, :unlink)
+        Thread.current[:celluloid_actor].linking_request(actor, :unlink)
       end
 
       # Link to another actor
       def link(actor)
         monitor actor
-        Thread.current[:actor].links << actor
+        Thread.current[:celluloid_actor].links << actor
       end
 
       # Unlink from another actor
       def unlink(actor)
         unmonitor actor
-        Thread.current[:actor].links.delete actor
+        Thread.current[:celluloid_actor].links.delete actor
       end
 
       # Are we monitoring the given actor?
@@ -141,7 +141,7 @@ module Celluloid
 
       # Are we bidirectionally linked to the given actor?
       def linked_to?(actor)
-        monitoring?(actor) && Thread.current[:actor].links.include?(actor)
+        monitoring?(actor) && Thread.current[:celluloid_actor].links.include?(actor)
       end
 
       # Forcibly kill a given actor
@@ -179,8 +179,8 @@ module Celluloid
       @name      = nil
 
       @thread = ThreadHandle.new do
-        Thread.current[:actor]   = self
-        Thread.current[:mailbox] = @mailbox
+        Thread.current[:celluloid_actor]   = self
+        Thread.current[:celluloid_mailbox] = @mailbox
         run
       end
 
@@ -309,7 +309,7 @@ module Celluloid
 
     # Sleep for the given amount of time
     def sleep(interval)
-      task = Thread.current[:task]
+      task = Thread.current[:celluloid_task]
       if task && !Celluloid.exclusive?
         @timers.after(interval) { task.resume }
         Task.suspend :sleeping
@@ -372,8 +372,8 @@ module Celluloid
       run_finalizer
       cleanup exit_event
     ensure
-      Thread.current[:actor]   = nil
-      Thread.current[:mailbox] = nil
+      Thread.current[:celluloid_actor]   = nil
+      Thread.current[:celluloid_mailbox] = nil
     end
 
     # Run the user-defined finalizer, if one is set
