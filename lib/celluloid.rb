@@ -157,6 +157,17 @@ module Celluloid
     end
     alias_method :trap_exit, :exit_handler
 
+    # Define a callback to run when the actor is finalized.
+    def finalizer(callback = nil)
+      if callback
+        @finalizer = callback.to_sym
+      elsif defined?(@finalizer)
+        @finalizer
+      elsif superclass.respond_to? :finalizer
+        superclass.finalizer
+      end
+    end
+
     # Configure a custom mailbox factory
     def use_mailbox(klass = nil, &block)
       if block

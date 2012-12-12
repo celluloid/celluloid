@@ -3,6 +3,7 @@ module ExampleActorClass
     Class.new do
       include included_module
       attr_reader :name
+      finalizer :my_finalizer
 
       def initialize(name)
         @name = name
@@ -76,6 +77,9 @@ module ExampleActorClass
       end
       private :zomg_private
       attr_reader :private_called
+
+      def my_finalizer
+      end
 
       private
 

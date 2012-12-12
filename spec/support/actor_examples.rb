@@ -93,6 +93,13 @@ shared_context "a Celluloid Actor" do |included_module|
     end.to raise_exception(ExampleCrash)
   end
 
+  it "calls the user defined finalizer" do
+    actor = actor_class.new "Mr. Bean"
+    actor.wrapped_object.should_receive(:my_finalizer)
+    actor.terminate
+    Celluloid::Actor.join(actor)
+  end
+
   describe "when #abort is called" do
     it "raises exceptions in the caller but keeps running" do
       actor = actor_class.new "Al Pacino"
