@@ -3,6 +3,9 @@ require 'bundler/setup'
 require 'celluloid/io'
 require 'celluloid/rspec'
 
+logfile = File.open(File.expand_path("../../log/test.log", __FILE__), 'a')
+Celluloid.logger = Logger.new(logfile)
+
 class ExampleActor
   include Celluloid::IO
 

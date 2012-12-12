@@ -16,7 +16,7 @@ module Celluloid
       end
 
       def accept
-        actor = Thread.current[:actor]
+        actor = Thread.current[:celluloid_actor]
 
         if evented?
           Celluloid.current_actor.wait_readable @server
@@ -36,7 +36,7 @@ module Celluloid
 
       # Are we inside a Celluloid ::IO actor?
       def evented?
-        actor = Thread.current[:actor]
+        actor = Thread.current[:celluloid_actor]
         actor && actor.mailbox.is_a?(Celluloid::IO::Mailbox)
       end
     end

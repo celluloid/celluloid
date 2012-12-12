@@ -1,3 +1,7 @@
+0.13.0
+* Initial Celluloid::IO::SSL support
+* Celluloid 0.13 compatibility fixes
+
 0.12.0
 ------
 * Tracking release for Celluloid 0.12.0

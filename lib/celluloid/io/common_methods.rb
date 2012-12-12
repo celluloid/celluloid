@@ -4,7 +4,7 @@ module Celluloid
     module CommonMethods
       # Are we inside of a Celluloid::IO actor?
       def evented?
-        actor = Thread.current[:actor]
+        actor = Thread.current[:celluloid_actor]
         actor && actor.mailbox.is_a?(Celluloid::IO::Mailbox)
       end
 
@@ -29,7 +29,7 @@ module Celluloid
       # Request exclusive control for a particular operation
       # Type should be one of :r (read) or :w (write)
       def acquire_ownership(type)
-        return unless Thread.current[:actor]
+        return unless Thread.current[:celluloid_actor]
 
         case type
         when :r
@@ -40,14 +40,14 @@ module Celluloid
         end
 
         # Celluloid needs a better API here o_O
-        Thread.current[:actor].wait(self) while instance_variable_defined?(ivar) && instance_variable_get(ivar)
+        Thread.current[:celluloid_actor].wait(self) while instance_variable_defined?(ivar) && instance_variable_get(ivar)
         instance_variable_set(ivar, Task.current)
       end
 
       # Release ownership for a particular operation
       # Type should be one of :r (read) or :w (write)
       def release_ownership(type)
-        return unless Thread.current[:actor]
+        return unless Thread.current[:celluloid_actor]
 
         case type
         when :r
@@ -59,7 +59,7 @@ module Celluloid
 
         raise "not owner" unless instance_variable_defined?(ivar) && instance_variable_get(ivar) == Task.current
         instance_variable_set(ivar, nil)
-        Thread.current[:actor].signal(self)
+        Thread.current[:celluloid_actor].signal(self)
       end
 
       def read(length = nil, buffer = nil)
