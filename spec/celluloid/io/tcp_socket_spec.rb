@@ -98,6 +98,24 @@ describe Celluloid::IO::TCPSocket do
         }.to raise_error(IOError)
       end
     end
+
+    it "raises IOError when partial reading from a socket we close while waiting on data" do
+      with_connected_sockets do |subject, peer|
+        expect {
+          begin
+            actor = ExampleActor.new
+            read_future = actor.future.wrap do
+              subject.readpartial(payload.size)
+            end
+            sleep 0.5
+            subject.close
+            read_future.value
+          ensure
+            actor.terminate if actor.alive?
+          end
+        }.to raise_error(IOError)
+      end
+    end
   end
 
   context "elsewhere in Ruby" do
