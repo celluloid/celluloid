@@ -107,9 +107,9 @@ describe Celluloid::IO::TCPSocket do
             read_future = actor.future.wrap do
               subject.readpartial(payload.size)
             end
-            sleep 0.5
+            sleep 0.1
             subject.close
-            read_future.value
+            read_future.value 0.25
           ensure
             actor.terminate if actor.alive?
           end
