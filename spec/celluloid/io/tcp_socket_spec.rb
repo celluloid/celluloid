@@ -25,14 +25,14 @@ describe Celluloid::IO::TCPSocket do
     end
 
     it "read complete payload when nil size is given to #read" do
-        with_connected_sockets do |subject, peer|
+      with_connected_sockets do |subject, peer|
         peer << payload
         within_io_actor { subject.read(nil) }.should eq payload
       end
     end
 
     it "read complete payload when no size is given to #read" do
-        with_connected_sockets do |subject, peer|
+      with_connected_sockets do |subject, peer|
         peer << payload
         within_io_actor { subject.read }.should eq payload
       end
