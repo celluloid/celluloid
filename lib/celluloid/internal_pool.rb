@@ -76,5 +76,5 @@ module Celluloid
     end
   end
 
-  @internal_pool = InternalPool.new
+  self.internal_pool = InternalPool.new
 end
