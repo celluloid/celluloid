@@ -6,5 +6,9 @@ rvm:
   - rbx-19mode
   - jruby-head
 
+matrix:
+  allow_failures:
+    - rvm: rbx-19mode # rbx on travis is out-of-date
+
 notifications:
   irc: "irc.freenode.org#celluloid"
