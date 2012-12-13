@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-$:.push File.expand_path('../../lib', __FILE__)
+require 'bundler/setup'
 require 'celluloid/io'
 
 class EchoServer
