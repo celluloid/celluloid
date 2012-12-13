@@ -24,6 +24,7 @@ module Celluloid
 
       # Open a UNIX connection.
       def initialize(socket_path, &block)
+        # FIXME: not doing non-blocking connect
         @socket = if block
           ::UNIXSocket.open(socket_path, &block)
         else

@@ -1,6 +1,10 @@
 require 'spec_helper'
 
 describe Celluloid::IO::UNIXSocket do
+  before do
+    pending "JRuby support" if defined?(JRUBY_VERSION)
+  end
+
   let(:payload) { 'ohai' }
 
   context "inside Celluloid::IO" do
