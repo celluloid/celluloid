@@ -43,7 +43,7 @@ def with_unix_server
   ensure
     server.close
     File.delete(example_sock)
-  end                  
+  end
 end
 
 def with_connected_sockets
