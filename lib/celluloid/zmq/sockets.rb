@@ -40,7 +40,7 @@ module Celluloid
 
       # Does the 0MQ socket support evented operation?
       def evented?
-        actor = Thread.current[:actor]
+        actor = Thread.current[:celluloid_actor]
         return unless actor
 
         mailbox = actor.mailbox
