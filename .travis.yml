@@ -1,5 +1,4 @@
 script: rake ci
-bundler_args: --without custom
 rvm:
   - 1.9.3
   - ruby-head
