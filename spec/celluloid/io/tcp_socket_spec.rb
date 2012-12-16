@@ -79,41 +79,44 @@ describe Celluloid::IO::TCPSocket do
       }.to raise_error(Errno::ECONNREFUSED)
     end
 
-    it "raises EOFError when partial reading from a closed socket" do
-      with_connected_sockets do |subject, peer|
-        peer.close
-        expect {
-          within_io_actor { subject.readpartial(payload.size) }
-        }.to raise_error(EOFError)
+    context "readpartial" do
+      it "raises EOFError when reading from a closed socket" do
+        with_connected_sockets do |subject, peer|
+          peer.close
+          expect {
+            within_io_actor { subject.readpartial(payload.size) }
+          }.to raise_error(EOFError)
+        end
       end
-    end
 
-    it "raises IOError when partial reading from a socket we closed" do
-      with_connected_sockets do |subject, peer|
-        expect {
-          within_io_actor do
-            subject.close
-            subject.readpartial(payload.size)
-          end
-        }.to raise_error(IOError)
-      end
-    end
-
-    it "raises IOError when partial reading from a socket we close while waiting on data" do
-      with_connected_sockets do |subject, peer|
-        expect {
+      it "raises IOError when reading from a socket we close" do
+        with_connected_sockets do |subject, peer|
+          actor = ExampleActor.new
           begin
-            actor = ExampleActor.new
             read_future = actor.future.wrap do
               subject.readpartial(payload.size)
             end
             sleep 0.1
             subject.close
-            read_future.value 0.25
+            expect { read_future.value 0.25 }.to raise_error(IOError)
           ensure
             actor.terminate if actor.alive?
           end
-        }.to raise_error(IOError)
+        end
+      end
+
+      it "raises IOError when partial reading from a socket the peer closed" do
+        with_connected_sockets do |subject, peer|
+          actor = ExampleActor.new
+          begin
+            actor.async.wrap { sleep 0.01; peer.close }
+            expect do
+              within_io_actor { subject.readpartial(payload.size) }
+            end.to raise_error(IOError)
+          ensure
+            actor.terminate if actor.alive?
+          end
+        end
       end
     end
   end
