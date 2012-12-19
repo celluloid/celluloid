@@ -1,5 +1,3 @@
-require 'yaml'
-
 module Celluloid
   # Calls represent requests to an actor
   class Call
