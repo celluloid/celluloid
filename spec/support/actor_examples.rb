@@ -85,16 +85,6 @@ shared_context "a Celluloid Actor" do |included_module|
     actor.respond_to?(:zomg_private, true).should be_true
   end
 
-  it "aborts with NoMethodError when a nonexistent method is called" do
-    actor = actor_class.new "Billy Bob Thornton"
-
-    expect do
-      actor.the_method_that_wasnt_there
-    end.to raise_exception(NoMethodError)
-
-    actor.should be_alive
-  end
-
   it "reraises exceptions which occur during synchronous calls in the caller" do
     actor = actor_class.new "James Dean" # is this in bad taste?
 

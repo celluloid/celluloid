@@ -22,18 +22,28 @@ module Celluloid
     end
 
     def dispatch(obj)
-      result = obj.public_send(@method, *@arguments, &@block)
-      respond SuccessResponse.new(self, result)
-    rescue NoMethodError => ex
-      # Detect if this NoMethodError came from Celluloid internals
-      ex.backtrace.each do |frame|
-        next  if frame["`method_missing'"]
-        break if frame["celluloid/lib/celluloid/calls.rb"] && frame["`public_send'"]
+      begin
+        result = obj.public_send(@method, *@arguments, &@block)
+      rescue NoMethodError => ex
+        # Detect if this NoMethodError came from Celluloid internals and abort
+        ex.backtrace.each do |frame|
+          next  if frame["`method_missing'"]
+          break if frame["celluloid/lib/celluloid/calls.rb"] && frame["`public_send'"]
 
-        raise
+          raise
+        end
+
+        raise AbortError.new(ex)
+      rescue ArgumentError => ex
+        # Abort if we're the source of the ArgumentError
+        if ex.backtrace[0]["`#{@method}'"] && ex.backtrace[1]["`public_send'"]
+          raise AbortError.new(ex)
+        else
+          raise
+        end
       end
 
-      respond ErrorResponse.new(self, AbortError.new(ex))
+      respond SuccessResponse.new(self, result)
     rescue Exception => ex
       # Exceptions that occur during synchronous calls are reraised in the
       # context of the caller
