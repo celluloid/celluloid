@@ -1,6 +1,7 @@
 require 'ffi-rzmq'
 
 require 'celluloid/io'
+require 'celluloid/zmq/mailbox'
 require 'celluloid/zmq/reactor'
 require 'celluloid/zmq/sockets'
 require 'celluloid/zmq/version'
@@ -15,7 +16,7 @@ module Celluloid
       # Included hook to pull in Celluloid
       def included(klass)
         klass.send :include, ::Celluloid
-        klass.use_mailbox { Celluloid::IO::Mailbox.new ZMQ::Reactor.new }
+        klass.mailbox_class Celluloid::ZMQ::Mailbox
       end
 
       # Obtain a 0MQ context (or lazily initialize it)
