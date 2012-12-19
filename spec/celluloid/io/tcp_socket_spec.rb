@@ -89,7 +89,9 @@ describe Celluloid::IO::TCPSocket do
         end
       end
 
-      it "raises IOError when reading from a socket we close" do
+      it "raises IOError when active sockets are closed across threads" do
+	pending "not implemented :("
+
         with_connected_sockets do |subject, peer|
           actor = ExampleActor.new
           begin
