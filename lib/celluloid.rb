@@ -169,22 +169,29 @@ module Celluloid
       end
     end
 
-    # Configure a custom mailbox factory
-    def use_mailbox(klass = nil, &block)
-      if block
-        @mailbox_factory = block
+    # Define the mailbox class for this class
+    def mailbox_class(klass = nil)
+      if klass
+        @mailbox_class = klass
+      elsif defined?(@mailbox_class)
+        @mailbox_class
+      elsif superclass.respond_to? :mailbox_class
+        superclass.mailbox_class
       else
-        mailbox_class(klass)
+        Celluloid::Mailbox
       end
     end
-
-    # Define the mailbox class for this class
-    def mailbox_class(klass)
-      @mailbox_factory = proc { klass.new }
-    end
     
-    def proxy_class(klass)
-      @proxy_factory = proc { klass }
+    def proxy_class(klass = nil)
+      if klass
+        @proxy_class = klass
+      elsif defined?(@proxy_class)
+        @proxy_class
+      elsif superclass.respond_to? :proxy_class
+        superclass.proxy_class
+      else
+        Celluloid::ActorProxy
+      end
     end
 
     # Define the default task type for this class
@@ -210,35 +217,14 @@ module Celluloid
       end
     end
 
-    # Create a mailbox for this actor
-    def mailbox_factory
-      if defined?(@mailbox_factory)
-        @mailbox_factory.call
-      elsif superclass.respond_to? :mailbox_factory
-        superclass.mailbox_factory
-      else
-        Mailbox.new
-      end
-    end
-    
-    def proxy_factory
-      if defined?(@proxy_factory)
-        @proxy_factory.call
-      elsif superclass.respond_to?(:proxy_factory)
-        superclass.proxy_factory
-      else
-        nil
-      end
-    end
-
     # Configuration options for Actor#new
     def actor_options
       {
-        :mailbox           => mailbox_factory,
-        :proxy_class       => proxy_factory,
+        :mailbox           => mailbox_class.new,
+        :proxy_class       => proxy_class,
+        :task_class        => task_class,
         :exit_handler      => exit_handler,
-        :exclusive_methods => @exclusive_methods,
-        :task_class        => task_class
+        :exclusive_methods => @exclusive_methods
       }
     end
 

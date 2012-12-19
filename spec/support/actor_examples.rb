@@ -723,6 +723,26 @@ shared_context "a Celluloid Actor" do |included_module|
     end
   end
 
+  context :mailbox_class do
+    class ExampleMailbox < Celluloid::Mailbox; end
+
+    subject do
+      Class.new do
+        include included_module
+        mailbox_class ExampleMailbox
+      end
+    end
+
+    it "uses user-specified mailboxes" do
+      subject.new.mailbox.should be_a ExampleMailbox
+    end
+
+    it "retains custom mailboxes when subclassed" do
+      subclass = Class.new(subject)
+      subclass.new.mailbox.should be_a ExampleMailbox
+    end
+  end
+
   context :proxy_class do
     class ExampleProxy < Celluloid::ActorProxy; end
 
@@ -740,46 +760,6 @@ shared_context "a Celluloid Actor" do |included_module|
     it "retains custom proxy when subclassed" do
       subclass = Class.new(subject)
       subclass.new.__class__.should == ExampleProxy
-    end
-  end
-
-  context :use_mailbox do
-    class ExampleMailbox < Celluloid::Mailbox; end
-
-    subject do
-      Class.new do
-        include included_module
-        use_mailbox ExampleMailbox
-      end
-    end
-
-    it "uses user-specified mailboxes" do
-      subject.new.mailbox.should be_a ExampleMailbox
-    end
-
-    it "retains custom mailboxes when subclassed" do
-      subclass = Class.new(subject)
-      subclass.new.mailbox.should be_a ExampleMailbox
-    end
-  end
-
-  context :mailbox_class do
-    class ExampleMailbox < Celluloid::Mailbox; end
-
-    subject do
-      Class.new do
-        include included_module
-        mailbox_class ExampleMailbox
-      end
-    end
-
-    it "overrides the mailbox class" do
-      subject.new.mailbox.should be_a ExampleMailbox
-    end
-
-    it "retains custom mailboxes when subclassed" do
-      subclass = Class.new(subject)
-      subclass.new.mailbox.should be_a ExampleMailbox
     end
   end
 

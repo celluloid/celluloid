@@ -1,3 +1,10 @@
+HEAD
+----
+* API change: use_mailbox has been removed
+* API change: finalizers must be declared with "finalize :my_finalizer"
+* Bugfix: receivers don't crash when methods are called incorrectly
+* Give all thread locals a :celluloid_* prefix
+
 0.12.4
 ------
 * Bugfix: Clear dead/crashed actors out of links
