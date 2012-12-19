@@ -18,7 +18,7 @@ module Celluloid
   module IO
     def self.included(klass)
       klass.send :include, Celluloid
-      klass.use_mailbox Celluloid::IO::Mailbox
+      klass.mailbox_class Celluloid::IO::Mailbox
     end
 
     extend Forwardable
