@@ -277,7 +277,7 @@ shared_context "a Celluloid Actor" do |included_module|
   context :current_actor do
     it "knows the current actor" do
       actor = actor_class.new "Roger Daltrey"
-      actor.current_actor.should == actor
+      actor.current_actor.should eq actor
     end
 
     it "raises NotActorError if called outside an actor" do

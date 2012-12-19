@@ -37,8 +37,8 @@ describe Celluloid::Supervisor do
     subordinate.should_not be_alive
 
     new_subordinate = supervisor.actors.first
-    new_subordinate.should_not == subordinate
-    new_subordinate.state.should == :idle
+    new_subordinate.should_not eq subordinate
+    new_subordinate.state.should eq :idle
   end
 
   it "registers actors and reregisters them when they die" do
@@ -56,8 +56,8 @@ describe Celluloid::Supervisor do
     subordinate.should_not be_alive
 
     new_subordinate = Celluloid::Actor[:subordinate]
-    new_subordinate.should_not == subordinate
-    new_subordinate.state.should == :idle
+    new_subordinate.should_not eq subordinate
+    new_subordinate.state.should eq :idle
   end
 
   it "creates supervisors via Actor.supervise" do
@@ -72,8 +72,8 @@ describe Celluloid::Supervisor do
     subordinate.should_not be_alive
 
     new_subordinate = supervisor.actors.first
-    new_subordinate.should_not == subordinate
-    new_subordinate.state.should == :working
+    new_subordinate.should_not eq subordinate
+    new_subordinate.state.should eq :working
   end
 
   it "creates supervisors and registers actors via Actor.supervise_as" do
@@ -88,7 +88,7 @@ describe Celluloid::Supervisor do
     subordinate.should_not be_alive
 
     new_subordinate = supervisor.actors.first
-    new_subordinate.should_not == subordinate
+    new_subordinate.should_not eq subordinate
     new_subordinate.state.should == :working
   end
 end
