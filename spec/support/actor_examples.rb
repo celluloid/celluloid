@@ -30,6 +30,14 @@ shared_context "a Celluloid Actor" do |included_module|
     actor.greet.should == "Hi, I'm Troy McClure"
   end
 
+  it "supports synchronous calls with blocks" do
+    actor = actor_class.new "Blocky Ralboa"
+
+    block_executed = false
+    actor.run { block_executed = true }
+    block_executed.should be_true
+  end
+
   it "supports synchronous calls via #method" do
     method = actor_class.new("Troy McClure").method(:greet)
     method.call.should == "Hi, I'm Troy McClure"
