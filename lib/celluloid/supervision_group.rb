@@ -86,6 +86,8 @@ module Celluloid
       @members.map(&:actor)
     end
 
+    finalizer :finalize
+
     # Terminate the group
     def finalize
       @members.each(&:terminate)
