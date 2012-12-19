@@ -1,3 +1,5 @@
+require 'yaml'
+
 module Celluloid
   # Calls represent requests to an actor
   class Call
@@ -22,14 +24,25 @@ module Celluloid
     def dispatch(obj)
       result = obj.public_send(@method, *@arguments, &@block)
       respond SuccessResponse.new(self, result)
+    rescue NoMethodError => ex
+      # Detect if this NoMethodError came from Celluloid internals
+      ex.backtrace.each do |frame|
+        next  if frame["`method_missing'"]
+        break if frame["celluloid/lib/celluloid/calls.rb"] && frame["`public_send'"]
+
+        raise
+      end
+
+      respond ErrorResponse.new(self, AbortError.new(ex))
     rescue Exception => ex
       # Exceptions that occur during synchronous calls are reraised in the
       # context of the caller
       respond ErrorResponse.new(self, ex)
+
       # Aborting indicates a protocol error on the part of the caller
       # It should crash the caller, but the exception isn't reraised
       # Otherwise, it's a bug in this actor and should be reraised
-      ex.is_a?(AbortError) ? nil : raise
+      raise unless ex.is_a?(AbortError)
     end
 
     def cleanup
