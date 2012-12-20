@@ -381,9 +381,7 @@ module Celluloid
       if @subject.respond_to?(:finalize) && @subject.class.finalizer != :finalize
         Logger.warn("#{@subject.class}#finalize is deprecated. " +
           "Define finalizers with '#{@subject.class}.finalizer :callback.'")
-      end
 
-      if @subject.respond_to? :finalize
         task(:finalizer, :finalize) { @subject.finalize }
       end
 
