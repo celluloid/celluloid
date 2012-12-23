@@ -72,6 +72,12 @@ describe Celluloid::IO::SSLSocket do
     end
   end
 
+  it "knows its client_ca" do
+    with_ssl_sockets do |ssl_client|
+      ssl_client.client_ca.should == ssl_client.to_io.client_ca
+    end
+  end
+
   def with_ssl_sockets
     thread = server_thread
     ssl_client.connect
