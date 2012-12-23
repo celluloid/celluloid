@@ -76,4 +76,18 @@ describe Celluloid::IO::SSLSocket do
       end
     end
   end
+
+  it "knows its cert" do
+    thread = server_thread
+    ssl_client.connect
+
+    begin
+      ssl_peer = thread.value
+      ssl_client.cert.should eq client_cert
+    ensure
+      ssl_server.close
+      ssl_client.close
+      ssl_peer.close
+    end
+  end
 end
