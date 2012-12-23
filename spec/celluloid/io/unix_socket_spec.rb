@@ -9,9 +9,9 @@ describe Celluloid::IO::UNIXSocket do
 
   context "inside Celluloid::IO" do
     it "connects to UNIX servers" do
-      server = ::UNIXServer.open example_sock
+      server = ::UNIXServer.open example_unix_sock
       thread = Thread.new { server.accept }
-      socket = within_io_actor { Celluloid::IO::UNIXSocket.open example_sock }
+      socket = within_io_actor { Celluloid::IO::UNIXSocket.open example_unix_sock }
       peer = thread.value
 
       peer << payload
@@ -20,7 +20,7 @@ describe Celluloid::IO::UNIXSocket do
       server.close
       socket.close
       peer.close
-      File.delete(example_sock)
+      File.delete(example_unix_sock)
     end
 
     it "should be evented" do
@@ -80,7 +80,7 @@ describe Celluloid::IO::UNIXSocket do
 
     it "raises Errno::ENOENT when the connection is refused" do
       expect {
-        within_io_actor { Celluloid::IO::UNIXSocket.open(example_sock) }
+        within_io_actor { Celluloid::IO::UNIXSocket.open(example_unix_sock) }
       }.to raise_error(Errno::ENOENT)
     end
 
@@ -96,9 +96,9 @@ describe Celluloid::IO::UNIXSocket do
 
   context "elsewhere in Ruby" do
     it "connects to UNIX servers" do
-      server = ::UNIXServer.new example_sock
+      server = ::UNIXServer.new example_unix_sock
       thread = Thread.new { server.accept }
-      socket = Celluloid::IO::UNIXSocket.open example_sock
+      socket = Celluloid::IO::UNIXSocket.open example_unix_sock
       peer = thread.value
 
       peer << payload
@@ -107,7 +107,7 @@ describe Celluloid::IO::UNIXSocket do
       server.close
       socket.close
       peer.close
-      File.delete example_sock
+      File.delete example_unix_sock
     end
 
     it "should be blocking" do

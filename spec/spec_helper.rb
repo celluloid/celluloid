@@ -18,7 +18,7 @@ EXAMPLE_PORT = 12345
 
 def example_addr; '127.0.0.1'; end
 def example_port; EXAMPLE_PORT; end
-def example_sock; '/tmp/cell_sock'; end
+def example_unix_sock; '/tmp/cell_sock'; end
 def example_ssl_port; EXAMPLE_PORT + 1; end
 
 def fixture_dir; Pathname.new File.expand_path("../fixtures", __FILE__); end
@@ -40,12 +40,12 @@ def with_tcp_server
 end
 
 def with_unix_server
-  server = Celluloid::IO::UNIXServer.open(example_sock)
+  server = Celluloid::IO::UNIXServer.open(example_unix_sock)
   begin
     yield server
   ensure
     server.close
-    File.delete(example_sock)
+    File.delete(example_unix_sock)
   end
 end
 
@@ -69,7 +69,7 @@ end
 
 def with_connected_unix_sockets
   with_unix_server do |server|
-    client = Celluloid::IO::UNIXSocket.new(example_sock)
+    client = Celluloid::IO::UNIXSocket.new(example_unix_sock)
     peer = server.accept
 
     begin

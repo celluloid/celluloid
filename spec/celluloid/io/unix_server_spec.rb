@@ -17,7 +17,7 @@ describe Celluloid::IO::UNIXServer do
 
       it "accepts a connection and returns a Celluloid::IO::UNIXSocket" do
         with_unix_server do |subject|
-          thread = Thread.new { UNIXSocket.new(example_sock) }
+          thread = Thread.new { UNIXSocket.new(example_unix_sock) }
           peer = within_io_actor { subject.accept }
           peer.should be_a Celluloid::IO::UNIXSocket
 
@@ -31,7 +31,7 @@ describe Celluloid::IO::UNIXServer do
         with_unix_server do |subject|
           within_io_actor do
             expect {
-              Celluloid::IO::UNIXServer.open(example_sock)
+              Celluloid::IO::UNIXServer.open(example_unix_sock)
             }.to raise_error(Errno::EADDRINUSE)
           end
         end
@@ -46,7 +46,7 @@ describe Celluloid::IO::UNIXServer do
 
         it "accepts a connection and returns a Celluloid::IO::UNIXSocket" do
           with_unix_server do |subject|
-            thread = Thread.new { UNIXSocket.new(example_sock) }
+            thread = Thread.new { UNIXSocket.new(example_unix_sock) }
             peer   = subject.accept
             peer.should be_a Celluloid::IO::UNIXSocket
 
@@ -59,7 +59,7 @@ describe Celluloid::IO::UNIXServer do
         it "raises if server already up" do
           with_unix_server do |subject|
             expect {
-              Celluloid::IO::UNIXServer.open(example_sock)
+              Celluloid::IO::UNIXServer.open(example_unix_sock)
             }.to raise_error(Errno::EADDRINUSE)
           end
         end
