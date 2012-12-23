@@ -84,6 +84,14 @@ describe Celluloid::IO::SSLSocket do
     end
   end
 
+  it "knows its peer_cert_chain" do
+    with_ssl_sockets do |ssl_client|
+      ssl_client.peer_cert_chain.zip(ssl_client.to_io.peer_cert_chain).map do |c1, c2|
+        c1.to_s == c2.to_s
+      end.should be_all
+    end
+  end
+
   def with_ssl_sockets
     thread = server_thread
     ssl_client.connect

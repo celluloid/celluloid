@@ -7,8 +7,8 @@ module Celluloid
       include CommonMethods
       extend Forwardable
 
-      def_delegators :@socket, :read_nonblock, :write_nonblock, :close, :closed?
-      def_delegators :@socket, :cert, :cipher, :client_ca, :peer_cert
+      def_delegators :@socket, :read_nonblock, :write_nonblock, :close, :closed?,
+        :cert, :cipher, :client_ca, :peer_cert, :peer_cert_chain
 
       def initialize(io, ctx = OpenSSL::SSL::SSLContext.new)
         @context = ctx
