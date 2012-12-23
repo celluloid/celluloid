@@ -62,7 +62,7 @@ describe Celluloid::IO::SSLSocket do
 
   it "knows its cert" do
     with_ssl_sockets do |ssl_client|
-      ssl_client.cert.should eq client_cert
+      ssl_client.cert.to_s.should == client_cert.to_s
     end
   end
 
