@@ -36,54 +36,43 @@ describe Celluloid::IO::SSLSocket do
 
   context "inside Celluloid::IO" do
     it "connects to SSL servers over TCP" do
-      thread = server_thread
-      ssl_peer = nil
-      ssl_client.connect
-
-      begin
+      with_ssl_sockets do |ssl_client, ssl_peer|
         within_io_actor do
-          ssl_peer = thread.value
           ssl_peer << request
           ssl_client.read(request.size).should == request
 
           ssl_client << response
           ssl_peer.read(response.size).should == response
         end
-      ensure
-        ssl_server.close
-        ssl_client.close
-        ssl_peer.close
       end
     end
   end
 
   context "outside Celluloid::IO" do
     it "connects to SSL servers over TCP" do
-      thread = server_thread
-      ssl_client.connect
-
-      begin
-        ssl_peer = thread.value
+      with_ssl_sockets do |ssl_client, ssl_peer|
         ssl_peer << request
         ssl_client.read(request.size).should == request
 
         ssl_client << response
         ssl_peer.read(response.size).should == response
-      ensure
-        ssl_server.close
-        ssl_client.close
-        ssl_peer.close
       end
     end
   end
 
   it "knows its cert" do
+    with_ssl_sockets do |ssl_client|
+      ssl_client.cert.should eq client_cert
+    end
+  end
+
+  def with_ssl_sockets
     thread = server_thread
     ssl_client.connect
 
     begin
       ssl_peer = thread.value
-      ssl_client.cert.should eq client_cert
+      yield ssl_client, ssl_peer
     ensure
       ssl_server.close
       ssl_client.close
