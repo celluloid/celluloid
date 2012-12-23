@@ -78,6 +78,12 @@ describe Celluloid::IO::SSLSocket do
     end
   end
 
+  it "knows its peer_cert" do
+    with_ssl_sockets do |ssl_client|
+      ssl_client.peer_cert.to_s.should == ssl_client.to_io.peer_cert.to_s
+    end
+  end
+
   def with_ssl_sockets
     thread = server_thread
     ssl_client.connect
