@@ -4,7 +4,6 @@ require 'openssl'
 describe Celluloid::IO::SSLSocket do
   let(:request)  { 'ping' }
   let(:response) { 'pong' }
-  let(:server_cert) { File.read File.expand_path}
 
   let(:client_cert) { OpenSSL::X509::Certificate.new fixture_dir.join("client.crt").read }
   let(:client_key)  { OpenSSL::PKey::RSA.new fixture_dir.join("client.key").read }
@@ -29,16 +28,20 @@ describe Celluloid::IO::SSLSocket do
 
   let(:server)     { TCPServer.new example_addr, example_ssl_port }
   let(:ssl_server) { OpenSSL::SSL::SSLServer.new server, server_context }
-  let(:server_thread) { Thread.new { ssl_server.accept } }
+  let(:server_thread) do
+    Thread.new { ssl_server.accept }.tap do |thread|
+      Thread.pass while thread.status && thread.status != "sleep"
+    end
+  end
 
   context "inside Celluloid::IO" do
     it "connects to SSL servers over TCP" do
       thread = server_thread
+      ssl_peer = nil
+      ssl_client.connect
 
       begin
         within_io_actor do
-          ssl_client.connect
-
           ssl_peer = thread.value
           ssl_peer << request
           ssl_client.read(request.size).should == request
@@ -47,8 +50,9 @@ describe Celluloid::IO::SSLSocket do
           ssl_peer.read(response.size).should == response
         end
       ensure
-        ssl_server.close rescue nil
-        ssl_client.close rescue nil
+        ssl_server.close
+        ssl_client.close
+        ssl_peer.close
       end
     end
   end
@@ -56,10 +60,9 @@ describe Celluloid::IO::SSLSocket do
   context "outside Celluloid::IO" do
     it "connects to SSL servers over TCP" do
       thread = server_thread
+      ssl_client.connect
 
       begin
-        ssl_client.connect
-
         ssl_peer = thread.value
         ssl_peer << request
         ssl_client.read(request.size).should == request
@@ -67,8 +70,9 @@ describe Celluloid::IO::SSLSocket do
         ssl_client << response
         ssl_peer.read(response.size).should == response
       ensure
-        ssl_server.close rescue nil
-        ssl_client.close rescue nil
+        ssl_server.close
+        ssl_client.close
+        ssl_peer.close
       end
     end
   end

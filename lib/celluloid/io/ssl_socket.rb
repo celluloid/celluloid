@@ -8,10 +8,11 @@ module Celluloid
       extend Forwardable
 
       def_delegators :@socket, :read_nonblock, :write_nonblock, :close, :closed?
+      def_delegators :@context, :cert
 
       def initialize(io, ctx = OpenSSL::SSL::SSLContext.new)
-        @ctx = ctx
-        @socket = OpenSSL::SSL::SSLSocket.new(::IO.try_convert(io), @ctx)
+        @context = ctx
+        @socket = OpenSSL::SSL::SSLSocket.new(::IO.try_convert(io), @context)
       end
 
       def connect
