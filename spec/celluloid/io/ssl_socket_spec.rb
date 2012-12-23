@@ -92,6 +92,12 @@ describe Celluloid::IO::SSLSocket do
     end
   end
 
+  it "verifies peer certificates" do
+    with_ssl_sockets do |ssl_client, ssl_peer|
+      ssl_client.verify_result.should == OpenSSL::X509::V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT
+    end
+  end
+
   def with_ssl_sockets
     thread = server_thread
     ssl_client.connect
