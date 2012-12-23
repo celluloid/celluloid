@@ -23,7 +23,7 @@ describe Celluloid::IO::TCPServer do
         end
       end
 
-      context "elsewhere in Ruby" do
+      context "outside Celluloid::IO" do
         it "should be blocking" do
           with_tcp_server do |subject|
             subject.should_not be_evented

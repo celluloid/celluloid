@@ -21,7 +21,7 @@ describe Celluloid::IO::UDPSocket do
     end
   end
 
-  context "elsewhere in Ruby" do
+  context "outside Celluloid::IO" do
     it "should be blocking" do
       subject.should_not be_evented
     end

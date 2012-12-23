@@ -94,7 +94,7 @@ describe Celluloid::IO::UNIXSocket do
     end
   end
 
-  context "elsewhere in Ruby" do
+  context "outside Celluloid::IO" do
     it "connects to UNIX servers" do
       server = ::UNIXServer.new example_unix_sock
       thread = Thread.new { server.accept }

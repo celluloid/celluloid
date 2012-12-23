@@ -29,7 +29,7 @@ module Celluloid
       # Wait for the given IO operation to complete
       def wait(io, set)
         # zomg ugly type conversion :(
-        unless io.is_a?(::IO)
+        unless io.is_a?(::IO) or io.is_a?(OpenSSL::SSL::SSLSocket)
           if io.respond_to? :to_io
             io = io.to_io
           elsif ::IO.respond_to? :try_convert

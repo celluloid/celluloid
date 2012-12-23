@@ -6,31 +6,70 @@ describe Celluloid::IO::SSLSocket do
   let(:response) { 'pong' }
   let(:server_cert) { File.read File.expand_path}
 
+  let(:client_cert) { OpenSSL::X509::Certificate.new fixture_dir.join("client.crt").read }
+  let(:client_key)  { OpenSSL::PKey::RSA.new fixture_dir.join("client.key").read }
+  let(:client_context) do
+    OpenSSL::SSL::SSLContext.new.tap do |context|
+      context.cert = client_cert
+      context.key  = client_key
+    end
+  end
+
+  let(:client)     { TCPSocket.new example_addr, example_ssl_port }
+  let(:ssl_client) { Celluloid::IO::SSLSocket.new client, client_context }
+
+  let(:server_cert) { OpenSSL::X509::Certificate.new fixture_dir.join("server.crt").read }
+  let(:server_key)  { OpenSSL::PKey::RSA.new fixture_dir.join("server.key").read }
+  let(:server_context) do
+    OpenSSL::SSL::SSLContext.new.tap do |context|
+      context.cert = server_cert
+      context.key  = server_key
+    end
+  end
+
+  let(:server)     { TCPServer.new example_addr, example_ssl_port }
+  let(:ssl_server) { OpenSSL::SSL::SSLServer.new server, server_context }
+  let(:server_thread) { Thread.new { ssl_server.accept } }
+
   context "inside Celluloid::IO" do
     it "connects to SSL servers over TCP" do
-      server = TCPServer.new example_addr, example_ssl_port
-      server_context = OpenSSL::SSL::SSLContext.new
-      server_context.cert = OpenSSL::X509::Certificate.new fixture_dir.join("server.crt").read
-      server_context.key  = OpenSSL::PKey::RSA.new fixture_dir.join("server.key").read
-      ssl_server = OpenSSL::SSL::SSLServer.new server, server_context
+      thread = server_thread
 
-      thread = Thread.new { ssl_server.accept }
+      begin
+        within_io_actor do
+          ssl_client.connect
 
-      client = TCPSocket.new example_addr, example_ssl_port
-      client_context = OpenSSL::SSL::SSLContext.new
-      client_context.cert = OpenSSL::X509::Certificate.new fixture_dir.join("client.crt").read
-      client_context.key  = OpenSSL::PKey::RSA.new fixture_dir.join("client.key").read
+          ssl_peer = thread.value
+          ssl_peer << request
+          ssl_client.read(request.size).should == request
 
-      ssl_socket = within_io_actor { Celluloid::IO::SSLSocket.new client, client_context }
+          ssl_client << response
+          ssl_peer.read(response.size).should == response
+        end
+      ensure
+        ssl_server.close rescue nil
+        ssl_client.close rescue nil
+      end
+    end
+  end
 
-      ssl_socket.connect
-      ssl_peer = thread.value
+  context "outside Celluloid::IO" do
+    it "connects to SSL servers over TCP" do
+      thread = server_thread
 
-      ssl_peer << request
-      ssl_socket.read(request.size).should == request
+      begin
+        ssl_client.connect
 
-      ssl_socket << response
-      ssl_peer.read(response.size).should == response
+        ssl_peer = thread.value
+        ssl_peer << request
+        ssl_client.read(request.size).should == request
+
+        ssl_client << response
+        ssl_peer.read(response.size).should == response
+      ensure
+        ssl_server.close rescue nil
+        ssl_client.close rescue nil
+      end
     end
   end
 end

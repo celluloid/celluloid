@@ -123,7 +123,7 @@ describe Celluloid::IO::TCPSocket do
     end
   end
 
-  context "elsewhere in Ruby" do
+  context "outside Celluloid::IO" do
     it "connects to TCP servers" do
       server = ::TCPServer.new example_addr, example_port
       thread = Thread.new { server.accept }
