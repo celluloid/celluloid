@@ -66,6 +66,12 @@ describe Celluloid::IO::SSLSocket do
     end
   end
 
+  it "knows its cipher" do
+    with_ssl_sockets do |ssl_client|
+      ssl_client.cipher.should == ssl_client.to_io.cipher
+    end
+  end
+
   def with_ssl_sockets
     thread = server_thread
     ssl_client.connect
