@@ -222,6 +222,11 @@ shared_context "a Celluloid Actor" do |included_module|
     actor.wrapped_object.inspect.should include Celluloid::BARE_OBJECT_WARNING_MESSAGE
   end
 
+  it "can override #send" do
+    actor = actor_class.new "Troy McClure"
+    actor.send('foo').should == 'oof'
+  end
+
   context "mocking methods" do
     let(:actor) { actor_class.new "Troy McClure" }
 
