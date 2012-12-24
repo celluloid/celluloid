@@ -18,6 +18,10 @@ module Celluloid
       Actor.call @mailbox, :__send__, :class
     end
 
+    def send(meth, *args, &block)
+      Actor.call @mailbox, :send, meth, *args, &block
+    end
+
     def _send_(meth, *args, &block)
       Actor.call @mailbox, :__send__, meth, *args, &block
     end
