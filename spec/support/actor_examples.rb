@@ -195,6 +195,34 @@ shared_context "a Celluloid Actor" do |included_module|
       end.to raise_exception(ExampleCrash)
     end
 
+    it "includes both caller and receiver in exception traces" do
+      ExampleReceiver = Class.new do
+        include included_module
+
+        def receiver_method
+          raise ExampleCrash, "the spec purposely crashed me :("
+        end
+      end
+
+      ExampleCaller = Class.new do
+        include included_module
+
+        def caller_method
+          ExampleReceiver.new.receiver_method
+        end
+      end
+
+      ex = nil
+      begin
+        ExampleCaller.new.caller_method
+      rescue => ex
+      end
+
+      ex.should be_a ExampleCrash
+      ex.backtrace.grep(/`caller_method'/).should be_true
+      ex.backtrace.grep(/`receiver_method'/).should be_true
+    end
+
     it "raises DeadActorError if methods are synchronously called on a dead actor" do
       actor = actor_class.new "James Dean"
       actor.crash rescue nil

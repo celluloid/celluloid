@@ -3,6 +3,8 @@ HEAD
 * API change: use_mailbox has been removed
 * API change: finalizers must be declared with "finalize :my_finalizer"
 * Bugfix: receivers don't crash when methods are called incorrectly
+* Stack traces across inter-actor calls! Should make Celluloid backtraces
+  much easier to understand
 * Give all thread locals a :celluloid_* prefix
 
 0.12.4

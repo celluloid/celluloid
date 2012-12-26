@@ -18,13 +18,15 @@ module Celluloid
   # Call was aborted due to caller error
   class ErrorResponse < Response
     def value
-      if super.is_a? AbortError
-        # Aborts are caused by caller error, so ensure they capture the
-        # caller's backtrace instead of the receiver's
-        raise super.cause.exception
-      else
-        raise super
+      ex = super
+      ex = ex.cause.exception if ex.is_a? AbortError
+
+      if ex.backtrace
+        ex.backtrace << "(celluloid): remote procedure call"
+        ex.backtrace.concat(caller)
       end
+
+      raise ex
     end
   end
 end
