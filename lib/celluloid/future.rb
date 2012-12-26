@@ -4,8 +4,11 @@ module Celluloid
   # Celluloid::Future objects allow methods and blocks to run in the
   # background, their values requested later
   class Future
+    attr_reader :address
+    
     # Create a future bound to a given receiver, or with a block to compute
     def initialize(*args, &block)
+      @address = Celluloid.uuid
       @mutex = Mutex.new
       @ready = false
       @result = nil
