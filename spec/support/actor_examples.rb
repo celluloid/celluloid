@@ -237,20 +237,9 @@ shared_context "a Celluloid Actor" do |included_module|
     it "raises exceptions in the caller but keeps running" do
       actor = actor_class.new "Al Pacino"
 
-      e = nil
-      line_no = nil
-
       expect do
-        begin
-          line_no = __LINE__; actor.crash_with_abort "You die motherfucker!", :bar
-        rescue => ex
-          e = ex
-          raise
-        end
+        actor.crash_with_abort "You die motherfucker!", :bar
       end.to raise_exception(ExampleCrash, "You die motherfucker!")
-
-      e.backtrace.any? { |line| line.include?([__FILE__, line_no].join(':')) }.should be_true # Check the backtrace is appropriate to the caller
-      e.foo.should be == :bar # Check the exception maintains instance variables
 
       actor.should be_alive
     end
