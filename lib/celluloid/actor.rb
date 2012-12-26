@@ -244,7 +244,7 @@ module Celluloid
           wait_interval = start_time + LINKING_TIMEOUT - Time.now
           message = @mailbox.receive(wait_interval) do |msg|
             msg.is_a?(LinkingResponse) &&
-            msg.actor.mailbox == receiver.mailbox &&
+            msg.actor.mailbox.address == receiver.mailbox.address &&
             msg.type == type
           end
 

@@ -10,9 +10,10 @@ module Celluloid
     include Enumerable
 
     # A unique address at which this mailbox can be found
-    alias_method :address, :object_id
+    attr_reader :address
 
     def initialize
+      @address   = Celluloid.uuid
       @messages  = []
       @mutex     = Mutex.new
       @dead      = false
