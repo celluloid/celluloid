@@ -23,22 +23,17 @@ module Celluloid
       begin
         result = obj.public_send(@method, *@arguments, &@block)
       rescue NoMethodError => ex
-        # Detect if this NoMethodError came from Celluloid internals and abort
-        ex.backtrace.each do |frame|
-          next  if frame["`method_missing'"]
-          break if frame["celluloid/lib/celluloid/calls.rb"] && frame["`public_send'"]
+        # Abort if the caller made a mistake
+        detect_missing_method(ex)
 
-          raise
-        end
-
-        raise AbortError.new(ex)
+        # Otherwise something blew up. Crash this actor
+        raise
       rescue ArgumentError => ex
-        # Abort if we're the source of the ArgumentError
-        if ex.backtrace[0]["`#{@method}'"] && ex.backtrace[1]["`public_send'"]
-          raise AbortError.new(ex)
-        else
-          raise
-        end
+        # Abort if the caller made a mistake
+        detect_argument_error(ex)
+
+        # Otherwise something blew up. Crash this actor
+        raise
       end
 
       respond SuccessResponse.new(self, result)
@@ -65,6 +60,24 @@ module Celluloid
       # response to them.
     end
 
+  private
+
+    # Detect NoMethodErrors made by the caller and abort
+    def detect_missing_method(ex)
+      ex.backtrace.each do |frame|
+        break if frame["celluloid/lib/celluloid/calls.rb"] || frame["`public_send'"]
+        return unless frame["`method_missing'"]
+      end
+
+      raise AbortError.new(ex)
+    end
+
+    # Detect ArgumentErrors made by the caller and abort
+    def detect_argument_error(ex)
+      if ex.backtrace[0]["`#{@method}'"] && ex.backtrace[1]["`public_send'"]
+        raise AbortError.new(ex)
+      end
+    end
   end
 
   # Asynchronous calls don't wait for a response

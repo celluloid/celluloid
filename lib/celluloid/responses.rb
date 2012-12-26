@@ -19,7 +19,7 @@ module Celluloid
   class ErrorResponse < Response
     def value
       ex = super
-      ex = ex.cause.exception if ex.is_a? AbortError
+      ex = ex.cause if ex.is_a? AbortError
 
       if ex.backtrace
         ex.backtrace << "(celluloid): remote procedure call"
