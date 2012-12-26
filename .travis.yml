@@ -8,7 +8,7 @@ rvm:
 
 matrix:
   allow_failures:
-    - rvm: rbx-19mode # rbx on travis is out-of-date
+    - rvm: ruby-head
 
 notifications:
   irc: "irc.freenode.org#celluloid"
