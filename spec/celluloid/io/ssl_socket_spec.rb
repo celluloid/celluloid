@@ -73,6 +73,9 @@ describe Celluloid::IO::SSLSocket do
   end
 
   it "knows its client_ca" do
+    # jruby-openssl does not implement this method
+    pending "jruby-openssl support" if defined? JRUBY_VERSION
+
     with_ssl_sockets do |ssl_client|
       ssl_client.client_ca.should == ssl_client.to_io.client_ca
     end
@@ -93,6 +96,9 @@ describe Celluloid::IO::SSLSocket do
   end
 
   it "verifies peer certificates" do
+    # FIXME: JRuby seems to be giving the wrong result here o_O
+    pending "jruby-openssl support" if defined? JRUBY_VERSION
+
     with_ssl_sockets do |ssl_client, ssl_peer|
       ssl_client.verify_result.should == OpenSSL::X509::V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT
     end
