@@ -45,7 +45,7 @@ features which make concurrent programming simple, easy, and fun:
   The central idea: have you tried turning it off and on again? Celluloid
   takes care of rebooting subcomponents of your application when they crash,
   whether it's a single actor, or large (potentially multi-tiered) groups of
-  actors that are all interdependent. This means rather that worrying about
+  actors that are all interdependent. This means rather than worrying about
   rescuing every last exception, you can just sit back, relax, and let parts
   of your program crash, knowing Celluloid will automatically reboot them in
   a clean state. Celluloid provides its own implementation of the core
