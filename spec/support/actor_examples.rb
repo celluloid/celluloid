@@ -85,68 +85,11 @@ shared_context "a Celluloid Actor" do |included_module|
     actor.respond_to?(:zomg_private, true).should be_true
   end
 
-  it "reraises exceptions which occur during synchronous calls in the caller" do
-    actor = actor_class.new "James Dean" # is this in bad taste?
-
-    expect do
-      actor.crash
-    end.to raise_exception(ExampleCrash)
-  end
-
   it "calls the user defined finalizer" do
     actor = actor_class.new "Mr. Bean"
     actor.wrapped_object.should_receive(:my_finalizer)
     actor.terminate
     Celluloid::Actor.join(actor)
-  end
-
-  describe "when #abort is called" do
-    it "raises exceptions in the caller but keeps running" do
-      actor = actor_class.new "Al Pacino"
-
-      e = nil
-      line_no = nil
-
-      expect do
-        begin
-          line_no = __LINE__; actor.crash_with_abort "You die motherfucker!", :bar
-        rescue => ex
-          e = ex
-          raise
-        end
-      end.to raise_exception(ExampleCrash, "You die motherfucker!")
-
-      e.backtrace.any? { |line| line.include?([__FILE__, line_no].join(':')) }.should be_true # Check the backtrace is appropriate to the caller
-      e.foo.should be == :bar # Check the exception maintains instance variables
-
-      actor.should be_alive
-    end
-
-    it "converts strings to runtime errors" do
-      actor = actor_class.new "Al Pacino"
-      expect do
-        actor.crash_with_abort_raw "foo"
-      end.to raise_exception(RuntimeError, "foo")
-    end
-
-    it "crashes the caller if we pass neither String nor Exception" do
-      actor = actor_class.new "Al Pacino"
-      expect do
-        actor.crash_with_abort_raw 10
-      end.to raise_exception(TypeError, "Exception object/String expected, but Fixnum received")
-
-      actor.greet rescue nil # Ensure our actor has died.
-      actor.should_not be_alive
-    end
-  end
-
-  it "raises DeadActorError if methods are synchronously called on a dead actor" do
-    actor = actor_class.new "James Dean"
-    actor.crash rescue nil
-
-    expect do
-      actor.greet
-    end.to raise_exception(Celluloid::DeadActorError)
   end
 
   it "supports method! syntax for asynchronous calls" do
@@ -243,6 +186,65 @@ shared_context "a Celluloid Actor" do |included_module|
     end
   end
 
+  context :exceptions do
+    it "reraises exceptions which occur during synchronous calls in the caller" do
+      actor = actor_class.new "James Dean" # is this in bad taste?
+
+      expect do
+        actor.crash
+      end.to raise_exception(ExampleCrash)
+    end
+
+    it "raises DeadActorError if methods are synchronously called on a dead actor" do
+      actor = actor_class.new "James Dean"
+      actor.crash rescue nil
+
+      expect do
+        actor.greet
+      end.to raise_exception(Celluloid::DeadActorError)
+    end
+  end
+
+  context :abort do
+    it "raises exceptions in the caller but keeps running" do
+      actor = actor_class.new "Al Pacino"
+
+      e = nil
+      line_no = nil
+
+      expect do
+        begin
+          line_no = __LINE__; actor.crash_with_abort "You die motherfucker!", :bar
+        rescue => ex
+          e = ex
+          raise
+        end
+      end.to raise_exception(ExampleCrash, "You die motherfucker!")
+
+      e.backtrace.any? { |line| line.include?([__FILE__, line_no].join(':')) }.should be_true # Check the backtrace is appropriate to the caller
+      e.foo.should be == :bar # Check the exception maintains instance variables
+
+      actor.should be_alive
+    end
+
+    it "converts strings to runtime errors" do
+      actor = actor_class.new "Al Pacino"
+      expect do
+        actor.crash_with_abort_raw "foo"
+      end.to raise_exception(RuntimeError, "foo")
+    end
+
+    it "crashes the caller if we pass neither String nor Exception" do
+      actor = actor_class.new "Al Pacino"
+      expect do
+        actor.crash_with_abort_raw 10
+      end.to raise_exception(TypeError, "Exception object/String expected, but Fixnum received")
+
+      actor.greet rescue nil # Ensure our actor has died.
+      actor.should_not be_alive
+    end
+  end
+
   context :termination do
     it "terminates" do
       actor = actor_class.new "Arnold Schwarzenegger"
@@ -252,7 +254,7 @@ shared_context "a Celluloid Actor" do |included_module|
       actor.should_not be_alive
     end
 
-    it "kills" do
+    it "kills" do # THOU SHALT ALWAYS KILL
       actor = actor_class.new "Woody Harrelson"
       actor.should be_alive
       Celluloid::Actor.kill(actor)
@@ -586,7 +588,6 @@ shared_context "a Celluloid Actor" do |included_module|
   end
 
   context :timers do
-
     before do
       @klass = Class.new do
         include included_module
