@@ -237,13 +237,15 @@ module Celluloid
     def linking_request(receiver, type)
       exclusive do
         start_time = Time.now
-
         receiver.mailbox << LinkingRequest.new(Actor.current, type)
         system_events = []
+
         loop do
           wait_interval = start_time + LINKING_TIMEOUT - Time.now
           message = @mailbox.receive(wait_interval) do |msg|
-            msg.is_a?(LinkingResponse) && msg.actor == receiver && msg.type == type
+            msg.is_a?(LinkingResponse) &&
+            msg.actor.mailbox == receiver.mailbox &&
+            msg.type == type
           end
 
           case message
