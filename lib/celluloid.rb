@@ -35,8 +35,16 @@ module Celluloid
 
     # Obtain the number of CPUs in the system
     def cores
-      core_count = Facter.fact(:processorcount).value
-      Integer(core_count)
+      core_count = Facter.fact(:processorcount)
+
+      if core_count
+        Integer(core_count.value)
+      elsif ENV['CELLULOID_NCPUS']
+        ENV['CELLULOID_NCPUS']
+      else
+        Logger.warn "Unable to determine CPU core count, defaulting to 2"
+        2
+      end
     end
     alias_method :cpus, :cores
     alias_method :ncpus, :cores
