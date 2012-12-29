@@ -7,57 +7,20 @@ module Celluloid
       @method, @arguments, @block = method, arguments, block
     end
 
-  end
-
-  # Synchronous calls wait for a response
-  class SyncCall < Call
-    attr_reader :caller, :task
-
-    def initialize(caller, method, arguments = [], block = nil, task = Thread.current[:celluloid_task])
-      super(method, arguments, block)
-      @caller = caller
-      @task = task
-    end
-
     def dispatch(obj)
-      begin
-        result = obj.public_send(@method, *@arguments, &@block)
-      rescue NoMethodError => ex
-        # Abort if the caller made a mistake
-        detect_missing_method(ex)
+      obj.public_send(@method, *@arguments, &@block)
+    rescue NoMethodError => ex
+      # Abort if the caller made a mistake
+      detect_missing_method(ex)
 
-        # Otherwise something blew up. Crash this actor
-        raise
-      rescue ArgumentError => ex
-        # Abort if the caller made a mistake
-        detect_argument_error(ex)
+      # Otherwise something blew up. Crash this actor
+      raise
+    rescue ArgumentError => ex
+      # Abort if the caller made a mistake
+      detect_argument_error(ex)
 
-        # Otherwise something blew up. Crash this actor
-        raise
-      end
-
-      respond SuccessResponse.new(self, result)
-    rescue Exception => ex
-      # Exceptions that occur during synchronous calls are reraised in the
-      # context of the caller
-      respond ErrorResponse.new(self, ex)
-
-      # Aborting indicates a protocol error on the part of the caller
-      # It should crash the caller, but the exception isn't reraised
-      # Otherwise, it's a bug in this actor and should be reraised
-      raise unless ex.is_a?(AbortError)
-    end
-
-    def cleanup
-      exception = DeadActorError.new("attempted to call a dead actor")
-      respond ErrorResponse.new(self, exception)
-    end
-
-    def respond(message)
-      @caller << message
-    rescue MailboxError
-      # It's possible the caller exited or crashed before we could send a
-      # response to them.
+      # Otherwise something blew up. Crash this actor
+      raise
     end
 
   private
@@ -80,14 +43,59 @@ module Celluloid
     end
   end
 
+  # Synchronous calls wait for a response
+  class SyncCall < Call
+    attr_reader :caller, :task, :chain_id
+
+    def initialize(caller, method, arguments = [], block = nil, task = Thread.current[:celluloid_task], chain_id = Thread.current[:celluloid_chain_id])
+      super(method, arguments, block)
+
+      @caller   = caller
+      @task     = task
+      @chain_id = chain_id || Celluloid.uuid
+    end
+
+    def dispatch(obj)
+      Thread.current[:celluloid_chain_id] = @chain_id
+      result = super(obj)
+      respond SuccessResponse.new(self, result)
+    rescue Exception => ex
+      # Exceptions that occur during synchronous calls are reraised in the
+      # context of the caller
+      respond ErrorResponse.new(self, ex)
+
+      # Aborting indicates a protocol error on the part of the caller
+      # It should crash the caller, but the exception isn't reraised
+      # Otherwise, it's a bug in this actor and should be reraised
+      raise unless ex.is_a?(AbortError)
+    ensure
+      Thread.current[:celluloid_chain_id] = nil
+    end
+
+    def cleanup
+      exception = DeadActorError.new("attempted to call a dead actor")
+      respond ErrorResponse.new(self, exception)
+    end
+
+    def respond(message)
+      @caller << message
+    rescue MailboxError
+      # It's possible the caller exited or crashed before we could send a
+      # response to them.
+    end
+  end
+
   # Asynchronous calls don't wait for a response
   class AsyncCall < Call
 
     def dispatch(obj)
-      obj.public_send(@method, *@arguments, &@block)
+      Thread.current[:celluloid_chain_id] = Celluloid.uuid
+      super(obj)
     rescue AbortError => ex
       # Swallow aborted async calls, as they indicate the caller made a mistake
       Logger.debug("#{obj.class}: async call `#@method` aborted!\n#{Logger.format_exception(ex.cause)}")
+    ensure
+      Thread.current[:celluloid_chain_id] = nil
     end
 
   end

@@ -336,6 +336,11 @@ module Celluloid
     Actor.current
   end
 
+  # Obtain the UUID of the current call chain
+  def call_chain_id
+    Thread.current[:celluloid_chain_id]
+  end
+
   # Obtain the name of the current actor
   def name
     Actor.name
