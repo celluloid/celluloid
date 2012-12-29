@@ -9,14 +9,19 @@ module Celluloid
     def initialize(type)
       super
 
-      actor, mailbox = Thread.current[:celluloid_actor], Thread.current[:celluloid_mailbox]
+      actor    = Thread.current[:celluloid_actor]
+      mailbox  = Thread.current[:celluloid_mailbox]
+      chain_id = Thread.current[:celluloid_chain_id]
+
       raise NotActorError, "can't create tasks outside of actors" unless actor
 
       @fiber = Fiber.new do
         @status = :running
-        Thread.current[:celluloid_actor]   = actor
-        Thread.current[:celluloid_mailbox] = mailbox
-        Thread.current[:celluloid_task]    = self
+        Thread.current[:celluloid_actor]    = actor
+        Thread.current[:celluloid_mailbox]  = mailbox
+        Thread.current[:celluloid_task]     = self
+        Thread.current[:celluloid_chain_id] = chain_id
+
         actor.tasks << self
 
         begin

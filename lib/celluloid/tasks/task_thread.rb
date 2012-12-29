@@ -11,20 +11,25 @@ module Celluloid
       @yield_mutex  = Mutex.new
       @yield_cond   = ConditionVariable.new
 
-      actor, mailbox = Thread.current[:celluloid_actor], Thread.current[:celluloid_mailbox]
+      actor    = Thread.current[:celluloid_actor]
+      mailbox  = Thread.current[:celluloid_mailbox]
+      chain_id = Thread.current[:celluloid_chain_id]
+
       raise NotActorError, "can't create tasks outside of actors" unless actor
 
       @thread = Celluloid.internal_pool.get do
         begin
-          unless @resume_queue.pop.is_a?(Task::TerminatedError)
-            @status = :running
-            Thread.current[:celluloid_actor]   = actor
-            Thread.current[:celluloid_mailbox] = mailbox
-            Thread.current[:celluloid_task]    = self
-            actor.tasks << self
+          ex = @resume_queue.pop.is_a?(Task::TerminatedError)
+          raise ex if ex
 
-            yield
-          end
+          @status = :running
+          Thread.current[:celluloid_actor]    = actor
+          Thread.current[:celluloid_mailbox]  = mailbox
+          Thread.current[:celluloid_task]     = self
+          Thread.current[:celluloid_chain_id] = chain_id
+
+          actor.tasks << self
+          yield
         rescue Task::TerminatedError
           # Task was explicitly terminated
         ensure
