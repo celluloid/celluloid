@@ -5,6 +5,7 @@ HEAD
 * Bugfix: receivers don't crash when methods are called incorrectly
 * Stack traces across inter-actor calls! Should make Celluloid backtraces
   much easier to understand
+* Celluloid#call_chain_id provides UUIDs for calls across actors
 * Give all thread locals a :celluloid_* prefix
 
 0.12.4
