@@ -76,6 +76,8 @@ module Celluloid
     end
     alias_method :actor=, :attach
 
+    protected
+
     # Transition to another state
     # Options:
     # * delay: don't transition immediately, wait the given number of seconds.
@@ -98,8 +100,6 @@ module Celluloid
     def transition!(state_name)
       @state = state_name
     end
-
-    protected
 
     def validate_and_sanitize_new_state(state_name)
       state_name = state_name.to_sym

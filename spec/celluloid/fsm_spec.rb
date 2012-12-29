@@ -38,13 +38,17 @@ describe Celluloid::FSM do
 
   it "transitions between states" do
     subject.state.should_not == :done
-    subject.transition :done
+    subject.send :transition, :done
     subject.state.should == :done
+  end
+
+  it "does not allow other objects to transition states" do
+    expect { subject.transition :done }.to raise_error NoMethodError
   end
 
   it "fires callbacks for states" do
     subject.should_not be_fired
-    subject.transition :callbacked
+    subject.send :transition, :callbacked
     subject.should be_fired
   end
 
@@ -53,16 +57,16 @@ describe Celluloid::FSM do
   end
 
   it "supports constraints on valid state transitions" do
-    subject.transition :pre_done
-    expect { subject.transition :another }.to raise_exception ArgumentError
+    subject.send :transition, :pre_done
+    expect { subject.send :transition, :another }.to raise_exception ArgumentError
   end
 
   it "transitions to states after a specified delay" do
     interval = Celluloid::TIMER_QUANTUM * 10
 
     subject.attach DummyActor.new
-    subject.transition :another
-    subject.transition :done, :delay => interval
+    subject.send :transition, :another
+    subject.send :transition, :done, :delay => interval
 
     subject.state.should == :another
     sleep interval + Celluloid::TIMER_QUANTUM
@@ -74,11 +78,11 @@ describe Celluloid::FSM do
     interval = Celluloid::TIMER_QUANTUM * 10
 
     subject.attach DummyActor.new
-    subject.transition :another
-    subject.transition :done, :delay => interval
+    subject.send :transition, :another
+    subject.send :transition, :done, :delay => interval
 
     subject.state.should == :another
-    subject.transition :pre_done
+    subject.send :transition, :pre_done
     sleep interval + Celluloid::TIMER_QUANTUM
 
     subject.state.should == :pre_done
@@ -89,7 +93,7 @@ describe Celluloid::FSM do
 
     context "transition is delayed" do
       it "raises an unattached error" do
-        expect { subject.transition :another, :delay => 100 } \
+        expect { subject.send :transition, :another, :delay => 100 } \
           .to raise_error(Celluloid::FSM::UnattachedError)
       end
     end
@@ -99,12 +103,12 @@ describe Celluloid::FSM do
     let(:subject) { TestMachine.new }
 
     it "raises an argument error" do
-      expect { subject.transition :invalid_state }.to raise_error(ArgumentError)
+      expect { subject.send :transition, :invalid_state }.to raise_error(ArgumentError)
     end
 
     it "should not call transition! if the state is :default" do
       subject.should_not_receive :transition!
-      subject.transition :default
+      subject.send :transition, :default
     end
   end
 end
