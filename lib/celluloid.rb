@@ -473,7 +473,7 @@ require 'celluloid/responses'
 require 'celluloid/signals'
 require 'celluloid/stack_dumper'
 require 'celluloid/system_events'
-require 'celluloid/task'
+require 'celluloid/tasks'
 require 'celluloid/thread_handle'
 require 'celluloid/uuid'
 

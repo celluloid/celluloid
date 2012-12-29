@@ -1,6 +1,3 @@
-require 'celluloid/tasks/task_fiber'
-require 'celluloid/tasks/task_thread'
-
 module Celluloid
   # Asked to do task-related things outside a task
   class NotTaskError < StandardError; end
@@ -9,7 +6,7 @@ module Celluloid
   class DeadTaskError < StandardError; end
 
   # Tasks are interruptable/resumable execution contexts used to run methods
-  module Task
+  class Task
     class TerminatedError < StandardError; end # kill a running task
 
     # Obtain the current task
@@ -21,5 +18,14 @@ module Celluloid
     def self.suspend(status)
       Task.current.suspend(status)
     end
+
+    # Create a new task
+    def initialize(type)
+      @type   = type
+      @status = :new
+    end
   end
 end
+
+require 'celluloid/tasks/task_fiber'
+require 'celluloid/tasks/task_thread'

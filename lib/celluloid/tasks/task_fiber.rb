@@ -2,13 +2,12 @@ module Celluloid
   class FiberStackError < StandardError; end
 
   # Tasks with a Fiber backend
-  class TaskFiber
+  class TaskFiber < Task
     attr_reader :type, :status
 
     # Run the given block within a task
     def initialize(type)
-      @type   = type
-      @status = :new
+      super
 
       actor, mailbox = Thread.current[:celluloid_actor], Thread.current[:celluloid_mailbox]
       raise NotActorError, "can't create tasks outside of actors" unless actor

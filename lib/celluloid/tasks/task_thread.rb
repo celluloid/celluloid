@@ -1,12 +1,11 @@
 module Celluloid
   # Tasks with a Thread backend
-  class TaskThread
+  class TaskThread < Task
     attr_reader :type, :status
 
     # Run the given block within a task
     def initialize(type)
-      @type   = type
-      @status = :new
+      super
 
       @resume_queue = Queue.new
       @yield_mutex  = Mutex.new
