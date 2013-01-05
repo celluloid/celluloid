@@ -38,5 +38,7 @@ module Celluloid
     def owner=(actor)
       @mutex.synchronize { @owner = actor }
     end
+
+    alias_method :inspect, :to_s
   end
 end
