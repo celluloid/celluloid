@@ -5,6 +5,8 @@ describe Celluloid::Condition do
     class ConditionExample
       include Celluloid
 
+      attr_reader :condition
+
       def initialize
         @condition = Condition.new
 
@@ -35,15 +37,26 @@ describe Celluloid::Condition do
     end
   end
 
-  it "allows methods within the same object to signal each other" do
-    cell = ConditionExample.new
-    cell.should_not be_signaled
+  subject { ConditionExample.new }
 
-    cell.async.wait_for_condition
-    cell.should_not be_signaled
+  it "suspends until signaled" do
+    subject.should_not be_signaled
 
-    cell.send_signal
-    cell.should be_signaled
+    subject.async.wait_for_condition
+    subject.should_not be_signaled
+
+    subject.send_signal
+    subject.should be_signaled
+  end
+
+  it "can be signaled across actors" do
+    subject.should_not be_signaled
+
+    subject.async.wait_for_condition
+    subject.should_not be_signaled
+
+    subject.condition.signal
+    subject.should be_signaled
   end
 
   it "sends values along with signals" do
