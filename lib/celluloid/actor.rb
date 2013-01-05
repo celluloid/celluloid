@@ -375,6 +375,7 @@ module Celluloid
     ensure
       Thread.current[:celluloid_actor]   = nil
       Thread.current[:celluloid_mailbox] = nil
+      Thread.current.exit
     end
 
     # Run the user-defined finalizer, if one is set

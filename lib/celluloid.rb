@@ -467,6 +467,7 @@ end
 require 'celluloid/version'
 
 require 'celluloid/calls'
+require 'celluloid/condition'
 require 'celluloid/core_ext'
 require 'celluloid/fiber'
 require 'celluloid/fsm'
