@@ -24,11 +24,7 @@ module Celluloid
 
       task = @tasks.shift
       if task
-        begin
-          task.resume(value)
-        rescue => ex
-          Thread.current[:celluloid_actor].handle_crash(ex)
-        end
+        task.resume(value)
       else
         Logger.debug("Celluloid::Condition signaled spuriously")
       end
