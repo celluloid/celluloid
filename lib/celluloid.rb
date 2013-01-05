@@ -8,7 +8,7 @@ module Celluloid
   extend self # expose all instance methods as singleton methods
 
   # How long actors have to terminate
-  SHUTDOWN_TIMEOUT = 120
+  SHUTDOWN_TIMEOUT = 10
 
   # Warning message added to Celluloid objects accessed outside their actors
   BARE_OBJECT_WARNING_MESSAGE = "WARNING: BARE CELLULOID OBJECT "
@@ -86,6 +86,8 @@ module Celluloid
 
         Logger.debug "Shutdown completed cleanly"
       end
+    rescue Timeout::Error => ex
+      Logger.error("Couldn't cleanly terminate all actors in #{SHUTDOWN_TIMEOUT} seconds!")
     end
   end
 
