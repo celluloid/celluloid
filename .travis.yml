@@ -8,6 +8,7 @@ rvm:
 
 matrix:
   allow_failures:
+    - rvm: 1.9.3 # segvs o_O https://github.com/travis-ci/travis-ci/issues/827
     - rvm: rbx-19mode # segvs o_O
 
 notifications:
