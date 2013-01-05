@@ -3,7 +3,7 @@ module Celluloid
 
   # ConditionVariable-like signaling between tasks and actors
   class Condition
-    attr_reader :waiting
+    attr_reader :owner
 
     def initialize
       @mutex = Mutex.new
@@ -32,6 +32,11 @@ module Celluloid
           Logger.debug("Celluloid::Condition signaled spuriously")
         end
       end
+    end
+
+    # Change the owner of this condition
+    def owner=(actor)
+      @mutex.synchronize { @owner = actor }
     end
   end
 end
