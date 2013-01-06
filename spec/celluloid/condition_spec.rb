@@ -5,22 +5,20 @@ describe Celluloid::Condition do
     class ConditionExample
       include Celluloid
 
-      attr_reader :condition
+      attr_reader :condition, :signaled_times
 
       def initialize
         @condition = Condition.new
 
         @waiting  = false
-        @signaled = false
+        @signaled_times = 0
       end
 
       def wait_for_condition
-        raise "already signaled" if @signaled
-
         @waiting = true
         begin
           value = @condition.wait
-          @signaled = true
+          @signaled_times += 1
         ensure
           @waiting = false
         end
@@ -28,43 +26,31 @@ describe Celluloid::Condition do
         value
       end
 
-      def send_signal(value = nil)
-        @condition.signal(value)
-      end
-
       def waiting?; @waiting end
-      def signaled?; @signaled end
     end
   end
 
   subject { ConditionExample.new }
 
-  it "suspends until signaled" do
-    subject.should_not be_signaled
-
-    subject.async.wait_for_condition
-    subject.should_not be_signaled
-
-    subject.send_signal
-    subject.should be_signaled
-  end
-
-  it "can be signaled across actors" do
-    subject.should_not be_signaled
-
-    subject.async.wait_for_condition
-    subject.should_not be_signaled
+  it "sends signals" do
+    3.times { subject.async.wait_for_condition }
+    subject.signaled_times.should be_zero
 
     subject.condition.signal
-    subject.should be_signaled
+    subject.signaled_times.should eq 1
+  end
+
+  it "broadcasts signals" do
+    3.times { subject.async.wait_for_condition }
+    subject.signaled_times.should be_zero
+
+    subject.condition.broadcast
+    subject.signaled_times.should eq 3
   end
 
   it "sends values along with signals" do
-    obj = ConditionExample.new
-    obj.should_not be_signaled
-
-    future = obj.future(:wait_for_condition)
-    obj.send_signal(:example_value)
+    future = subject.future(:wait_for_condition)
+    subject.condition.signal(:example_value)
     future.value.should == :example_value
   end
 end

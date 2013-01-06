@@ -34,6 +34,16 @@ module Celluloid
       end
     end
 
+    # Broadcast a value to all waiting tasks
+    def broadcast(value = nil)
+      @mutex.synchronize do
+        @tasks.each do |task|
+          @owner.mailbox << SignalConditionRequest.new(task, value)
+        end
+        @tasks.clear
+      end
+    end
+
     # Change the owner of this condition
     def owner=(actor)
       @mutex.synchronize { @owner = actor }
