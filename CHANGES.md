@@ -3,6 +3,8 @@ HEAD
 * API change: use_mailbox has been removed
 * API change: finalizers must be declared with "finalize :my_finalizer"
 * Bugfix: receivers don't crash when methods are called incorrectly
+* Celluloid::Condition provides ConditionVariable-like signaling
+* Shutdown timeout reduced to 10 seconds
 * Stack traces across inter-actor calls! Should make Celluloid backtraces
   much easier to understand
 * Celluloid#call_chain_id provides UUIDs for calls across actors
