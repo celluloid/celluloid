@@ -51,4 +51,15 @@ module Celluloid
 
   # Request for an actor to terminate
   class TerminationRequest < SystemEvent; end
+
+  # Signal a condition
+  class SignalConditionRequest < SystemEvent
+    def initialize(task, value)
+      @task, @value = task, value
+    end
+
+    def call
+      @task.resume(@value)
+    end
+  end
 end
