@@ -29,7 +29,7 @@ describe "Celluloid.pool" do
 
   it "processes work units asynchronously" do
     queue = Queue.new
-    subject.process!(queue)
+    subject.async.process(queue)
     queue.pop.should == :done
   end
 

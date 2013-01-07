@@ -478,5 +478,5 @@ require 'celluloid/supervisor'
 require 'celluloid/notifications'
 require 'celluloid/logging'
 
-require 'celluloid/legacy'
+require 'celluloid/legacy' unless defined?(CELLULOID_FUTURE)
 require 'celluloid/boot'

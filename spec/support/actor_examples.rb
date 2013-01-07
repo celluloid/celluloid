@@ -92,12 +92,6 @@ shared_context "a Celluloid Actor" do |included_module|
     Celluloid::Actor.join(actor)
   end
 
-  it "supports method! syntax for asynchronous calls" do
-    actor = actor_class.new "Troy McClure"
-    actor.change_name! "Charlie Sheen"
-    actor.greet.should == "Hi, I'm Charlie Sheen"
-  end
-
   it "supports async(:method) syntax for asynchronous calls" do
     actor = actor_class.new "Troy McClure"
     actor.async :change_name, "Charlie Sheen"
@@ -110,19 +104,13 @@ shared_context "a Celluloid Actor" do |included_module|
     actor.greet.should == "Hi, I'm Charlie Sheen"
   end
 
-  it "supports method! syntax for asynchronous calls to itself" do
-    actor = actor_class.new "Troy McClure"
-    actor.change_name_with_a_bang "Charlie Sheen"
-    actor.greet.should == "Hi, I'm Charlie Sheen"
-  end
-
   it "supports async.method syntax for asynchronous calls to itself" do
     actor = actor_class.new "Troy McClure"
     actor.change_name_async "Charlie Sheen"
     actor.greet.should == "Hi, I'm Charlie Sheen"
   end
 
-  it "allows an actor to call private methods asynchronously with a bang" do
+  it "allows an actor to call private methods asynchronously" do
     actor = actor_class.new "Troy McClure"
     actor.call_private
     actor.private_called.should be_true
@@ -451,7 +439,7 @@ shared_context "a Celluloid Actor" do |included_module|
       obj = @signaler.new
       obj.should_not be_signaled
 
-      obj.wait_for_signal!
+      obj.async.wait_for_signal
       obj.should_not be_signaled
 
       obj.send_signal :foobar
@@ -564,8 +552,8 @@ shared_context "a Celluloid Actor" do |included_module|
 
     it "executes two methods in an exclusive order" do
       actor = subject.new
-      actor.eat_donuts!
-      actor.drink_coffee!
+      actor.async.eat_donuts
+      actor.async.drink_coffee
       sleep Celluloid::TIMER_QUANTUM * 2
       actor.tasks.should == ['donuts', 'coffee']
     end

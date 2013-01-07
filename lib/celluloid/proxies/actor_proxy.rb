@@ -94,5 +94,10 @@ module Celluloid
       ::Kernel.raise DeadActorError, "actor already terminated" unless alive?
       @mailbox << TerminationRequest.new
     end
+
+    # method_missing black magic to call bang predicate methods asynchronously
+    def method_missing(meth, *args, &block)
+      Actor.call @mailbox, meth, *args, &block
+    end
   end
 end

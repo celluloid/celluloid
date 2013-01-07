@@ -13,7 +13,11 @@ module Celluloid
 
     # method_missing black magic to call bang predicate methods asynchronously
     def method_missing(meth, *args, &block)
-      Actor.async @mailbox, meth, *args, &block
+      if @mailbox == ::Thread.current[:celluloid_mailbox]
+        Actor.async @mailbox, :__send__, meth, *args, &block
+      else
+        Actor.async @mailbox, meth, *args, &block
+      end
     end
   end
 end
