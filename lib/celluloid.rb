@@ -286,29 +286,6 @@ module Celluloid
 
       str.sub!(/\s$/, '>')
     end
-
-    # Process async calls via method_missing
-    def method_missing(meth, *args, &block)
-      # bang methods are async calls
-      if meth.to_s.match(/!$/)
-        unbanged_meth = meth.to_s.sub(/!$/, '')
-        args.unshift unbanged_meth
-
-        call = AsyncCall.new(:__send__, args, block)
-        begin
-          Thread.current[:celluloid_actor].mailbox << call
-        rescue MailboxError
-          # Silently swallow asynchronous calls to dead actors. There's no way
-          # to reliably generate DeadActorErrors for async calls, so users of
-          # async calls should find other ways to deal with actors dying
-          # during an async call (i.e. linking/supervisors)
-        end
-
-        return
-      end
-
-      super
-    end
   end
 
   #
@@ -501,4 +478,5 @@ require 'celluloid/supervisor'
 require 'celluloid/notifications'
 require 'celluloid/logging'
 
+require 'celluloid/legacy'
 require 'celluloid/boot'
