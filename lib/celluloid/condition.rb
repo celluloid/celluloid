@@ -20,7 +20,9 @@ module Celluloid
         @tasks << Task.current
       end
 
-      Task.suspend :condwait
+      result = Task.suspend :condwait
+      raise result if result.is_a? ConditionError
+      result
     end
 
     # Send a signal to the first task waiting on this condition
@@ -37,16 +39,24 @@ module Celluloid
     # Broadcast a value to all waiting tasks
     def broadcast(value = nil)
       @mutex.synchronize do
-        @tasks.each do |task|
-          @owner.mailbox << SignalConditionRequest.new(task, value)
-        end
+        @tasks.each { |task| @owner.mailbox << SignalConditionRequest.new(task, value) }
         @tasks.clear
       end
     end
 
     # Change the owner of this condition
     def owner=(actor)
-      @mutex.synchronize { @owner = actor }
+      @mutex.synchronize do
+        if @owner != actor
+          @tasks.each do |task|
+            ex = ConditionError.new("ownership changed")
+            @owner.mailbox << SignalConditionRequest.new(task, ex)
+          end
+          @tasks.clear
+        end
+
+        @owner = actor
+      end
     end
 
     alias_method :inspect, :to_s

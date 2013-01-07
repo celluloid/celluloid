@@ -30,27 +30,41 @@ describe Celluloid::Condition do
     end
   end
 
-  subject { ConditionExample.new }
+  let(:actor) { ConditionExample.new }
+  after { actor.terminate rescue nil }
 
   it "sends signals" do
-    3.times { subject.async.wait_for_condition }
-    subject.signaled_times.should be_zero
+    3.times { actor.async.wait_for_condition }
+    actor.signaled_times.should be_zero
 
-    subject.condition.signal
-    subject.signaled_times.should eq 1
+    actor.condition.signal
+    actor.signaled_times.should eq 1
   end
 
   it "broadcasts signals" do
-    3.times { subject.async.wait_for_condition }
-    subject.signaled_times.should be_zero
+    3.times { actor.async.wait_for_condition }
+    actor.signaled_times.should be_zero
 
-    subject.condition.broadcast
-    subject.signaled_times.should eq 3
+    actor.condition.broadcast
+    actor.signaled_times.should eq 3
   end
 
   it "sends values along with signals" do
-    future = subject.future(:wait_for_condition)
-    subject.condition.signal(:example_value)
+    future = actor.future(:wait_for_condition)
+    actor.condition.signal(:example_value)
     future.value.should == :example_value
+  end
+
+  it "transfers ownership between actors" do
+    another_actor = ConditionExample.new
+    begin
+      future = actor.future(:wait_for_condition)
+      condition = actor.condition
+      condition.owner = another_actor
+      condition.owner.should eq another_actor
+      expect { future.value }.to raise_exception(Celluloid::ConditionError)
+    ensure
+      another_actor.terminate
+    end
   end
 end
