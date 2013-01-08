@@ -56,6 +56,10 @@ module ExampleActorClass
         string.reverse
       end
 
+      def in_actor_context
+        yield
+      end
+
       def method_missing(method_name, *args, &block)
         if delegates?(method_name)
           @delegate.send method_name, *args, &block

@@ -107,12 +107,19 @@ module Celluloid
   # Class methods added to classes which include Celluloid
   module ClassMethods
     # Create a new actor
-    def new(*args, &block)
+    def spawn(*args, &block)
       proxy = Actor.new(allocate, actor_options).proxy
       proxy._send_(:initialize, *args, &block)
       proxy
     end
-    alias_method :spawn, :new
+
+    # Create a new linked actor if we are in an actor context
+    def new(*args, &block)
+      proxy = Actor.new(allocate, actor_options).proxy
+      Actor.link(proxy) if Celluloid.actor?
+      proxy._send_(:initialize, *args, &block)
+      proxy
+    end
 
     # Create a new actor and link to the current one
     def new_link(*args, &block)
@@ -191,7 +198,7 @@ module Celluloid
         Celluloid::Mailbox
       end
     end
-    
+
     def proxy_class(klass = nil)
       if klass
         @proxy_class = klass
