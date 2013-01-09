@@ -114,6 +114,26 @@ module Celluloid
       end
     end
 
+    # DealerSockets are like ReqSockets but more flexible
+    class DealerSocket < Socket
+      include ReadableSocket
+      include WritableSocket
+
+      def initialize
+        super :dealer
+      end
+    end
+
+    # RouterSockets are like RepSockets but more flexible
+    class RouterSocket < Socket
+      include ReadableSocket
+      include WritableSocket
+
+      def initialize
+        super :router
+      end
+    end
+
     # PushSockets are the counterpart of PullSockets (PUSH/PULL)
     class PushSocket < Socket
       include WritableSocket
