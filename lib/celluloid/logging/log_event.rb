@@ -3,7 +3,7 @@ module Celluloid
   class LogEvent
     attr_accessor :id, :severity, :message, :progname, :time
 
-    def initialize(severity, message, progname, time=Time.now, &block)
+    def initialize(severity=IncidentLogger::Severity::UNKNOWN, message="", progname="default", time=Time.now, &block)
       # This id should be ordered. For now relies on Celluloid::UUID to be ordered.
       # May want to use a generation/counter strategy for independence of uuid.
       @id = Celluloid::UUID.generate
