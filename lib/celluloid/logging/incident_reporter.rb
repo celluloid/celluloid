@@ -6,6 +6,7 @@ module Celluloid
     include Celluloid::SilencedLogger
 
     def initialize(*args)
+      link Celluloid::Notifications.notifier
       subscribe(/^log\.incident/, :report)
       @logger = ::Logger.new(*args)
       @logger.formatter = Celluloid::LogEventFormatter.new
