@@ -45,7 +45,7 @@ module Celluloid
         state.tasks = tasks.collect { |t| TaskState.new(t.class, t.status) }
       end
 
-      state.backtrace = actor.thread.backtrace
+      state.backtrace = actor.thread.backtrace if actor.thread
       state
     end
 
