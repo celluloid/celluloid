@@ -37,7 +37,7 @@ describe Celluloid::EventReporter do
     end
 
     expect { Celluloid::Notifications.notifier.crash }.to raise_error
-    sleep Celluloid::TIMER_QUANTUM
+    sleep Celluloid::TIMER_QUANTUM*10
 
     logger.debug("debug")
     sleep Celluloid::TIMER_QUANTUM
