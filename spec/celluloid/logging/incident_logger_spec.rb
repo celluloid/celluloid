@@ -93,6 +93,14 @@ describe Celluloid::IncidentLogger do
     incident.events.last.message.should == "test error"
   end
 
+  it 'should peek into buffers without flushing them' do
+    logger.debug("1")
+    logger.debug("2")
+    logger.debug("3")
+    logger.peek(DEBUG).size.should == 3
+    logger.buffer_for(DEBUG).should_not be_empty
+  end
+
   it "should define level shortcuts" do
     # log everything, report nothing
     logger = described_class.new(nil, level: TRACE, threshold: UNKNOWN+1)

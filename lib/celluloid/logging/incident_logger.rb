@@ -157,5 +157,10 @@ module Celluloid
     def buffers_for(progname)
       @buffers[progname]
     end
+
+    def peek(progname=nil, severity)
+      #TODO take a size
+      buffer_for(progname, severity).peek(10)
+    end
   end
 end

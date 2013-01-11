@@ -32,6 +32,25 @@ describe Celluloid::RingBuffer do
     subject.shift.should be_nil
   end
 
+  it 'should peek without shifting' do
+    subject.push(1)
+    subject.push(2)
+    subject.peek(2).should == [1,2]
+    subject.should_not be_empty
+  end
+
+  it 'should not peek more than count' do
+    subject = described_class.new(5)
+    subject.push(1)
+    subject.peek(2).should == [1]
+  end
+
+  it 'should wrap around when peeking' do
+    subject = described_class.new(5)
+    (1..7).each { |i| subject.push(i) }
+    subject.peek(5).should == [3,4,5,6,7]
+  end
+
   it 'should be thread-safe' do
     #TODO how to test?
   end
