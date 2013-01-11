@@ -25,6 +25,13 @@ describe Celluloid::EventReporter do
     @stream.size.should == 0
   end
 
+  it 'should not log events if level is set higher' do
+    @reporter.level = Celluloid::IncidentLogger::Severity::INFO
+    logger.debug("debug")
+    sleep Celluloid::TIMER_QUANTUM
+    @stream.size.should == 0
+  end
+
   it 'should resubscribe if notifier crashes' do
 
     stream = StringIO.new

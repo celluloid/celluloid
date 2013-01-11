@@ -7,6 +7,8 @@ module Celluloid
     include Celluloid::Notifications
     include Celluloid::SilencedLogger
 
+    attr_accessor :level
+
     def initialize(*args)
       link Celluloid::Notifications.notifier
       subscribe(/^log\.event/, :report)
@@ -16,6 +18,7 @@ module Celluloid
 
     def report(topic, event)
       return if silenced?
+      return if @level && event.severity < @level
 
       @logger.add(event.severity, event, event.progname)
     end
