@@ -51,7 +51,7 @@ module Celluloid
 
     # Perform a stack dump of all actors to the given output object
     def stack_dump(output = STDERR)
-      Celluloid::StackDumper.dump(output)
+      Celluloid::StackDump.new.dump(output)
     end
     alias_method :dump, :stack_dump
 
@@ -459,7 +459,7 @@ require 'celluloid/receivers'
 require 'celluloid/registry'
 require 'celluloid/responses'
 require 'celluloid/signals'
-require 'celluloid/stack_dumper'
+require 'celluloid/stack_dump'
 require 'celluloid/system_events'
 require 'celluloid/tasks'
 require 'celluloid/thread_handle'
