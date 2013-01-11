@@ -3,10 +3,12 @@ require 'spec_helper'
 describe Celluloid::IncidentLogger do
   let(:logger) { Celluloid::IncidentLogger.new }
 
-  let(:test_reporter) { Celluloid::Actor[:test_incident_reporter] }
-
   before(:each) do
-    test_reporter.clear_incidents
+    @consumer = Celluloid::TestLogConsumer.new
+  end
+
+  after(:each) do
+    @consumer.terminate
   end
 
   # not sure how to include modules in rspec tests...
@@ -82,8 +84,8 @@ describe Celluloid::IncidentLogger do
     end
 
     sleep Celluloid::TIMER_QUANTUM
-    test_reporter.incidents.size.should == 1
-    incident = test_reporter.incidents.first
+    @consumer.incidents.size.should == 1
+    incident = @consumer.incidents.first
 
     incident.triggering_event.id = error_id
     incident.events.first.id.should == debug_id
@@ -152,20 +154,16 @@ describe Celluloid::IncidentLogger do
   end
 
   it "should publish all events" do
-    consumer = Celluloid::TestEventReporter.new
     logger.debug("debug")
     sleep Celluloid::TIMER_QUANTUM
-    consumer.events.size.should == 1
-    consumer.events.first.message.should == "debug"
-    consumer.terminate
+    @consumer.events.size.should == 1
+    @consumer.events.first.message.should == "debug"
   end
 
   it "should turn off event publishing if directed" do
-    consumer = Celluloid::TestEventReporter.new
     logger = described_class.new(nil, publish_events: false)
     logger.debug("debug")
-    consumer.events.should be_empty
-    consumer.terminate
+    @consumer.events.should be_empty
   end
   #TODO thread safety
 end
