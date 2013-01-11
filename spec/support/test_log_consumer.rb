@@ -17,7 +17,6 @@ module Celluloid
     end
 
     def report_event(topic, event)
-      puts "got event"
       @events << event
     end
 
