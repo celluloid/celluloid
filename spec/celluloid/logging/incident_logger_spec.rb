@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Celluloid::IncidentLogger do
-  let(:logger) { Celluloid::IncidentLogger.new }
+  let(:logger) { described_class.new }
 
   before(:each) do
     @consumer = Celluloid::TestLogConsumer.new
