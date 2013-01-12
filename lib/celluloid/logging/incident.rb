@@ -4,7 +4,7 @@ module Celluloid
     attr_accessor :pid
     attr_accessor :events, :triggering_event
 
-    def initialize(events, triggering_event=nil)
+    def initialize(events=[], triggering_event=nil)
       @events = events
       @triggering_event = triggering_event
       @pid = $$
@@ -16,6 +16,14 @@ module Celluloid
         events += incident.events
       end
       Incident.new(merged_events.sort, triggering_event)
+    end
+
+    def to_hash
+      {
+        pid: pid,
+        triggering_event: (triggering_event.to_hash if triggering_event),
+        events: events.collect { |e| e.to_hash }
+      }
     end
   end
 end

@@ -30,6 +30,16 @@ module Celluloid
     end
     alias :<< :push
 
+    def peek(count)
+      values = []
+      @mutex.synchronize do
+        [count, @count].min.times do |index|
+          values << @buffer[(@start + index) % @size]
+        end
+      end
+      values
+    end
+
     def shift
       @mutex.synchronize do
         remove_element

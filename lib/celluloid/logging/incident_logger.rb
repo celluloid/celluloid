@@ -22,6 +22,7 @@ module Celluloid
         end
       end
 
+      extend self
     end
     include Severity
 
@@ -37,9 +38,13 @@ module Celluloid
 
     # The buffer size limit. Each log level will retain this number of messages
     # at maximum.
-    attr_accessor :sizelimit
+    attr_reader :sizelimit
 
-    attr_accessor :buffers
+    # When the IncidentLogger itself encounters an error, it logs to the fallback
+    # logger.
+    attr_accessor :fallback_logger
+
+    attr_reader :buffers
 
     # Create a new IncidentLogger.
     def initialize(progname=nil, options={})
@@ -47,6 +52,10 @@ module Celluloid
       @level = options[:level] || DEBUG
       @threshold = options[:threshold] || ERROR
       @sizelimit = options[:sizelimit] || 100
+
+      # Event publishing is on by default, but can be disabled in case of
+      # performance problems publishing every message.
+      @publish_events = options.has_key?(:publish_events) ? options[:publish_events] : true
 
       @buffer_mutex = Mutex.new
       @buffers = Hash.new do |progname_hash, progname| 
@@ -57,7 +66,6 @@ module Celluloid
         end
       end
 
-      # When the IncidentLogger itself encounters an error, it falls back to logging to stderr
       @fallback_logger = ::Logger.new(STDERR)
       @fallback_logger.progname = "FALLBACK"
     end
@@ -68,7 +76,7 @@ module Celluloid
       severity ||= UNKNOWN
 
       if severity < @level
-        return event.id
+        return nil
       end
 
       if message.nil? && !block_given?
@@ -78,15 +86,9 @@ module Celluloid
 
       event = LogEvent.new(severity, message, progname, &block)
 
-      @buffers[progname][severity] << event
+      buffer_for(progname, severity) << event
+      publish_event(event)
 
-      if severity >= @threshold
-        begin
-          Celluloid::Notifications.notifier.async.publish(incident_topic, create_incident(event))
-        rescue => ex
-          @fallback_logger.error(ex)
-        end
-      end
       event.id
     end
     alias :log :add
@@ -124,6 +126,41 @@ module Celluloid
 
     def incident_topic
       "log.incident.#{@progname}"
+    end
+
+    def event_topic
+      "log.event.#{@progname}"
+    end
+
+    def publish_event(event)
+      if @publish_events
+        begin
+          Celluloid::Notifications.notifier.async.publish(event_topic, event)
+        rescue => ex
+          fallback_logger.error(ex)
+        end
+      end
+
+      if event.severity >= @threshold
+        begin
+          Celluloid::Notifications.notifier.async.publish(incident_topic, create_incident(event))
+        rescue => ex
+          fallback_logger.error(ex)
+        end
+      end
+    end
+
+    def buffer_for(progname=nil, severity)
+      @buffers[progname || @progname][severity]
+    end
+
+    def buffers_for(progname)
+      @buffers[progname]
+    end
+
+    def peek(progname=nil, severity)
+      #TODO take a size
+      buffer_for(progname, severity).peek(10)
     end
   end
 end

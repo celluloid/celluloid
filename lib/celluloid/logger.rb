@@ -3,6 +3,11 @@ module Celluloid
     @exception_handlers = []
     module_function
 
+    # Send a trace message
+    def trace(string)
+      Celluloid.logger.trace(string) if Celluloid.logger
+    end
+
     # Send a debug message
     def debug(string)
       Celluloid.logger.debug(string) if Celluloid.logger
