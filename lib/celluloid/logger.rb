@@ -37,10 +37,10 @@ module Celluloid
       end
     end
 
-    # Format an exception message
-    def format_exception(exception)
-      str = "#{exception.class}: #{exception.to_s}\n"
-      str << exception.backtrace.join("\n")
+    # Note a deprecation
+    def deprecate(message)
+      trace = caller.join("\n\t")
+      warn "DEPRECATION WARNING: #{message}\n\t#{trace}"
     end
 
     # Define an exception handler
@@ -48,6 +48,12 @@ module Celluloid
     def exception_handler(&block)
       @exception_handlers << block
       nil
+    end
+
+    # Format an exception message
+    def format_exception(exception)
+      str = "#{exception.class}: #{exception.to_s}\n\t"
+      str << exception.backtrace.join("\n\t")
     end
   end
 end

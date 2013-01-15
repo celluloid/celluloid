@@ -4,6 +4,9 @@ module Celluloid
     def method_missing(meth, *args, &block)
       # bang methods are async calls
       if meth.match(/!$/)
+        Logger.deprecate("'bang method'-style async syntax is deprecated and will be removed in Celluloid 1.0." +
+          "Call async methods with 'actor.async.method'.")
+
         unbanged_meth = meth.to_s
         unbanged_meth.slice!(-1, 1)
         Actor.async @mailbox, unbanged_meth, *args, &block
@@ -18,6 +21,9 @@ module Celluloid
     def method_missing(meth, *args, &block)
       # bang methods are async calls
       if meth.to_s.match(/!$/)
+        Logger.deprecate("'bang method'-style async syntax is deprecated and will be removed in Celluloid 1.0." +
+          "Call async methods with 'actor.async.method'.")
+
         unbanged_meth = meth.to_s.sub(/!$/, '')
         args.unshift unbanged_meth
 
