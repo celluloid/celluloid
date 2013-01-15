@@ -27,11 +27,6 @@ module Celluloid
       @links.each { |_, actor| yield(actor) }
     end
 
-    # Send an event message to all actors
-    def send_event(event)
-      each { |actor| actor.mailbox << event }
-    end
-
     # Generate a string representation
     def inspect
       links = self.map(&:inspect).join(',')

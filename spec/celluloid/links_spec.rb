@@ -42,14 +42,4 @@ describe Celluloid::Links do
     subject << second_actor
     subject.inject([]) { |all, a| all << a }.should == [first_actor, second_actor]
   end
-
-  it 'sends events to all actors' do
-    subject.send_event("this event will get lost!")
-    subject << first_actor
-    subject.send_event("only first actor")
-    subject << second_actor
-    subject.send_event("both actors")
-    first_actor.mailbox.should == ["only first actor", "both actors"]
-    second_actor.mailbox.should == ["both actors"]
-  end
 end

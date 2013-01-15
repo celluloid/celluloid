@@ -400,7 +400,14 @@ module Celluloid
     # Clean up after this actor
     def cleanup(exit_event)
       @mailbox.shutdown
-      @links.send_event exit_event
+      @links.each do |actor|
+        begin
+          actor.mailbox << exit_event
+        rescue MailboxError
+          # We're exiting/crashing, they're dead. Give up :(
+        end
+      end
+
       tasks.each { |task| task.terminate }
     rescue => ex
       Logger.crash("#{@subject.class}: CLEANUP CRASHED!", ex)
