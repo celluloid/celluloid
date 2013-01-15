@@ -6,7 +6,8 @@ module Celluloid
   # Don't use this class directly. Instead use MyKlass.pool
   class PoolManager
     include Celluloid
-    trap_exit :crash_handler
+    trap_exit :__crash_handler__
+    finalizer :__shutdown__
 
     def initialize(worker_class, options = {})
       @size = options[:size] || [Celluloid.cores, 2].max
@@ -22,7 +23,7 @@ module Celluloid
       @busy = []
     end
 
-    def finalize
+    def __shutdown__
       terminators = (@idle + @busy).each do |actor|
         begin
           actor.future(:terminate)
@@ -34,13 +35,13 @@ module Celluloid
     end
 
     def _send_(method, *args, &block)
-      worker = __provision_worker
+      worker = __provision_worker__
 
       begin
         worker._send_ method, *args, &block
       rescue DeadActorError # if we get a dead actor out of the pool
         wait :respawn_complete
-        worker = __provision_worker
+        worker = __provision_worker__
         retry
       rescue Exception => ex
         abort ex
@@ -89,7 +90,7 @@ module Celluloid
     end
 
     # Provision a new worker
-    def __provision_worker
+    def __provision_worker__
       while @idle.empty?
         # Wait for responses from one of the busy workers
         response = exclusive { receive { |msg| msg.is_a?(Response) } }
@@ -103,7 +104,7 @@ module Celluloid
     end
 
     # Spawn a new worker for every crashed one
-    def crash_handler(actor, reason)
+    def __crash_handler__(actor, reason)
       @busy.delete actor
       @idle.delete actor
       return unless reason
