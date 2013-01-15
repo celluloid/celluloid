@@ -383,7 +383,7 @@ module Celluloid
     def run_finalizer
       # FIXME: remove before Celluloid 1.0
       if @subject.respond_to?(:finalize) && @subject.class.finalizer != :finalize
-        Logger.deprecate("#{@subject.class}#finalize is deprecated and will be removed in Celluloid 1.0. " +
+        Logger.warn("DEPRECATION WARNING: #{@subject.class}#finalize is deprecated and will be removed in Celluloid 1.0. " +
           "Define finalizers with '#{@subject.class}.finalizer :callback.'")
 
         task(:finalizer, :finalize) { @subject.finalize }
