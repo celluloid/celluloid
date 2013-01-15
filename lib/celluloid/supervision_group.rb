@@ -149,7 +149,7 @@ module Celluloid
 
       def terminate
         @actor.terminate if @actor
-      rescue DeadActorError
+      rescue DeadActorError, MailboxError
       end
     end
   end
