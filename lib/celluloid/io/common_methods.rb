@@ -136,7 +136,11 @@ module Celluloid
 
         total_written
       end
-      alias_method :<<, :write
+      
+      def <<(string)
+        write string
+        self
+      end
     end
   end
 end
