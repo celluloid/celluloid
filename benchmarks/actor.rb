@@ -2,12 +2,25 @@
 
 require 'rubygems'
 require 'bundler/setup'
-require 'celluloid/io'
+require 'celluloid'
 require 'benchmark/ips'
 
 class ExampleActor
   include Celluloid::IO
+
+  def initialize
+    @condition = Condition.new
+  end
+
   def example_method; end
+
+  def finished
+    @condition.signal
+  end
+
+  def wait_until_finished
+    @condition.wait
+  end
 end
 
 example_actor = ExampleActor.new
@@ -24,11 +37,18 @@ end
 
 Benchmark.ips do |ips|
   ips.report("spawn")       { ExampleActor.new.terminate }
+  
   ips.report("calls")       { example_actor.example_method }
-  
-  # FIXME: deadlock?! o_O
-  ips.report("async calls") { example_actor.example_method! } unless RUBY_ENGINE == 'ruby'
-  
+
+  ips.report("async calls") do |n|
+    waiter = example_actor.future.wait_until_finished
+
+    for i in 1..n; example_actor.async.example_method; end
+    example_actor.async.finished
+
+    waiter.value
+  end
+
   ips.report("messages") do |n|
     latch_in << n
     for i in 0..n; mailbox << :message; end
