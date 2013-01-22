@@ -137,6 +137,7 @@ module Celluloid
         begin
           Celluloid::Notifications.notifier.async.publish(event_topic, event)
         rescue => ex
+          fallback_logger.add(event.severity, event.message, event.progname)
           fallback_logger.error(ex)
         end
       end
@@ -145,6 +146,7 @@ module Celluloid
         begin
           Celluloid::Notifications.notifier.async.publish(incident_topic, create_incident(event))
         rescue => ex
+          fallback_logger.add(event.severity, event.message, event.progname)
           fallback_logger.error(ex)
         end
       end
