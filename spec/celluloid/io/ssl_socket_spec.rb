@@ -34,10 +34,41 @@ describe Celluloid::IO::SSLSocket do
     end
   end
 
+  let(:celluloid_server) { Celluloid::IO::TCPServer.new example_addr, example_ssl_port }
+  let(:raw_server_thread) do
+    Thread.new { celluloid_server.accept }.tap do |thread|
+      Thread.pass while thread.status && thread.status != "sleep"
+    end
+  end
+
   context "inside Celluloid::IO" do
     it "connects to SSL servers over TCP" do
       with_ssl_sockets do |ssl_client, ssl_peer|
         within_io_actor do
+          ssl_peer << request
+          ssl_client.read(request.size).should == request
+
+          ssl_client << response
+          ssl_peer.read(response.size).should == response
+        end
+      end
+    end
+
+    it "starts SSL on a connected TCP socket" do
+      with_raw_sockets do |client, peer|
+        within_io_actor do
+          peer << request
+          client.read(request.size).should == request
+
+          client << response
+          peer.read(response.size).should == response
+
+          # now that we've written bytes, upgrade to SSL
+          client_thread = Thread.new { OpenSSL::SSL::SSLSocket.new(client).connect }
+          ssl_peer = Celluloid::IO::SSLSocket.new peer, server_context
+          ssl_peer.should == ssl_peer.accept
+          ssl_client = client_thread.value
+
           ssl_peer << request
           ssl_client.read(request.size).should == request
 
@@ -51,6 +82,28 @@ describe Celluloid::IO::SSLSocket do
   context "outside Celluloid::IO" do
     it "connects to SSL servers over TCP" do
       with_ssl_sockets do |ssl_client, ssl_peer|
+        ssl_peer << request
+        ssl_client.read(request.size).should == request
+
+        ssl_client << response
+        ssl_peer.read(response.size).should == response
+      end
+    end
+
+    it "starts SSL on a connected TCP socket" do
+      with_raw_sockets do |client, peer|
+        peer << request
+        client.read(request.size).should == request
+
+        client << response
+        peer.read(response.size).should == response
+
+        # now that we've written bytes, upgrade to SSL
+        client_thread = Thread.new { OpenSSL::SSL::SSLSocket.new(client).connect }
+        ssl_peer = Celluloid::IO::SSLSocket.new peer, server_context
+        ssl_peer.should == ssl_peer.accept
+        ssl_client = client_thread.value
+
         ssl_peer << request
         ssl_client.read(request.size).should == request
 
@@ -117,6 +170,20 @@ describe Celluloid::IO::SSLSocket do
       ssl_server.close
       ssl_client.close
       ssl_peer.close
+    end
+  end
+
+  def with_raw_sockets
+    server_thread = raw_server_thread
+    raw_client = client
+
+    begin
+      raw_peer = server_thread.value
+      yield raw_client, raw_peer
+    ensure
+      celluloid_server.close
+      raw_client.close
+      raw_peer.close
     end
   end
 end
