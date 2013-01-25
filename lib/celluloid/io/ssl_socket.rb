@@ -22,6 +22,17 @@ module Celluloid
         retry
       end
 
+      def accept
+        @socket.accept_nonblock
+        self
+      rescue ::IO::WaitReadable
+        wait_readable
+        retry
+      rescue ::IO::WaitWritable
+        wait_writable
+        retry
+      end
+
       def to_io; @socket; end
     end
   end
