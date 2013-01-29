@@ -22,7 +22,7 @@ module Celluloid
       ex = ex.cause if ex.is_a? AbortError
 
       if ex.backtrace
-        ex.backtrace << "(celluloid):0: in `remote procedure call'"
+        ex.backtrace << "(celluloid):0:in `remote procedure call'"
         ex.backtrace.concat(caller)
       end
 
