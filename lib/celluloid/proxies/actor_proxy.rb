@@ -4,6 +4,16 @@ module Celluloid
   class ActorProxy
     attr_reader :mailbox, :thread
 
+    protected
+    def __klass__
+      @class
+    end
+
+    def __subject_id__
+      @subject_id
+    end
+    public
+
     def initialize(actor)
       @mailbox, @thread, @klass = actor.mailbox, actor.thread, actor.subject.class.to_s
       @subject_id = actor.subject.object_id
@@ -25,6 +35,19 @@ module Celluloid
 
     def _send_(meth, *args, &block)
       Actor.call @mailbox, :__send__, meth, *args, &block
+    end
+
+    # Return persistent hash key
+    # Does not call actor.
+    def hash
+      __subject_id__
+    end
+
+    # Equality for ActorProxies
+    # Returns true if both proxies point to the same actor.
+    # Does not call actor.
+    def eql?(other)
+      other.__class__ == __class__ && __klass__ == other.__klass__ && __subject_id__ == other.__subject_id__
     end
 
     # Inspect this proxy (not actor).

@@ -21,8 +21,23 @@ shared_context "a Celluloid Actor" do |included_module|
 
   it "can be stored in hashes" do
     actor = actor_class.new "Troy McClure"
+    actor2 = actor_class.new "Blocky Ralboa"
     actor.hash.should_not == Kernel.hash
     actor.object_id.should_not == Kernel.object_id
+
+    actor.should eql actor
+    actor.should_not eql actor2
+
+    actor.hash.should == actor.hash
+    actor.hash.should_not == actor2.hash
+
+    actor.terminate
+
+    actor.should eql actor
+    actor.should_not eql actor2
+
+    actor.hash.should == actor.hash
+    actor.hash.should_not == actor2.hash
   end
 
   it "supports synchronous calls" do
