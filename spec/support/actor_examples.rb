@@ -40,14 +40,15 @@ shared_context "a Celluloid Actor" do |included_module|
 
   it "supports synchronous calls via #method" do
     method = actor_class.new("Troy McClure").method(:greet)
+    method.call.should == "Hi, I'm Troy McClure"
+  end
+
+  it "supports #arity calls via #method" do
+    method = actor_class.new("Troy McClure").method(:greet)
     method.arity.should == 0
-    
+
     method = actor_class.new("Troy McClure").method(:change_name)
     method.arity.should == 1
-  end
-  
-  it "supports #arity calls via #method" do
-    
   end
 
   it "supports future(:method) syntax for synchronous future calls" do
