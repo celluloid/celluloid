@@ -134,18 +134,16 @@ shared_context "a Celluloid Actor" do |included_module|
 
   it "inspects properly" do
     actor = actor_class.new "Troy McClure"
-    actor.inspect.should match(/Celluloid::Actor\(/)
-    actor.inspect.should match(/#{actor_class}/)
-    actor.inspect.should include('@name="Troy McClure"')
-    actor.inspect.should_not include("@celluloid")
+    actor.inspect.should match(/Celluloid::ActorProxy\(/)
+    # inspect should not call actor
+    actor.inspect.should_not include('@name="Troy McClure"')
   end
 
   it "inspects properly when dead" do
     actor = actor_class.new "Troy McClure"
+    before = actor.inspect
     actor.terminate
-    actor.inspect.should match(/Celluloid::Actor\(/)
-    actor.inspect.should match(/#{actor_class}/)
-    actor.inspect.should include('dead')
+    actor.inspect.should == before
   end
 
   it "allows access to the wrapped object" do

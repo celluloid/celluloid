@@ -6,6 +6,7 @@ module Celluloid
 
     def initialize(actor)
       @mailbox, @thread, @klass = actor.mailbox, actor.thread, actor.subject.class.to_s
+      @subject_id = actor.subject.object_id
 
       @async_proxy  = AsyncProxy.new(actor)
       @future_proxy = FutureProxy.new(actor)
@@ -26,10 +27,10 @@ module Celluloid
       Actor.call @mailbox, :__send__, meth, *args, &block
     end
 
+    # Inspect this proxy (not actor).
+    # Does not call actor.
     def inspect
-      Actor.call(@mailbox, :inspect)
-    rescue DeadActorError
-      "#<Celluloid::Actor(#{@klass}) dead>"
+      "#<Celluloid::ActorProxy(#@klass:#{@subject_id.to_s(16)})>"
     end
 
     def name
