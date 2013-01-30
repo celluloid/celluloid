@@ -90,7 +90,7 @@ module Celluloid
 
     # Terminate the group
     def finalize
-      @members.each(&:terminate)
+      @members.reverse_each(&:terminate)
     end
 
     # Restart a crashed actor
