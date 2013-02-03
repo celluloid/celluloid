@@ -260,7 +260,7 @@ module Celluloid
       if leaked?
         str << Celluloid::BARE_OBJECT_WARNING_MESSAGE
       else
-        str << "Celluloid::Actor"
+        str << "Celluloid::ActorProxy"
       end
 
       str << "(#{self.class}:0x#{object_id.to_s(16)})"
