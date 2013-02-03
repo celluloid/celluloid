@@ -134,7 +134,7 @@ shared_context "a Celluloid Actor" do |included_module|
 
   it "inspects properly" do
     actor = actor_class.new "Troy McClure"
-    actor.inspect.should match(/Celluloid::Actor\(/)
+    actor.inspect.should match(/Celluloid::ActorProxy\(/)
     actor.inspect.should match(/#{actor_class}/)
     actor.inspect.should include('@name="Troy McClure"')
     actor.inspect.should_not include("@celluloid")
