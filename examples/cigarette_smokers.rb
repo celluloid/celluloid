@@ -89,12 +89,11 @@ class Smoker
 
   # Sit down at the table
   def sit(table)
-    puts "#{name} sits down at table"
-
-    # Always use Actor.current instead of self when talking to other actors
-    table.smokers << Actor.current
     @table = table
+    @table.async.welcome(Actor.current)
+  end
 
+  def sat_down
     @machine.transition :procuring
   end
 
@@ -236,6 +235,11 @@ class Table
     @smokers = []
     @waitress = Waitress.new(Actor.current) # Always use Actor.current instead of self!
     @items = nil
+  end
+
+  def welcome(smoker)
+    @smokers << smoker
+    smoker.async.sat_down
   end
 
   def place(items)
