@@ -2,7 +2,15 @@ require 'logger'
 require 'thread'
 require 'timeout'
 require 'set'
-require 'facter'
+
+# Fix for Facter < 1.7.0 changing LANG to C
+# https://github.com/puppetlabs/facter/commit/f77584f4
+begin
+  old_lang = ENV['LANG']
+  require 'facter'
+ensure
+  ENV['LANG'] = old_lang
+end
 
 module Celluloid
   extend self # expose all instance methods as singleton methods
