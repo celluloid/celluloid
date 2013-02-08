@@ -3,15 +3,6 @@ require 'thread'
 require 'timeout'
 require 'set'
 
-# Fix for Facter < 1.7.0 changing LANG to C
-# https://github.com/puppetlabs/facter/commit/f77584f4
-begin
-  old_lang = ENV['LANG']
-  require 'facter'
-ensure
-  ENV['LANG'] = old_lang
-end
-
 module Celluloid
   extend self # expose all instance methods as singleton methods
 
@@ -43,16 +34,7 @@ module Celluloid
 
     # Obtain the number of CPUs in the system
     def cores
-      core_count = Facter.fact(:processorcount)
-
-      if core_count
-        Integer(core_count.value)
-      elsif ENV['CELLULOID_NCPUS']
-        ENV['CELLULOID_NCPUS']
-      else
-        Logger.warn "Unable to determine CPU core count, defaulting to 2"
-        2
-      end
+     CPUCounter.cores
     end
     alias_method :cpus, :cores
     alias_method :ncpus, :cores
@@ -443,6 +425,7 @@ require 'celluloid/version'
 require 'celluloid/calls'
 require 'celluloid/condition'
 require 'celluloid/core_ext'
+require 'celluloid/cpu_counter'
 require 'celluloid/fiber'
 require 'celluloid/fsm'
 require 'celluloid/internal_pool'

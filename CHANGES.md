@@ -40,7 +40,6 @@ HEAD
 * Initial thread dumper support
 * Remove Celluloid#alive? as it cannot be called in any manner that will ever
   return anything but true, rendering it useless
-* Use Facter to get CPU count
 
 0.12.0
 ------
