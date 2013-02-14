@@ -1,3 +1,7 @@
+0.13.0.pre
+----------
+* FIXME: lots of stuff happened. Should document it yo
+
 0.12.0
 ------
 * Tracking release for Celluloid 0.12.0
