@@ -1,5 +1,7 @@
-0.13.0
-* Initial Celluloid::IO::SSL support
+0.13.0.pre
+----------
+* Initial SSL support via Celluloid::IO::SSLSocket and
+  Celluloid::IO::SSLServer
 * Celluloid 0.13 compatibility fixes
 
 0.12.0
