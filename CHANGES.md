@@ -1,5 +1,5 @@
-HEAD
-----
+0.13.0.pre
+----------
 * API change: use_mailbox has been removed
 * API change: finalizers must be declared with "finalize :my_finalizer"
 * Bugfix: receivers don't crash when methods are called incorrectly
