@@ -71,6 +71,10 @@ library.
 Like Celluloid? [Join the Google Group](http://groups.google.com/group/celluloid-ruby)
 or visit us on IRC at #celluloid on freenode
 
+### Is it any good?
+
+[Yes](http://news.ycombinator.com/item?id=3067434)
+
 ### Is It "Production Ready™"?
 
 Yes, many users are now running Celluloid in production by using
