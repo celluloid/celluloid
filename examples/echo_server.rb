@@ -1,4 +1,6 @@
 #!/usr/bin/env ruby
+#
+# Run this as: bundle exec examples/echo_server.rb
 
 require 'bundler/setup'
 require 'celluloid/io'
@@ -12,7 +14,7 @@ class EchoServer
     # Since we included Celluloid::IO, we're actually making a
     # Celluloid::IO::TCPServer here
     @server = TCPServer.new(host, port)
-    run!
+    async.run
   end
 
   def finalize
@@ -20,7 +22,7 @@ class EchoServer
   end
 
   def run
-    loop { handle_connection! @server.accept }
+    loop { async.handle_connection @server.accept }
   end
 
   def handle_connection(socket)

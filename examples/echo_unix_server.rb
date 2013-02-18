@@ -10,10 +10,11 @@ class EchoUNIXServer
     puts "*** start server #{socket_path}"
     @socket_path = socket_path
     @server = UNIXServer.open(socket_path)
+    async.run
   end
 
   def run
-    loop { handle_connection! @server.accept }
+    loop { async.handle_connection @server.accept }
   end
 
   def handle_connection(socket)
@@ -39,5 +40,6 @@ class EchoUNIXServer
 
 end
 
-s = EchoUNIXServer.new("/tmp/sock_test")
-s.run
+supervisor = EchoUNIXServer.supervise("/tmp/sock_test")
+trap("INT") { supervisor.terminate; exit }
+sleep
