@@ -253,7 +253,7 @@ shared_context "a Celluloid Actor" do |included_module|
         actor.crash_with_abort_raw 10
       end.to raise_exception(TypeError, "Exception object/String expected, but Fixnum received")
 
-      actor.greet rescue nil # Ensure our actor has died.
+      Celluloid::Actor.join(actor)
       actor.should_not be_alive
     end
   end
