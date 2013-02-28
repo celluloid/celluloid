@@ -117,10 +117,11 @@ Inside of your Ruby program do:
 Supported Platforms
 -------------------
 
-Celluloid works on Ruby 1.9.3, JRuby 1.6+, and Rubinius 2.0. JRuby or Rubinius
-are the preferred platforms as they support true thread-level parallelism when
-executing Ruby code, whereas MRI/YARV is constrained by a global interpreter
-lock (GIL) and can only execute one thread at a time.
+Celluloid works on Ruby 1.9.3, 2.0.0, JRuby 1.6+, and Rubinius 2.0.
+
+JRuby or Rubinius are the preferred platforms as they support true thread-level
+parallelism when executing Ruby code, whereas MRI/YARV is constrained by a global
+interpreter lock (GIL) and can only execute one thread at a time.
 
 Celluloid requires Ruby 1.9 mode on all interpreters.
 
