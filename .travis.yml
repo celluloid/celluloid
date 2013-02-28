@@ -9,6 +9,7 @@ rvm:
 
 matrix:
   allow_failures:
+    - rvm: rbx-19mode # deadlocks :(
     - rvm: ruby-head
     - rvm: jruby-head
 
