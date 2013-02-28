@@ -1,5 +1,6 @@
 ![Celluloid](https://github.com/celluloid/celluloid-io/raw/master/logo.png)
 =============
+[![Gem Version](https://badge.fury.io/rb/celluloid-io.png)](http://rubygems.org/gems/celluloid-io)
 [![Build Status](https://secure.travis-ci.org/celluloid/celluloid-io.png?branch=master)](http://travis-ci.org/celluloid/celluloid-io)
 [![Dependency Status](https://gemnasium.com/celluloid/celluloid-io.png)](https://gemnasium.com/celluloid/celluloid-io)
 [![Code Climate](https://codeclimate.com/github/celluloid/celluloid-io.png)](https://codeclimate.com/github/celluloid/celluloid-io)
