@@ -14,7 +14,23 @@ describe Celluloid::IO::SSLSocket do
     end
   end
 
-  let(:client)     { TCPSocket.new example_addr, example_ssl_port }
+  let(:client) do
+    remaining_attempts = 3
+
+    begin
+      TCPSocket.new example_addr, example_ssl_port
+    rescue Errno::ECONNREFUSED
+      # HAX: sometimes this fails to connect? o_O
+      # This is quite likely due to the Thread.pass style spinlocks for startup
+      raise if remaining_attempts < 1
+      remaining_attempts -= 1
+
+      # Seems gimpy, but sleep and retry
+      sleep 0.1
+      retry
+    end
+  end
+
   let(:ssl_client) { Celluloid::IO::SSLSocket.new client, client_context }
 
   let(:server_cert) { OpenSSL::X509::Certificate.new fixture_dir.join("server.crt").read }
@@ -31,6 +47,7 @@ describe Celluloid::IO::SSLSocket do
   let(:server_thread) do
     Thread.new { ssl_server.accept }.tap do |thread|
       Thread.pass while thread.status && thread.status != "sleep"
+      thread.join unless thread.status
     end
   end
 
@@ -38,6 +55,7 @@ describe Celluloid::IO::SSLSocket do
   let(:raw_server_thread) do
     Thread.new { celluloid_server.accept }.tap do |thread|
       Thread.pass while thread.status && thread.status != "sleep"
+      thread.join unless thread.status
     end
   end
 
@@ -160,13 +178,14 @@ describe Celluloid::IO::SSLSocket do
   end
 
   def with_ssl_sockets
-    thread = server_thread
+    server_thread
     ssl_client.connect
 
     begin
-      ssl_peer = thread.value
+      ssl_peer = server_thread.value
       yield ssl_client, ssl_peer
     ensure
+      server_thread.join
       ssl_server.close
       ssl_client.close
       ssl_peer.close
@@ -174,16 +193,17 @@ describe Celluloid::IO::SSLSocket do
   end
 
   def with_raw_sockets
-    server_thread = raw_server_thread
-    raw_client = client
+    raw_server_thread
+    client
 
     begin
-      raw_peer = server_thread.value
-      yield raw_client, raw_peer
+      peer = raw_server_thread.value
+      yield client, peer
     ensure
+      raw_server_thread.join
       celluloid_server.close
-      raw_client.close
-      raw_peer.close
+      client.close
+      peer.close
     end
   end
 end
