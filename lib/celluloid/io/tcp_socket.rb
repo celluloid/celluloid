@@ -4,27 +4,33 @@ require 'resolv'
 module Celluloid
   module IO
     # TCPSocket with combined blocking and evented support
-    class TCPSocket
-      include Buffering
-      include CommonMethods
+    class TCPSocket < Stream
       extend Forwardable
 
       def_delegators :@socket, :read_nonblock, :write_nonblock, :close, :closed?
       def_delegators :@socket, :addr, :peeraddr, :setsockopt
 
       # Convert a Ruby TCPSocket into a Celluloid::IO::TCPSocket
+      # DEPRECATED: to be removed in a future release
       def self.from_ruby_socket(ruby_socket)
-        # Some hax here, but whatever ;)
-        socket = allocate
-        socket.instance_variable_set(:@socket, ruby_socket)
-        socket.__send__(:initialize_buffers)
-        socket
+        new(ruby_socket)
       end
 
       # Opens a TCP connection to remote_host on remote_port. If local_host
       # and local_port are specified, then those parameters are used on the
       # local end to establish the connection.
-      def initialize(remote_host, remote_port, local_host = nil, local_port = nil)
+      def initialize(remote_host, remote_port = nil, local_host = nil, local_port = nil)
+        super()
+        
+        # Allow users to pass in a Ruby TCPSocket directly
+        if remote_host.is_a? ::TCPSocket
+          @addr = nil
+          @socket = remote_host
+          return
+        elsif remote_port.nil?
+          raise ArgumentError, "wrong number of arguments (1 for 2)"
+        end
+
         # Is it an IPv4 address?
         begin
           @addr = Resolv::IPv4.create(remote_host)
@@ -72,8 +78,6 @@ module Celluloid
           # We're now connected! Yay exceptions for flow control
           # NOTE: This is the approach the Ruby stdlib docs suggest ;_;
         end
-
-        initialize_buffers
       end
 
       def to_io
