@@ -11,35 +11,28 @@ module Celluloid
       obj.public_send(@method, *@arguments, &@block)
     rescue NoMethodError => ex
       # Abort if the caller made a mistake
-      detect_missing_method(ex)
+      raise AbortError.new(ex) unless obj.respond_to? @method
 
       # Otherwise something blew up. Crash this actor
       raise
     rescue ArgumentError => ex
       # Abort if the caller made a mistake
-      detect_argument_error(ex)
+      begin
+        arity = obj.method(@method).arity
+      rescue NameError
+        # In theory this shouldn't happen, but just in case
+        raise AbortError.new(ex)
+      end
+
+      if arity >= 0
+        raise AbortError.new(ex) if @arguments.size != arity
+      elsif arity < -1
+        mandatory_args = -arity - 1
+        raise AbortError.new(ex) if arguments.size < mandatory_args
+      end
 
       # Otherwise something blew up. Crash this actor
       raise
-    end
-
-  private
-
-    # Detect NoMethodErrors made by the caller and abort
-    def detect_missing_method(ex)
-      ex.backtrace.each do |frame|
-        break if frame["celluloid/lib/celluloid/calls.rb"] || frame["`public_send'"]
-        return unless frame["`method_missing'"]
-      end
-
-      raise AbortError.new(ex)
-    end
-
-    # Detect ArgumentErrors made by the caller and abort
-    def detect_argument_error(ex)
-      if ex.backtrace[0]["`#{@method}'"] && ex.backtrace[1]["`public_send'"]
-        raise AbortError.new(ex)
-      end
     end
   end
 
