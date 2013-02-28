@@ -2,14 +2,14 @@
 
 require 'rubygems'
 require 'bundler/setup'
-require 'celluloid'
+require 'celluloid/io'
 require 'benchmark/ips'
 
 class ExampleActor
   include Celluloid::IO
 
   def initialize
-    @condition = Condition.new
+    @condition = Celluloid::Condition.new
   end
 
   def example_method; end
@@ -24,13 +24,13 @@ class ExampleActor
 end
 
 example_actor = ExampleActor.new
-mailbox = Celluloid::Mailbox.new
+mailbox = Celluloid::IO::Mailbox.new
 
 latch_in, latch_out = Queue.new, Queue.new
 latch = Thread.new do
   while true
     n = latch_in.pop
-    for i in 0..n; mailbox.receive; end
+    for i in 0...n; mailbox.receive; end
     latch_out << :done
   end
 end
@@ -49,9 +49,12 @@ Benchmark.ips do |ips|
     waiter.value
   end
 
+# Deadlocking o_O
+=begin
   ips.report("messages") do |n|
     latch_in << n
-    for i in 0..n; mailbox << :message; end
+    for i in 0...n; mailbox << :message; end
     latch_out.pop
   end
+=end
 end
