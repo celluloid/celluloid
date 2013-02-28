@@ -1,5 +1,7 @@
 0.13.0.pre
 ----------
+* Support for many, many more IO methods, particularly line-oriented
+  methods like #gets, #readline, and #readlines
 * Initial SSL support via Celluloid::IO::SSLSocket and
   Celluloid::IO::SSLServer
 * Celluloid 0.13 compatibility fixes
