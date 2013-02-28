@@ -4,6 +4,7 @@ module Celluloid
   module IO
     # UNIXSocket with combined blocking and evented support
     class UNIXSocket
+      include Buffering
       include CommonMethods
       extend Forwardable
 
@@ -14,6 +15,7 @@ module Celluloid
         # Some hax here, but whatever ;)
         socket = allocate
         socket.instance_variable_set(:@socket, ruby_socket)
+        socket.__send__(:initialize_buffers)
         socket
       end
 
@@ -30,6 +32,8 @@ module Celluloid
         else
           ::UNIXSocket.new(socket_path)
         end
+
+        initialize_buffers
       end
 
       def to_io

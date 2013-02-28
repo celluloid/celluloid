@@ -5,6 +5,7 @@ module Celluloid
   module IO
     # TCPSocket with combined blocking and evented support
     class TCPSocket
+      include Buffering
       include CommonMethods
       extend Forwardable
 
@@ -16,6 +17,7 @@ module Celluloid
         # Some hax here, but whatever ;)
         socket = allocate
         socket.instance_variable_set(:@socket, ruby_socket)
+        socket.__send__(:initialize_buffers)
         socket
       end
 
@@ -70,6 +72,8 @@ module Celluloid
           # We're now connected! Yay exceptions for flow control
           # NOTE: This is the approach the Ruby stdlib docs suggest ;_;
         end
+
+        initialize_buffers
       end
 
       def to_io

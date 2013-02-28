@@ -62,33 +62,15 @@ module Celluloid
         Thread.current[:celluloid_actor].signal(self)
       end
 
-      def read(length = nil, buffer = nil)
+      def sysread(length = nil, buffer = nil)
         buffer ||= ''.force_encoding(Encoding::ASCII_8BIT)
-        remaining = length
 
         acquire_ownership :r
         begin
-          if length
-            until remaining.zero?
-              begin
-                str = readpartial(remaining)
-              rescue EOFError
-                return if length == remaining
-                return buffer
-              end
-
-              buffer << str
-              remaining -= str.length
-            end
-          else
-            while true
-              begin
-                buffer << read_nonblock(Socket::SO_RCVBUF)
-              rescue Errno::EAGAIN, EOFError
-                return buffer
-              end
-            end
-          end
+          result = read_nonblock(length, buffer)
+        rescue ::IO::WaitReadable
+          wait_readable
+          retry
         ensure
           release_ownership :r
         end
@@ -96,20 +78,7 @@ module Celluloid
         buffer
       end
 
-      def readpartial(length, buffer = nil)
-        buffer ||= ''.force_encoding(Encoding::ASCII_8BIT)
-
-        begin
-          read_nonblock(length, buffer)
-        rescue ::IO::WaitReadable
-          wait_readable
-          retry
-        end
-
-        buffer
-      end
-
-      def write(string)
+      def syswrite(string)
         length = string.length
         total_written = 0
 
@@ -135,11 +104,6 @@ module Celluloid
         end
 
         total_written
-      end
-      
-      def <<(string)
-        write string
-        self
       end
     end
   end

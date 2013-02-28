@@ -4,6 +4,7 @@ module Celluloid
   module IO
     # SSLSocket with Celluloid::IO support
     class SSLSocket
+      include Buffering
       include CommonMethods
       extend Forwardable
 
@@ -13,6 +14,7 @@ module Celluloid
       def initialize(io, ctx = OpenSSL::SSL::SSLContext.new)
         @context = ctx
         @socket = OpenSSL::SSL::SSLSocket.new(::IO.try_convert(io), @context)
+        initialize_buffers
       end
 
       def connect
