@@ -7,7 +7,7 @@ module Celluloid
 
     def initialize
       @mutex = Mutex.new
-      @owner = Actor.current
+      @owner = Thread.current[:celluloid_actor]
       @tasks = []
     end
 
@@ -16,7 +16,9 @@ module Celluloid
       raise ConditionError, "cannot wait for signals while exclusive" if Celluloid.exclusive?
 
       @mutex.synchronize do
-        raise ConditionError, "can't wait unless owner" unless Actor.current == @owner
+        actor = Thread.current[:celluloid_actor]
+        raise ConditionError, "can't wait for conditions outside actors" unless actor
+        raise ConditionError, "can't wait unless owner" unless actor == @owner
         @tasks << Task.current
       end
 
@@ -27,7 +29,9 @@ module Celluloid
 
     # Send a signal to the first task waiting on this condition
     def signal(value = nil)
-       @mutex.synchronize do
+      @mutex.synchronize do
+        raise ConditionError, "no owner for this condition" unless @owner
+
         if task = @tasks.shift
           @owner.mailbox << SignalConditionRequest.new(task, value)
         else
@@ -39,6 +43,8 @@ module Celluloid
     # Broadcast a value to all waiting tasks
     def broadcast(value = nil)
       @mutex.synchronize do
+        raise ConditionError, "no owner for this condition" unless @owner
+
         @tasks.each { |task| @owner.mailbox << SignalConditionRequest.new(task, value) }
         @tasks.clear
       end
