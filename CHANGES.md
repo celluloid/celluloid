@@ -4,6 +4,8 @@
   methods like #gets, #readline, and #readlines
 * Initial SSL support via Celluloid::IO::SSLSocket and
   Celluloid::IO::SSLServer
+* Concurrent writes between tasks of the same actor are now coordinated
+  using Celluloid::Conditions instead of signals
 * Celluloid 0.13 compatibility fixes
 
 0.12.0
