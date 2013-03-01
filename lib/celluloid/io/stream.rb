@@ -381,6 +381,8 @@ module Celluloid
       class Latch
         def initialize
           @owner = nil
+          @waiters = 0
+          @condition = Celluloid::Condition.new
         end
 
         # Synchronize an operation across all tasks in the current actor
@@ -388,14 +390,28 @@ module Celluloid
           actor = Thread.current[:celluloid_actor]
           return yield unless actor
 
-          actor.wait(self) while @owner
+          # Silently acquire ownership at the actor level. This method should be
+          # replaced with an ownership system similar to conditions if this code
+          # is ever extracted into Celluloid itself
+          if @condition.owner != actor.proxy
+            @condition.owner = actor.proxy
+            @waiters = 0
+            @owner = nil
+          end
+
+          if @owner || @waiters > 0
+            @waiters += 1
+            @condition.wait
+            @waiters -= 1
+          end
+
           @owner = Task.current
 
           begin
             ret = yield
           ensure
             @owner = nil
-            actor.signal(self)
+            @condition.signal if @waiters > 0
           end
 
           ret
