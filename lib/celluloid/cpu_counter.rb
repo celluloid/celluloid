@@ -6,7 +6,11 @@ module Celluloid
     when 'darwin'
       @cores = Integer(`sysctl hw.ncpu`[/\d+/])
     when 'linux'
-      @cores = File.read("/proc/cpuinfo").scan(/(?:core id|processor)\s+: \d+/).uniq.size
+      @cores = if File.exists?("/sys/devices/system/cpu/present")
+        File.read("/sys/devices/system/cpu/present").split('-').last.to_i+1
+      else
+        Dir["/sys/devices/system/cpu/cpu*"].select { |n| n=~/cpu\d+/ }.count
+      end
     when 'mingw', 'mswin'
       @cores = Integer(`SET NUMBER_OF_PROCESSORS`[/\d+/])
     else
@@ -16,3 +20,5 @@ module Celluloid
     def self.cores; @cores; end
   end
 end
+
+
