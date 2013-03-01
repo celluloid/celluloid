@@ -6,6 +6,13 @@ require 'celluloid/rspec'
 logfile = File.open(File.expand_path("../../log/test.log", __FILE__), 'a')
 Celluloid.logger = Logger.new(logfile)
 
+# FIXME: Hax until test termination can be cleaned up
+module Celluloid
+  class << self
+    def shutdown; end # hax: noop!
+  end
+end
+
 class ExampleActor
   include Celluloid::IO
 
