@@ -7,16 +7,16 @@
 
 module Celluloid
   module IO
-    # Base class of all stream sockets in Celluloid::IO
+    # Base class of all streams in Celluloid::IO
     class Stream
       include Enumerable
 
-      # The "sync mode" of the socket
+      # The "sync mode" of the stream
       #
       # See IO#sync for full details.
       attr_accessor :sync
 
-      # Default size to read from or write to the socket for buffer operations
+      # Default size to read from or write to the stream for buffer operations
       BLOCK_SIZE = 1024*16
 
       def initialize
@@ -308,7 +308,7 @@ module Celluloid
         nil
       end
 
-      # Flushes buffered data to the socket.
+      # Flushes buffered data to the stream.
       def flush
         osync = @sync
         @sync = true
@@ -318,7 +318,7 @@ module Celluloid
         @sync = osync
       end
 
-      # Closes the socket and flushes any unwritten data.
+      # Closes the stream and flushes any unwritten data.
       def close
         flush rescue nil
         sysclose
@@ -328,7 +328,7 @@ module Celluloid
       private
       #######
 
-      # Fills the buffer from the underlying socket
+      # Fills the buffer from the underlying stream
       def fill_rbuff
         begin
           @read_buffer << sysread(BLOCK_SIZE)
@@ -352,7 +352,7 @@ module Celluloid
       end
 
       # Writes +s+ to the buffer.  When the buffer is full or #sync is true the
-      # buffer is flushed to the underlying socket.
+      # buffer is flushed to the underlying stream.
       def do_write(s)
         @write_buffer << s
         @write_buffer.force_encoding(Encoding::BINARY)
