@@ -45,10 +45,10 @@ describe Celluloid::IO::TCPSocket do
       end
     end
 
-    it "reads data in ASCII-8BIT encoding" do
+    it "reads data in binary encoding" do
       with_connected_sockets do |subject, peer|
         peer << payload
-        within_io_actor { subject.read(payload.size).encoding }.should eq Encoding::ASCII_8BIT
+        within_io_actor { subject.read(payload.size).encoding }.should eq Encoding::BINARY
       end
     end
 
@@ -59,10 +59,10 @@ describe Celluloid::IO::TCPSocket do
       end
     end
 
-    it "reads partial data in ASCII-8BIT encoding" do
+    it "reads partial data in binary encoding" do
       with_connected_sockets do |subject, peer|
         peer << payload * 2
-        within_io_actor { subject.readpartial(payload.size).encoding }.should eq Encoding::ASCII_8BIT
+        within_io_actor { subject.readpartial(payload.size).encoding }.should eq Encoding::BINARY
       end
     end
 
