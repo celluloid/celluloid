@@ -22,8 +22,11 @@ module Celluloid
       def initialize
         @eof  = false
         @sync = true # FIXME: hax
-        @rbuffer = ''.force_encoding(Encoding::ASCII_8BIT)
-        @wbuffer = ''.force_encoding(Encoding::ASCII_8BIT)
+        @read_buffer = ''.force_encoding(Encoding::ASCII_8BIT)
+        @write_buffer = ''.force_encoding(Encoding::ASCII_8BIT)
+
+        @read_latch  = Latch.new
+        @write_latch = Latch.new
       end
 
       # Are we inside of a Celluloid::IO actor?
@@ -50,54 +53,17 @@ module Celluloid
         end
       end
 
-      # Request exclusive control for a particular operation
-      # Type should be one of :r (read) or :w (write)
-      def acquire_ownership(type)
-        return unless Thread.current[:celluloid_actor]
-
-        case type
-        when :r
-          ivar = :@read_owner
-        when :w
-          ivar = :@write_owner
-        else raise ArgumentError, "invalid ownership type: #{type}"
-        end
-
-        # Celluloid needs a better API here o_O
-        Thread.current[:celluloid_actor].wait(self) while instance_variable_defined?(ivar) && instance_variable_get(ivar)
-        instance_variable_set(ivar, Task.current)
-      end
-
-      # Release ownership for a particular operation
-      # Type should be one of :r (read) or :w (write)
-      def release_ownership(type)
-        return unless Thread.current[:celluloid_actor]
-
-        case type
-        when :r
-          ivar = :@read_owner
-        when :w
-          ivar = :@write_owner
-        else raise ArgumentError, "invalid ownership type: #{type}"
-        end
-
-        raise "not owner" unless instance_variable_defined?(ivar) && instance_variable_get(ivar) == Task.current
-        instance_variable_set(ivar, nil)
-        Thread.current[:celluloid_actor].signal(self)
-      end
-
       # System read via the nonblocking subsystem
       def sysread(length = nil, buffer = nil)
         buffer ||= ''.force_encoding(Encoding::ASCII_8BIT)
 
-        acquire_ownership :r
-        begin
-          result = read_nonblock(length, buffer)
-        rescue ::IO::WaitReadable
-          wait_readable
-          retry
-        ensure
-          release_ownership :r
+        @read_latch.synchronize do
+          begin
+            read_nonblock(length, buffer)
+          rescue ::IO::WaitReadable
+            wait_readable
+            retry
+          end
         end
 
         buffer
@@ -109,9 +75,8 @@ module Celluloid
         total_written = 0
 
         remaining = string
-        acquire_ownership :w
 
-        begin
+        @write_latch.synchronize do
           while total_written < length
             begin
               written = write_nonblock(remaining)
@@ -123,10 +88,10 @@ module Celluloid
             end
 
             total_written += written
+
+            # FIXME: mutating the original buffer here. Seems bad.
             remaining.slice!(0, written) if written < remaining.length
           end
-        ensure
-          release_ownership :w
         end
 
         total_written
@@ -147,7 +112,7 @@ module Celluloid
         end
 
         until @eof
-          break if size && size <= @rbuffer.size
+          break if size && size <= @read_buffer.size
           fill_rbuff
           break unless size
         end
@@ -176,7 +141,7 @@ module Celluloid
           end
         end
 
-        if @rbuffer.empty?
+        if @read_buffer.empty?
           begin
             return sysread(maxlen, buf)
           rescue Errno::EAGAIN
@@ -205,12 +170,12 @@ module Celluloid
       #
       # Unlike IO#gets the separator must be provided if a limit is provided.
       def gets(eol=$/, limit=nil)
-        idx = @rbuffer.index(eol)
+        idx = @read_buffer.index(eol)
 
         until @eof
           break if idx
           fill_rbuff
-          idx = @rbuffer.index(eol)
+          idx = @read_buffer.index(eol)
         end
 
         if eol.is_a?(Regexp)
@@ -279,14 +244,14 @@ module Celluloid
       #
       # Has no effect on unbuffered reads (such as #sysread).
       def ungetc(c)
-        @rbuffer[0,0] = c.chr
+        @read_buffer[0,0] = c.chr
       end
 
       # Returns true if the stream is at file which means there is no more data to
       # be read.
       def eof?
-        fill_rbuff if !@eof && @rbuffer.empty?
-        @eof && @rbuffer.empty?
+        fill_rbuff if !@eof && @read_buffer.empty?
+        @eof && @read_buffer.empty?
       end
       alias eof eof?
 
@@ -366,7 +331,7 @@ module Celluloid
       # Fills the buffer from the underlying socket
       def fill_rbuff
         begin
-          @rbuffer << sysread(BLOCK_SIZE)
+          @read_buffer << sysread(BLOCK_SIZE)
         rescue Errno::EAGAIN
           retry
         rescue EOFError
@@ -376,12 +341,12 @@ module Celluloid
 
       # Consumes +size+ bytes from the buffer
       def consume_rbuff(size=nil)
-        if @rbuffer.empty?
+        if @read_buffer.empty?
           nil
         else
-          size = @rbuffer.size unless size
-          ret = @rbuffer[0, size]
-          @rbuffer[0, size] = ""
+          size = @read_buffer.size unless size
+          ret = @read_buffer[0, size]
+          @read_buffer[0, size] = ""
           ret
         end
       end
@@ -389,16 +354,16 @@ module Celluloid
       # Writes +s+ to the buffer.  When the buffer is full or #sync is true the
       # buffer is flushed to the underlying socket.
       def do_write(s)
-        @wbuffer << s
-        @wbuffer.force_encoding(Encoding::BINARY)
+        @write_buffer << s
+        @write_buffer.force_encoding(Encoding::BINARY)
         @sync ||= false
 
-        if @sync or @wbuffer.size > BLOCK_SIZE or idx = @wbuffer.rindex($/)
-          remain = idx ? idx + $/.size : @wbuffer.length
+        if @sync or @write_buffer.size > BLOCK_SIZE or idx = @write_buffer.rindex($/)
+          remain = idx ? idx + $/.size : @write_buffer.length
           nwritten = 0
 
           while remain > 0
-            str = @wbuffer[nwritten,remain]
+            str = @write_buffer[nwritten,remain]
             begin
               nwrote = syswrite(str)
             rescue Errno::EAGAIN
@@ -408,7 +373,32 @@ module Celluloid
             nwritten += nwrote
           end
 
-          @wbuffer[0,nwritten] = ""
+          @write_buffer[0,nwritten] = ""
+        end
+      end
+
+      # Perform an operation exclusively, uncontested by other tasks
+      class Latch
+        def initialize
+          @owner = nil
+        end
+
+        # Synchronize an operation across all tasks in the current actor
+        def synchronize
+          actor = Thread.current[:celluloid_actor]
+          return yield unless actor
+
+          actor.wait(self) while @owner
+          @owner = Task.current
+
+          begin
+            ret = yield
+          ensure
+            @owner = nil
+            actor.signal(self)
+          end
+
+          ret
         end
       end
     end
