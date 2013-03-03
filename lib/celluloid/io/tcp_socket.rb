@@ -10,6 +10,22 @@ module Celluloid
       def_delegators :@socket, :read_nonblock, :write_nonblock, :close, :closed?
       def_delegators :@socket, :addr, :peeraddr, :setsockopt
 
+      # Open a TCP socket, yielding it to the given block and closing it
+      # automatically when done (if a block is given)
+      def self.open(*args, &block)
+        sock = new(*args)
+
+        if block_given?
+          begin
+            yield sock
+          ensure
+            sock.close
+          end
+        end
+
+        sock
+      end
+
       # Convert a Ruby TCPSocket into a Celluloid::IO::TCPSocket
       # DEPRECATED: to be removed in a future release
       def self.from_ruby_socket(ruby_socket)

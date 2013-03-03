@@ -8,15 +8,15 @@ module Celluloid
 
       def_delegators :@socket, :read_nonblock, :write_nonblock, :close, :closed?, :readline, :puts, :addr
 
+      # Open a UNIX connection.
+      def self.open(socket_path, &block)
+        self.new(socket_path, &block)
+      end
+
       # Convert a Ruby UNIXSocket into a Celluloid::IO::UNIXSocket
       # DEPRECATED: to be removed in a future release
       def self.from_ruby_socket(ruby_socket)
         new(ruby_socket)
-      end
-
-      # Open a UNIX connection.
-      def self.open(socket_path, &block)
-        self.new(socket_path, &block)
       end
 
       # Open a UNIX connection.
