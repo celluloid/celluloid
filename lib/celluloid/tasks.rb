@@ -25,6 +25,34 @@ module Celluloid
       @status = :new
     end
   end
+  
+  class TaskSet
+    include Enumerable
+  
+    def initialize
+      @tasks = Set.new
+    end
+  
+    def <<(task)
+      @tasks += [task]
+    end
+  
+    def delete(task)
+      @tasks -= [task]
+    end
+  
+    def each(&blk)
+      @tasks.each &blk
+    end
+  
+    def first
+      @tasks.first
+    end
+    
+    def empty?
+      @tasks.empty?
+    end
+  end
 end
 
 require 'celluloid/tasks/task_fiber'
