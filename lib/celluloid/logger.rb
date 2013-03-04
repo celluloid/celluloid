@@ -53,7 +53,11 @@ module Celluloid
     # Format an exception message
     def format_exception(exception)
       str = "#{exception.class}: #{exception.to_s}\n\t"
-      str << exception.backtrace.join("\n\t")
+      if exception.backtrace
+        str << exception.backtrace.join("\n\t")
+      else
+        str << "EMPTY BACKTRACE\n\t"
+      end
     end
   end
 end

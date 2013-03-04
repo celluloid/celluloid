@@ -55,32 +55,40 @@ module Celluloid
 
     def dump(output = STDERR)
       @actors.each do |actor|
-        output << "Celluloid::Actor 0x#{actor.subject_id.to_s(16)}: #{actor.subject_class}"
-        output << " [#{actor.name}]" if actor.name
-        output << "\n"
+        string = ""
+        string << "Celluloid::Actor 0x#{actor.subject_id.to_s(16)}: #{actor.subject_class}"
+        string << " [#{actor.name}]" if actor.name
+        string << "\n"
 
         if actor.status == :idle
-          output << "State: Idle (waiting for messages)\n"
+          string << "State: Idle (waiting for messages)\n"
         else
-          output << "State: Running (executing tasks)\n"
-          output << "Tasks:\n"
+          string << "State: Running (executing tasks)\n"
+          string << "Tasks:\n"
 
           actor.tasks.each_with_index do |task, i|
-            output << "  #{i+1}) #{task.task_class}: #{task.status}\n"
+            string << "  #{i+1}) #{task.task_class}: #{task.status}\n"
           end
         end
 
-        display_backtrace actor.backtrace, output
+        display_backtrace actor.backtrace, string
+        output.print string
       end
 
       @threads.each do |thread|
-        output << "Thread 0x#{thread.thread_id.to_s(16)}:\n"
-        display_backtrace thread.backtrace, output
+        string = ""
+        string << "Thread 0x#{thread.thread_id.to_s(16)}:\n"
+        display_backtrace thread.backtrace, string
+        output.print string
       end
     end
 
     def display_backtrace(backtrace, output)
-      output << "\t" << backtrace.join("\n\t") << "\n\n"
+      if backtrace
+        output << "\t" << backtrace.join("\n\t") << "\n\n"
+      else
+        output << "EMPTY BACKTRACE\n\n"
+      end
     end
   end
 end
