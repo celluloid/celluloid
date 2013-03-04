@@ -168,7 +168,7 @@ module Celluloid
       @exclusives   = options[:exclusive_methods]
       @task_class   = options[:task_class] || Celluloid.task_class
 
-      @tasks     = Set.new
+      @tasks     = TaskSet.new
       @links     = Links.new
       @signals   = Signals.new
       @receivers = Receivers.new
