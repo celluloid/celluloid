@@ -25,4 +25,8 @@ describe Celluloid::Future do
     future.should be_ready
   end
 
+  it "raises TimeoutError when the future times out" do
+    future = Celluloid::Future.new { sleep 2 }
+    expect { future.value(1) }.to raise_exception(Celluloid::TimeoutError)
+  end
 end
