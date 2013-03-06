@@ -25,7 +25,7 @@ module Celluloid
           ssl = Celluloid::IO::SSLSocket.new(sock, @ctx)
           ssl.accept if @start_immediately
           ssl
-        rescue SSLError
+        rescue OpenSSL::SSL::SSLError
           sock.close
           raise
         end
