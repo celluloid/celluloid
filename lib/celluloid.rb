@@ -6,9 +6,6 @@ require 'set'
 module Celluloid
   extend self # expose all instance methods as singleton methods
 
-  # How long actors have to terminate
-  SHUTDOWN_TIMEOUT = 10
-
   # Warning message added to Celluloid objects accessed outside their actors
   BARE_OBJECT_WARNING_MESSAGE = "WARNING: BARE CELLULOID OBJECT "
 
@@ -52,7 +49,7 @@ module Celluloid
 
     # Shut down all running actors
     def shutdown
-      Timeout.timeout(SHUTDOWN_TIMEOUT) do
+      Timeout.timeout(shutdown_timeout) do
         actors = Actor.all
         Logger.debug "Terminating #{actors.size} actors..." if actors.size > 0
 
@@ -77,7 +74,12 @@ module Celluloid
         Logger.debug "Shutdown completed cleanly"
       end
     rescue Timeout::Error => ex
-      Logger.error("Couldn't cleanly terminate all actors in #{SHUTDOWN_TIMEOUT} seconds!")
+      Logger.error("Couldn't cleanly terminate all actors in #{shutdown_timeout} seconds!")
+    end
+
+    # How long actors have to terminate
+    def shutdown_timeout
+      10
     end
   end
 
