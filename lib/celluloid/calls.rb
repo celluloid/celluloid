@@ -4,11 +4,23 @@ module Celluloid
     attr_reader :method, :arguments, :block
 
     def initialize(method, arguments = [], block = nil)
-      @method, @arguments, @block = method, arguments, block
+      @method, @arguments = method, arguments
+      if block
+        if Celluloid.exclusive?
+          # FIXME: nicer exception
+          raise "Cannot execute blocks on sender in exclusive mode"
+        end
+        @block = BlockProxy.new(self, Thread.mailbox, block)
+      end
+    end
+
+    def execute_block_on_receiver
+      @block && @block.execution = :receiver
     end
 
     def dispatch(obj)
-      obj.public_send(@method, *@arguments, &@block)
+      _block = @block && @block.to_proc
+      obj.public_send(@method, *@arguments, &_block)
     rescue NoMethodError => ex
       # Abort if the caller made a mistake
       raise AbortError.new(ex) unless obj.respond_to? @method
@@ -40,8 +52,19 @@ module Celluloid
         message = Thread.mailbox.receive do |msg|
           msg.respond_to?(:call) and msg.call == self
         end
-        break message unless message.is_a?(SystemEvent)
-        Thread.current[:celluloid_actor].handle_system_event(message)
+
+        if message.is_a?(SystemEvent)
+          Thread.current[:celluloid_actor].handle_system_event(message)
+        else
+          # FIXME: add check for receiver block execution
+          if message.respond_to?(:value)
+            # FIXME: disable block execution if on :sender and (exclusive or outside of task)
+            # probably now in Call
+            break message
+          else
+            message.dispatch
+          end
+        end
       end
     end
   end
@@ -101,6 +124,22 @@ module Celluloid
       Thread.current[:celluloid_chain_id] = nil
     end
 
+  end
+
+  class BlockCall
+    def initialize(call, caller, block, arguments, task = Thread.current[:celluloid_task])
+      @call = call
+      @caller = caller
+      @block = block
+      @arguments = arguments
+      @task = task
+    end
+    attr_reader :call, :task
+
+    def dispatch
+      response = @block.call(*@arguments)
+      @caller << BlockResponse.new(self, response)
+    end
   end
 
 end

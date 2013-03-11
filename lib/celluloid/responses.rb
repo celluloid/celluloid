@@ -29,4 +29,16 @@ module Celluloid
       raise ex
     end
   end
+
+  class BlockResponse
+    def initialize(call, result)
+      @call = call
+      @result = result
+    end
+
+    def dispatch
+      @call.task.resume(@result)
+    end
+  end
+
 end
