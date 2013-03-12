@@ -1,7 +1,12 @@
 # Things to run after Celluloid is fully loaded
 
 # Configure default systemwide settings
-Celluloid.task_class = Celluloid::TaskFiber
+if defined? JRUBY_VERSION
+  Celluloid.task_class = Celluloid::TaskThread
+else
+  Celluloid.task_class = Celluloid::TaskFiber
+end
+
 Celluloid.logger     = Logger.new(STDERR)
 
 # Launch default services
