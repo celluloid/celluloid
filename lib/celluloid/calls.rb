@@ -34,6 +34,20 @@ module Celluloid
       # Otherwise something blew up. Crash this actor
       raise
     end
+
+    def suspend_status
+      :callwait
+    end
+
+    def wait
+      loop do
+        message = Thread.mailbox.receive do |msg|
+          msg.respond_to?(:call) and msg.call == self
+        end
+        break message unless message.is_a?(SystemEvent)
+        Thread.current[:celluloid_actor].handle_system_event(message)
+      end
+    end
   end
 
   # Synchronous calls wait for a response

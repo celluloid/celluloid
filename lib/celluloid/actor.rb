@@ -66,19 +66,7 @@ module Celluloid
           raise DeadActorError, "attempted to call a dead actor"
         end
 
-        if Thread.current[:celluloid_task] && !Celluloid.exclusive?
-          Task.suspend(:callwait).value
-        else
-          response = loop do
-            message = Thread.mailbox.receive do |msg|
-              msg.respond_to?(:call) and msg.call == call
-            end
-            break message unless message.is_a?(SystemEvent)
-            Thread.current[:celluloid_actor].handle_system_event(message)
-          end
-
-          response.value
-        end
+        Celluloid.suspend(call).value
       end
 
       # Invoke a method asynchronously on an actor via its mailbox
@@ -308,15 +296,29 @@ module Celluloid
       @timers.every(interval) { task(:timer, &block) }
     end
 
+    class Sleeper
+      def initialize(timers, interval)
+        @timers = timers
+        @interval = interval
+      end
+
+      def suspend_status
+        :sleeping
+      end
+
+      def before_suspend(task)
+        @timers.after(@interval) { task.resume }
+      end
+
+      def wait
+        Kernel.sleep(@interval)
+      end
+    end
+
     # Sleep for the given amount of time
     def sleep(interval)
-      task = Thread.current[:celluloid_task]
-      if task && !Celluloid.exclusive?
-        @timers.after(interval) { task.resume }
-        Task.suspend :sleeping
-      else
-        Kernel.sleep(interval)
-      end
+      sleeper = Sleeper.new(@timers, interval)
+      Celluloid.suspend(sleeper)
     end
 
     # Handle standard low-priority messages

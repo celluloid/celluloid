@@ -47,6 +47,16 @@ module Celluloid
       Logger.exception_handler(&block)
     end
 
+    def suspend(waiter)
+      task = Thread.current[:celluloid_task]
+      if task && !Celluloid.exclusive?
+        waiter.before_suspend(task) if waiter.respond_to?(:before_suspend)
+        Task.suspend(waiter.suspend_status)
+      else
+        waiter.wait
+      end
+    end
+
     # Shut down all running actors
     def shutdown
       Timeout.timeout(shutdown_timeout) do
