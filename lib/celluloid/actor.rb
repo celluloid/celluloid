@@ -66,7 +66,7 @@ module Celluloid
           raise DeadActorError, "attempted to call a dead actor"
         end
 
-        Celluloid.suspend(call).value
+        Celluloid.suspend(:callwait, call).value
       end
 
       # Invoke a method asynchronously on an actor via its mailbox
@@ -302,10 +302,6 @@ module Celluloid
         @interval = interval
       end
 
-      def suspend_status
-        :sleeping
-      end
-
       def before_suspend(task)
         @timers.after(@interval) { task.resume }
       end
@@ -318,7 +314,7 @@ module Celluloid
     # Sleep for the given amount of time
     def sleep(interval)
       sleeper = Sleeper.new(@timers, interval)
-      Celluloid.suspend(sleeper)
+      Celluloid.suspend(:sleeping, sleeper)
     end
 
     # Handle standard low-priority messages

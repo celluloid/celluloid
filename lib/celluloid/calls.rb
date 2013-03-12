@@ -35,10 +35,6 @@ module Celluloid
       raise
     end
 
-    def suspend_status
-      :callwait
-    end
-
     def wait
       loop do
         message = Thread.mailbox.receive do |msg|
