@@ -22,6 +22,10 @@ module ExampleActorClass
         "Hi, I'm #{@name}"
       end
 
+      def actor?
+        Celluloid.actor?
+      end
+
       def run(*args)
         yield(*args)
       end
