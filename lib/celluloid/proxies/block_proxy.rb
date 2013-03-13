@@ -7,12 +7,13 @@ module Celluloid
       @execution = :sender
     end
     attr_writer :execution
+    attr_reader :call, :block
 
     def to_proc
       if @execution == :sender
         lambda do |*values|
           if task = Thread.current[:celluloid_task]
-            @mailbox << BlockCall.new(@call, Actor.current.mailbox, @block, values)
+            @mailbox << BlockCall.new(self, Actor.current.mailbox, values)
             # TODO: if respond fails, the Task will never be resumed
             task.suspend(:invokeblock)
           else

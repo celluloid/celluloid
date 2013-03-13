@@ -127,17 +127,20 @@ module Celluloid
   end
 
   class BlockCall
-    def initialize(call, caller, block, arguments, task = Thread.current[:celluloid_task])
-      @call = call
+    def initialize(block_proxy, caller, arguments, task = Thread.current[:celluloid_task])
+      @block_proxy = block_proxy
       @caller = caller
-      @block = block
       @arguments = arguments
       @task = task
     end
-    attr_reader :call, :task
+    attr_reader :task
+
+    def call
+      @block_proxy.call
+    end
 
     def dispatch
-      response = @block.call(*@arguments)
+      response = @block_proxy.block.call(*@arguments)
       @caller << BlockResponse.new(self, response)
     end
   end
