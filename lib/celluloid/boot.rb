@@ -9,10 +9,7 @@ end
 
 Celluloid.logger     = Logger.new(STDERR)
 
-# Launch default services
-# FIXME: We should set up the supervision hierarchy here
-Celluloid::Notifications::Fanout.supervise_as :notifications_fanout
-Celluloid::IncidentReporter.supervise_as :default_incident_reporter, STDERR
+Celluloid.boot
 
 # Terminate all actors at exit
 at_exit do

@@ -57,6 +57,13 @@ module Celluloid
       end
     end
 
+    # Launch default services
+    # FIXME: We should set up the supervision hierarchy here
+    def boot
+      Celluloid::Notifications::Fanout.supervise_as :notifications_fanout
+      Celluloid::IncidentReporter.supervise_as :default_incident_reporter, STDERR
+    end
+
     # Shut down all running actors
     def shutdown
       Timeout.timeout(shutdown_timeout) do
