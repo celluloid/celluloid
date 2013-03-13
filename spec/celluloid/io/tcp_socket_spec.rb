@@ -108,6 +108,7 @@ describe Celluloid::IO::TCPSocket do
       end
 
       it "raises IOError when partial reading from a socket the peer closed" do
+        pending "async block running on receiver"
         with_connected_sockets do |subject, peer|
           actor = ExampleActor.new
           begin

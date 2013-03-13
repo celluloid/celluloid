@@ -17,6 +17,7 @@ end
 
 class ExampleActor
   include Celluloid::IO
+  execute_block_on_receiver :wrap
 
   def wrap
     yield
