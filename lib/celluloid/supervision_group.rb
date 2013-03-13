@@ -60,7 +60,7 @@ module Celluloid
       @members = []
       @registry = registry || Registry.root
 
-      yield self if block_given?
+      yield current_actor if block_given?
     end
 
     def supervise(klass, *args, &block)
