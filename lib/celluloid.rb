@@ -216,6 +216,12 @@ module Celluloid
       end
     end
 
+    # Mark methods as running blocks on the receiver
+    def execute_block_on_receiver(*methods)
+      # A noop method in preparation
+      # See https://github.com/celluloid/celluloid/pull/55
+    end
+
     # Configuration options for Actor#new
     def actor_options
       {
