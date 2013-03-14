@@ -4,6 +4,7 @@
 [![Build Status](https://secure.travis-ci.org/celluloid/celluloid.png?branch=master)](http://travis-ci.org/celluloid/celluloid)
 [![Dependency Status](https://gemnasium.com/celluloid/celluloid.png)](https://gemnasium.com/celluloid/celluloid)
 [![Code Climate](https://codeclimate.com/github/celluloid/celluloid.png)](https://codeclimate.com/github/celluloid/celluloid)
+[![Coverage Status](https://coveralls.io/repos/celluloid/celluloid/badge.png?branch=master)](https://coveralls.io/r/celluloid/celluloid)
 
 > "I thought of objects being like biological cells and/or individual
 > computers on a network, only able to communicate with messages"
