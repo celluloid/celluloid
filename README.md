@@ -4,6 +4,7 @@
 [![Build Status](https://secure.travis-ci.org/celluloid/celluloid-io.png?branch=master)](http://travis-ci.org/celluloid/celluloid-io)
 [![Dependency Status](https://gemnasium.com/celluloid/celluloid-io.png)](https://gemnasium.com/celluloid/celluloid-io)
 [![Code Climate](https://codeclimate.com/github/celluloid/celluloid-io.png)](https://codeclimate.com/github/celluloid/celluloid-io)
+[![Coverage Status](https://coveralls.io/repos/celluloid/celluloid-io/badge.png?branch=master)](https://coveralls.io/r/celluloid/celluloid-io)
 
 You don't have to choose between threaded and evented IO! Celluloid::IO
 provides an event-driven IO system for building fast, scalable network
