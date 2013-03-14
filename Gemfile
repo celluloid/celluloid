@@ -1,4 +1,5 @@
 source 'https://rubygems.org'
 gemspec
 
-gem 'celluloid', :git => 'git://github.com/celluloid/celluloid'
+gem 'coveralls', require: false
+gem 'celluloid', github: 'celluloid/celluloid'
