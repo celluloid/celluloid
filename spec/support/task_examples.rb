@@ -33,4 +33,13 @@ shared_context "a Celluloid Task" do |task_class|
     subject.should_not be_running
   end
 
+  it "raises exceptions outside" do
+    task = task_class.new(task_type) do
+      raise "failure"
+    end
+    expect do
+      task.resume
+    end.to raise_exception("failure")
+  end
+
 end

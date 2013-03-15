@@ -8,6 +8,7 @@ module Celluloid
       super
 
       @resume_queue = Queue.new
+      @exception_queue = Queue.new
       @yield_mutex  = Mutex.new
       @yield_cond   = ConditionVariable.new
 
@@ -32,6 +33,8 @@ module Celluloid
           yield
         rescue Task::TerminatedError
           # Task was explicitly terminated
+        rescue Exception => ex
+          @exception_queue << ex
         ensure
           @status = :dead
           actor.tasks.delete self
@@ -59,6 +62,9 @@ module Celluloid
       @yield_mutex.synchronize do
         @resume_queue.push(value)
         @yield_cond.wait(@yield_mutex)
+        while @exception_queue.size > 0
+          raise @exception_queue.pop
+        end
       end
 
       nil
