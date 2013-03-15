@@ -19,8 +19,8 @@ module Celluloid
 
       @thread = Celluloid.internal_pool.get do
         begin
-          ex = @resume_queue.pop.is_a?(Task::TerminatedError)
-          raise ex if ex
+          ex = @resume_queue.pop
+          raise ex if ex.is_a?(Task::TerminatedError)
 
           @status = :running
           Thread.current[:celluloid_actor]    = actor
