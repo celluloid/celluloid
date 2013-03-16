@@ -113,7 +113,7 @@ module Celluloid
       signal :respawn_complete
     end
 
-    def respond_to?(method)
+    def respond_to?(method, include_private = false)
       super || @worker_class.instance_methods.include?(method.to_sym)
     end
 
