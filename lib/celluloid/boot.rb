@@ -3,6 +3,7 @@
 # Configure default systemwide settings
 Celluloid.task_class = Celluloid::TaskFiber
 Celluloid.logger     = Logger.new(STDERR)
+Celluloid.shutdown_timeout = 10
 
 Celluloid.boot
 
