@@ -10,9 +10,10 @@ module Celluloid
   BARE_OBJECT_WARNING_MESSAGE = "WARNING: BARE CELLULOID OBJECT "
 
   class << self
-    attr_accessor :internal_pool # Internal thread pool
-    attr_accessor :logger        # Thread-safe logger class
-    attr_accessor :task_class    # Default task type to use
+    attr_accessor :internal_pool    # Internal thread pool
+    attr_accessor :logger           # Thread-safe logger class
+    attr_accessor :task_class       # Default task type to use
+    attr_accessor :shutdown_timeout # How long actors have to terminate
 
     def included(klass)
       klass.send :extend,  ClassMethods
@@ -92,11 +93,6 @@ module Celluloid
       end
     rescue Timeout::Error => ex
       Logger.error("Couldn't cleanly terminate all actors in #{shutdown_timeout} seconds!")
-    end
-
-    # How long actors have to terminate
-    def shutdown_timeout
-      10
     end
   end
 
