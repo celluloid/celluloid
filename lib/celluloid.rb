@@ -478,4 +478,8 @@ require 'celluloid/notifications'
 require 'celluloid/logging'
 
 require 'celluloid/legacy' unless defined?(CELLULOID_FUTURE)
-require 'celluloid/boot'
+
+# Configure default systemwide settings
+Celluloid.task_class = Celluloid::TaskFiber
+Celluloid.logger     = Logger.new(STDERR)
+Celluloid.shutdown_timeout = 10

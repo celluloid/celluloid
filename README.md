@@ -110,11 +110,9 @@ Or install it yourself as:
 
     $ gem install celluloid
 
-Inside of your Ruby program do:
+Inside of your Ruby program, require Celluloid with:
 
-    require 'celluloid'
-
-...to pull it in as a dependency.
+    require 'celluloid/autostart'
 
 Supported Platforms
 -------------------

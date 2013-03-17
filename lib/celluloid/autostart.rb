@@ -1,9 +1,4 @@
-# Things to run after Celluloid is fully loaded
-
-# Configure default systemwide settings
-Celluloid.task_class = Celluloid::TaskFiber
-Celluloid.logger     = Logger.new(STDERR)
-Celluloid.shutdown_timeout = 10
+require 'celluloid'
 
 Celluloid.boot
 

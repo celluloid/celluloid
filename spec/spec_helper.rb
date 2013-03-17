@@ -1,6 +1,6 @@
 require 'rubygems'
 require 'bundler/setup'
-require 'celluloid'
+require 'celluloid/autostart'
 require 'celluloid/rspec'
 require 'coveralls'
 Coveralls.wear!

@@ -1,5 +1,8 @@
 0.13.0.pre
 ----------
+* API change: Require Celluloid with: require 'celluloid/autostart' to
+  automatically start support actors and configure at_exit handler which
+  automatically terminates all actors.
 * API change: use_mailbox has been removed
 * API change: finalizers must be declared with "finalize :my_finalizer"
 * Bugfix: receivers don't crash when methods are called incorrectly
