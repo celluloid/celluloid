@@ -388,7 +388,7 @@ module Celluloid
       end
 
       finalizer = @subject.class.finalizer
-      if finalizer && @subject.respond_to?(finalizer)
+      if finalizer && @subject.respond_to?(finalizer, true)
         task(:finalizer, :finalize) { @subject.__send__(finalizer) }
       end
     rescue => ex
