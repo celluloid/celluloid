@@ -1,4 +1,4 @@
-before_install: sudo apt-get install libzmq-dev
+before_install: sudo apt-get install libzmq3-dev
 
 rvm:
   - 1.9.3
