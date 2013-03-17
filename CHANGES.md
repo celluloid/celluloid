@@ -1,5 +1,5 @@
-0.13.0.pre
-----------
+0.13.0.pre2
+-----------
 * API change: Require Celluloid with: require 'celluloid/autostart' to
   automatically start support actors and configure at_exit handler which
   automatically terminates all actors.
