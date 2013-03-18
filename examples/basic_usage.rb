@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 $:.push File.expand_path('../../lib', __FILE__)
-require 'celluloid'
+require 'celluloid/autostart'
 
 class Counter
   # This is all you have to do to turn any Ruby class into one which creates

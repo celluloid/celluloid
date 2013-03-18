@@ -2,7 +2,7 @@
 
 require 'rubygems'
 require 'bundler/setup'
-require 'celluloid'
+require 'celluloid/autostart'
 
 #
 # THE CIGARETTE SMOKERS PROBLEM

@@ -9,7 +9,7 @@
 PARALLEL_RUBIES = %w(jruby rbx)
 
 $:.push File.expand_path('../../lib', __FILE__)
-require 'celluloid'
+require 'celluloid/autostart'
 require 'digest/sha2'
 
 class Rehasher
