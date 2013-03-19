@@ -232,7 +232,7 @@ module Celluloid
         :proxy_class       => proxy_class,
         :task_class        => task_class,
         :exit_handler      => exit_handler,
-        :exclusive_methods => @exclusive_methods
+        :exclusive_methods => defined?(@exclusive_methods) ? @exclusive_methods : nil
       }
     end
 
