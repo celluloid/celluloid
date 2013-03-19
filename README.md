@@ -44,6 +44,9 @@ Documentation
 [Please see the Celluloid::IO Wiki](https://github.com/celluloid/celluloid-io/wiki)
 for more detailed documentation and usage notes.
 
+[YARD documentation](http://rubydoc.info/github/celluloid/celluloid-io/frames)
+is also available
+
 Installation
 ------------
 
