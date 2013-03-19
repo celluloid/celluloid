@@ -1,5 +1,5 @@
-0.13.0.pre
-----------
+0.13.0
+------
 * Feature: Support for DealerSocket and RouterSocket
 * Support for the #more_parts? method on sockets
 * Celluloid 0.13 compatibility fixes
