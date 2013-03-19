@@ -98,5 +98,8 @@ License
 Copyright (c) 2013 Tony Arcieri. Distributed under the MIT License. See
 LICENSE.txt for further details.
 
-Contains code originally from the RubySpec project also under the MIT License
+Contains code originally from the RubySpec project also under the MIT License.
 Copyright (c) 2008 Engine Yard, Inc. All rights reserved.
+
+Contains code originally from the 'OpenSSL for Ruby 2' project released under
+the Ruby license. Copyright (C) 2001 GOTOU YUUZOU. All rights reserved.
