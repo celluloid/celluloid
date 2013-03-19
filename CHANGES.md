@@ -1,5 +1,5 @@
-0.13.0.pre2
------------
+0.13.0
+------
 * Support for many, many more IO methods, particularly line-oriented
   methods like #gets, #readline, and #readlines
 * Initial SSL support via Celluloid::IO::SSLSocket and
