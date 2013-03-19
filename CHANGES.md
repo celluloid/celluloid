@@ -1,6 +1,8 @@
 0.13.0.pre
 ----------
-* FIXME: lots of stuff happened. Should document it yo
+* Feature: Support for DealerSocket and RouterSocket
+* Support for the #more_parts? method on sockets
+* Celluloid 0.13 compatibility fixes
 
 0.12.0
 ------
