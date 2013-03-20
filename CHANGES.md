@@ -4,7 +4,7 @@
   automatically start support actors and configure at_exit handler which
   automatically terminates all actors.
 * API change: use_mailbox has been removed
-* API change: finalizers must be declared with "finalize :my_finalizer"
+* API change: finalizers must be declared with "finalizer :my_finalizer"
 * Bugfix: receivers don't crash when methods are called incorrectly
 * Celluloid::Condition provides ConditionVariable-like signaling
 * Shutdown timeout reduced to 10 seconds
