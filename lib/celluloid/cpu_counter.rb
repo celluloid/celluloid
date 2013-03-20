@@ -12,7 +12,7 @@ module Celluloid
         Dir["/sys/devices/system/cpu/cpu*"].select { |n| n=~/cpu\d+/ }.count
       end
     when 'mingw', 'mswin'
-      @cores = Integer(`SET NUMBER_OF_PROCESSORS`[/\d+/])
+      @cores = Integer(ENV["NUMBER_OF_PROCESSORS"][/\d+/])
     else
       @cores = nil
     end
