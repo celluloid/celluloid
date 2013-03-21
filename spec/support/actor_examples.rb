@@ -129,6 +129,9 @@ shared_context "a Celluloid Actor" do |included_module|
     actor = actor_class.new "Troy McClure"
     actor.run do
       Celluloid.actor?
+    end.should be_false
+    actor.run_on_receiver do
+      Celluloid.actor?
     end.should be_true
     actor.should be_actor
   end
@@ -572,6 +575,7 @@ shared_context "a Celluloid Actor" do |included_module|
     before do
       @receiver = Class.new do
         include included_module
+        execute_block_on_receiver :signal_myself
 
         def signal_myself(obj, &block)
           current_actor.mailbox << obj
