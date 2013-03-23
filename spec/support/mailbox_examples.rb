@@ -3,6 +3,7 @@ shared_context "a Celluloid Mailbox" do
     message = :ohai
 
     subject << message
+    subject.messages.size.should == 1
     subject.receive.should == message
   end
 
