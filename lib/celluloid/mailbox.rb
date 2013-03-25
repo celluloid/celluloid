@@ -12,6 +12,9 @@ module Celluloid
     # A unique address at which this mailbox can be found
     attr_reader :address
 
+    # Access messages in mailbox
+    attr_reader :messages
+
     def initialize
       @address   = Celluloid.uuid
       @messages  = []
