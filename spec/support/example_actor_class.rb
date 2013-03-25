@@ -4,6 +4,7 @@ module ExampleActorClass
       include included_module
       attr_reader :name
       finalizer :my_finalizer
+      execute_block_on_receiver :run_on_receiver
 
       def initialize(name)
         @name = name
@@ -27,6 +28,10 @@ module ExampleActorClass
       end
 
       def run(*args)
+        yield(*args)
+      end
+
+      def run_on_receiver(*args)
         yield(*args)
       end
 

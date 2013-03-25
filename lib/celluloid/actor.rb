@@ -71,6 +71,11 @@ module Celluloid
 
       # Invoke a method asynchronously on an actor via its mailbox
       def async(mailbox, meth, *args, &block)
+        if block_given?
+          # FIXME: nicer exception
+          raise "Cannot use blocks with async yet"
+        end
+
         begin
           mailbox << AsyncCall.new(meth, args, block)
         rescue MailboxError
@@ -83,6 +88,10 @@ module Celluloid
 
       # Call a method asynchronously and retrieve its value later
       def future(mailbox, meth, *args, &block)
+        if block_given?
+          # FIXME: nicer exception
+          raise "Cannot use blocks with futures yet"
+        end
         future = Future.new
         future.execute(mailbox, meth, args, block)
         future
@@ -154,6 +163,7 @@ module Celluloid
       @mailbox      = options[:mailbox] || Mailbox.new
       @exit_handler = options[:exit_handler]
       @exclusives   = options[:exclusive_methods]
+      @receiver_block_executions = options[:receiver_block_executions]
       @task_class   = options[:task_class] || Celluloid.task_class
 
       @tasks     = TaskSet.new
@@ -323,8 +333,15 @@ module Celluloid
       when SystemEvent
         handle_system_event message
       when Call
-        task(:message_handler, message.method) { message.dispatch(@subject) }
-      when Response
+        task(:call, message.method) {
+          if @receiver_block_executions && (message.method && @receiver_block_executions.include?(message.method.to_sym))
+            message.execute_block_on_receiver
+          end
+          message.dispatch(@subject)
+        }
+      when BlockCall
+        task(:invoke_block) { message.dispatch }
+      when BlockResponse, Response
         message.dispatch
       else
         @receivers.handle_message(message)
