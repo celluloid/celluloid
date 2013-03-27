@@ -292,7 +292,7 @@ module Celluloid
   # directly inside of all classes that include Celluloid
   #
 
-  # Raise an exception in caller context, but stay running
+  # Raise an exception in sender context, but stay running
   def abort(cause)
     cause = case cause
       when String then RuntimeError.new(cause)
@@ -415,7 +415,7 @@ module Celluloid
   end
 
   # Perform a blocking or computationally intensive action inside an
-  # asynchronous thread pool, allowing the caller to continue processing other
+  # asynchronous thread pool, allowing the sender to continue processing other
   # messages in its mailbox in the meantime
   def defer(&block)
     # This implementation relies on the present implementation of

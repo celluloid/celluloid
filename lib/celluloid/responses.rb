@@ -15,7 +15,7 @@ module Celluloid
   # Call completed successfully
   class SuccessResponse < Response; end
 
-  # Call was aborted due to caller error
+  # Call was aborted due to sender error
   class ErrorResponse < Response
     def value
       ex = super

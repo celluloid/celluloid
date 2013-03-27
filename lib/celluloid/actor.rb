@@ -10,7 +10,7 @@ module Celluloid
   # A timeout occured before the given request could complete
   class TimeoutError < StandardError; end
 
-  # The caller made an error, not the current actor
+  # The sender made an error, not the current actor
   class AbortError < StandardError
     attr_reader :cause
 

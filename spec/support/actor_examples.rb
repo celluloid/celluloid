@@ -187,7 +187,7 @@ shared_context "a Celluloid Actor" do |included_module|
   end
 
   context :exceptions do
-    it "reraises exceptions which occur during synchronous calls in the caller" do
+    it "reraises exceptions which occur during synchronous calls in the sender" do
       actor = actor_class.new "James Dean" # is this in bad taste?
 
       expect do
@@ -195,7 +195,7 @@ shared_context "a Celluloid Actor" do |included_module|
       end.to raise_exception(ExampleCrash)
     end
 
-    it "includes both caller and receiver in exception traces" do
+    it "includes both sender and receiver in exception traces" do
       ExampleReceiver = Class.new do
         include included_module
 
@@ -207,19 +207,19 @@ shared_context "a Celluloid Actor" do |included_module|
       ExampleCaller = Class.new do
         include included_module
 
-        def caller_method
+        def sender_method
           ExampleReceiver.new.receiver_method
         end
       end
 
       ex = nil
       begin
-        ExampleCaller.new.caller_method
+        ExampleCaller.new.sender_method
       rescue => ex
       end
 
       ex.should be_a ExampleCrash
-      ex.backtrace.grep(/`caller_method'/).should be_true
+      ex.backtrace.grep(/`sender_method'/).should be_true
       ex.backtrace.grep(/`receiver_method'/).should be_true
     end
 
@@ -234,7 +234,7 @@ shared_context "a Celluloid Actor" do |included_module|
   end
 
   context :abort do
-    it "raises exceptions in the caller but keeps running" do
+    it "raises exceptions in the sender but keeps running" do
       actor = actor_class.new "Al Pacino"
 
       expect do
@@ -251,7 +251,7 @@ shared_context "a Celluloid Actor" do |included_module|
       end.to raise_exception(RuntimeError, "foo")
     end
 
-    it "crashes the caller if we pass neither String nor Exception" do
+    it "crashes the sender if we pass neither String nor Exception" do
       actor = actor_class.new "Al Pacino"
       expect do
         actor.crash_with_abort_raw 10

@@ -22,13 +22,13 @@ module Celluloid
       _block = @block && @block.to_proc
       obj.public_send(@method, *@arguments, &_block)
     rescue NoMethodError => ex
-      # Abort if the caller made a mistake
+      # Abort if the sender made a mistake
       raise AbortError.new(ex) unless obj.respond_to? @method
 
       # Otherwise something blew up. Crash this actor
       raise
     rescue ArgumentError => ex
-      # Abort if the caller made a mistake
+      # Abort if the sender made a mistake
       begin
         arity = obj.method(@method).arity
       rescue NameError
@@ -71,12 +71,12 @@ module Celluloid
 
   # Synchronous calls wait for a response
   class SyncCall < Call
-    attr_reader :caller, :task, :chain_id
+    attr_reader :sender, :task, :chain_id
 
-    def initialize(caller, method, arguments = [], block = nil, task = Thread.current[:celluloid_task], chain_id = Thread.current[:celluloid_chain_id])
+    def initialize(sender, method, arguments = [], block = nil, task = Thread.current[:celluloid_task], chain_id = Thread.current[:celluloid_chain_id])
       super(method, arguments, block)
 
-      @caller   = caller
+      @sender   = sender
       @task     = task
       @chain_id = chain_id || Celluloid.uuid
     end
@@ -87,11 +87,11 @@ module Celluloid
       respond SuccessResponse.new(self, result)
     rescue Exception => ex
       # Exceptions that occur during synchronous calls are reraised in the
-      # context of the caller
+      # context of the sender
       respond ErrorResponse.new(self, ex)
 
-      # Aborting indicates a protocol error on the part of the caller
-      # It should crash the caller, but the exception isn't reraised
+      # Aborting indicates a protocol error on the part of the sender
+      # It should crash the sender, but the exception isn't reraised
       # Otherwise, it's a bug in this actor and should be reraised
       raise unless ex.is_a?(AbortError)
     ensure
@@ -104,9 +104,9 @@ module Celluloid
     end
 
     def respond(message)
-      @caller << message
+      @sender << message
     rescue MailboxError
-      # It's possible the caller exited or crashed before we could send a
+      # It's possible the sender exited or crashed before we could send a
       # response to them.
     end
   end
@@ -118,7 +118,7 @@ module Celluloid
       Thread.current[:celluloid_chain_id] = Celluloid.uuid
       super(obj)
     rescue AbortError => ex
-      # Swallow aborted async calls, as they indicate the caller made a mistake
+      # Swallow aborted async calls, as they indicate the sender made a mistake
       Logger.debug("#{obj.class}: async call `#@method` aborted!\n#{Logger.format_exception(ex.cause)}")
     ensure
       Thread.current[:celluloid_chain_id] = nil
@@ -127,9 +127,9 @@ module Celluloid
   end
 
   class BlockCall
-    def initialize(block_proxy, caller, arguments, task = Thread.current[:celluloid_task])
+    def initialize(block_proxy, sender, arguments, task = Thread.current[:celluloid_task])
       @block_proxy = block_proxy
-      @caller = caller
+      @sender = sender
       @arguments = arguments
       @task = task
     end
@@ -141,7 +141,7 @@ module Celluloid
 
     def dispatch
       response = @block_proxy.block.call(*@arguments)
-      @caller << BlockResponse.new(self, response)
+      @sender << BlockResponse.new(self, response)
     end
   end
 

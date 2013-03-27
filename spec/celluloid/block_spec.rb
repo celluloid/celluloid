@@ -10,13 +10,13 @@ describe "Blocks" do
     attr_reader :name
 
     def ask_for_something(other)
-      caller_actor = current_actor
+      sender_actor = current_actor
       $data << [:outside, @name, current_actor.name]
       other.do_something_and_callback do |value|
         $data << [:yielded, @name, current_actor.name]
         $data << self.receive_result(:self)
         $data << current_actor.receive_result(:current_actor)
-        $data << caller_actor.receive_result(:caller)
+        $data << sender_actor.receive_result(:sender)
         "somevalue"
       end
     end
@@ -45,7 +45,7 @@ describe "Blocks" do
       [:yielded, "one", "one"],
       [:self, "one", "one"],
       [:current_actor, "one", "one"],
-      [:caller, "one", "one"],
+      [:sender, "one", "one"],
       "somevalue",
     ]
 
