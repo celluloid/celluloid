@@ -8,6 +8,14 @@ Coveralls.wear!
 logfile = File.open(File.expand_path("../../log/test.log", __FILE__), 'a')
 Celluloid.logger = Logger.new(logfile)
 
+RSpec.configure do |config|
+  config.before do
+    Celluloid.shutdown
+    Celluloid.boot
+    FileUtils.rm("/tmp/cell_sock") if File.exist?("/tmp/cell_sock")
+  end
+end
+
 # FIXME: Hax until test termination can be cleaned up
 module Celluloid
   class << self
