@@ -28,29 +28,29 @@ module Celluloid
     end
 
     def inspect
-      Actor.call(@mailbox, :inspect)
+      @sync_proxy.method_missing :inspect
     rescue DeadActorError
       "#<Celluloid::Actor(#{@klass}) dead>"
     end
 
     def name
-      Actor.call @mailbox, :name
+      @sync_proxy.name
     end
 
     def is_a?(klass)
-      Actor.call @mailbox, :is_a?, klass
+      @sync_proxy.is_a? klass
     end
 
     def kind_of?(klass)
-      Actor.call @mailbox, :kind_of?, klass
+      @sync_proxy.kind_of? klass
     end
 
     def respond_to?(meth, include_private = false)
-      Actor.call @mailbox, :respond_to?, meth, include_private
+      @sync_proxy.respond_to? meth, include_private
     end
 
     def methods(include_ancestors = true)
-      Actor.call @mailbox, :methods, include_ancestors
+      @sync_proxy.methods include_ancestors
     end
 
     def method(name)
@@ -68,7 +68,7 @@ module Celluloid
     # Obtain an sync proxy or explicitly invoke a named sync method
     def sync(method_name = nil, *args, &block)
       if method_name
-        Actor.call @mailbox, method_name, *args, &block
+        @sync_proxy.method_missing method_name, *args, &block
       else
         @sync_proxy
       end
@@ -77,7 +77,7 @@ module Celluloid
     # Obtain an async proxy or explicitly invoke a named async method
     def async(method_name = nil, *args, &block)
       if method_name
-        Actor.async @mailbox, method_name, *args, &block
+        @async_proxy.method_missing method_name, *args, &block
       else
         @async_proxy
       end
@@ -86,7 +86,7 @@ module Celluloid
     # Obtain a future proxy or explicitly invoke a named future method
     def future(method_name = nil, *args, &block)
       if method_name
-        Actor.future @mailbox, method_name, *args, &block
+        @future_proxy.method_missing method_name, *args, &block
       else
         @future_proxy
       end
