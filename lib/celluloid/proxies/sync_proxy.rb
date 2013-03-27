@@ -1,6 +1,6 @@
 module Celluloid
-  # A proxy which sends asynchronous calls to an actor
-  class AsyncProxy < AbstractProxy
+  # A proxy which sends synchronous calls to an actor
+  class SyncProxy < AbstractProxy
     attr_reader :mailbox
 
     def initialize(actor)
@@ -8,14 +8,14 @@ module Celluloid
     end
 
     def inspect
-      "#<Celluloid::AsyncProxy(#{@klass})>"
+      "#<Celluloid::SyncProxy(#{@klass})>"
     end
 
     def method_missing(meth, *args, &block)
       if @mailbox == ::Thread.current[:celluloid_mailbox]
-        Actor.async @mailbox, :__send__, meth, *args, &block
+        Actor.call @mailbox, :__send__, meth, *args, &block
       else
-        Actor.async @mailbox, meth, *args, &block
+        Actor.call @mailbox, meth, *args, &block
       end
     end
   end

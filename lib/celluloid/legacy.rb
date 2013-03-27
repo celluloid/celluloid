@@ -9,9 +9,9 @@ module Celluloid
 
         unbanged_meth = meth.to_s
         unbanged_meth.slice!(-1, 1)
-        Actor.async @mailbox, unbanged_meth, *args, &block
+        async unbanged_meth, *args, &block
       else
-        Actor.call  @mailbox, meth, *args, &block
+        sync meth, *args, &block
       end
     end
   end

@@ -7,6 +7,7 @@ module Celluloid
     def initialize(actor)
       @mailbox, @thread, @klass = actor.mailbox, actor.thread, actor.subject.class.to_s
 
+      @sync_proxy   = SyncProxy.new(actor)
       @async_proxy  = AsyncProxy.new(actor)
       @future_proxy = FutureProxy.new(actor)
     end
@@ -64,6 +65,15 @@ module Celluloid
       Actor.call @mailbox, :to_s
     end
 
+    # Obtain an sync proxy or explicitly invoke a named sync method
+    def sync(method_name = nil, *args, &block)
+      if method_name
+        Actor.call @mailbox, method_name, *args, &block
+      else
+        @sync_proxy
+      end
+    end
+
     # Obtain an async proxy or explicitly invoke a named async method
     def async(method_name = nil, *args, &block)
       if method_name
@@ -97,7 +107,7 @@ module Celluloid
 
     # method_missing black magic to call bang predicate methods asynchronously
     def method_missing(meth, *args, &block)
-      Actor.call @mailbox, meth, *args, &block
+      sync meth, *args, &block
     end
   end
 end
