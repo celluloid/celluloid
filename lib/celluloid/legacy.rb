@@ -27,16 +27,7 @@ module Celluloid
         unbanged_meth = meth.to_s.sub(/!$/, '')
         args.unshift unbanged_meth
 
-        call = AsyncCall.new(:__send__, args, block)
-        begin
-          Thread.current[:celluloid_actor].mailbox << call
-        rescue MailboxError
-          # Silently swallow asynchronous calls to dead actors. There's no way
-          # to reliably generate DeadActorErrors for async calls, so users of
-          # async calls should find other ways to deal with actors dying
-          # during an async call (i.e. linking/supervisors)
-        end
-
+        Actor.async Thread.current[:celluloid_actor].mailbox, :__send__, *args, &block
         return
       end
 
