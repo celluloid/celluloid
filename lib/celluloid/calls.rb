@@ -47,6 +47,10 @@ module Celluloid
       raise
     end
 
+    def value
+      Celluloid.suspend(:callwait, self).value
+    end
+
     def wait
       loop do
         message = Thread.mailbox.receive do |msg|

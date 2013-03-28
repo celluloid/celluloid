@@ -3,8 +3,8 @@ module Celluloid
   class SyncProxy < AbstractProxy
     attr_reader :mailbox
 
-    def initialize(actor)
-      @mailbox, @klass = actor.mailbox, actor.subject.class.to_s
+    def initialize(mailbox, klass)
+      @mailbox, @klass = mailbox, klass
     end
 
     def inspect
@@ -13,10 +13,19 @@ module Celluloid
 
     def method_missing(meth, *args, &block)
       if @mailbox == ::Thread.current[:celluloid_mailbox]
-        Actor.call @mailbox, :__send__, meth, *args, &block
-      else
-        Actor.call @mailbox, meth, *args, &block
+        args.unshift meth
+        meth = :__send__
       end
+
+      call = SyncCall.new(::Thread.mailbox, meth, args, block)
+
+      begin
+        @mailbox << call
+      rescue MailboxError
+        raise DeadActorError, "attempted to call a dead actor"
+      end
+
+      call.value
     end
   end
 end

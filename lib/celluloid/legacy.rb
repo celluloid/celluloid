@@ -27,7 +27,7 @@ module Celluloid
         unbanged_meth = meth.to_s.sub(/!$/, '')
         args.unshift unbanged_meth
 
-        Actor.async Thread.current[:celluloid_actor].mailbox, :__send__, *args, &block
+        async :__send__, *args, &block
         return
       end
 

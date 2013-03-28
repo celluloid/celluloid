@@ -425,20 +425,12 @@ module Celluloid
 
   # Handle async calls within an actor itself
   def async(meth = nil, *args, &block)
-    if meth
-      Actor.async Thread.current[:celluloid_actor].mailbox, meth, *args, &block
-    else
-      Thread.current[:celluloid_actor].proxy.async
-    end
+    Thread.current[:celluloid_actor].proxy.async meth, *args, &block
   end
 
   # Handle calls to future within an actor itself
   def future(meth = nil, *args, &block)
-    if meth
-      Actor.future Thread.current[:celluloid_actor].mailbox, meth, *args, &block
-    else
-      Thread.current[:celluloid_actor].proxy.future
-    end
+    Thread.current[:celluloid_actor].proxy.future meth, *args, &block
   end
 end
 

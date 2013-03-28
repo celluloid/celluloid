@@ -7,24 +7,24 @@ module Celluloid
     def initialize(actor)
       @mailbox, @thread, @klass = actor.mailbox, actor.thread, actor.subject.class.to_s
 
-      @sync_proxy   = SyncProxy.new(actor)
-      @async_proxy  = AsyncProxy.new(actor)
-      @future_proxy = FutureProxy.new(actor)
+      @sync_proxy   = SyncProxy.new(@mailbox, @klass)
+      @async_proxy  = AsyncProxy.new(@mailbox, @klass)
+      @future_proxy = FutureProxy.new(@mailbox, @klass)
     end
     
     # allow querying the real class
     alias :__class__ :class
     
     def class
-      Actor.call @mailbox, :__send__, :class
+      sync :__send__, :class
     end
 
     def send(meth, *args, &block)
-      Actor.call @mailbox, :send, meth, *args, &block
+      sync :send, meth, *args, &block
     end
 
     def _send_(meth, *args, &block)
-      Actor.call @mailbox, :__send__, meth, *args, &block
+      sync :__send__, meth, *args, &block
     end
 
     def inspect
@@ -62,7 +62,7 @@ module Celluloid
     end
 
     def to_s
-      Actor.call @mailbox, :to_s
+      sync :to_s
     end
 
     # Obtain an sync proxy or explicitly invoke a named sync method
