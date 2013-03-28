@@ -432,6 +432,11 @@ module Celluloid
   def future(meth = nil, *args, &block)
     Thread.current[:celluloid_actor].proxy.future meth, *args, &block
   end
+
+  def tap
+    yield current_actor
+    current_actor
+  end
 end
 
 require 'celluloid/version'
