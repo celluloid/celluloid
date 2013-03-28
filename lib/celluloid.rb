@@ -425,20 +425,17 @@ module Celluloid
 
   # Handle async calls within an actor itself
   def async(meth = nil, *args, &block)
-    if meth
-      Actor.async Thread.current[:celluloid_actor].mailbox, meth, *args, &block
-    else
-      Thread.current[:celluloid_actor].proxy.async
-    end
+    Thread.current[:celluloid_actor].proxy.async meth, *args, &block
   end
 
   # Handle calls to future within an actor itself
   def future(meth = nil, *args, &block)
-    if meth
-      Actor.future Thread.current[:celluloid_actor].mailbox, meth, *args, &block
-    else
-      Thread.current[:celluloid_actor].proxy.future
-    end
+    Thread.current[:celluloid_actor].proxy.future meth, *args, &block
+  end
+
+  def tap
+    yield current_actor
+    current_actor
   end
 end
 
@@ -466,6 +463,7 @@ require 'celluloid/thread_handle'
 require 'celluloid/uuid'
 
 require 'celluloid/proxies/abstract_proxy'
+require 'celluloid/proxies/sync_proxy'
 require 'celluloid/proxies/actor_proxy'
 require 'celluloid/proxies/async_proxy'
 require 'celluloid/proxies/future_proxy'

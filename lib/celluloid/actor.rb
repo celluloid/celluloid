@@ -58,43 +58,20 @@ module Celluloid
 
       # Invoke a method on the given actor via its mailbox
       def call(mailbox, meth, *args, &block)
-        call = SyncCall.new(Thread.mailbox, meth, args, block)
-
-        begin
-          mailbox << call
-        rescue MailboxError
-          raise DeadActorError, "attempted to call a dead actor"
-        end
-
-        Celluloid.suspend(:callwait, call).value
+        proxy = SyncProxy.new(mailbox, "UnknownClass")
+        proxy.method_missing(meth, *args, &block)
       end
 
       # Invoke a method asynchronously on an actor via its mailbox
       def async(mailbox, meth, *args, &block)
-        if block_given?
-          # FIXME: nicer exception
-          raise "Cannot use blocks with async yet"
-        end
-
-        begin
-          mailbox << AsyncCall.new(meth, args, block)
-        rescue MailboxError
-          # Silently swallow asynchronous calls to dead actors. There's no way
-          # to reliably generate DeadActorErrors for async calls, so users of
-          # async calls should find other ways to deal with actors dying
-          # during an async call (i.e. linking/supervisors)
-        end
+        proxy = AsyncProxy.new(mailbox, "UnknownClass")
+        proxy.method_missing(meth, *args, &block)
       end
 
       # Call a method asynchronously and retrieve its value later
       def future(mailbox, meth, *args, &block)
-        if block_given?
-          # FIXME: nicer exception
-          raise "Cannot use blocks with futures yet"
-        end
-        future = Future.new
-        future.execute(mailbox, meth, args, block)
-        future
+        proxy = FutureProxy.new(mailbox, "UnknownClass")
+        proxy.method_missing(meth, *args, &block)
       end
 
       # Obtain all running actors in the system
