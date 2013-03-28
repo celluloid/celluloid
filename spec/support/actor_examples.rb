@@ -784,7 +784,11 @@ shared_context "a Celluloid Actor" do |included_module|
   end
 
   context :proxy_class do
-    class ExampleProxy < Celluloid::ActorProxy; end
+    class ExampleProxy < Celluloid::ActorProxy
+      def subclass_proxy?
+        true
+      end
+    end
 
     subject do
       Class.new do
@@ -794,12 +798,12 @@ shared_context "a Celluloid Actor" do |included_module|
     end
 
     it "uses user-specified proxy" do
-      subject.new.__class__.should == ExampleProxy
+      subject.new.should be_subclass_proxy
     end
 
     it "retains custom proxy when subclassed" do
       subclass = Class.new(subject)
-      subclass.new.__class__.should == ExampleProxy
+      subclass.new.should be_subclass_proxy
     end
   end
 
