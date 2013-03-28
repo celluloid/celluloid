@@ -46,31 +46,6 @@ module Celluloid
       # Otherwise something blew up. Crash this actor
       raise
     end
-
-    def value
-      Celluloid.suspend(:callwait, self).value
-    end
-
-    def wait
-      loop do
-        message = Thread.mailbox.receive do |msg|
-          msg.respond_to?(:call) and msg.call == self
-        end
-
-        if message.is_a?(SystemEvent)
-          Thread.current[:celluloid_actor].handle_system_event(message)
-        else
-          # FIXME: add check for receiver block execution
-          if message.respond_to?(:value)
-            # FIXME: disable block execution if on :sender and (exclusive or outside of task)
-            # probably now in Call
-            break message
-          else
-            message.dispatch
-          end
-        end
-      end
-    end
   end
 
   # Synchronous calls wait for a response
@@ -112,6 +87,31 @@ module Celluloid
     rescue MailboxError
       # It's possible the sender exited or crashed before we could send a
       # response to them.
+    end
+
+    def value
+      Celluloid.suspend(:callwait, self).value
+    end
+
+    def wait
+      loop do
+        message = Thread.mailbox.receive do |msg|
+          msg.respond_to?(:call) and msg.call == self
+        end
+
+        if message.is_a?(SystemEvent)
+          Thread.current[:celluloid_actor].handle_system_event(message)
+        else
+          # FIXME: add check for receiver block execution
+          if message.respond_to?(:value)
+            # FIXME: disable block execution if on :sender and (exclusive or outside of task)
+            # probably now in Call
+            break message
+          else
+            message.dispatch
+          end
+        end
+      end
     end
   end
 
