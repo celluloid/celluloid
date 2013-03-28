@@ -3,8 +3,8 @@ module Celluloid
   class FutureProxy < AbstractProxy
     attr_reader :mailbox
 
-    def initialize(actor)
-      @mailbox, @klass = actor.mailbox, actor.subject.class.to_s
+    def initialize(mailbox, klass)
+      @mailbox, @klass = mailbox, klass
     end
 
     def inspect
@@ -13,7 +13,13 @@ module Celluloid
 
     # method_missing black magic to call bang predicate methods asynchronously
     def method_missing(meth, *args, &block)
-      Actor.future @mailbox, meth, *args, &block
+      if block_given?
+        # FIXME: nicer exception
+        raise "Cannot use blocks with futures yet"
+      end
+      future = Future.new
+      future.execute(@mailbox, meth, args, block)
+      future
     end
   end
 end
