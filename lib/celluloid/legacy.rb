@@ -11,7 +11,7 @@ module Celluloid
         unbanged_meth.slice!(-1, 1)
         async unbanged_meth, *args, &block
       else
-        sync meth, *args, &block
+        super
       end
     end
   end

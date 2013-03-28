@@ -1,56 +1,54 @@
 module Celluloid
   # A proxy object returned from Celluloid::Actor.new/new_link which converts
   # the normal Ruby method protocol into an inter-actor message protocol
-  class ActorProxy
-    attr_reader :mailbox, :thread
+  class ActorProxy < SyncProxy
+    attr_reader :thread
 
     def initialize(actor)
-      @mailbox, @thread, @klass = actor.mailbox, actor.thread, actor.subject.class.to_s
+      @thread = actor.thread
 
+      super(actor.mailbox, actor.subject.class.to_s)
       @sync_proxy   = SyncProxy.new(@mailbox, @klass)
       @async_proxy  = AsyncProxy.new(@mailbox, @klass)
       @future_proxy = FutureProxy.new(@mailbox, @klass)
     end
-    
-    # allow querying the real class
-    alias :__class__ :class
-    
+
     def class
-      sync :__send__, :class
+      method_missing :__send__, :class
     end
 
     def send(meth, *args, &block)
-      sync :send, meth, *args, &block
+      method_missing :send, meth, *args, &block
     end
 
     def _send_(meth, *args, &block)
-      sync :__send__, meth, *args, &block
+      method_missing :__send__, meth, *args, &block
     end
 
     def inspect
-      @sync_proxy.method_missing :inspect
+      method_missing :inspect
     rescue DeadActorError
-      "#<Celluloid::Actor(#{@klass}) dead>"
+      "#<Celluloid::ActorProxy(#{@klass}) dead>"
     end
 
     def name
-      @sync_proxy.name
+      method_missing :name
     end
 
     def is_a?(klass)
-      @sync_proxy.is_a? klass
+      method_missing :is_a?, klass
     end
 
     def kind_of?(klass)
-      @sync_proxy.kind_of? klass
+      method_missing :kind_of?, klass
     end
 
     def respond_to?(meth, include_private = false)
-      @sync_proxy.respond_to? meth, include_private
+      method_missing :respond_to?, meth, include_private
     end
 
     def methods(include_ancestors = true)
-      @sync_proxy.methods include_ancestors
+      method_missing :methods, include_ancestors
     end
 
     def method(name)
@@ -62,17 +60,10 @@ module Celluloid
     end
 
     def to_s
-      sync :to_s
+      method_missing :to_s
     end
 
-    # Obtain an sync proxy or explicitly invoke a named sync method
-    def sync(method_name = nil, *args, &block)
-      if method_name
-        @sync_proxy.method_missing method_name, *args, &block
-      else
-        @sync_proxy
-      end
-    end
+    alias_method :sync, :method_missing
 
     # Obtain an async proxy or explicitly invoke a named async method
     def async(method_name = nil, *args, &block)
@@ -103,11 +94,6 @@ module Celluloid
     def terminate!
       ::Kernel.raise DeadActorError, "actor already terminated" unless alive?
       @mailbox << TerminationRequest.new
-    end
-
-    # method_missing black magic to call bang predicate methods asynchronously
-    def method_missing(meth, *args, &block)
-      sync meth, *args, &block
     end
   end
 end

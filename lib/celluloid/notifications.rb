@@ -67,7 +67,7 @@ module Celluloid
       end
 
       def publish(pattern, *args)
-        actor.proxy.async method, pattern, *args
+        actor.async method, pattern, *args
       end
 
       def subscribed_to?(pattern)
