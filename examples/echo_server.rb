@@ -7,6 +7,7 @@ require 'celluloid/io'
 
 class EchoServer
   include Celluloid::IO
+  finalizer :finalizer
 
   def initialize(host, port)
     puts "*** Starting echo server on #{host}:#{port}"
@@ -17,7 +18,7 @@ class EchoServer
     async.run
   end
 
-  def finalize
+  def finalizer
     @server.close if @server
   end
 
