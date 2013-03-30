@@ -3,7 +3,7 @@ require 'celluloid/io'
 
 class EchoUNIXClient
   include Celluloid::IO
-  finalizer :finalizer
+  finalizer :finalize
 
   def initialize(socket_path)
     puts "*** connecting to #{socket_path}"
@@ -19,7 +19,7 @@ class EchoUNIXClient
     data
   end
 
-  def finalizer
+  def finalize
     @socket.close if @socket
   end
 

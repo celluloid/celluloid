@@ -3,7 +3,7 @@ require 'celluloid/io'
 
 class EchoUNIXServer
   include Celluloid::IO
-  finalizer :finalizer
+  finalizer :finalize
 
   attr_reader :socket_path, :server
 
@@ -32,7 +32,7 @@ class EchoUNIXServer
     socket.close
   end
 
-  def finalizer
+  def finalize
     if @server
       @server.close
       File.delete(@socket_path)
