@@ -3,7 +3,8 @@ require 'celluloid/io'
 
 class EchoUNIXServer
   include Celluloid::IO
-    
+  finalizer :finalize
+
   attr_reader :socket_path, :server
 
   def initialize(socket_path)
@@ -23,7 +24,7 @@ class EchoUNIXServer
       puts "*** gets data #{data}"
       socket.write(data)
     end
-  
+
   rescue EOFError
     puts "*** disconnected"
 

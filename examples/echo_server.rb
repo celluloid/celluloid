@@ -7,6 +7,7 @@ require 'celluloid/io'
 
 class EchoServer
   include Celluloid::IO
+  finalizer :finalize
 
   def initialize(host, port)
     puts "*** Starting echo server on #{host}:#{port}"

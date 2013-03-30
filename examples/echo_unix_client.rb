@@ -3,6 +3,7 @@ require 'celluloid/io'
 
 class EchoUNIXClient
   include Celluloid::IO
+  finalizer :finalize
 
   def initialize(socket_path)
     puts "*** connecting to #{socket_path}"
