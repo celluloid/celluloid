@@ -25,6 +25,11 @@ module Celluloid
       !!Thread.current[:celluloid_actor]
     end
 
+    # Retrieve the mailbox for the current thread or lazily initialize it
+    def mailbox
+      Thread.current[:celluloid_mailbox] ||= Celluloid::Mailbox.new
+    end
+
     # Generate a Universally Unique Identifier
     def uuid
       UUID.generate
@@ -386,7 +391,7 @@ module Celluloid
     if actor
       actor.receive(timeout, &block)
     else
-      Thread.mailbox.receive(timeout, &block)
+      Celluloid.mailbox.receive(timeout, &block)
     end
   end
 
@@ -446,6 +451,7 @@ require 'celluloid/version'
 
 require 'celluloid/calls'
 require 'celluloid/condition'
+require 'celluloid/thread'
 require 'celluloid/core_ext'
 require 'celluloid/cpu_counter'
 require 'celluloid/fiber'
