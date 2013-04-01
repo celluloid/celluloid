@@ -25,7 +25,7 @@ module Celluloid
       klass.send :extend, Properties
 
       klass.property :mailbox_class, :default => Celluloid::Mailbox
-      klass.property :proxy_class,   :default => Celluloid::ActorProxy
+      klass.property :proxy_class,   :default => Celluloid::CellProxy
       klass.property :task_class,    :default => Celluloid.task_class
       klass.property :mailbox_size
 
@@ -34,10 +34,10 @@ module Celluloid
         :multi   => true
 
       klass.property :finalizer
-      klass.property :exit_handler
+      klass.property :exit_handler_name
 
       klass.send(:define_singleton_method, :trap_exit) do |*args|
-        exit_handler(*args)
+        exit_handler_name(*args)
       end
     end
 
@@ -177,7 +177,7 @@ module Celluloid
   module ClassMethods
     # Create a new actor
     def new(*args, &block)
-      proxy = Actor.new(allocate, actor_options).proxy
+      proxy = Actor.new(actor_options, behavior_options.merge(:class => Cell, :subject => allocate)).behavior_proxy
       proxy._send_(:initialize, *args, &block)
       proxy
     end
@@ -187,7 +187,7 @@ module Celluloid
     def new_link(*args, &block)
       raise NotActorError, "can't link outside actor context" unless Celluloid.actor?
 
-      proxy = Actor.new(allocate, actor_options).proxy
+      proxy = Actor.new(actor_options, behavior_options.merge(:class => Cell, :subject => allocate)).behavior_proxy
       Actor.link(proxy)
       proxy._send_(:initialize, *args, &block)
       proxy
@@ -240,11 +240,16 @@ module Celluloid
       {
         :mailbox_class     => mailbox_class,
         :mailbox_size      => mailbox_size,
-        :proxy_class       => proxy_class,
         :task_class        => task_class,
-        :exit_handler      => exit_handler,
         :exclusive_methods => defined?(@exclusive_methods) ? @exclusive_methods : nil,
-        :receiver_block_executions => execute_block_on_receiver
+      }
+    end
+
+    def behavior_options
+      {
+        :proxy_class               => proxy_class,
+        :exit_handler_name         => exit_handler_name,
+        :receiver_block_executions => execute_block_on_receiver,
       }
     end
 
@@ -295,7 +300,7 @@ module Celluloid
       if leaked?
         str << Celluloid::BARE_OBJECT_WARNING_MESSAGE
       else
-        str << "Celluloid::ActorProxy"
+        str << "Celluloid::CellProxy"
       end
 
       str << "(#{self.class}:0x#{object_id.to_s(16)})"
@@ -327,7 +332,7 @@ module Celluloid
 
   # Terminate this actor
   def terminate
-    Thread.current[:celluloid_actor].proxy.terminate!
+    Thread.current[:celluloid_actor].behavior_proxy.terminate!
   end
 
   # Send a signal with the given name to all waiting methods
@@ -450,12 +455,12 @@ module Celluloid
 
   # Handle async calls within an actor itself
   def async(meth = nil, *args, &block)
-    Thread.current[:celluloid_actor].proxy.async meth, *args, &block
+    Thread.current[:celluloid_actor].behavior_proxy.async meth, *args, &block
   end
 
   # Handle calls to future within an actor itself
   def future(meth = nil, *args, &block)
-    Thread.current[:celluloid_actor].proxy.future meth, *args, &block
+    Thread.current[:celluloid_actor].behavior_proxy.future meth, *args, &block
   end
 end
 
@@ -478,6 +483,7 @@ require 'celluloid/mailbox'
 require 'celluloid/evented_mailbox'
 require 'celluloid/method'
 require 'celluloid/properties'
+require 'celluloid/handlers'
 require 'celluloid/receivers'
 require 'celluloid/registry'
 require 'celluloid/responses'
@@ -491,12 +497,14 @@ require 'celluloid/uuid'
 
 require 'celluloid/proxies/abstract_proxy'
 require 'celluloid/proxies/sync_proxy'
+require 'celluloid/proxies/cell_proxy'
 require 'celluloid/proxies/actor_proxy'
 require 'celluloid/proxies/async_proxy'
 require 'celluloid/proxies/future_proxy'
 require 'celluloid/proxies/block_proxy'
 
 require 'celluloid/actor'
+require 'celluloid/cell_behavior'
 require 'celluloid/future'
 require 'celluloid/pool_manager'
 require 'celluloid/supervision_group'

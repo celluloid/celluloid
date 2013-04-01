@@ -221,7 +221,7 @@ shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
 
   it "inspects properly" do
     actor = actor_class.new "Troy McClure"
-    actor.inspect.should match(/Celluloid::ActorProxy\(/)
+    actor.inspect.should match(/Celluloid::CellProxy\(/)
     actor.inspect.should match(/#{actor_class}/)
     actor.inspect.should include('@name="Troy McClure"')
     actor.inspect.should_not include("@celluloid")
@@ -230,7 +230,7 @@ shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
   it "inspects properly when dead" do
     actor = actor_class.new "Troy McClure"
     actor.terminate
-    actor.inspect.should match(/Celluloid::ActorProxy\(/)
+    actor.inspect.should match(/Celluloid::CellProxy\(/)
     actor.inspect.should match(/#{actor_class}/)
     actor.inspect.should include('dead')
   end
@@ -252,7 +252,7 @@ shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
     itchy.other = scratchy
 
     inspection = itchy.inspect
-    inspection.should match(/Celluloid::ActorProxy\(/)
+    inspection.should match(/Celluloid::CellProxy\(/)
     inspection.should include("...")
   end
 
@@ -923,7 +923,7 @@ shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
   end
 
   context :proxy_class do
-    class ExampleProxy < Celluloid::ActorProxy
+    class ExampleProxy < Celluloid::CellProxy
       def subclass_proxy?
         true
       end
