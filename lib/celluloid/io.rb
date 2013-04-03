@@ -1,4 +1,3 @@
-require 'forwardable'
 require 'celluloid/io/version'
 
 require 'celluloid'
@@ -24,9 +23,28 @@ module Celluloid
       klass.mailbox_class Celluloid::IO::Mailbox
     end
 
-    extend Forwardable
+    def wait_readable(io)
+      io = io.to_io
+      actor = Thread.current[:celluloid_actor]
+      if actor && actor.mailbox.is_a?(Celluloid::IO::Mailbox)
+        actor.mailbox.reactor.wait_readable(io)
+      else
+        Kernel.select([io])
+      end
+      nil
+    end
+    module_function :wait_readable
 
-    # Wait for the given IO object to become readable/writable
-    def_delegators 'current_actor.mailbox.reactor', :wait_readable, :wait_writable
+    def wait_writable(io)
+      io = io.to_io
+      actor = Thread.current[:celluloid_actor]
+      if actor && actor.mailbox.is_a?(Celluloid::IO::Mailbox)
+        actor.mailbox.reactor.wait_writable(io)
+      else
+        Kernel.select([], [io])
+      end
+      nil
+    end
+    module_function :wait_writable
   end
 end
