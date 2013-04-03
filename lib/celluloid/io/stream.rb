@@ -36,22 +36,10 @@ module Celluloid
       end
 
       # Wait until the current object is readable
-      def wait_readable
-        if evented?
-          Celluloid.current_actor.wait_readable(self.to_io)
-        else
-          Kernel.select([self.to_io])
-        end
-      end
+      def wait_readable; Celluloid::IO.wait_readable(self); end
 
       # Wait until the current object is writable
-      def wait_writable
-        if evented?
-          Celluloid.current_actor.wait_writable(self.to_io)
-        else
-          Kernel.select([], [self.to_io])
-        end
-      end
+      def wait_writable; Celluloid::IO.wait_writable(self); end
 
       # System read via the nonblocking subsystem
       def sysread(length = nil, buffer = nil)
