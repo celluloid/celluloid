@@ -16,18 +16,12 @@ module Celluloid
       end
 
       def accept
-        actor = Thread.current[:celluloid_actor]
-
-        if evented?
-          Celluloid.current_actor.wait_readable @server
-          accept_nonblock
-        else
-          Celluloid::IO::UNIXSocket.from_ruby_socket @server.accept
-        end
+        Celluloid::IO.wait_readable(@server)
+        accept_nonblock
       end
 
       def accept_nonblock
-        Celluloid::IO::UNIXSocket.from_ruby_socket @server.accept_nonblock
+        Celluloid::IO::UNIXSocket.new(@server.accept_nonblock)
       end
 
       def to_io
