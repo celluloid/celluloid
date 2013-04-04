@@ -16,13 +16,7 @@ module Celluloid
       end
 
       # Wait until the socket is readable
-      def wait_readable
-        if evented?
-          Celluloid.current_actor.wait_readable(@socket)
-        else
-          Kernel.select([@socket])
-        end
-      end
+      def wait_readable; Celluloid::IO.wait_readable(self); end
 
       # Receives up to maxlen bytes from socket. flags is zero or more of the
       # MSG_ options. The first element of the results, mesg, is the data
