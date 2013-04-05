@@ -37,4 +37,12 @@ shared_context "a Celluloid Mailbox" do
     subject.receive(interval) { false }
     (Time.now - started_at).should be_within(Celluloid::TIMER_QUANTUM).of interval
   end
+
+  it "has a size" do
+    subject.should respond_to(:size)
+    subject.size.should == 0
+    subject << :foo
+    subject << :foo
+    subject.size.should == 2
+  end
 end
