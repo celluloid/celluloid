@@ -1,3 +1,8 @@
+0.13.1 (2013-04-04)
+-------------------
+* Fix major performance regression: I/O backpressure (i.e. EAGAIN
+  handling) was being double-dispatched through the actor protocol.
+
 0.13.0
 ------
 * Support for many, many more IO methods, particularly line-oriented
