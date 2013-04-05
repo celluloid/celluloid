@@ -125,5 +125,10 @@ module Celluloid
     def inspect
       "#<#{self.class}:#{object_id.to_s(16)} @messages=[#{map { |m| m.inspect }.join(', ')}]>"
     end
+
+    # Number of messages in the Mailbox
+    def size
+      @mutex.synchronize { @messages.size }
+    end
   end
 end
