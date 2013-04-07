@@ -266,6 +266,11 @@ module Celluloid
       @celluloid_owner != Thread.current[:celluloid_actor]
     end
 
+    def tap
+      yield current_actor
+      current_actor
+    end
+
     def inspect
       str = "#<"
 
@@ -431,11 +436,6 @@ module Celluloid
   # Handle calls to future within an actor itself
   def future(meth = nil, *args, &block)
     Thread.current[:celluloid_actor].proxy.future meth, *args, &block
-  end
-
-  def tap
-    yield current_actor
-    current_actor
   end
 end
 
