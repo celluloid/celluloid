@@ -19,10 +19,70 @@ module Celluloid
       Task.current.suspend(status)
     end
 
+    attr_reader :type, :status
+
     # Create a new task
     def initialize(type)
       @type   = type
       @status = :new
+
+      actor    = Thread.current[:celluloid_actor]
+      mailbox  = Thread.current[:celluloid_mailbox]
+      chain_id = Thread.current[:celluloid_chain_id]
+
+      raise NotActorError, "can't create tasks outside of actors" unless actor
+
+      create do
+        begin
+          @status = :running
+          Thread.current[:celluloid_actor]    = actor
+          Thread.current[:celluloid_mailbox]  = mailbox
+          Thread.current[:celluloid_task]     = self
+          Thread.current[:celluloid_chain_id] = chain_id
+
+          actor.tasks << self
+          yield
+        rescue Task::TerminatedError
+          # Task was explicitly terminated
+        ensure
+          @status = :dead
+          actor.tasks.delete self
+        end
+      end
+    end
+
+    def create(&block)
+      raise "Implement #{self.class}#create"
+    end
+
+    # Suspend the current task, changing the status to the given argument
+    def suspend(status)
+      @status = status
+      value = signal
+
+      raise value if value.is_a?(Task::TerminatedError)
+      @status = :running
+
+      value
+    end
+
+    # Resume a suspended task, giving it a value to return if needed
+    def resume(value = nil)
+      deliver(value)
+      nil
+    end
+
+    # Terminate this task
+    def terminate
+      resume Task::TerminatedError.new("task was terminated") unless running?
+    end
+
+    # Is the current task still running?
+    def running?; @status != :dead; end
+
+    # Nicer string inspect for tasks
+    def inspect
+      "#<#{self.class}:0x#{object_id.to_s(16)} @type=#{@type.inspect}, @status=#{@status.inspect}>"
     end
   end
   
