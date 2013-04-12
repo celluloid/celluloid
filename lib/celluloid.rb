@@ -213,7 +213,7 @@ module Celluloid
     def exclusive(*methods)
       if methods.empty?
         @exclusive_methods = :all
-      elsif @exclusive_methods != :all
+      elsif !defined?(@exclusive_methods) || @exclusive_methods != :all
         @exclusive_methods ||= Set.new
         @exclusive_methods.merge methods.map(&:to_sym)
       end

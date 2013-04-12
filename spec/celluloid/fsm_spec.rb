@@ -6,6 +6,7 @@ describe Celluloid::FSM do
       include Celluloid::FSM
 
       def initialize
+        super
         @fired = false
       end
 
