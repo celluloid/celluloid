@@ -63,6 +63,8 @@ module Celluloid
       yield current_actor if block_given?
     end
 
+    execute_block_on_receiver :initialize, :supervise, :supervise_as
+
     def supervise(klass, *args, &block)
       add(klass, :args => args, :block => block)
     end
