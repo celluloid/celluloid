@@ -5,7 +5,7 @@ module Celluloid
     needed = [:object_id, :__id__, :hash] - instance_methods
     if needed.any?
       include ::Kernel.dup.module_eval {
-        undef_method *(instance_methods - needed)
+        undef_method(*(instance_methods - needed))
         self
       }
 

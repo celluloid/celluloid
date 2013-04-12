@@ -7,7 +7,7 @@ shared_context "a Celluloid Actor" do |included_module|
 
   it "returns the actor's class, not the proxy's" do
     actor = actor_class.new "Troy McClure"
-    actor.class.should == actor_class
+    actor.class.should eq(actor_class)
   end
 
   it "compares with the actor's class in a case statement" do
@@ -21,13 +21,13 @@ shared_context "a Celluloid Actor" do |included_module|
 
   it "can be stored in hashes" do
     actor = actor_class.new "Troy McClure"
-    actor.hash.should_not == Kernel.hash
-    actor.object_id.should_not == Kernel.object_id
+    actor.hash.should_not eq(Kernel.hash)
+    actor.object_id.should_not eq(Kernel.object_id)
   end
 
   it "supports synchronous calls" do
     actor = actor_class.new "Troy McClure"
-    actor.greet.should == "Hi, I'm Troy McClure"
+    actor.greet.should eq("Hi, I'm Troy McClure")
   end
 
   it "supports synchronous calls with blocks" do
@@ -40,27 +40,27 @@ shared_context "a Celluloid Actor" do |included_module|
 
   it "supports synchronous calls via #method" do
     method = actor_class.new("Troy McClure").method(:greet)
-    method.call.should == "Hi, I'm Troy McClure"
+    method.call.should eq("Hi, I'm Troy McClure")
   end
 
   it "supports #arity calls via #method" do
     method = actor_class.new("Troy McClure").method(:greet)
-    method.arity.should == 0
+    method.arity.should be(0)
 
     method = actor_class.new("Troy McClure").method(:change_name)
-    method.arity.should == 1
+    method.arity.should be(1)
   end
 
   it "supports future(:method) syntax for synchronous future calls" do
     actor = actor_class.new "Troy McClure"
     future = actor.future :greet
-    future.value.should == "Hi, I'm Troy McClure"
+    future.value.should eq("Hi, I'm Troy McClure")
   end
 
   it "supports future.method syntax for synchronous future calls" do
     actor = actor_class.new "Troy McClure"
     future = actor.future.greet
-    future.value.should == "Hi, I'm Troy McClure"
+    future.value.should eq("Hi, I'm Troy McClure")
   end
 
   it "handles circular synchronous calls" do
@@ -78,13 +78,13 @@ shared_context "a Celluloid Actor" do |included_module|
 
     ponycopter = klass.new
     actor = actor_class.new ponycopter
-    ponycopter.greet_by_proxy(actor).should == "Hi, I'm a ponycopter!"
+    ponycopter.greet_by_proxy(actor).should eq("Hi, I'm a ponycopter!")
   end
 
   it "properly handles method_missing" do
     actor = actor_class.new "Method Missing"
     actor.should respond_to(:first)
-    actor.first.should be == :bar
+    actor.first.should be :bar
   end
 
   it "properly handles respond_to with include_private" do
@@ -103,19 +103,19 @@ shared_context "a Celluloid Actor" do |included_module|
   it "supports async(:method) syntax for asynchronous calls" do
     actor = actor_class.new "Troy McClure"
     actor.async :change_name, "Charlie Sheen"
-    actor.greet.should == "Hi, I'm Charlie Sheen"
+    actor.greet.should eq("Hi, I'm Charlie Sheen")
   end
 
   it "supports async.method syntax for asynchronous calls" do
     actor = actor_class.new "Troy McClure"
     actor.async.change_name "Charlie Sheen"
-    actor.greet.should == "Hi, I'm Charlie Sheen"
+    actor.greet.should eq("Hi, I'm Charlie Sheen")
   end
 
   it "supports async.method syntax for asynchronous calls to itself" do
     actor = actor_class.new "Troy McClure"
     actor.change_name_async "Charlie Sheen"
-    actor.greet.should == "Hi, I'm Charlie Sheen"
+    actor.greet.should eq("Hi, I'm Charlie Sheen")
   end
 
   it "allows an actor to call private methods asynchronously" do
@@ -167,7 +167,7 @@ shared_context "a Celluloid Actor" do |included_module|
 
   it "can override #send" do
     actor = actor_class.new "Troy McClure"
-    actor.send('foo').should == 'oof'
+    actor.send('foo').should eq('oof')
   end
 
   context "mocking methods" do
@@ -178,11 +178,11 @@ shared_context "a Celluloid Actor" do |included_module|
     end
 
     it "works externally via the proxy" do
-      actor.external_hello.should == "World"
+      actor.external_hello.should eq("World")
     end
 
     it "works internally when called on self" do
-      actor.internal_hello.should == "World"
+      actor.internal_hello.should eq("World")
     end
   end
 
@@ -406,7 +406,7 @@ shared_context "a Celluloid Actor" do |included_module|
       end.to raise_exception(ExampleCrash)
 
       sleep 0.1 # hax to prevent a race between exit handling and the next call
-      chuck.links.count.should == 0
+      chuck.links.count.should be(0)
     end
   end
 
@@ -469,7 +469,7 @@ shared_context "a Celluloid Actor" do |included_module|
       obj.should_not be_signaled
 
       obj.send_signal(:foobar).should be_true
-      future.value.should == :foobar
+      future.value.should be(:foobar)
     end
   end
 
@@ -519,14 +519,14 @@ shared_context "a Celluloid Actor" do |included_module|
       subject.async.exclusive_with_block_log_task(:one)
       subject.async.log_task(:two)
       sleep Celluloid::TIMER_QUANTUM * 2
-      subject.tasks.should == [:one, :two]
+      subject.tasks.should eq([:one, :two])
     end
 
     it "executes methods in the proper order with a class-level annotation" do
       subject.async.exclusive_log_task :one
       subject.async.log_task :two
       sleep Celluloid::TIMER_QUANTUM * 2
-      subject.tasks.should == [:one, :two]
+      subject.tasks.should eq([:one, :two])
     end
 
     it "knows when it's in exclusive mode" do
@@ -567,7 +567,7 @@ shared_context "a Celluloid Actor" do |included_module|
       actor.async.eat_donuts
       actor.async.drink_coffee
       sleep Celluloid::TIMER_QUANTUM * 2
-      actor.tasks.should == ['donuts', 'coffee']
+      actor.tasks.should eq(['donuts', 'coffee'])
     end
   end
 
@@ -588,12 +588,12 @@ shared_context "a Celluloid Actor" do |included_module|
     let(:message) { Object.new }
 
     it "allows unconditional receive" do
-      receiver.signal_myself(message).should == message
+      receiver.signal_myself(message).should eq(message)
     end
 
     it "allows arbitrary selective receive" do
       received_obj = receiver.signal_myself(message) { |o| o == message }
-      received_obj.should == message
+      received_obj.should eq(message)
     end
 
     it "times out after the given interval", :pending => ENV['CI'] do
@@ -657,9 +657,8 @@ shared_context "a Celluloid Actor" do |included_module|
       actor = @klass.new
 
       interval = Celluloid::TIMER_QUANTUM * 10
-      started_at = Time.now
 
-      timer = actor.fire_after(interval)
+      actor.fire_after(interval)
       actor.should_not be_fired
 
       sleep(interval + Celluloid::TIMER_QUANTUM) # wonky! #/
@@ -670,23 +669,21 @@ shared_context "a Celluloid Actor" do |included_module|
       actor = @klass.new
 
       interval = Celluloid::TIMER_QUANTUM * 10
-      started_at = Time.now
 
-      timer = actor.fire_every(interval)
-      actor.fired.should be == 0
+      actor.fire_every(interval)
+      actor.fired.should be_zero
 
       sleep(interval + Celluloid::TIMER_QUANTUM) # wonky! #/
-      actor.fired.should be == 1
+      actor.fired.should be 1
 
       2.times { sleep(interval + Celluloid::TIMER_QUANTUM) } # wonky! #/
-      actor.fired.should be == 3
+      actor.fired.should be 3
     end
 
     it "cancels timers before they fire" do
       actor = @klass.new
 
       interval = Celluloid::TIMER_QUANTUM * 10
-      started_at = Time.now
 
       timer = actor.fire_after(interval)
       actor.should_not be_fired
@@ -700,10 +697,9 @@ shared_context "a Celluloid Actor" do |included_module|
       actor = @klass.new
 
       interval = Celluloid::TIMER_QUANTUM * 10
-      started_at = Time.now
       fired = false
 
-      timer = actor.after(interval) do
+      actor.after(interval) do
         fired = true
       end
       fired.should be_false
@@ -745,21 +741,21 @@ shared_context "a Celluloid Actor" do |included_module|
       actor = @klass.new
 
       tasks = actor.tasks
-      tasks.size.should == 1
+      tasks.size.should be 1
 
-      future = actor.future(:blocking_call)
+      actor.future(:blocking_call)
       sleep 0.1 # hax! waiting for ^^^ call to actually start
 
       tasks = actor.tasks
-      tasks.size.should == 2
+      tasks.size.should be 2
 
       blocking_task = tasks.find { |t| t.status != :running }
       blocking_task.should be_a Celluloid.task_class
-      blocking_task.status.should == :callwait
+      blocking_task.status.should be :callwait
 
       actor.blocker.unblock
       sleep 0.1 # hax again :(
-      actor.tasks.size.should == 1
+      actor.tasks.size.should be 1
     end
   end
 

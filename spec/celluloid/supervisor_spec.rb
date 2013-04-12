@@ -1,23 +1,21 @@
 require 'spec_helper'
 
 describe Celluloid::Supervisor do
-  before do
-    class SubordinateDead < StandardError; end
+  class SubordinateDead < StandardError; end
 
-    class Subordinate
-      include Celluloid
-      attr_reader :state
+  class Subordinate
+    include Celluloid
+    attr_reader :state
 
-      def initialize(state)
-        @state = state
-      end
+    def initialize(state)
+      @state = state
+    end
 
-      def crack_the_whip
-        case @state
-        when :idle
-          @state = :working
-        else raise SubordinateDead, "the spec purposely crashed me :("
-        end
+    def crack_the_whip
+      case @state
+      when :idle
+        @state = :working
+      else raise SubordinateDead, "the spec purposely crashed me :("
       end
     end
   end
@@ -25,10 +23,10 @@ describe Celluloid::Supervisor do
   it "restarts actors when they die" do
     supervisor = Celluloid::Supervisor.supervise(Subordinate, :idle)
     subordinate = supervisor.actors.first
-    subordinate.state.should == :idle
+    subordinate.state.should be(:idle)
 
     subordinate.crack_the_whip
-    subordinate.state.should == :working
+    subordinate.state.should be(:working)
 
     expect do
       subordinate.crack_the_whip
@@ -42,12 +40,12 @@ describe Celluloid::Supervisor do
   end
 
   it "registers actors and reregisters them when they die" do
-    supervisor = Celluloid::Supervisor.supervise_as(:subordinate, Subordinate, :idle)
+    Celluloid::Supervisor.supervise_as(:subordinate, Subordinate, :idle)
     subordinate = Celluloid::Actor[:subordinate]
-    subordinate.state.should == :idle
+    subordinate.state.should be(:idle)
 
     subordinate.crack_the_whip
-    subordinate.state.should == :working
+    subordinate.state.should be(:working)
 
     expect do
       subordinate.crack_the_whip
@@ -63,7 +61,7 @@ describe Celluloid::Supervisor do
   it "creates supervisors via Actor.supervise" do
     supervisor = Subordinate.supervise(:working)
     subordinate = supervisor.actors.first
-    subordinate.state.should == :working
+    subordinate.state.should be(:working)
 
     expect do
       subordinate.crack_the_whip
@@ -79,7 +77,7 @@ describe Celluloid::Supervisor do
   it "creates supervisors and registers actors via Actor.supervise_as" do
     supervisor = Subordinate.supervise_as(:subordinate, :working)
     subordinate = Celluloid::Actor[:subordinate]
-    subordinate.state.should == :working
+    subordinate.state.should be(:working)
 
     expect do
       subordinate.crack_the_whip
@@ -89,6 +87,6 @@ describe Celluloid::Supervisor do
 
     new_subordinate = supervisor.actors.first
     new_subordinate.should_not eq subordinate
-    new_subordinate.state.should == :working
+    new_subordinate.state.should be(:working)
   end
 end

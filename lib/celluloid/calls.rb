@@ -11,6 +11,8 @@ module Celluloid
           raise "Cannot execute blocks on sender in exclusive mode"
         end
         @block = BlockProxy.new(self, Thread.mailbox, block)
+      else
+        @block = nil
       end
     end
 

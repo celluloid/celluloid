@@ -91,7 +91,7 @@ module Celluloid
 
         Logger.debug "Shutdown completed cleanly"
       end
-    rescue Timeout::Error => ex
+    rescue Timeout::Error
       Logger.error("Couldn't cleanly terminate all actors in #{shutdown_timeout} seconds!")
     end
   end
@@ -213,7 +213,7 @@ module Celluloid
     def exclusive(*methods)
       if methods.empty?
         @exclusive_methods = :all
-      elsif @exclusive_methods != :all
+      elsif !defined?(@exclusive_methods) || @exclusive_methods != :all
         @exclusive_methods ||= Set.new
         @exclusive_methods.merge methods.map(&:to_sym)
       end
