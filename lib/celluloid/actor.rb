@@ -311,8 +311,13 @@ module Celluloid
         handle_system_event message
       when Call
         task(:call, message.method) {
-          if @receiver_block_executions && (message.method && @receiver_block_executions.include?(message.method.to_sym))
-            message.execute_block_on_receiver
+          if @receiver_block_executions && meth = message.method
+            if meth == :__send__
+              meth = message.arguments.first
+            end
+            if @receiver_block_executions.include?(meth.to_sym)
+              message.execute_block_on_receiver
+            end
           end
           message.dispatch(@subject)
         }

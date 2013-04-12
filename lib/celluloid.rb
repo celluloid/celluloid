@@ -221,8 +221,11 @@ module Celluloid
 
     # Mark methods as running blocks on the receiver
     def execute_block_on_receiver(*methods)
-      @receiver_block_executions ||= Set.new
-      @receiver_block_executions.merge methods.map(&:to_sym)
+      receiver_block_executions.merge methods.map(&:to_sym)
+    end
+
+    def receiver_block_executions
+      @receiver_block_executions ||= Set.new([:after, :every, :receive])
     end
 
     # Configuration options for Actor#new
@@ -233,7 +236,7 @@ module Celluloid
         :task_class        => task_class,
         :exit_handler      => exit_handler,
         :exclusive_methods => defined?(@exclusive_methods) ? @exclusive_methods : nil,
-        :receiver_block_executions => defined?(@receiver_block_executions) ? @receiver_block_executions : [:initialize, :after, :every, :receive]
+        :receiver_block_executions => receiver_block_executions
       }
     end
 
