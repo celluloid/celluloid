@@ -25,9 +25,9 @@ shared_context "a Celluloid Mailbox" do
     subject << foo
     subject << bar
 
-    subject.receive { |msg| msg.is_a? Foo }.should == foo
-    subject.receive { |msg| msg.is_a? Bar }.should == bar
-    subject.receive.should == baz
+    subject.receive { |msg| msg.is_a? Foo }.should eq(foo)
+    subject.receive { |msg| msg.is_a? Bar }.should eq(bar)
+    subject.receive.should eq(baz)
   end
 
   it "waits for a given timeout interval" do
@@ -40,9 +40,9 @@ shared_context "a Celluloid Mailbox" do
 
   it "has a size" do
     subject.should respond_to(:size)
-    subject.size.should == 0
+    subject.size.should be_zero
     subject << :foo
     subject << :foo
-    subject.size.should == 2
+    subject.size.should be 2
   end
 end

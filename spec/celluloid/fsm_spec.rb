@@ -6,6 +6,7 @@ describe Celluloid::FSM do
       include Celluloid::FSM
 
       def initialize
+        super
         @fired = false
       end
 
@@ -33,13 +34,13 @@ describe Celluloid::FSM do
   let(:subject) { TestMachine.new }
 
   it "starts in the default state" do
-    subject.state == TestMachine.default_state
+    subject.state.should eq(TestMachine.default_state)
   end
 
   it "transitions between states" do
-    subject.state.should_not == :done
+    subject.state.should_not be :done
     subject.transition :done
-    subject.state.should == :done
+    subject.state.should be :done
   end
 
   it "fires callbacks for states" do
@@ -49,7 +50,7 @@ describe Celluloid::FSM do
   end
 
   it "allows custom default states" do
-    CustomDefaultMachine.new.state.should == :foobar
+    CustomDefaultMachine.new.state.should be :foobar
   end
 
   it "supports constraints on valid state transitions" do
@@ -64,10 +65,10 @@ describe Celluloid::FSM do
     subject.transition :another
     subject.transition :done, :delay => interval
 
-    subject.state.should == :another
+    subject.state.should be :another
     sleep interval + Celluloid::TIMER_QUANTUM
 
-    subject.state.should == :done
+    subject.state.should be :done
   end
 
   it "cancels delayed state transitions if another transition is made" do
@@ -77,11 +78,11 @@ describe Celluloid::FSM do
     subject.transition :another
     subject.transition :done, :delay => interval
 
-    subject.state.should == :another
+    subject.state.should be :another
     subject.transition :pre_done
     sleep interval + Celluloid::TIMER_QUANTUM
 
-    subject.state.should == :pre_done
+    subject.state.should be :pre_done
   end
 
   context "actor is not set" do

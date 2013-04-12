@@ -62,6 +62,7 @@ module Celluloid
     # Be kind and call super if you must redefine initialize
     def initialize(actor = nil)
       @state = self.class.default_state
+      @delayed_transition = nil
       @actor = actor
       @actor ||= Celluloid.current_actor if Celluloid.actor?
     end
@@ -166,6 +167,7 @@ module Celluloid
 
       def initialize(name, transitions = nil, &block)
         @name, @block = name, block
+        @transitions = nil
         @transitions = Array(transitions).map { |t| t.to_sym } if transitions
       end
 

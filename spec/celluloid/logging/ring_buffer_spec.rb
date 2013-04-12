@@ -9,8 +9,8 @@ describe Celluloid::RingBuffer do
   it 'should push and shift' do
     subject.push('foo')
     subject.push('foo2')
-    subject.shift.should == 'foo'
-    subject.shift.should == 'foo2'
+    subject.shift.should eq('foo')
+    subject.shift.should eq('foo2')
   end
 
   it 'should push past the end' do
@@ -22,8 +22,8 @@ describe Celluloid::RingBuffer do
 
   it 'should shift the most recent' do
     (1..5).each { |i| subject.push(i) }
-    subject.shift.should == 4
-    subject.shift.should == 5
+    subject.shift.should be 4
+    subject.shift.should be 5
     subject.shift.should be_nil
   end
 
@@ -35,5 +35,4 @@ describe Celluloid::RingBuffer do
   it 'should be thread-safe' do
     #TODO how to test?
   end
-
 end

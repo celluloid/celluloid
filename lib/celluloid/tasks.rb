@@ -102,7 +102,7 @@ module Celluloid
     end
   
     def each(&blk)
-      @tasks.each &blk
+      @tasks.each(&blk)
     end
   
     def first

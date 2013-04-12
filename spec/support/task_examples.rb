@@ -1,12 +1,12 @@
-shared_context "a Celluloid Task" do |task_class|
-  class MockActor
-    attr_reader :tasks
+class MockActor
+  attr_reader :tasks
 
-    def initialize
-      @tasks = []
-    end
+  def initialize
+    @tasks = []
   end
+end
 
+shared_context "a Celluloid Task" do |task_class|
   let(:task_type)     { :foobar }
   let(:suspend_state) { :doing_something }
   let(:actor)         { MockActor.new }
@@ -22,13 +22,13 @@ shared_context "a Celluloid Task" do |task_class|
   end
 
   it "begins with status :new" do
-    subject.status.should == :new
+    subject.status.should be :new
   end
 
   it "resumes" do
     subject.should be_running
     subject.resume
-    subject.status.should == suspend_state
+    subject.status.should eq(suspend_state)
     subject.resume
     subject.should_not be_running
   end
@@ -41,5 +41,4 @@ shared_context "a Celluloid Task" do |task_class|
       task.resume
     end.to raise_exception("failure")
   end
-
 end
