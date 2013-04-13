@@ -195,7 +195,11 @@ module Celluloid
       # See also #gets
       def readlines(eol=$/)
         ary = []
-        ary << line while line = self.gets(eol)
+
+        while line = self.gets(eol)
+          ary << line
+        end
+
         ary
       end
 
@@ -215,7 +219,9 @@ module Celluloid
 
       # Calls the given block once for each byte in the stream.
       def each_byte # :yields: byte
-        yield(c.ord) while c = getc
+        while c = getc
+          yield(c.ord)
+        end
       end
 
       # Reads a one-character string from the stream.  Raises an EOFError at end
