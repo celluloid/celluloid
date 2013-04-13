@@ -74,7 +74,7 @@ module Celluloid
 
     # Terminate this task
     def terminate
-      resume Task::TerminatedError.new("task was terminated") unless running?
+      resume Task::TerminatedError.new("task was terminated") if running?
     end
 
     # Is the current task still running?
