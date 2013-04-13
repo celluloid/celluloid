@@ -1,23 +1,21 @@
 require 'spec_helper'
 
 describe "Celluloid.pool" do
-  before :all do
-    class ExampleError < StandardError; end
+  class ExampleError < StandardError; end
 
-    class MyWorker
-      include Celluloid
+  class MyWorker
+    include Celluloid
 
-      def process(queue = nil)
-        if queue
-          queue << :done
-        else
-          :done
-        end
+    def process(queue = nil)
+      if queue
+        queue << :done
+      else
+        :done
       end
+    end
 
-      def crash
-        raise ExampleError, "zomgcrash"
-      end
+    def crash
+      raise ExampleError, "zomgcrash"
     end
   end
 
