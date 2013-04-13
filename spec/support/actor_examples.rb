@@ -173,7 +173,7 @@ shared_context "a Celluloid Actor" do |included_module|
   context "mocking methods" do
     let(:actor) { actor_class.new "Troy McClure" }
 
-    before :all do
+    before do
       actor.wrapped_object.should_receive(:external_hello).once.and_return "World"
     end
 
@@ -411,7 +411,7 @@ shared_context "a Celluloid Actor" do |included_module|
   end
 
   context :signaling do
-    before :all do
+    before do
       @signaler = Class.new do
         include included_module
 
@@ -572,7 +572,7 @@ shared_context "a Celluloid Actor" do |included_module|
   end
 
   context :receiving do
-    before :all do
+    before do
       @receiver = Class.new do
         include included_module
         execute_block_on_receiver :signal_myself
@@ -606,7 +606,7 @@ shared_context "a Celluloid Actor" do |included_module|
   end
 
   context :timers do
-    before :all do
+    before do
       @klass = Class.new do
         include included_module
 
@@ -710,7 +710,7 @@ shared_context "a Celluloid Actor" do |included_module|
   end
 
   context :tasks do
-    before :all do
+    before do
       @klass = Class.new do
         include included_module
         attr_reader :blocker
