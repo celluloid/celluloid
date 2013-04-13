@@ -31,7 +31,7 @@ describe Celluloid::Registry do
   end
 
   describe :delete do
-    before do
+    before :all do
       Celluloid::Actor[:marilyn] ||= Marilyn.new
     end
     
