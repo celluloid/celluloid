@@ -46,20 +46,17 @@ module Celluloid
 
       # Run the reactor, waiting for events or wakeup signal
       def run_once(timeout = nil)
-        handled = false
-        @selector.select(timeout) do |monitor|
+        handled = @selector.select(timeout) do |monitor|
           task = monitor.value
           monitor.close
 
           if task.running?
-            handled = true
             task.resume
           else
             Logger.warn("reactor attempted to resume a dead task")
           end
         end
-
-        handled
+        handled && handled > 0
       end
     end
   end
