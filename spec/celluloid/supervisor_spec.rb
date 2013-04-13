@@ -1,23 +1,21 @@
 require 'spec_helper'
 
 describe Celluloid::Supervisor do
-  before :all do
-    class SubordinateDead < StandardError; end
+  class SubordinateDead < StandardError; end
 
-    class Subordinate
-      include Celluloid
-      attr_reader :state
+  class Subordinate
+    include Celluloid
+    attr_reader :state
 
-      def initialize(state)
-        @state = state
-      end
+    def initialize(state)
+      @state = state
+    end
 
-      def crack_the_whip
-        case @state
-        when :idle
-          @state = :working
-        else raise SubordinateDead, "the spec purposely crashed me :("
-        end
+    def crack_the_whip
+      case @state
+      when :idle
+        @state = :working
+      else raise SubordinateDead, "the spec purposely crashed me :("
       end
     end
   end
