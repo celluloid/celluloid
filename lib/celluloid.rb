@@ -98,15 +98,28 @@ module Celluloid
 
   # Class methods added to classes which include Celluloid
   module ClassMethods
-    # Create a new actor
-    def new(*args, &block)
+
+    # Create a new unlinked actor. It is assumed that the owner of this actor
+    # will manually link or terminate the actor as needed.
+    def spawn(*args, &block)
       proxy = Actor.new(allocate, actor_options).proxy
       proxy._send_(:initialize, *args, &block)
       proxy
     end
-    alias_method :spawn, :new
 
-    # Create a new actor and link to the current one
+    # Create a new actor. This actor will be linked to the parent actor context
+    # if there is one. Outside of an actor context this behaves just like
+    # #spawn so care should be taken to ensure that root actors lifecycles are
+    # properly managed.
+    def new(*args, &block)
+      proxy = Actor.new(allocate, actor_options).proxy
+      Actor.link(proxy) if Celluloid.actor?
+      proxy._send_(:initialize, *args, &block)
+      proxy
+    end
+
+    # Create a new actor and link to the current one. This raises NotActorError
+    # in the case that there is no parent actor context to link to.
     def new_link(*args, &block)
       raise NotActorError, "can't link outside actor context" unless Celluloid.actor?
 
@@ -183,7 +196,7 @@ module Celluloid
         Celluloid::Mailbox
       end
     end
-    
+
     def proxy_class(klass = nil)
       if klass
         @proxy_class = klass

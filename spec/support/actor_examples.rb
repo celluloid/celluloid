@@ -335,6 +335,16 @@ shared_context "a Celluloid Actor" do |included_module|
       end
     end
 
+    it "automatically links to the context's actor" do
+      @charlie.linked_to?(@kevin).should be_false
+      @kevin.in_actor_context {@charlie = actor_class.new "Charlie Sheen"}
+      @charlie.linked_to?(@kevin).should be_true
+      @kevin.in_actor_context {@charlie = actor_class.spawn "Charlie Sheen"}
+      @charlie.linked_to?(@kevin).should be_false
+      @kevin.in_actor_context {@charlie = actor_class.new_link "Charlie Sheen"}
+      @charlie.linked_to?(@kevin).should be_true
+    end
+
     it "links to other actors" do
       @kevin.link @charlie
       @kevin.monitoring?(@charlie).should be_true
