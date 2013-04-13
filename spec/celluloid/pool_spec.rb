@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe "Celluloid.pool" do
-  before do
+  before :all do
     class ExampleError < StandardError; end
 
     class MyWorker
@@ -24,18 +24,18 @@ describe "Celluloid.pool" do
   subject { MyWorker.pool }
 
   it "processes work units synchronously" do
-    subject.process.should == :done
+    subject.process.should be :done
   end
 
   it "processes work units asynchronously" do
     queue = Queue.new
     subject.async.process(queue)
-    queue.pop.should == :done
+    queue.pop.should be :done
   end
 
   it "handles crashes" do
     expect { subject.crash }.to raise_error(ExampleError)
-    subject.process.should == :done
+    subject.process.should be :done
   end
 
   it "uses a fixed-sized number of threads" do

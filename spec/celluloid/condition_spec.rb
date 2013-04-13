@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Celluloid::Condition do
-  before do
+  before :all do
     class ConditionExample
       include Celluloid
 
@@ -38,7 +38,7 @@ describe Celluloid::Condition do
     actor.signaled_times.should be_zero
 
     actor.condition.signal
-    actor.signaled_times.should eq 1
+    actor.signaled_times.should be(1)
   end
 
   it "broadcasts signals" do
@@ -46,13 +46,13 @@ describe Celluloid::Condition do
     actor.signaled_times.should be_zero
 
     actor.condition.broadcast
-    actor.signaled_times.should eq 3
+    actor.signaled_times.should be(3)
   end
 
   it "sends values along with signals" do
     future = actor.future(:wait_for_condition)
     actor.condition.signal(:example_value)
-    future.value.should == :example_value
+    future.value.should be(:example_value)
   end
 
   it "transfers ownership between actors" do

@@ -10,7 +10,7 @@ describe Celluloid::InternalPool do
     subject.busy_size.should be_zero
 
     queue = Queue.new
-    thread = subject.get { queue.pop }
+    subject.get { queue.pop }
 
     subject.idle_size.should be_zero
     subject.busy_size.should eq 1

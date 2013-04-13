@@ -49,9 +49,9 @@ module Celluloid
       @sizelimit = options[:sizelimit] || 100
 
       @buffer_mutex = Mutex.new
-      @buffers = Hash.new do |progname_hash, progname| 
+      @buffers = Hash.new do |progname_hash, _progname|
         @buffer_mutex.synchronize do
-          progname_hash[progname] = Hash.new do |severity_hash, severity|
+          progname_hash[_progname] = Hash.new do |severity_hash, severity|
             severity_hash[severity] = RingBuffer.new(@sizelimit)
           end
         end

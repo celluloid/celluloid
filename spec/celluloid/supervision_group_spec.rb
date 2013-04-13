@@ -38,8 +38,8 @@ describe Celluloid::SupervisionGroup do
       sleep 0.001 # startup time hax
 
       Celluloid::Actor[:example_pool].should be_running
-      Celluloid::Actor[:example_pool].args.should == ['foo']
-      Celluloid::Actor[:example_pool].size.should == 3
+      Celluloid::Actor[:example_pool].args.should eq ['foo']
+      Celluloid::Actor[:example_pool].size.should be 3
     end
   end
 end

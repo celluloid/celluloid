@@ -34,8 +34,8 @@ describe Celluloid::Notifications do
     president = President.new
 
     president.die
-    marilyn.mourning.should == "Mr. President"
-    jackie.mourning.should_not == "Mr. President"
+    marilyn.mourning.should eq("Mr. President")
+    jackie.mourning.should_not eq("Mr. President")
   end
 
   it 'allows multiple subscriptions from the same actor' do
@@ -47,7 +47,7 @@ describe Celluloid::Notifications do
     president = President.new
 
     president.die
-    marilyn.mourning_count.should == 2
+    marilyn.mourning_count.should be(2)
   end
 
 
@@ -61,8 +61,8 @@ describe Celluloid::Notifications do
     president = President.new
 
     president.die
-    marilyn.mourning.should == "Mr. President"
-    jackie.mourning.should == "Mr. President"
+    marilyn.mourning.should eq("Mr. President")
+    jackie.mourning.should eq("Mr. President")
   end
 
   it 'publishes even if there are no subscribers' do
@@ -77,7 +77,7 @@ describe Celluloid::Notifications do
 
     president = President.new
     president.die
-    marilyn.mourning.should == "Mr. President"
+    marilyn.mourning.should eq("Mr. President")
   end
 
   it 'allows unsubscribing' do
@@ -115,7 +115,6 @@ describe Celluloid::Notifications do
     marilyn.terminate
     after_listeners = Celluloid::Notifications.notifier.listeners_for("death").size
 
-    after_listeners.should == listeners - 2
+    after_listeners.should eq(listeners - 2)
   end
-
 end

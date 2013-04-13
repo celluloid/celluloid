@@ -91,7 +91,7 @@ module Celluloid
 
         Logger.debug "Shutdown completed cleanly"
       end
-    rescue Timeout::Error => ex
+    rescue Timeout::Error
       Logger.error("Couldn't cleanly terminate all actors in #{shutdown_timeout} seconds!")
     end
   end
