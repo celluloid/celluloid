@@ -50,7 +50,7 @@ module Celluloid
             wait_interval = nil
           end
           
-          @reactor.run_once(wait_interval)
+          break if @reactor.run_once(wait_interval)
           message = next_message(block)
         end
 
