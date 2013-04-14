@@ -1,6 +1,6 @@
 # Contribution Guidelines
 
-If you are seeking support, or for discussions about Celluloid, you can use [the mailing list] is or the IRC channel, #celluloid on freenode.
+If you are seeking support, or for discussions about Celluloid, you can use [the mailing list](http://groups.google.com/group/celluloid-ruby) or the IRC channel, #celluloid on freenode.
 
 If you encounter an issue with Celluloid itself, you should go through the following checklist:
 
