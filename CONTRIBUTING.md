@@ -21,7 +21,7 @@ gem 'celluloid', github: 'celluloid'
 
 If it is suggested to you that you try a different branch, add `branch: 'somebranch'`.
 
-If the problem is resolved, feel free to voice your desire for a new release of Celluloid [on IRC](irc.freenode.net/#celluloid). If it persists, you should consider [filing a bug report](#filing-a-bug-report).
+If the problem is resolved, feel free to voice your desire for a new release of Celluloid [on IRC](irc://irc.freenode.net/#celluloid). If it persists, you should consider [filing a bug report](#filing-a-bug-report).
 
 ## Filing a bug report
 
