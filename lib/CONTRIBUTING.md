@@ -1,6 +1,8 @@
 # Contribution Guidelines
 
-If you encounter an issue with Celluloid, you should go through the following checklist:
+If you are seeking support, or for discussions about Celluloid, you can use [the mailing list] is or the IRC channel, #celluloid on freenode.
+
+If you encounter an issue with Celluloid itself, you should go through the following checklist:
 
 * Is this a known bug or are you falling into a common trap? Check the [Gotchas wiki page](https://github.com/celluloid/celluloid/wiki/Gotchas).
 * Is there already an issue filed which looks like your issue? Check the [issue tracker](https://github.com/celluloid/celluloid/issues).
