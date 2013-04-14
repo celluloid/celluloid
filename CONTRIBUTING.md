@@ -21,11 +21,13 @@ gem 'celluloid', github: 'celluloid'
 
 If it is suggested to you that you try a different branch, add `branch: 'somebranch'`.
 
-If the problem is resolved, feel free to voice your desire for a new release of Celluloid [on IRC](irc://irc.freenode.net/#celluloid). If it persists, you should consider [filing a bug report](#filing-a-bug-report).
+If the problem is resolved, feel free to voice your desire for a new release of Celluloid on IRC (`irc.freenode.net/#celluloid`). 
+
+If it persists, you should consider [filing a bug report](#filing-a-bug-report).
 
 ## Filing a bug report
 
-* Bug reports should be filed on the [Github issue tracker](https://github.com/celluloid/celluloid/issues). Bug reports should contain the following things:
+* Bug reports should be filed on the [GitHub issue tracker](https://github.com/celluloid/celluloid/issues). Bug reports should contain the following things:
   * A sensible subject that helps quickly identify the issue.
   * Full steps to reproduce the issue, including minimal reproduction code. A minimal reproduction means only what is necessary to display the problem and nothing more. This is perhaps the most important thing, don't skip it!
   * Output from a reproduction.
