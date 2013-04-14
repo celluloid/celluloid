@@ -16,7 +16,7 @@ If you don't get anywhere with this checklist, please feel free to [file a bug r
 If you encounter a bug, it's entirely possible that it has already been fixed but not yet included in a released version. You can establish this by trying to run your application with a pre-release version of Celluloid direct from source control. You can do this by modifying your application's Gemfile as follows:
 
 ```ruby
-  gem 'celluloid', github: 'celluloid'
+gem 'celluloid', github: 'celluloid'
 ```
 
 If it is suggested to you that you try a different branch, add `branch: 'somebranch'`.
