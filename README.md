@@ -70,7 +70,7 @@ to EventMachine (with a synchronous API instead of callback/deferrable soup)
 is available through the [Celluloid::IO](https://github.com/celluloid/celluloid-io)
 library.
 
-Like Celluloid? [Join the Google Group](http://groups.google.com/group/celluloid-ruby)
+Like Celluloid? [Join the mailing list/Google Group](http://groups.google.com/group/celluloid-ruby)
 or visit us on IRC at #celluloid on freenode
 
 ### Is it any good?
