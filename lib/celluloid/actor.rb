@@ -1,12 +1,6 @@
 require 'timers'
 
 module Celluloid
-  # Don't do Actor-like things outside Actor scope
-  class NotActorError < StandardError; end
-
-  # Trying to do something to a dead actor
-  class DeadActorError < StandardError; end
-
   # A timeout occured before the given request could complete
   class TimeoutError < StandardError; end
 
@@ -26,8 +20,8 @@ module Celluloid
   # Actors are Celluloid's concurrency primitive. They're implemented as
   # normal Ruby objects wrapped in threads which communicate with asynchronous
   # messages.
-  class Actor
-    attr_reader :subject, :proxy, :tasks, :links, :mailbox, :thread, :name
+  class Actor < BasicActor
+    attr_reader :subject, :proxy, :links, :name
 
     class << self
       extend Forwardable
@@ -136,57 +130,21 @@ module Celluloid
 
     # Wrap the given subject with an Actor
     def initialize(subject, options = {})
+      super(options)
       @subject      = subject
-      @mailbox      = options[:mailbox] || Mailbox.new
       @exit_handler = options[:exit_handler]
       @exclusives   = options[:exclusive_methods]
       @receiver_block_executions = options[:receiver_block_executions]
-      @task_class   = options[:task_class] || Celluloid.task_class
 
-      @tasks     = TaskSet.new
       @links     = Links.new
-      @signals   = Signals.new
-      @receivers = Receivers.new
-      @timers    = Timers.new
-      @running   = true
       @exclusive = false
       @name      = nil
 
-      @thread = ThreadHandle.new do
-        Thread.current[:celluloid_actor]   = self
-        Thread.current[:celluloid_mailbox] = @mailbox
-        run
-      end
+      setup
 
-      @proxy = (options[:proxy_class] || ActorProxy).new(self)
+      start(options[:proxy_class] || ActorProxy)
+
       @subject.instance_variable_set(OWNER_IVAR, self)
-    end
-
-    # Run the actor loop
-    def run
-      begin
-        while @running
-          if message = @mailbox.receive(timeout_interval)
-            handle_message message
-          else
-            # No message indicates a timeout
-            @timers.fire
-            @receivers.fire_timers
-          end
-        end
-      rescue MailboxShutdown
-        # If the mailbox detects shutdown, exit the actor
-      end
-
-      shutdown
-    rescue Exception => ex
-      handle_crash(ex)
-      raise unless ex.is_a? StandardError
-    end
-
-    # Terminate this actor
-    def terminate
-      @running = false
     end
 
     # Is this actor running in exclusive mode?
@@ -239,77 +197,22 @@ module Celluloid
       end
     end
 
-    # Send a signal with the given name to all waiting methods
-    def signal(name, value = nil)
-      @signals.send name, value
-    end
-
-    # Wait for the given signal
-    def wait(name)
-      @signals.wait name
-    end
-
     # Receive an asynchronous message
     def receive(timeout = nil, &block)
       loop do
-        message = @receivers.receive(timeout, &block)
+        message = super
         break message unless message.is_a?(SystemEvent)
 
         handle_system_event(message)
       end
     end
 
-    # How long to wait until the next timer fires
-    def timeout_interval
-      i1 = @timers.wait_interval
-      i2 = @receivers.wait_interval
-
-      if i1 and i2
-        i1 < i2 ? i1 : i2
-      elsif i1
-        i1
-      else
-        i2
-      end
-    end
-
-    # Schedule a block to run at the given time
-    def after(interval, &block)
-      @timers.after(interval) { task(:timer, &block) }
-    end
-
-    # Schedule a block to run at the given time
-    def every(interval, &block)
-      @timers.every(interval) { task(:timer, &block) }
-    end
-
-    class Sleeper
-      def initialize(timers, interval)
-        @timers = timers
-        @interval = interval
-      end
-
-      def before_suspend(task)
-        @timers.after(@interval) { task.resume }
-      end
-
-      def wait
-        Kernel.sleep(@interval)
-      end
-    end
-
-    # Sleep for the given amount of time
-    def sleep(interval)
-      sleeper = Sleeper.new(@timers, interval)
-      Celluloid.suspend(:sleeping, sleeper)
-    end
-
     # Handle standard low-priority messages
-    def handle_message(message)
-      case message
-      when SystemEvent
+    def setup
+      handle(SystemEvent) do |message|
         handle_system_event message
-      when Call
+      end
+      handle(Call) do |message|
         task(:call, message.method) {
           if @receiver_block_executions && meth = message.method
             if meth == :__send__
@@ -321,14 +224,13 @@ module Celluloid
           end
           message.dispatch(@subject)
         }
-      when BlockCall
-        task(:invoke_block) { message.dispatch }
-      when BlockResponse, Response
-        message.dispatch
-      else
-        @receivers.handle_message(message)
       end
-      message
+      handle(BlockCall) do |message|
+        task(:invoke_block) { message.dispatch }
+      end
+      handle(BlockResponse, Response) do |message|
+        message.dispatch
+      end
     end
 
     # Handle high-priority system event messages
@@ -415,7 +317,7 @@ module Celluloid
       if @exclusives && (@exclusives == :all || (method_name && @exclusives.include?(method_name.to_sym)))
         exclusive { block.call }
       else
-        @task_class.new(task_type, &block).resume
+        super(task_type, &block)
       end
     end
   end
