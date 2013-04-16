@@ -12,7 +12,7 @@ module Celluloid
     # Receive an asynchronous message
     def receive(timeout = nil, &block)
       if Celluloid.exclusive?
-        Thread.mailbox.receive(timeout, &block)
+        Celluloid.mailbox.receive(timeout, &block)
       else
         receiver = Receiver.new block
 

@@ -10,7 +10,7 @@ module Celluloid
           # FIXME: nicer exception
           raise "Cannot execute blocks on sender in exclusive mode"
         end
-        @block = BlockProxy.new(self, Thread.mailbox, block)
+        @block = BlockProxy.new(self, Celluloid.mailbox, block)
       else
         @block = nil
       end
@@ -97,7 +97,7 @@ module Celluloid
 
     def wait
       loop do
-        message = Thread.mailbox.receive do |msg|
+        message = Celluloid.mailbox.receive do |msg|
           msg.respond_to?(:call) and msg.call == self
         end
 
