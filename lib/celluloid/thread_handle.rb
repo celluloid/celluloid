@@ -32,6 +32,7 @@ module Celluloid
 
     # Join to a running thread, blocking until it terminates
     def join
+      raise ThreadError, "Target thread must not be current thread" if @thread == Thread.current
       @mutex.synchronize { @join.wait(@mutex) if @thread }
       self
     end
