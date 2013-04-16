@@ -38,15 +38,6 @@ module Celluloid
         @socket.close
       end
 
-      # Does the 0MQ socket support evented operation?
-      def evented?
-        actor = Thread.current[:celluloid_actor]
-        return unless actor
-
-        mailbox = actor.mailbox
-        mailbox.is_a?(Celluloid::IO::Mailbox) && mailbox.reactor.is_a?(Celluloid::ZMQ::Reactor)
-      end
-
       # Hide ffi-rzmq internals
       alias_method :inspect, :to_s
     end
@@ -68,7 +59,7 @@ module Celluloid
 
       # Read a message from the socket
       def read(buffer = '')
-        Celluloid.current_actor.wait_readable(@socket) if evented?
+        ZMQ.wait_readable(@socket) if ZMQ.evented?
 
         unless ::ZMQ::Util.resultcode_ok? @socket.recv_string buffer
           raise IOError, "error receiving ZMQ string: #{::ZMQ::Util.error_string}"
