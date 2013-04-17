@@ -16,8 +16,10 @@ describe Celluloid::IO::UDPSocket do
     end
 
     it "sends and receives packets" do
-      subject.send payload, 0, example_addr, example_port
-      subject.recvfrom(payload.size).first.should == payload
+      within_io_actor do
+        subject.send payload, 0, example_addr, example_port
+        subject.recvfrom(payload.size).first.should == payload
+      end
     end
   end
 
