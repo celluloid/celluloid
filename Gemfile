@@ -1,7 +1,7 @@
 source 'http://rubygems.org'
 
-#gem 'celluloid',    :git => 'git://github.com/celluloid/celluloid'
-#gem 'celluloid-io', :git => 'git://github.com/celluloid/celluloid-io'
+gem 'celluloid',    github: 'celluloid/celluloid',    branch: 'master'
+gem 'celluloid-io', github: 'celluloid/celluloid-io', branch: 'master'
 
 # Specify your gem's dependencies in celluloid-zmq.gemspec
 gemspec
