@@ -25,8 +25,8 @@ module Celluloid
         monitor_zmq socket, @readers, ::ZMQ::POLLIN
       end
 
-      # Wait for the given ZMQ socket to become writeable
-      def wait_writeable(socket)
+      # Wait for the given ZMQ socket to become writable
+      def wait_writable(socket)
         monitor_zmq socket, @writers, ::ZMQ::POLLOUT
       end
 
