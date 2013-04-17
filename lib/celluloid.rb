@@ -179,13 +179,9 @@ module Celluloid
     # Define the mailbox class for this class
     def mailbox_class(klass = nil)
       if klass
-        @mailbox_class = klass
-      elsif defined?(@mailbox_class)
-        @mailbox_class
-      elsif superclass.respond_to? :mailbox_class
-        superclass.mailbox_class
+        mailbox.class = klass
       else
-        Celluloid::Mailbox
+        mailbox.class
       end
     end
     
@@ -236,7 +232,7 @@ module Celluloid
     # Configuration options for Actor#new
     def actor_options
       {
-        :mailbox           => mailbox_class.new,
+        :mailbox           => mailbox.build,
         :proxy_class       => proxy_class,
         :task_class        => task_class,
         :exit_handler      => exit_handler,
@@ -247,6 +243,31 @@ module Celluloid
 
     def ===(other)
       other.kind_of? self
+    end
+
+    def mailbox
+      @mailbox_factory ||= MailboxFactory.new(self)
+    end
+
+    class MailboxFactory
+      attr_accessor :class, :max_size
+
+      def initialize(actor)
+        @actor    = actor
+        @class    = nil
+        @max_size = nil
+      end
+
+      def build
+        mailbox = mailbox_class.new
+        mailbox.max_size = @max_size
+        mailbox
+      end
+
+      private
+      def mailbox_class
+        @class || (@actor.superclass.respond_to?(:mailbox_class) && @actor.superclass.mailbox_class) || Celluloid::Mailbox
+      end
     end
   end
 
