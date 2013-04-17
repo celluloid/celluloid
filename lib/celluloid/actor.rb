@@ -383,12 +383,12 @@ module Celluloid
         Logger.warn("DEPRECATION WARNING: #{@subject.class}#finalize is deprecated and will be removed in Celluloid 1.0. " +
           "Define finalizers with '#{@subject.class}.finalizer :callback.'")
 
-        task(:finalizer, :finalize) { @subject.finalize }
+        task(:finalizer, :finalize) { exclusive{ @subject.finalize } }
       end
 
       finalizer = @subject.class.finalizer
       if finalizer && @subject.respond_to?(finalizer, true)
-        task(:finalizer, :finalize) { @subject.__send__(finalizer) }
+        task(:finalizer, :finalize) { exclusive{ @subject.__send__(finalizer) } }
       end
     rescue => ex
       Logger.crash("#{@subject.class}#finalize crashed!", ex)
