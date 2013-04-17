@@ -5,7 +5,7 @@ module Celluloid
     # SSLServer wraps a TCPServer to provide immediate SSL accept
     class SSLServer
       extend Forwardable
-      def_delegators :@tcp_server, :listen, :shutdown, :close, :closed?, :to_io, :evented?
+      def_delegators :@tcp_server, :listen, :shutdown, :close, :closed?, :to_io
 
       attr_accessor :start_immediately
       attr_reader :tcp_server
