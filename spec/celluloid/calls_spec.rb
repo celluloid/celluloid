@@ -13,6 +13,15 @@ describe Celluloid::SyncCall do
     def chained_call_ids
       [call_chain_id, @next.call_chain_id]
     end
+
+    def call_the_method_that_wasnt_there
+      self.the_method_that_wasnt_there
+    end
+
+    def call_actual_method_with_too_many_arguments
+      actual_method("with too many arguments")
+    end
+
   end
 
   let(:actor) { CallExampleActor.new }
@@ -25,12 +34,28 @@ describe Celluloid::SyncCall do
     actor.should be_alive
   end
 
+  it "crashes with NoMethodError when a nonexistent method is indirectly called" do
+    expect do
+      actor.call_the_method_that_wasnt_there
+    end.to raise_exception(NoMethodError)
+    actor.thread.join
+    actor.should_not be_alive
+  end
+
   it "aborts with ArgumentError when a method is called with too many arguments" do
     expect do
       actor.actual_method("with too many arguments")
     end.to raise_exception(ArgumentError)
 
     actor.should be_alive
+  end
+
+  it "crashes with ArgumentError when a method is called indirectly with too many arguments" do
+    expect do
+      actor.call_actual_method_with_too_many_arguments
+    end.to raise_exception(ArgumentError)
+    actor.thread.join
+    actor.should_not be_alive
   end
 
   it "preserves call chains across synchronous calls" do
