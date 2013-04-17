@@ -57,11 +57,11 @@ module Celluloid
         else
           case @forwards
           when Array
-            @forwards << Thread.mailbox
+            @forwards << Celluloid.mailbox
           when NilClass
-            @forwards = Thread.mailbox
+            @forwards = Celluloid.mailbox
           else
-            @forwards = [@forwards, Thread.mailbox]
+            @forwards = [@forwards, Celluloid.mailbox]
           end
         end
       ensure
@@ -69,7 +69,7 @@ module Celluloid
       end
 
       unless ready
-        result = Thread.receive(timeout) do |msg|
+        result = Celluloid.receive(timeout) do |msg|
           msg.is_a?(Future::Result) && msg.future == self
         end
       end
