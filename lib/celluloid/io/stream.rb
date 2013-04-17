@@ -29,12 +29,6 @@ module Celluloid
         @write_latch = Latch.new
       end
 
-      # Are we inside of a Celluloid::IO actor?
-      def evented?
-        actor = Thread.current[:celluloid_actor]
-        actor && actor.mailbox.is_a?(Celluloid::IO::Mailbox)
-      end
-
       # Wait until the current object is readable
       def wait_readable; Celluloid::IO.wait_readable(self); end
 

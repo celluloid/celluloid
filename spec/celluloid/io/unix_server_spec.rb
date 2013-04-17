@@ -11,7 +11,7 @@ describe Celluloid::IO::UNIXServer do
     context "inside Celluloid::IO" do
       it "should be evented" do
         with_unix_server do |subject|
-          within_io_actor { subject.evented? }.should be_true
+          within_io_actor { Celluloid::IO.evented? }.should be_true
         end
       end
 
@@ -40,7 +40,7 @@ describe Celluloid::IO::UNIXServer do
       context "outside Celluloid::IO" do
         it "should be blocking" do
           with_unix_server do |subject|
-            subject.should_not be_evented
+            Celluloid::IO.should_not be_evented
           end
         end
 

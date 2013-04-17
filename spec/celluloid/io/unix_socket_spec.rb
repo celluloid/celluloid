@@ -25,7 +25,7 @@ describe Celluloid::IO::UNIXSocket do
 
     it "should be evented" do
       with_connected_unix_sockets do |subject|
-        within_io_actor { subject.evented? }.should be_true
+        within_io_actor { Celluloid::IO.evented? }.should be_true
       end
     end
 
@@ -112,7 +112,7 @@ describe Celluloid::IO::UNIXSocket do
 
     it "should be blocking" do
       with_connected_unix_sockets do |subject|
-        subject.should_not be_evented
+        Celluloid::IO.should_not be_evented
       end
     end
 

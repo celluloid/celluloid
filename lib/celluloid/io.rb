@@ -23,11 +23,16 @@ module Celluloid
       klass.mailbox_class Celluloid::IO::Mailbox
     end
 
+    def self.evented?
+      actor = Thread.current[:celluloid_actor]
+      actor && actor.mailbox.is_a?(Celluloid::IO::Mailbox)
+    end
+
     def wait_readable(io)
       io = io.to_io
-      actor = Thread.current[:celluloid_actor]
-      if actor && actor.mailbox.is_a?(Celluloid::IO::Mailbox)
-        actor.mailbox.reactor.wait_readable(io)
+      if IO.evented?
+        mailbox = Thread.current[:celluloid_mailbox]
+        mailbox.reactor.wait_readable(io)
       else
         Kernel.select([io])
       end
@@ -37,9 +42,9 @@ module Celluloid
 
     def wait_writable(io)
       io = io.to_io
-      actor = Thread.current[:celluloid_actor]
-      if actor && actor.mailbox.is_a?(Celluloid::IO::Mailbox)
-        actor.mailbox.reactor.wait_writable(io)
+      if IO.evented?
+        mailbox = Thread.current[:celluloid_mailbox]
+        mailbox.reactor.wait_writable(io)
       else
         Kernel.select([], [io])
       end

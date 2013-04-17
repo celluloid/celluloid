@@ -24,12 +24,6 @@ module Celluloid
         @server
       end
 
-      # Are we inside a Celluloid ::IO actor?
-      def evented?
-        actor = Thread.current[:celluloid_actor]
-        actor && actor.mailbox.is_a?(Celluloid::IO::Mailbox)
-      end
-
       # Convert a Ruby TCPServer into a Celluloid::IO::TCPServer
       def self.from_ruby_server(ruby_server)
         server = allocate
