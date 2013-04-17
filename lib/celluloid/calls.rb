@@ -23,30 +23,15 @@ module Celluloid
     def dispatch(obj)
       _block = @block && @block.to_proc
       obj.public_send(@method, *@arguments, &_block)
-    rescue NoMethodError => ex
-      # Abort if the sender made a mistake
-      raise AbortError.new(ex) unless obj.respond_to? @method
-
-      # Otherwise something blew up. Crash this actor
-      raise
-    rescue ArgumentError => ex
-      # Abort if the sender made a mistake
-      begin
-        arity = obj.method(@method).arity
-      rescue NameError
-        # In theory this shouldn't happen, but just in case
-        raise AbortError.new(ex)
+    rescue NoMethodError, ArgumentError => ex
+      # Count exceptions that happened at a depth of 2 as a caller error. Abort
+      # the call to avoid crashing the actor. This should handle ArgumentError
+      # and NoMethodError cases where the caller is to blame. The depth of 2 is
+      # used because we count this method as well as the failed call at the top.
+      if ex.backtrace.size - caller.size < 3
+        ex = Celluloid::AbortError.new(ex)
       end
-
-      if arity >= 0
-        raise AbortError.new(ex) if @arguments.size != arity
-      elsif arity < -1
-        mandatory_args = -arity - 1
-        raise AbortError.new(ex) if arguments.size < mandatory_args
-      end
-
-      # Otherwise something blew up. Crash this actor
-      raise
+      raise ex
     end
   end
 
