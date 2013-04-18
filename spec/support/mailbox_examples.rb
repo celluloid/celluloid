@@ -45,4 +45,22 @@ shared_context "a Celluloid Mailbox" do
     subject << :foo
     subject.size.should be 2
   end
+
+  it "discards messages received when when full" do
+    subject.max_size = 2
+    subject << :first
+    subject << :second
+    subject << :third
+    subject.to_a.should =~ [:first, :second]
+  end
+
+  it "logs discarded messages" do
+    Celluloid.logger = mock.as_null_object
+    Celluloid.logger.should_receive(:debug).with("Discarded message: third")
+
+    subject.max_size = 2
+    subject << :first
+    subject << :second
+    subject << :third
+  end
 end
