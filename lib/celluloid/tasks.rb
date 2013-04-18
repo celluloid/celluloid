@@ -77,6 +77,9 @@ module Celluloid
       resume Task::TerminatedError.new("task was terminated") if running?
     end
 
+    def backtrace
+    end
+
     # Is the current task still running?
     def running?; @status != :dead; end
 
