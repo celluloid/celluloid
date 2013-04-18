@@ -10,6 +10,10 @@ module Celluloid
       @mutex = Mutex.new
       @busy_size = @idle_size = 0
 
+      reset
+    end
+
+    def reset
       # TODO: should really adjust this based on usage
       @max_idle = 16
     end

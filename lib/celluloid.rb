@@ -66,6 +66,7 @@ module Celluloid
     # Launch default services
     # FIXME: We should set up the supervision hierarchy here
     def boot
+      internal_pool.reset
       Celluloid::Notifications::Fanout.supervise_as :notifications_fanout
       Celluloid::IncidentReporter.supervise_as :default_incident_reporter, STDERR
     end
