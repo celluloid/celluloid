@@ -11,6 +11,7 @@ module Celluloid
 
     # A unique address at which this mailbox can be found
     attr_reader :address
+    attr_accessor :max_size
 
     def initialize
       @address   = Celluloid.uuid
@@ -18,12 +19,17 @@ module Celluloid
       @mutex     = Mutex.new
       @dead      = false
       @condition = ConditionVariable.new
+      @max_size  = nil
     end
 
     # Add a message to the Mailbox
     def <<(message)
       @mutex.lock
       begin
+        if mailbox_full
+          Logger.debug "Discarded message: #{message}"
+          return
+        end
         if message.is_a?(SystemEvent)
           # Silently swallow system events sent to dead actors
           return if @dead
@@ -129,6 +135,11 @@ module Celluloid
     # Number of messages in the Mailbox
     def size
       @mutex.synchronize { @messages.size }
+    end
+
+    private
+    def mailbox_full
+      @max_size && @messages.size >= @max_size
     end
   end
 end

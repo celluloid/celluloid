@@ -779,6 +779,19 @@ shared_context "a Celluloid Actor" do |included_module|
     end
   end
 
+  context :mailbox_limit do
+    subject do
+      Class.new do
+        include included_module
+        mailbox.max_size = 100
+      end
+    end
+
+    it "configures the mailbox limit" do
+      subject.new.mailbox.max_size.should == 100
+    end
+  end
+
   context :proxy_class do
     class ExampleProxy < Celluloid::ActorProxy
       def subclass_proxy?
