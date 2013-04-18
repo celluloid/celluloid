@@ -792,7 +792,6 @@ shared_context "a Celluloid Actor" do |included_module|
     end
   end
 
-
   context :proxy_class do
     class ExampleProxy < Celluloid::ActorProxy
       def subclass_proxy?
