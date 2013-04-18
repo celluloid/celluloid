@@ -27,7 +27,7 @@ module Celluloid
       @mutex.lock
       begin
         if mailbox_full
-          Logger.debug "Discarded message: #{message.to_s}"
+          Logger.debug "Discarded message: #{message}"
           return
         end
         if message.is_a?(SystemEvent)
