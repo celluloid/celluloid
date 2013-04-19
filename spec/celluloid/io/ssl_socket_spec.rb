@@ -73,6 +73,7 @@ describe Celluloid::IO::SSLSocket do
     end
 
     it "starts SSL on a connected TCP socket" do
+      pending "JRuby support" if defined?(JRUBY_VERSION)
       with_raw_sockets do |client, peer|
         within_io_actor do
           peer << request
@@ -109,6 +110,7 @@ describe Celluloid::IO::SSLSocket do
     end
 
     it "starts SSL on a connected TCP socket" do
+      pending "JRuby support" if defined?(JRUBY_VERSION)
       with_raw_sockets do |client, peer|
         peer << request
         client.read(request.size).should eq(request)
