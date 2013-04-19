@@ -153,13 +153,17 @@ module Celluloid
       @name      = nil
 
       @thread = ThreadHandle.new do
-        Thread.current[:celluloid_actor]   = self
-        Thread.current[:celluloid_mailbox] = @mailbox
+        setup_thread
         run
       end
 
       @proxy = (options[:proxy_class] || ActorProxy).new(self)
       @subject.instance_variable_set(OWNER_IVAR, self)
+    end
+
+    def setup_thread
+      Thread.current[:celluloid_actor]   = self
+      Thread.current[:celluloid_mailbox] = @mailbox
     end
 
     # Run the actor loop
