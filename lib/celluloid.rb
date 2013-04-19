@@ -71,6 +71,23 @@ module Celluloid
       Celluloid::IncidentReporter.supervise_as :default_incident_reporter, STDERR
     end
 
+    def register_shutdown
+      return if @shutdown_registered
+      # Terminate all actors at exit
+      at_exit do
+        if defined?(RUBY_ENGINE) && RUBY_ENGINE == "ruby" && RUBY_VERSION >= "1.9"
+          # workaround for MRI bug losing exit status in at_exit block
+          # http://bugs.ruby-lang.org/issues/5218
+          exit_status = $!.status if $!.is_a?(SystemExit)
+          Celluloid.shutdown
+          exit exit_status if exit_status
+        else
+          Celluloid.shutdown
+        end
+      end
+      @shutdown_registered = true
+    end
+
     # Shut down all running actors
     def shutdown
       Timeout.timeout(shutdown_timeout) do
@@ -516,3 +533,4 @@ require 'celluloid/legacy' unless defined?(CELLULOID_FUTURE)
 Celluloid.task_class = Celluloid::TaskFiber
 Celluloid.logger     = Logger.new(STDERR)
 Celluloid.shutdown_timeout = 10
+Celluloid.register_shutdown
