@@ -25,6 +25,14 @@ module Celluloid
         end
       end
 
+      def identity=(value)
+        @socket.identity = value
+      end
+
+      def identity
+        @socket.identity
+      end
+
       # Bind to the given 0MQ address
       # Address should be in the form: tcp://1.2.3.4:5678/
       def bind(addr)
