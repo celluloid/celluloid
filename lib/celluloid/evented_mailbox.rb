@@ -13,6 +13,10 @@ module Celluloid
     def <<(message)
       @mutex.lock
       begin
+        if mailbox_full
+          Logger.debug "Discarded message: #{message}"
+          return
+        end
         if message.is_a?(SystemEvent)
           # Silently swallow system events sent to dead actors
           return if @dead
