@@ -19,6 +19,7 @@ end
 # FIXME: Hax until test termination can be cleaned up
 module Celluloid
   class << self
+    undef :shutdown
     def shutdown; end # hax: noop!
   end
 end

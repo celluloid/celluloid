@@ -33,7 +33,7 @@ describe Celluloid::IO::SSLServer do
         with_ssl_server do |subject|
           thread = Thread.new do
             raw = TCPSocket.new(example_addr, example_ssl_port)
-            ssl = OpenSSL::SSL::SSLSocket.new(raw, client_context).connect
+            OpenSSL::SSL::SSLSocket.new(raw, client_context).connect
           end
           peer = within_io_actor { subject.accept }
           peer.should be_a Celluloid::IO::SSLSocket
@@ -56,7 +56,7 @@ describe Celluloid::IO::SSLServer do
         with_ssl_server do |subject|
           thread = Thread.new do
             raw = TCPSocket.new(example_addr, example_ssl_port)
-            ssl = OpenSSL::SSL::SSLSocket.new(raw, client_context).connect
+            OpenSSL::SSL::SSLSocket.new(raw, client_context).connect
           end
           peer = subject.accept
           peer.should be_a Celluloid::IO::SSLSocket
