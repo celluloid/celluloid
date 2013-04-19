@@ -6,6 +6,7 @@ require 'coveralls'
 Coveralls.wear!
 
 logfile = File.open(File.expand_path("../../log/test.log", __FILE__), 'a')
+logfile.sync = true
 Celluloid.logger = Logger.new(logfile)
 
 Dir['./spec/support/*.rb'].map {|f| require f }
