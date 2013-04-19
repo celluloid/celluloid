@@ -4,6 +4,9 @@ class MockActor
   def initialize
     @tasks = []
   end
+
+  def setup_thread
+  end
 end
 
 shared_context "a Celluloid Task" do |task_class|
