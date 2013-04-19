@@ -1,7 +1,8 @@
 module ExampleActorClass
-  def self.create(included_module)
+  def self.create(included_module, task_klass)
     Class.new do
       include included_module
+      task_class task_klass
       attr_reader :name
       finalizer :my_finalizer
       execute_block_on_receiver :run_on_receiver

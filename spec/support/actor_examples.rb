@@ -1,9 +1,18 @@
-shared_context "a Celluloid Actor" do |included_module|
+shared_examples "a Celluloid Actor" do |included_module|
+  describe "using Fibers" do
+    include_examples "Celluloid::Actor examples", included_module, Celluloid::TaskFiber
+  end
+  describe "using Threads" do
+    include_examples "Celluloid::Actor examples", included_module, Celluloid::TaskThread
+  end
+end
+
+shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
   class ExampleCrash < StandardError
     attr_accessor :foo
   end
 
-  let(:actor_class) { ExampleActorClass.create(included_module) }
+  let(:actor_class) { ExampleActorClass.create(included_module, task_klass) }
 
   it "returns the actor's class, not the proxy's" do
     actor = actor_class.new "Troy McClure"
@@ -66,6 +75,7 @@ shared_context "a Celluloid Actor" do |included_module|
   it "handles circular synchronous calls" do
     klass = Class.new do
       include included_module
+      task_class task_klass
 
       def greet_by_proxy(actor)
         actor.greet
@@ -198,6 +208,7 @@ shared_context "a Celluloid Actor" do |included_module|
     it "includes both sender and receiver in exception traces" do
       ExampleReceiver = Class.new do
         include included_module
+        task_class task_klass
 
         def receiver_method
           raise ExampleCrash, "the spec purposely crashed me :("
@@ -206,6 +217,7 @@ shared_context "a Celluloid Actor" do |included_module|
 
       ExampleCaller = Class.new do
         include included_module
+        task_class task_klass
 
         def sender_method
           ExampleReceiver.new.receiver_method
@@ -320,6 +332,7 @@ shared_context "a Celluloid Actor" do |included_module|
     let(:supervisor_class) do
       Class.new do # like a boss
         include included_module
+        task_class task_klass
         trap_exit :lambaste_subordinate
 
         def initialize(name)
@@ -414,6 +427,7 @@ shared_context "a Celluloid Actor" do |included_module|
     before do
       @signaler = Class.new do
         include included_module
+        task_class task_klass
 
         def initialize
           @waiting  = false
@@ -477,6 +491,7 @@ shared_context "a Celluloid Actor" do |included_module|
     subject do
       Class.new do
         include included_module
+        task_class task_klass
 
         attr_reader :tasks
 
@@ -543,6 +558,7 @@ shared_context "a Celluloid Actor" do |included_module|
     subject do
       Class.new do
         include included_module
+        task_class task_klass
         exclusive
 
         attr_reader :tasks
@@ -575,6 +591,7 @@ shared_context "a Celluloid Actor" do |included_module|
     before do
       @receiver = Class.new do
         include included_module
+        task_class task_klass
         execute_block_on_receiver :signal_myself
 
         def signal_myself(obj, &block)
@@ -609,6 +626,7 @@ shared_context "a Celluloid Actor" do |included_module|
     before do
       @klass = Class.new do
         include included_module
+        task_class task_klass
 
         def initialize
           @sleeping = false
@@ -713,6 +731,7 @@ shared_context "a Celluloid Actor" do |included_module|
     before do
       @klass = Class.new do
         include included_module
+        task_class task_klass
         attr_reader :blocker
 
         def initialize
@@ -750,7 +769,7 @@ shared_context "a Celluloid Actor" do |included_module|
       tasks.size.should be 2
 
       blocking_task = tasks.find { |t| t.status != :running }
-      blocking_task.should be_a Celluloid.task_class
+      blocking_task.should be_a task_klass
       blocking_task.status.should be :callwait
 
       actor.blocker.unblock
@@ -765,6 +784,7 @@ shared_context "a Celluloid Actor" do |included_module|
     subject do
       Class.new do
         include included_module
+        task_class task_klass
         mailbox_class ExampleMailbox
       end
     end
@@ -783,6 +803,7 @@ shared_context "a Celluloid Actor" do |included_module|
     subject do
       Class.new do
         include included_module
+        task_class task_klass
         mailbox.max_size = 100
       end
     end
@@ -802,6 +823,7 @@ shared_context "a Celluloid Actor" do |included_module|
     subject do
       Class.new do
         include included_module
+        task_class task_klass
         proxy_class ExampleProxy
       end
     end
