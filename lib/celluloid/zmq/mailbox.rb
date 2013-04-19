@@ -1,5 +1,3 @@
-require 'celluloid/io'
-
 module Celluloid
   module ZMQ
     # Replacement mailbox for Celluloid::ZMQ actors
