@@ -28,6 +28,7 @@ class TestEventedMailbox < Celluloid::EventedMailbox
   end
 end
 
-describe TestEventedMailbox do
+describe Celluloid::EventedMailbox do
+  subject { TestEventedMailbox.new }
   it_behaves_like "a Celluloid Mailbox"
 end
