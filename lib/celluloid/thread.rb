@@ -15,6 +15,10 @@ module Celluloid
     # A roundabout way to avoid purging :celluloid_queue
     EPHEMERAL_CELLULOID_LOCALS = CELLULOID_LOCALS - [:celluloid_queue]
 
+    def celluloid?
+      true
+    end
+
     # Obtain the Celluloid::Actor object for this thread
     def actor
       self[:celluloid_actor]
