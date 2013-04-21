@@ -78,6 +78,7 @@ module Celluloid
       def all
         actors = []
         Thread.list.each do |t|
+          next if t[:celluloid_task]
           actor = t[:celluloid_actor]
           actors << actor.proxy if actor and actor.respond_to?(:proxy)
         end
