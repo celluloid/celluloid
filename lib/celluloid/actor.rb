@@ -129,8 +129,8 @@ module Celluloid
       end
 
       # Wait for an actor to terminate
-      def join(actor)
-        actor.thread.join
+      def join(actor, timeout = nil)
+        actor.thread.join(timeout)
         actor
       end
     end
