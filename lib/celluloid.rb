@@ -100,14 +100,14 @@ module Celluloid
         Supervisor.root.terminate if Supervisor.root
 
         # Actors cannot self-terminate, you must do it for them
-        Actor.all.each do |actor|
+        actors.each do |actor|
           begin
             actor.terminate!
           rescue DeadActorError, MailboxError
           end
         end
 
-        Actor.all.each do |actor|
+        actors.each do |actor|
           begin
             Actor.join(actor)
           rescue DeadActorError, MailboxError
