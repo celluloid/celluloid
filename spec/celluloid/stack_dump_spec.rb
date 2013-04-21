@@ -7,6 +7,6 @@ describe Celluloid::StackDump do
   end
 
   it 'should include threads that are not actors' do
-    subject.threads.size.should == Thread.list.size - Celluloid::Actor.all.size
+    subject.threads.size.should == Thread.list.reject(&:celluloid?).size
   end
 end
