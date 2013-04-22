@@ -2,7 +2,6 @@
 =================
 [![Gem Version](https://badge.fury.io/rb/celluloid-zmq.png)](http://rubygems.org/gems/celluloid-zmq)
 [![Build Status](https://secure.travis-ci.org/celluloid/celluloid-zmq.png?branch=master)](http://travis-ci.org/celluloid/celluloid-zmq)
-[![Dependency Status](https://gemnasium.com/celluloid/celluloid-zmq.png)](https://gemnasium.com/celluloid/celluloid-zmq)
 [![Code Climate](https://codeclimate.com/github/celluloid/celluloid-zmq.png)](https://codeclimate.com/github/celluloid/celluloid-zmq)
 
 Celluloid::ZMQ provides Celluloid actors that can interact with [0MQ sockets][0mq].
