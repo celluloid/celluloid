@@ -332,7 +332,7 @@ module Celluloid
       when BlockResponse, Response
         message.dispatch
       else
-        @receivers.handle_message(message)
+        after(1){mailbox << message} unless @receivers.handle_message(message)
       end
       message
     end
