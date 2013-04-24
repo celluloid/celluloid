@@ -41,11 +41,12 @@ module Celluloid
     # Handle incoming messages
     def handle_message(message)
       receiver = @receivers.find { |r| r.match(message) }
-      return unless receiver
+      return false unless receiver
 
       @receivers.delete receiver
       @timers.cancel receiver.timer if receiver.timer
       receiver.resume message
+      true
     end
   end
 
