@@ -67,4 +67,4 @@ class PublishSubscribe
   end
 end
 
-Demo.new.run
+PublishSubscribe.new.run
