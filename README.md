@@ -61,7 +61,7 @@ class Server
   end
 
   def run
-    loop { handle_message! @socket.read }
+    loop { async.handle_message @socket.read }
   end
 
   def handle_message(message)
@@ -95,8 +95,10 @@ addr = 'tcp://127.0.0.1:3435'
 server = Server.new(addr)
 client = Client.new(addr)
 
-server.run!
+server.async.run
 client.write('hi')
+
+sleep
 ```
 
 Copyright
