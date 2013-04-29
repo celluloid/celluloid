@@ -14,7 +14,7 @@ module Celluloid
 
   class << self
     attr_writer   :actor_system     # Default Actor System
-    attr_accessor :logger           # Thread-safe logger class
+    attr_reader   :logger           # Thread-safe logger class
     attr_accessor :task_class       # Default task type to use
     attr_accessor :shutdown_timeout # How long actors have to terminate
 
@@ -24,6 +24,11 @@ module Celluloid
       else
         Thread.current[:celluloid_actor_system] || @actor_system
       end
+    end
+
+    def logger=(logger)
+      logger.formatter = Logger::FORMATTER
+      @logger = logger
     end
 
     def included(klass)
