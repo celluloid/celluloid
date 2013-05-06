@@ -1,6 +1,7 @@
 0.14.0
 ------
 * Add `close_read`/`close_write` delegates for rack-hijack support
+* Depend on EventedMailbox from core
 
 0.13.1
 ------
