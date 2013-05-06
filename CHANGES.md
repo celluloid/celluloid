@@ -1,3 +1,18 @@
+0.14.0
+------
+* Use a Thread-subclass for Celluloid
+  * Implement actor-local variables
+  * Add helper methods to the class
+* Move IO::Mailbox to EventedMailbox to remove dependency between
+  celluloid-io and celluloid-zmq. This makes it easier to maintain
+  the evented style of Mailbox.
+* Install the `at_exit` handler by default
+* Show backtrace for all tasks. Currently only for TaskThread
+* Implement mailbox bounds where overflow is logged
+* Fix Thread self-join
+* Execute blocks on the sender by default
+* Fix CPU counter on windows
+
 0.13.0
 ------
 * API change: Require Celluloid with: require 'celluloid/autostart' to
