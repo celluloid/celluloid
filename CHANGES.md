@@ -1,3 +1,10 @@
+0.14.0
+------
+* Add pubsub example
+* Add identity support to Sockets
+* Depend on EventedMailbox from core instead of celluloid-io
+* Remove overhead for IO waiting by calling directly to the reactor
+
 0.13.0
 ------
 * Feature: Support for DealerSocket and RouterSocket
