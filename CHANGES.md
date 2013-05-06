@@ -1,3 +1,11 @@
+0.14.0
+------
+* Add `close_read`/`close_write` delegates for rack-hijack support
+
+0.13.1
+------
+* Remove overhead for `wait_readable`/`wait_writable`
+
 0.13.0
 ------
 * Support for many, many more IO methods, particularly line-oriented
