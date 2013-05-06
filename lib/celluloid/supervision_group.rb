@@ -129,13 +129,11 @@ module Celluloid
         # when it is a pool, then we don't splat the args
         # and we need to extract the pool size if set
         if @pool
-          options = {:args => @args}.tap do |hash|
-            hash[:size] = @pool_size if @pool_size
-          end
-          @actor = @klass.send(@method, options, &@block)
-        else
-          @actor = @klass.send(@method, *@args, &@block)
+          options = {:args => @args}
+          options[:size] = @pool_size if @pool_size
+          @args = [options]
         end
+        @actor = @klass.send(@method, *@args, &@block)
         @registry[@name] = @actor if @name
       end
 
