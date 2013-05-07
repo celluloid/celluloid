@@ -1,5 +1,5 @@
-0.14.0
-------
+0.14.0 (2013-05-07)
+-------------------
 * Use a Thread-subclass for Celluloid
   * Implement actor-local variables
   * Add helper methods to the class
