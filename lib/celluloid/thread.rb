@@ -12,9 +12,6 @@ module Celluloid
       :celluloid_chain_id
     ]
 
-    # A roundabout way to avoid purging :celluloid_queue
-    EPHEMERAL_CELLULOID_LOCALS = CELLULOID_LOCALS - [:celluloid_queue]
-
     def celluloid?
       true
     end
@@ -45,38 +42,51 @@ module Celluloid
 
     # Obtain an actor-local value
     def [](key)
-      if CELLULOID_LOCALS.include?(key)
+      actor = super(:celluloid_actor)
+      if !actor || CELLULOID_LOCALS.include?(key)
         super(key)
       else
-        actor = super(:celluloid_actor)
-        actor.locals[key] if actor
+        actor.locals[key]
       end
     end
 
     # Set an actor-local value
     def []=(key, value)
-      if CELLULOID_LOCALS.include?(key)
+      actor = self[:celluloid_actor]
+      if !actor || CELLULOID_LOCALS.include?(key)
         super(key, value)
       else
-        self[:celluloid_actor].locals[key] = value
+        actor.locals[key] = value
       end
     end
 
     # Obtain the keys to all actor-locals
     def keys
       actor = self[:celluloid_actor]
-      actor.locals.keys if actor
+      if actor
+        actor.locals.keys
+      else
+        super
+      end
     end
 
     # Is the given actor local set?
     def key?(key)
       actor = self[:celluloid_actor]
-      actor.locals.has_key?(key) if actor
+      if actor
+        actor.locals.has_key?(key)
+      else
+        super
+      end
     end
 
     # Clear thread state so it can be reused via thread pools
     def recycle
-      EPHEMERAL_CELLULOID_LOCALS.each { |local| self[local] = nil }
+      # This thread local mediates access to the others, so we must clear it first
+      self[:celluloid_actor] = nil
+
+      # Clearing :celluloid_queue would break the thread pool!
+      keys.each { |key| self[key] = nil unless key == :celluloid_queue }
     end
   end
 end
