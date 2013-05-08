@@ -45,7 +45,26 @@ module Celluloid
 
     # Obtain the value for this Future
     def value(timeout = nil)
-      ready = result = nil
+      ready, result = subscribe
+
+      unless ready
+        result = Celluloid.receive(timeout) do |msg|
+          msg.is_a?(Future::Result) && msg.future == self
+        end
+      end
+
+      if result
+        result.value
+      else
+        raise TimeoutError, "Timed out"
+      end
+    end
+    alias_method :call, :value
+
+    # Subscribe to the future to get a notification when the future is ready.
+    def subscribe
+      ready = false
+      result = nil
 
       begin
         @mutex.lock
@@ -68,19 +87,8 @@ module Celluloid
         @mutex.unlock
       end
 
-      unless ready
-        result = Celluloid.receive(timeout) do |msg|
-          msg.is_a?(Future::Result) && msg.future == self
-        end
-      end
-
-      if result
-        result.value
-      else
-        raise TimeoutError, "Timed out"
-      end
+      [ready, result]
     end
-    alias_method :call, :value
 
     # Signal this future with the given result value
     def signal(value)

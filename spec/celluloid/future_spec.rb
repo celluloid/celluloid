@@ -11,6 +11,20 @@ describe Celluloid::Future do
     future.value.should == 42
   end
 
+  it "can be subscribed" do
+    future = Celluloid::Future.new { 40 + 2 }
+    ready, result = future.subscribe
+
+    ready.should be_false
+    result.should be_nil
+
+    result = Celluloid.receive do |msg|
+      msg.is_a?(Celluloid::Future::Result) && msg.future == future
+    end
+
+    result.value.should == 42
+  end
+
   it "reraises exceptions that occur when the value is retrieved" do
     class ExampleError < StandardError; end
 
