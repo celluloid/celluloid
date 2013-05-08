@@ -72,7 +72,12 @@ module Celluloid
 
     # Terminate this task
     def terminate
-      resume Task::TerminatedError.new("task was terminated") if running?
+      if running?
+        Celluloid.logger.warn "Terminating task: type=#{@type.inspect}, status=#{@status.inspect}"
+        resume Task::TerminatedError.new("task was terminated")
+      else
+        raise DeadTaskError, "task is already dead"
+      end
     end
 
     def backtrace
