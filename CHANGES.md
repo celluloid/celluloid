@@ -1,5 +1,5 @@
-0.14.0
-------
+0.14.0 (2013-05-07)
+-------------------
 * Add `close_read`/`close_write` delegates for rack-hijack support
 * Depend on EventedMailbox from core
 

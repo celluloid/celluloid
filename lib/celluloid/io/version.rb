@@ -1,5 +1,5 @@
 module Celluloid
   module IO
-    VERSION = "0.14.0.pre"
+    VERSION = "0.14.0"
   end
 end
