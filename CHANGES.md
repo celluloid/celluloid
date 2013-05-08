@@ -1,5 +1,5 @@
-0.14.0
-------
+0.14.0 (2013-05-07)
+-------------------
 * Add pubsub example
 * Add identity support to Sockets
 * Depend on EventedMailbox from core instead of celluloid-io
