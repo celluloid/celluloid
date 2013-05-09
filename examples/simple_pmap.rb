@@ -10,3 +10,5 @@ module Enumerable
     futures.map { |future| future.value }
   end
 end
+
+p 100.times.pmap {|n| n * 2}
