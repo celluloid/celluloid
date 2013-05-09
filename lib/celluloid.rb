@@ -4,6 +4,8 @@ require 'timeout'
 require 'set'
 
 module Celluloid
+  Error = Class.new StandardError
+
   extend self # expose all instance methods as singleton methods
 
   # Warning message added to Celluloid objects accessed outside their actors

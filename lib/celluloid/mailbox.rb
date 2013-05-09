@@ -1,8 +1,8 @@
 require 'thread'
 
 module Celluloid
-  class MailboxError < StandardError; end # you can't message the dead
-  class MailboxShutdown < StandardError; end # raised if the mailbox can no longer be used
+  class MailboxError < Celluloid::Error; end # you can't message the dead
+  class MailboxShutdown < Celluloid::Error; end # raised if the mailbox can no longer be used
 
   # Actors communicate with asynchronous messages. Messages are buffered in
   # Mailboxes until Actors can act upon them.

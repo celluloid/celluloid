@@ -1,5 +1,5 @@
 module Celluloid
-  class ConditionError < StandardError; end
+  class ConditionError < Celluloid::Error; end
 
   # ConditionVariable-like signaling between tasks and actors
   class Condition

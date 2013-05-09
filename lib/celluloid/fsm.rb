@@ -13,7 +13,7 @@ module Celluloid
   #     #
   #     machine = MyMachine.new(current_actor)
   module FSM
-    class UnattachedError < StandardError; end # Not attached to an actor
+    class UnattachedError < Celluloid::Error; end # Not attached to an actor
 
     DEFAULT_STATE = :default # Default state name unless one is explicitly set
 

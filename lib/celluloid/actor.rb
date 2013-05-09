@@ -2,16 +2,16 @@ require 'timers'
 
 module Celluloid
   # Don't do Actor-like things outside Actor scope
-  class NotActorError < StandardError; end
+  class NotActorError < Celluloid::Error; end
 
   # Trying to do something to a dead actor
-  class DeadActorError < StandardError; end
+  class DeadActorError < Celluloid::Error; end
 
   # A timeout occured before the given request could complete
-  class TimeoutError < StandardError; end
+  class TimeoutError < Celluloid::Error; end
 
   # The sender made an error, not the current actor
-  class AbortError < StandardError
+  class AbortError < Celluloid::Error
     attr_reader :cause
 
     def initialize(cause)

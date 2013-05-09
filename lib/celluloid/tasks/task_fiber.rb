@@ -1,5 +1,5 @@
 module Celluloid
-  class FiberStackError < StandardError; end
+  class FiberStackError < Celluloid::Error; end
 
   # Tasks with a Fiber backend
   class TaskFiber < Task

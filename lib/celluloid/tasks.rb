@@ -1,13 +1,13 @@
 module Celluloid
   # Asked to do task-related things outside a task
-  class NotTaskError < StandardError; end
+  class NotTaskError < Celluloid::Error; end
 
   # Trying to resume a dead task
-  class DeadTaskError < StandardError; end
+  class DeadTaskError < Celluloid::Error; end
 
   # Tasks are interruptable/resumable execution contexts used to run methods
   class Task
-    class TerminatedError < StandardError; end # kill a running task
+    class TerminatedError < Celluloid::Error; end # kill a running task
 
     # Obtain the current task
     def self.current
