@@ -90,10 +90,11 @@ module Celluloid
 
     # Shut down all running actors
     def shutdown
+      actors = Actor.all
+
       Timeout.timeout(shutdown_timeout) do
         internal_pool.shutdown
 
-        actors = Actor.all
         Logger.debug "Terminating #{actors.size} actors..." if actors.size > 0
 
         # Attempt to shut down the supervision tree, if available
@@ -118,6 +119,13 @@ module Celluloid
       end
     rescue Timeout::Error
       Logger.error("Couldn't cleanly terminate all actors in #{shutdown_timeout} seconds!")
+      # TODO: cleanup all threads
+      actors.each do |actor|
+        begin
+          Actor.kill(actor)
+        rescue DeadActorError, MailboxError
+        end
+      end
     end
   end
 
