@@ -84,6 +84,7 @@ module Celluloid
 
     # Signal this future with the given result value
     def signal(value)
+      return if @cancelled
       result = Result.new(value, self)
 
       @mutex.synchronize do
@@ -98,6 +99,14 @@ module Celluloid
       end
     end
     alias_method :<<, :signal
+
+    def cancel(error)
+      response = ErrorResponse.new(@call, error)
+      signal response
+      @mutex.synchronize do
+        @cancelled = true
+      end
+    end
 
     # Inspect this Celluloid::Future
     alias_method :inspect, :to_s
