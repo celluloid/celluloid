@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Celluloid::Links do
   subject { Celluloid::Links.new }
-  
+
   let(:mailbox_mock) do
     Class.new(Array) do
       attr_reader :address
@@ -21,7 +21,7 @@ describe Celluloid::Links do
   end
 
   it 'is Enumerable' do
-    subject.is_a?(Enumerable).should be_true
+    subject.should be_an(Enumerable)
   end
 
   it 'adds actors by their mailbox address' do
