@@ -448,6 +448,15 @@ module Celluloid
     end
   end
 
+  # Timeout on task suspension (eg Sync calls to other actors)
+  def timeout(duration, &block)
+    task = Task.current
+    timer = after(duration) { task.resume TimeoutError.new }
+    block.call
+  ensure
+    timer.cancel if timer
+  end
+
   # Run given block in an exclusive mode: all synchronous calls block the whole
   # actor, not only current message processing.
   def exclusive(&block)
