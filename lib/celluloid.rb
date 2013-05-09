@@ -206,7 +206,7 @@ module Celluloid
         mailbox.class
       end
     end
-    
+
     def proxy_class(klass = nil)
       if klass
         @proxy_class = klass
