@@ -1,7 +1,7 @@
 require 'thread'
 
 module Celluloid
-  class MailboxError < Celluloid::Error; end # you can't message the dead
+  class MailboxDead < Celluloid::Error; end # you can't receive from the dead
   class MailboxShutdown < Celluloid::Error; end # raised if the mailbox can no longer be used
 
   # Actors communicate with asynchronous messages. Messages are buffered in
@@ -26,19 +26,15 @@ module Celluloid
     def <<(message)
       @mutex.lock
       begin
-        if mailbox_full
-          Logger.debug "Discarded message: #{message}"
+        if mailbox_full || @dead
+          dead_letter(message)
           return
         end
         if message.is_a?(SystemEvent)
-          # Silently swallow system events sent to dead actors
-          return if @dead
-
           # SystemEvents are high priority messages so they get added to the
           # head of our message queue instead of the end
           @messages.unshift message
         else
-          raise MailboxError, "dead recipient" if @dead
           @messages << message
         end
 
@@ -55,7 +51,7 @@ module Celluloid
 
       @mutex.lock
       begin
-        raise MailboxError, "attempted to receive from a dead mailbox" if @dead
+        raise MailboxDead, "attempted to receive from a dead mailbox" if @dead
 
         begin
           message = next_message(&block)
@@ -138,6 +134,11 @@ module Celluloid
     end
 
     private
+
+    def dead_letter(message)
+      Logger.debug "Discarded message: #{message}"
+    end
+
     def mailbox_full
       @max_size && @messages.size >= @max_size
     end

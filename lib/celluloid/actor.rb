@@ -122,10 +122,7 @@ module Celluloid
       # Forcibly kill a given actor
       def kill(actor)
         actor.thread.kill
-        begin
-          actor.mailbox.shutdown
-        rescue DeadActorError
-        end
+        actor.mailbox.shutdown
       end
 
       # Wait for an actor to terminate
@@ -404,10 +401,8 @@ module Celluloid
     def cleanup(exit_event)
       @mailbox.shutdown
       @links.each do |actor|
-        begin
+        if actor.mailbox.alive?
           actor.mailbox << exit_event
-        rescue MailboxError
-          # We're exiting/crashing, they're dead. Give up :(
         end
       end
 
