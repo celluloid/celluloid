@@ -9,6 +9,7 @@ module Celluloid
 
       future = new
       Celluloid.internal_pool.get do
+        Thread.current.role = :future
         begin
           call = SyncCall.new(future, :call, args)
           call.dispatch(block)
