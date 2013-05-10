@@ -450,8 +450,13 @@ module Celluloid
 
   # Timeout on task suspension (eg Sync calls to other actors)
   def timeout(duration)
+    bt = caller
     task = Task.current
-    timer = after(duration) { task.resume TimeoutError.new }
+    timer = after(duration) do
+      exception = TimeoutError.new
+      exception.set_backtrace bt
+      task.resume exception
+    end
     yield
   ensure
     timer.cancel if timer
