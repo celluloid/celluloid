@@ -12,7 +12,7 @@ module Celluloid
     end
 
     def create
-      @thread = Celluloid.internal_pool.get do
+      @thread = Celluloid::ThreadHandle.new(:task) do
         begin
           ex = @resume_queue.pop
           raise ex if ex.is_a?(Task::TerminatedError)

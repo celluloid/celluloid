@@ -78,8 +78,7 @@ module Celluloid
       def all
         actors = []
         Thread.list.each do |t|
-          next unless t.celluloid?
-          next if t.task
+          next unless t.celluloid? && t.role == :actor
           actors << t.actor.proxy if t.actor && t.actor.respond_to?(:proxy)
         end
         actors
@@ -151,7 +150,7 @@ module Celluloid
       @name      = nil
       @locals    = {}
 
-      @thread = ThreadHandle.new do
+      @thread = ThreadHandle.new(:actor) do
         setup_thread
         run
       end

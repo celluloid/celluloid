@@ -8,7 +8,7 @@ module Celluloid
       return super unless block
 
       future = new
-      Celluloid.internal_pool.get do
+      Celluloid::ThreadHandle.new(:future) do
         begin
           call = SyncCall.new(future, :call, args)
           call.dispatch(block)
