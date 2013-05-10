@@ -13,26 +13,23 @@ module Celluloid
     def <<(message)
       @mutex.lock
       begin
-        if mailbox_full
-          Logger.debug "Discarded message: #{message}"
+        if mailbox_full || @dead
+          dead_letter(message)
           return
         end
         if message.is_a?(SystemEvent)
-          # Silently swallow system events sent to dead actors
-          return if @dead
-
           # SystemEvents are high priority messages so they get added to the
           # head of our message queue instead of the end
           @messages.unshift message
         else
-          raise MailboxError, "dead recipient" if @dead
           @messages << message
         end
 
         current_actor = Thread.current[:celluloid_actor]
         @reactor.wakeup unless current_actor && current_actor.mailbox == self
       rescue IOError
-        raise MailboxError, "dead recipient"
+        Logger.crash "reactor crashed", $!
+        dead_letter(message)
       ensure
         @mutex.unlock rescue nil
       end

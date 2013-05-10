@@ -63,4 +63,14 @@ shared_context "a Celluloid Mailbox" do
     subject << :second
     subject << :third
   end
+
+  it "discard messages when dead" do
+    Celluloid.logger = mock.as_null_object
+    Celluloid.logger.should_receive(:debug).with("Discarded message: third")
+
+    subject << :first
+    subject << :second
+    subject.shutdown
+    subject << :third
+  end
 end
