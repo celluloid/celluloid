@@ -15,26 +15,26 @@ describe Celluloid::SyncCall do
     end
   end
 
-  subject { CallExampleActor.new }
+  let(:actor) { CallExampleActor.new }
 
   it "aborts with NoMethodError when a nonexistent method is called" do
     expect do
-      subject.the_method_that_wasnt_there
+      actor.the_method_that_wasnt_there
     end.to raise_exception(NoMethodError)
 
-    subject.should be_alive
+    actor.should be_alive
   end
 
   it "aborts with ArgumentError when a method is called with too many arguments" do
     expect do
-      subject.actual_method("with too many arguments")
+      actor.actual_method("with too many arguments")
     end.to raise_exception(ArgumentError)
 
-    subject.should be_alive
+    actor.should be_alive
   end
 
   it "preserves call chains across synchronous calls" do
-    actor2 = CallExampleActor.new(subject)
+    actor2 = CallExampleActor.new(actor)
 
     uuid, next_actor_uuid = actor2.chained_call_ids
     uuid.should eq next_actor_uuid
