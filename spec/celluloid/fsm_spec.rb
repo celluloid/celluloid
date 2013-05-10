@@ -31,7 +31,7 @@ describe Celluloid::FSM do
     end
   end
 
-  let(:subject) { TestMachine.new }
+  subject { TestMachine.new }
 
   it "starts in the default state" do
     subject.state.should eq(TestMachine.default_state)
@@ -86,8 +86,6 @@ describe Celluloid::FSM do
   end
 
   context "actor is not set" do
-    let(:subject) { TestMachine.new }
-
     context "transition is delayed" do
       it "raises an unattached error" do
         expect { subject.transition :another, :delay => 100 } \
@@ -97,8 +95,6 @@ describe Celluloid::FSM do
   end
 
   context "transitioning to an invalid state" do
-    let(:subject) { TestMachine.new }
-
     it "raises an argument error" do
       expect { subject.transition :invalid_state }.to raise_error(ArgumentError)
     end
