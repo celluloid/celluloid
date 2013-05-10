@@ -22,14 +22,7 @@ module Celluloid
         raise "Cannot use blocks with async yet"
       end
 
-      begin
-        @mailbox << AsyncCall.new(meth, args, block)
-      rescue MailboxError
-        # Silently swallow asynchronous calls to dead actors. There's no way
-        # to reliably generate DeadActorErrors for async calls, so users of
-        # async calls should find other ways to deal with actors dying
-        # during an async call (i.e. linking/supervisors)
-      end
+      @mailbox << AsyncCall.new(meth, args, block)
     end
   end
 end

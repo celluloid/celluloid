@@ -13,6 +13,10 @@ module Celluloid
 
     # method_missing black magic to call bang predicate methods asynchronously
     def method_missing(meth, *args, &block)
+      unless @mailbox.alive?
+        raise DeadActorError, "attempted to call a dead actor"
+      end
+
       if block_given?
         # FIXME: nicer exception
         raise "Cannot use blocks with futures yet"
@@ -21,11 +25,7 @@ module Celluloid
       future = Future.new
       call = SyncCall.new(future, meth, args, block)
 
-      begin
-        @mailbox << call
-      rescue MailboxError
-        raise DeadActorError, "attempted to call a dead actor"
-      end
+      @mailbox << call
 
       future
     end

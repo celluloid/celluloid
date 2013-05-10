@@ -27,7 +27,7 @@ module Celluloid
       terminators = (@idle + @busy).each do |actor|
         begin
           actor.future(:terminate)
-        rescue DeadActorError, MailboxError
+        rescue DeadActorError
         end
       end
 

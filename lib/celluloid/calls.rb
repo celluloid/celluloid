@@ -86,9 +86,6 @@ module Celluloid
 
     def respond(message)
       @sender << message
-    rescue MailboxError
-      # It's possible the sender exited or crashed before we could send a
-      # response to them.
     end
 
     def value
