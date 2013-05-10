@@ -347,7 +347,7 @@ module Celluloid
       when NamingRequest
         @name = event.name
       when TerminationRequest
-        @running = false
+        terminate
       when SignalConditionRequest
         event.call
       end
