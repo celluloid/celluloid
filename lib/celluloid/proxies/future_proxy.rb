@@ -17,8 +17,16 @@ module Celluloid
         # FIXME: nicer exception
         raise "Cannot use blocks with futures yet"
       end
+
       future = Future.new
-      future.execute(@mailbox, meth, args, block)
+      call = SyncCall.new(future, meth, args, block)
+
+      begin
+        @mailbox << call
+      rescue MailboxError
+        raise DeadActorError, "attempted to call a dead actor"
+      end
+
       future
     end
   end
