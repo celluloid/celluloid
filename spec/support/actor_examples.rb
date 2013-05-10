@@ -903,4 +903,35 @@ shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
       subclass.new.tasks.first.should be_a ExampleTask
     end
   end
+
+  context :timeouts do
+    let :actor_class do
+      Class.new do
+        include included_module
+
+        def name
+          sleep 0.5
+          :foo
+        end
+
+        def ask_name_with_timeout(other, duration)
+          timeout(duration) { other.name }
+        end
+      end
+    end
+
+    it "allows timing out tasks, raising Celluloid::TimeoutError" do
+      a1 = actor_class.new
+      a2 = actor_class.new
+
+      expect { a1.ask_name_with_timeout a2, 0.3 }.to raise_error(Celluloid::TimeoutError)
+    end
+
+    it "does not raise when it completes in time" do
+      a1 = actor_class.new
+      a2 = actor_class.new
+
+      a1.ask_name_with_timeout(a2, 0.6).should == :foo
+    end
+  end
 end

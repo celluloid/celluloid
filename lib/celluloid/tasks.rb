@@ -58,7 +58,7 @@ module Celluloid
       @status = status
       value = signal
 
-      raise value if value.is_a?(Task::TerminatedError)
+      raise value if value.is_a?(Celluloid::Error)
       @status = :running
 
       value
