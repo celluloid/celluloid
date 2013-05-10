@@ -308,6 +308,17 @@ shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
         actor.terminate!
       end.to raise_exception(Celluloid::DeadActorError, "actor already terminated")
     end
+
+    it "logs a warning when terminating tasks" do
+      Celluloid.logger = mock.as_null_object
+      Celluloid.logger.should_receive(:warn).with("Terminating task: type=:call, status=:sleeping")
+
+      actor = actor_class.new "Arnold Schwarzenegger"
+      actor.async.sleepy 10
+      actor.greet # make sure the actor has started sleeping
+
+      actor.terminate
+    end
   end
 
   context :current_actor do
