@@ -9,9 +9,14 @@ module Celluloid
     attr_writer :execution
     attr_reader :call, :block
 
+    def invalidate
+      @invalid = true
+    end
+
     def to_proc
       if @execution == :sender
         lambda do |*values|
+          raise "The original method call has completed, the block is now invalid" if @invalid
           if task = Thread.current[:celluloid_task]
             @mailbox << BlockCall.new(self, Actor.current.mailbox, values)
             # TODO: if respond fails, the Task will never be resumed
