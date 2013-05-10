@@ -378,15 +378,6 @@ module Celluloid
           actor = Thread.current[:celluloid_actor]
           return yield unless actor
 
-          # Silently acquire ownership at the actor level. This method should be
-          # replaced with an ownership system similar to conditions if this code
-          # is ever extracted into Celluloid itself
-          if @condition.owner != actor.proxy
-            @condition.owner = actor.proxy
-            @waiters = 0
-            @owner = nil
-          end
-
           if @owner || @waiters > 0
             @waiters += 1
             @condition.wait
