@@ -6,6 +6,8 @@ module Celluloid
 
     def create
       @fiber = Fiber.new do
+        # FIXME: cannot use the writer as specs run inside normal Threads
+        Thread.current[:celluloid_role] = :actor
         yield
       end
     end
