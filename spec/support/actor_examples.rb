@@ -91,6 +91,36 @@ shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
     ponycopter.greet_by_proxy(actor).should eq("Hi, I'm a ponycopter!")
   end
 
+  it "detects recursion" do
+    klass1 = Class.new do
+      include included_module
+      task_class task_klass
+
+      def recursion_test(recurse_through = nil)
+        if recurse_through
+          recurse_through.recursion_thunk(Celluloid::Actor.current)
+        else
+          Celluloid.detect_recursion
+        end
+      end
+    end
+
+    klass2 = Class.new do
+      include included_module
+      task_class task_klass
+
+      def recursion_thunk(other)
+        other.recursion_test
+      end
+    end
+
+    actor1 = klass1.new
+    actor2 = klass2.new
+
+    actor1.recursion_test.should be_false
+    actor1.recursion_test(actor2).should be_true
+  end
+
   it "properly handles method_missing" do
     actor = actor_class.new "Method Missing"
     actor.should respond_to(:first)

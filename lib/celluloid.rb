@@ -50,6 +50,15 @@ module Celluloid
     end
     alias_method :dump, :stack_dump
 
+    # Detect if a particular call is recursing through multiple actors
+    def detect_recursion
+      actor    = Thread.current[:celluloid_actor]
+      task     = Thread.current[:celluloid_task]
+      chain_id = CallChain.current_id
+
+      actor.tasks.any? { |t| t != task && t.chain_id == chain_id }
+    end
+
     # Define an exception handler for actor crashes
     def exception_handler(&block)
       Logger.exception_handler(&block)
@@ -393,7 +402,7 @@ module Celluloid
 
   # Obtain the UUID of the current call chain
   def call_chain_id
-    Thread.current[:celluloid_chain_id]
+    CallChain.current_id
   end
 
   # Obtain the running tasks for this actor
@@ -515,6 +524,7 @@ end
 require 'celluloid/version'
 
 require 'celluloid/calls'
+require 'celluloid/call_chain'
 require 'celluloid/condition'
 require 'celluloid/thread'
 require 'celluloid/core_ext'
