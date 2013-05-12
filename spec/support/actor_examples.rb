@@ -192,6 +192,27 @@ shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
     actor.inspect.should include('dead')
   end
 
+  it "supports recursive inspect with other actors" do
+    klass = Class.new do
+      include included_module
+      task_class task_klass
+
+      attr_accessor :other
+
+      def initialize(other = nil)
+        @other = other
+      end
+    end
+
+    itchy = klass.new
+    scratchy = klass.new(itchy)
+    itchy.other = scratchy
+
+    inspection = itchy.inspect
+    inspection.should match(/Celluloid::ActorProxy\(/)
+    inspection.should include("...")
+  end
+
   it "allows access to the wrapped object" do
     actor = actor_class.new "Troy McClure"
     actor.wrapped_object.should be_a actor_class

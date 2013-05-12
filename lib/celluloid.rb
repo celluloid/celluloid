@@ -52,10 +52,13 @@ module Celluloid
 
     # Detect if a particular call is recursing through multiple actors
     def detect_recursion
-      actor    = Thread.current[:celluloid_actor]
-      task     = Thread.current[:celluloid_task]
-      chain_id = CallChain.current_id
+      actor = Thread.current[:celluloid_actor]
+      return unless actor
 
+      task = Thread.current[:celluloid_task]
+      return unless task
+
+      chain_id = CallChain.current_id
       actor.tasks.any? { |t| t != task && t.chain_id == chain_id }
     end
 
@@ -345,6 +348,8 @@ module Celluloid
     end
 
     def inspect
+      return "..." if Celluloid.detect_recursion
+
       str = "#<"
 
       if leaked?
