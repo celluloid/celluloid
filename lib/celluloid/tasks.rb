@@ -25,14 +25,16 @@ module Celluloid
     end
 
     attr_reader :type, :status
+    attr_accessor :chain_id, :name
 
     # Create a new task
     def initialize(type)
-      @type   = type
-      @status = :new
+      @type     = type
+      @name     = nil
+      @status   = :new
 
-      actor    = Thread.current[:celluloid_actor]
-      chain_id = Thread.current[:celluloid_chain_id]
+      actor     = Thread.current[:celluloid_actor]
+      @chain_id = CallChain.current_id
 
       raise NotActorError, "can't create tasks outside of actors" unless actor
 
@@ -40,8 +42,9 @@ module Celluloid
         begin
           @status = :running
           actor.setup_thread
-          Thread.current[:celluloid_task]     = self
-          Thread.current[:celluloid_chain_id] = chain_id
+
+          Thread.current[:celluloid_task] = self
+          CallChain.current_id = @chain_id
 
           actor.tasks << self
           yield
