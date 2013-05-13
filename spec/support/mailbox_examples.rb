@@ -43,7 +43,7 @@ shared_context "a Celluloid Mailbox" do
     subject.size.should be_zero
     subject << :foo
     subject << :foo
-    subject.size.should be 2
+    subject.should have(2).entries
   end
 
   it "discards messages received when when full" do
