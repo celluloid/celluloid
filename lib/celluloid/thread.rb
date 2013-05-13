@@ -5,6 +5,7 @@ module Celluloid
     # FIXME: these should be replaced using APIs on Celluloid::Thread itself
     # e.g. Thread.current[:celluloid_actor] => Thread.current.actor
     CELLULOID_LOCALS = [
+      :celluloid_role,
       :celluloid_actor,
       :celluloid_mailbox,
       :celluloid_queue,
@@ -14,6 +15,15 @@ module Celluloid
 
     def celluloid?
       true
+    end
+
+    # Obtain the role of this thread
+    def role
+      self[:celluloid_role]
+    end
+
+    def role=(role)
+      self[:celluloid_role] = role
     end
 
     # Obtain the Celluloid::Actor object for this thread
