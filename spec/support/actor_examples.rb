@@ -91,6 +91,36 @@ shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
     ponycopter.greet_by_proxy(actor).should eq("Hi, I'm a ponycopter!")
   end
 
+  it "detects recursion" do
+    klass1 = Class.new do
+      include included_module
+      task_class task_klass
+
+      def recursion_test(recurse_through = nil)
+        if recurse_through
+          recurse_through.recursion_thunk(Celluloid::Actor.current)
+        else
+          Celluloid.detect_recursion
+        end
+      end
+    end
+
+    klass2 = Class.new do
+      include included_module
+      task_class task_klass
+
+      def recursion_thunk(other)
+        other.recursion_test
+      end
+    end
+
+    actor1 = klass1.new
+    actor2 = klass2.new
+
+    actor1.recursion_test.should be_false
+    actor1.recursion_test(actor2).should be_true
+  end
+
   it "properly handles method_missing" do
     actor = actor_class.new "Method Missing"
     actor.should respond_to(:first)
@@ -160,6 +190,27 @@ shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
     actor.inspect.should match(/Celluloid::ActorProxy\(/)
     actor.inspect.should match(/#{actor_class}/)
     actor.inspect.should include('dead')
+  end
+
+  it "supports recursive inspect with other actors" do
+    klass = Class.new do
+      include included_module
+      task_class task_klass
+
+      attr_accessor :other
+
+      def initialize(other = nil)
+        @other = other
+      end
+    end
+
+    itchy = klass.new
+    scratchy = klass.new(itchy)
+    itchy.other = scratchy
+
+    inspection = itchy.inspect
+    inspection.should match(/Celluloid::ActorProxy\(/)
+    inspection.should include("...")
   end
 
   it "allows access to the wrapped object" do
