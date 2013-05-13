@@ -70,6 +70,10 @@ module ExampleActorClass
         string.reverse
       end
 
+      def shutdown
+        terminate
+      end
+
       def method_missing(method_name, *args, &block)
         if delegates?(method_name)
           @delegate.send method_name, *args, &block

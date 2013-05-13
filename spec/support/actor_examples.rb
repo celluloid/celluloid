@@ -283,6 +283,14 @@ shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
       actor.should_not be_alive
     end
 
+    it "can be terminated by a SyncCall" do
+      actor = actor_class.new "Arnold Schwarzenegger"
+      actor.should be_alive
+      actor.shutdown
+      Celluloid::Actor.join(actor)
+      actor.should_not be_alive
+    end
+
     it "kills" do # THOU SHALT ALWAYS KILL
       actor = actor_class.new "Woody Harrelson"
       actor.should be_alive
