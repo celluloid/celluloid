@@ -26,7 +26,7 @@ describe Celluloid::IO::UNIXServer do
           peer.read(payload.size).should eq payload
         end
       end
-      
+
       it "raises if server already up" do
         with_unix_server do |subject|
           within_io_actor do
@@ -55,7 +55,7 @@ describe Celluloid::IO::UNIXServer do
             peer.read(payload.size).should eq payload
           end
         end
-          
+
         it "raises if server already up" do
           with_unix_server do |subject|
             expect {
@@ -63,7 +63,7 @@ describe Celluloid::IO::UNIXServer do
             }.to raise_error(Errno::EADDRINUSE)
           end
         end
-        
+
       end
     end
   end
