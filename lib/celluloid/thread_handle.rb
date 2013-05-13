@@ -3,7 +3,7 @@ module Celluloid
   # accidentally do things to threads which have been returned to the pool,
   # such as, say, killing them
   class ThreadHandle
-    def initialize(role)
+    def initialize(role = nil)
       @mutex = Mutex.new
       @join  = ConditionVariable.new
 
