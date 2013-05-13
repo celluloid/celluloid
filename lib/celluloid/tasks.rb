@@ -5,9 +5,14 @@ module Celluloid
   # Trying to resume a dead task
   class DeadTaskError < Celluloid::Error; end
 
+  # Errors which should be resumed automatically
+  class ResumableError < Celluloid::Error; end
+
   # Tasks are interruptable/resumable execution contexts used to run methods
   class Task
-    class TerminatedError < Celluloid::Error; end # kill a running task
+    class TerminatedError < ResumableError; end # kill a running task after terminate
+
+    class TimeoutError < ResumableError; end # kill a running task after timeout
 
     # Obtain the current task
     def self.current
@@ -58,7 +63,7 @@ module Celluloid
       @status = status
       value = signal
 
-      raise value if value.is_a?(Celluloid::Error)
+      raise value if value.is_a?(Celluloid::ResumableError)
       @status = :running
 
       value
