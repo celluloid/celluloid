@@ -461,7 +461,7 @@ module Celluloid
     bt = caller
     task = Task.current
     timer = after(duration) do
-      exception = TimeoutError.new
+      exception = Task::TimeoutError.new
       exception.set_backtrace bt
       task.resume exception
     end

@@ -920,11 +920,11 @@ shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
       end
     end
 
-    it "allows timing out tasks, raising Celluloid::TimeoutError" do
+    it "allows timing out tasks, raising Celluloid::Task::TimeoutError" do
       a1 = actor_class.new
       a2 = actor_class.new
 
-      expect { a1.ask_name_with_timeout a2, 0.3 }.to raise_error(Celluloid::TimeoutError)
+      expect { a1.ask_name_with_timeout a2, 0.3 }.to raise_error(Celluloid::Task::TimeoutError)
     end
 
     it "does not raise when it completes in time" do
