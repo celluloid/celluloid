@@ -37,7 +37,7 @@ module Celluloid
       # local end to establish the connection.
       def initialize(remote_host, remote_port = nil, local_host = nil, local_port = nil)
         super()
-        
+
         # Allow users to pass in a Ruby TCPSocket directly
         if remote_host.is_a? ::TCPSocket
           @addr = nil
@@ -65,7 +65,7 @@ module Celluloid
         unless @addr
           addrs = Array(DNSResolver.new.resolve(remote_host))
           raise Resolv::ResolvError, "DNS result has no information for #{remote_host}" if addrs.empty?
-          
+
           # Pseudorandom round-robin DNS support :/
           @addr = addrs[rand(addrs.size)]
         end

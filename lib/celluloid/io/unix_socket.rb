@@ -22,7 +22,7 @@ module Celluloid
       # Open a UNIX connection.
       def initialize(socket_path, &block)
         super()
-        
+
         # Allow users to pass in a Ruby UNIXSocket directly
         if socket_path.is_a? ::UNIXSocket
           @socket = socket_path
