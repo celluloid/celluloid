@@ -72,8 +72,9 @@ module Celluloid
 
     # Cleanup any IO objects this Mailbox may be using
     def shutdown
-      @reactor.shutdown
-      super
+      super do
+        @reactor.shutdown
+      end
     end
   end
 end
