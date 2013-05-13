@@ -97,6 +97,7 @@ module Celluloid
     def shutdown
       @mutex.lock
       begin
+        yield if block_given?
         messages = @messages
         @messages = []
         @dead = true
