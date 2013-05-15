@@ -243,7 +243,7 @@ module Celluloid
 
     # Send a signal with the given name to all waiting methods
     def signal(name, value = nil)
-      @signals.send name, value
+      @signals.broadcast name, value
     end
 
     # Wait for the given signal
