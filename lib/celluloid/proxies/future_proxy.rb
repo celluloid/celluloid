@@ -11,7 +11,6 @@ module Celluloid
       "#<Celluloid::FutureProxy(#{@klass})>"
     end
 
-    # method_missing black magic to call bang predicate methods asynchronously
     def method_missing(meth, *args, &block)
       unless @mailbox.alive?
         raise DeadActorError, "attempted to call a dead actor"
