@@ -3,11 +3,30 @@ module Celluloid
 
   # ConditionVariable-like signaling between tasks and actors
   class Condition
+    class Waiter
+      def initialize(condition, task, mailbox)
+        @condition = condition
+        @task = task
+        @mailbox = mailbox
+      end
+      attr_reader :condition, :task
+
+      def <<(message)
+        @mailbox << message
+      end
+
+      def wait
+        message = @mailbox.receive do |msg|
+          msg.is_a?(SignalConditionRequest) && msg.task == Thread.current
+        end
+        message.value
+      end
+    end
+
     attr_reader :owner
 
     def initialize
       @mutex = Mutex.new
-      @owner = Thread.current[:celluloid_actor]
       @tasks = []
     end
 
@@ -15,14 +34,18 @@ module Celluloid
     def wait
       raise ConditionError, "cannot wait for signals while exclusive" if Celluloid.exclusive?
 
+      if Thread.current[:celluloid_actor]
+        task = Task.current
+      else
+        task = Thread.current
+      end
+      waiter = Waiter.new(self, task, Celluloid.mailbox)
+
       @mutex.synchronize do
-        actor = Thread.current[:celluloid_actor]
-        raise ConditionError, "can't wait for conditions outside actors" unless actor
-        raise ConditionError, "can't wait unless owner" unless actor == @owner
-        @tasks << Task.current
+        @tasks << waiter
       end
 
-      result = Task.suspend :condwait
+      result = Celluloid.suspend :condwait, waiter
       raise result if result.is_a? ConditionError
       result
     end
@@ -30,10 +53,8 @@ module Celluloid
     # Send a signal to the first task waiting on this condition
     def signal(value = nil)
       @mutex.synchronize do
-        raise ConditionError, "no owner for this condition" unless @owner
-
-        if task = @tasks.shift
-          @owner.mailbox << SignalConditionRequest.new(task, value)
+        if waiter = @tasks.shift
+          waiter << SignalConditionRequest.new(waiter.task, value)
         else
           Logger.debug("Celluloid::Condition signaled spuriously")
         end
@@ -43,25 +64,8 @@ module Celluloid
     # Broadcast a value to all waiting tasks
     def broadcast(value = nil)
       @mutex.synchronize do
-        raise ConditionError, "no owner for this condition" unless @owner
-
-        @tasks.each { |task| @owner.mailbox << SignalConditionRequest.new(task, value) }
+        @tasks.each { |waiter| waiter << SignalConditionRequest.new(waiter.task, value) }
         @tasks.clear
-      end
-    end
-
-    # Change the owner of this condition
-    def owner=(actor)
-      @mutex.synchronize do
-        if @owner != actor
-          @tasks.each do |task|
-            ex = ConditionError.new("ownership changed")
-            @owner.mailbox << SignalConditionRequest.new(task, ex)
-          end
-          @tasks.clear
-        end
-
-        @owner = actor
       end
     end
 
