@@ -13,6 +13,10 @@ describe Celluloid::Condition do
       @signaled_times = 0
     end
 
+    def signal_condition(condition, value)
+      condition.signal value
+    end
+
     def wait_for_condition
       @waiting = true
       begin
@@ -53,16 +57,9 @@ describe Celluloid::Condition do
     future.value.should be(:example_value)
   end
 
-  it "transfers ownership between actors" do
-    another_actor = ConditionExample.new
-    begin
-      future = actor.future(:wait_for_condition)
-      condition = actor.condition
-      condition.owner = another_actor
-      condition.owner.should eq another_actor
-      expect { future.value }.to raise_exception(Celluloid::ConditionError)
-    ensure
-      another_actor.terminate
-    end
+  it "supports waiting outside actors" do
+    condition = Celluloid::Condition.new
+    actor.async.signal_condition condition, :value
+    condition.wait.should eq(:value)
   end
 end
