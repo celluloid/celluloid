@@ -158,6 +158,7 @@ module Celluloid
       end
 
       @proxy = (options[:proxy_class] || ActorProxy).new(self)
+      Celluloid.actor_created(self)
       @subject.instance_variable_set(OWNER_IVAR, self)
     end
 
@@ -210,6 +211,7 @@ module Celluloid
 
           case message
           when LinkingResponse
+            Celluloid.actors_linked(self, receiver)
             # We're done!
             system_events.each { |ev| handle_system_event(ev) }
             return
@@ -329,6 +331,7 @@ module Celluloid
         event.process(links)
       when NamingRequest
         @name = event.name
+        Celluloid.actor_named(self)
       when TerminationRequest
         terminate
       when SignalConditionRequest
@@ -377,6 +380,7 @@ module Celluloid
 
     # Clean up after this actor
     def cleanup(exit_event)
+      Celluloid.actor_died(self)
       @mailbox.shutdown
       @links.each do |actor|
         if actor.mailbox.alive?
