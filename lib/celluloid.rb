@@ -387,7 +387,7 @@ module Celluloid
 
   # Terminate this actor
   def terminate
-    Thread.current[:celluloid_actor].terminate
+    Thread.current[:celluloid_actor].proxy.terminate!
   end
 
   # Send a signal with the given name to all waiting methods
