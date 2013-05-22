@@ -543,18 +543,11 @@ shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
           raise "already signaled" if @signaled
 
           @waiting = true
-          signal :future
-
           value = wait :ponycopter
 
           @waiting = false
           @signaled = true
           value
-        end
-
-        def wait_for_future
-          return true if @waiting
-          wait :future
         end
 
         def send_signal(value)
@@ -572,9 +565,11 @@ shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
 
       obj.async.wait_for_signal
       obj.should_not be_signaled
+      obj.should be_waiting
 
       obj.send_signal :foobar
       obj.should be_signaled
+      obj.should_not be_waiting
     end
 
     it "sends values along with signals" do
@@ -583,7 +578,6 @@ shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
 
       future = obj.future(:wait_for_signal)
 
-      obj.wait_for_future
       obj.should be_waiting
       obj.should_not be_signaled
 
