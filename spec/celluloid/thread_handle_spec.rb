@@ -19,4 +19,17 @@ describe Celluloid::ThreadHandle do
   it "supports passing a role" do
     Celluloid::ThreadHandle.new(:useful) { Thread.current.role.should == :useful }.join
   end
+
+  it "supports custom Thread methods" do
+    results = []
+
+    Celluloid::ThreadHandle.new(:method_access) {
+      results << Thread.current.role
+      Fiber.new {
+        results << Thread.current.role
+      }.resume
+    }.join
+
+    results.should == [:method_access, nil]
+  end
 end
