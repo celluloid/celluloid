@@ -9,7 +9,6 @@ rvm:
 
 matrix:
   allow_failures:
-    - rvm: 2.0.0 # not ready for primetime :(
     - rvm: ruby-head
     - rvm: jruby-head
     - rvm: rbx-19mode
