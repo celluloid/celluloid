@@ -18,18 +18,37 @@ describe Celluloid::StackDump do
       actor.async.blocking
     end
 
-    Celluloid.internal_pool.get do
-      Thread.current.role = :testing
+    @idle_thread = Celluloid.internal_pool.get do
+    end
+    @active_thread = Celluloid.internal_pool.get do
       sleep
+    end
+    @active_thread.role = :other_thing
+
+    sleep 0.01
+  end
+
+  describe '#actors' do
+    it 'should include all actors' do
+      subject.actors.size.should == Celluloid::Actor.all.size
     end
   end
 
-  it 'should include all actors' do
-    subject.actors.size.should == Celluloid::Actor.all.size
-  end
+  describe '#threads' do
+    it 'should include threads that are not actors' do
+      subject.threads.size.should == 3
+    end
 
-  it 'should include threads that are not actors' do
-    pending "bugs"
-    subject.threads.size.should == 2
+    it 'should include idle threads' do
+      subject.threads.map(&:thread_id).should include(@idle_thread.object_id)
+    end
+
+    it 'should include threads checked out of the pool for roles other than :actor' do
+      subject.threads.map(&:thread_id).should include(@active_thread.object_id)
+    end
+
+    it 'should have the correct roles' do
+      subject.threads.map(&:role).should include(nil, :other_thing, :task)
+    end
   end
 end
