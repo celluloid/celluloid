@@ -1,12 +1,13 @@
 module Celluloid
   class StackDump
     module DisplayBacktrace
-      def display_backtrace(backtrace, output)
-        if backtrace
-          output << "\t" << backtrace.join("\n\t") << "\n\n"
-        else
-          output << "EMPTY BACKTRACE\n\n"
+      def display_backtrace(backtrace, output, indent = nil)
+        backtrace ||= ["EMPTY BACKTRACE"]
+        backtrace.each do |line|
+          output << indent if indent
+          output << "\t" << line << "\n"
         end
+        output << "\n\n"
       end
     end
 
@@ -32,12 +33,12 @@ module Celluloid
         else
           string << "State: Running (executing tasks)\n"
           display_backtrace backtrace, string
-          string << "Tasks:\n"
+          string << "\tTasks:\n"
 
           tasks.each_with_index do |task, i|
-            string << "  #{i+1}) #{task.task_class}[#{task.type}]: #{task.status}\n"
-            string << "      #{task.meta.inspect}\n"
-            display_backtrace task.backtrace, string
+            string << "\t  #{i+1}) #{task.task_class}[#{task.type}]: #{task.status}\n"
+            string << "\t      #{task.meta.inspect}\n"
+            display_backtrace task.backtrace, string, "\t"
           end
         end
 
