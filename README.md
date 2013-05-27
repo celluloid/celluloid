@@ -30,7 +30,7 @@ library just to take advantage of Celluloid::IO's event loop and you can
 freely switch between evented and blocking IO even over the lifetime of a
 single connection.
 
-Celluloid::IO uses the [nio4r gem](https://github.com/tarcieri/nio4r)
+Celluloid::IO uses the [nio4r gem](https://github.com/celluloid/nio4r)
 to monitor IO objects, which provides cross-platform and cross-Ruby
 implementation access to high-performance system calls such as epoll
 and kqueue.
