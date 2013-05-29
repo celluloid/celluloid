@@ -42,7 +42,7 @@ module Celluloid
         if @pool.size >= @max_idle
           thread[:celluloid_queue] << nil
         else
-          thread.recycle
+          clean_thread_locals(thread)
           @pool << thread
           @idle_size += 1
           @busy_size -= 1
@@ -67,6 +67,16 @@ module Celluloid
 
       thread[:celluloid_queue] = queue
       thread
+    end
+
+    # Clean the thread locals of an incoming thread
+    def clean_thread_locals(thread)
+      thread.keys.each do |key|
+        next if key == :celluloid_queue
+
+        # Ruby seems to lack an API for deleting thread locals. WTF, Ruby?
+        thread[key] = nil
+      end
     end
 
     def shutdown

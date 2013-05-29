@@ -393,41 +393,6 @@ shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
     end
   end
 
-  context "thread locals" do
-    let(:example_class) do
-      Class.new do
-        include included_module
-        task_class task_klass
-
-        def initialize(value)
-          Thread.current[:example_thread_local] = value
-        end
-
-        def value
-          Thread.current[:example_thread_local]
-        end
-
-        def deferred_value
-          defer do
-            Thread.current[:example_thread_local]
-          end
-        end
-      end
-    end
-
-    let(:example_value) { "foobar" }
-
-    it "preserves thread locals between tasks" do
-      actor = example_class.new(example_value)
-      actor.value.should eq example_value
-    end
-
-    it "isolates thread locals in defer blocks" do
-      actor = example_class.new(example_value)
-      actor.deferred_value.should eq nil
-    end
-  end
-
   context :linking do
     before :each do
       @kevin   = actor_class.new "Kevin Bacon" # Some six degrees action here
