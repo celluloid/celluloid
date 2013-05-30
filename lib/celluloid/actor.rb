@@ -27,7 +27,7 @@ module Celluloid
   # normal Ruby objects wrapped in threads which communicate with asynchronous
   # messages.
   class Actor
-    attr_reader :subject, :proxy, :tasks, :links, :mailbox, :thread, :name, :locals
+    attr_reader :subject, :proxy, :tasks, :links, :mailbox, :thread, :name
 
     class << self
       extend Forwardable
@@ -151,7 +151,6 @@ module Celluloid
       @running   = true
       @exclusive = false
       @name      = nil
-      @locals    = {}
 
       @thread = ThreadHandle.new(:actor) do
         setup_thread
