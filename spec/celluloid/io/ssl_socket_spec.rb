@@ -59,6 +59,14 @@ describe Celluloid::IO::SSLSocket do
     end
   end
 
+  context "duck typing ::SSLSocket" do
+    it "responds to #peeraddr" do
+      with_ssl_sockets do |ssl_client, ssl_peer|
+        expect{ ssl_client.peeraddr }.to_not raise_error
+      end
+    end
+  end
+
   context "inside Celluloid::IO" do
     it "connects to SSL servers over TCP" do
       with_ssl_sockets do |ssl_client, ssl_peer|
