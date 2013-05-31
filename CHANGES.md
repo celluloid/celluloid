@@ -1,3 +1,9 @@
+0.14.1.pre (2013-05-30)
+-----------------------
+* Revert "actor local" changes due to implementation bugs (#268)
+* Support for using Conditions outside of actors
+* Roles for Celluloid::Threads and ThreadHandles
+
 0.14.0 (2013-05-07)
 -------------------
 * Use a Thread-subclass for Celluloid
