@@ -24,7 +24,7 @@ module Celluloid
 
     # Are we currently inside of an actor?
     def actor?
-      !!Thread.current[:celluloid_actor]
+      Thread.current[:celluloid_actor]
     end
 
     # Retrieve the mailbox for the current thread or lazily initialize it
