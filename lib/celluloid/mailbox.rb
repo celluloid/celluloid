@@ -95,6 +95,8 @@ module Celluloid
 
     # Shut down this mailbox and clean up its contents
     def shutdown
+      raise MailboxDead, "mailbox already shutdown" if @dead
+
       @mutex.lock
       begin
         yield if block_given?

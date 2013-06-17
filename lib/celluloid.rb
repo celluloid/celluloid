@@ -137,7 +137,7 @@ module Celluloid
       actors.each do |actor|
         begin
           Actor.kill(actor)
-        rescue DeadActorError, MailboxError
+        rescue DeadActorError, MailboxDead
         end
       end
     end
