@@ -311,15 +311,17 @@ module Celluloid
       when SystemEvent
         handle_system_event message
       when Call
-        task(:call, :method_name => message.method) {
-          if @receiver_block_executions && meth = message.method
-            if meth == :__send__
-              meth = message.arguments.first
-            end
-            if @receiver_block_executions.include?(meth.to_sym)
-              message.execute_block_on_receiver
-            end
+        meth = message.method
+        if meth == :__send__
+          meth = message.arguments.first
+        end
+        if @receiver_block_executions && meth
+          if @receiver_block_executions.include?(meth.to_sym)
+            message.execute_block_on_receiver
           end
+        end
+
+        task(:call, :method_name => meth, :dangerous_suspend => meth == :initialize) {
           message.dispatch(@subject)
         }
       when BlockCall
@@ -386,12 +388,12 @@ module Celluloid
         Logger.warn("DEPRECATION WARNING: #{@subject.class}#finalize is deprecated and will be removed in Celluloid 1.0. " +
           "Define finalizers with '#{@subject.class}.finalizer :callback.'")
 
-        task(:finalizer, :method_name => :finalize) { @subject.finalize }
+        task(:finalizer, :method_name => :finalize, :dangerous_suspend => true) { @subject.finalize }
       end
 
       finalizer = @subject.class.finalizer
       if finalizer && @subject.respond_to?(finalizer, true)
-        task(:finalizer, :method_name => :finalize) { @subject.__send__(finalizer) }
+        task(:finalizer, :method_name => finalizer, :dangerous_suspend => true) { @subject.__send__(finalizer) }
       end
     rescue => ex
       Logger.crash("#{@subject.class}#finalize crashed!", ex)

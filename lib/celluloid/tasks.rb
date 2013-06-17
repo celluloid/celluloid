@@ -33,6 +33,8 @@ module Celluloid
       @meta     = meta
       @status   = :new
 
+      @dangerous_suspend = @meta ? @meta.delete(:dangerous_suspend) : false
+
       actor     = Thread.current[:celluloid_actor]
       @chain_id = CallChain.current_id
 
@@ -64,6 +66,11 @@ module Celluloid
     # Suspend the current task, changing the status to the given argument
     def suspend(status)
       @status = status
+
+      if @dangerous_suspend
+        Logger.warn "Dangerously suspending task: type=#{@type.inspect}, meta=#{@meta.inspect}, status=#{@status.inspect}"
+      end
+
       value = signal
 
       raise value if value.is_a?(Celluloid::ResumableError)
@@ -81,7 +88,7 @@ module Celluloid
     # Terminate this task
     def terminate
       if running?
-        Celluloid.logger.warn "Terminating task: type=#{@type.inspect}, status=#{@status.inspect}"
+        Celluloid.logger.warn "Terminating task: type=#{@type.inspect}, meta=#{@meta.inspect}, status=#{@status.inspect}"
         resume Task::TerminatedError.new("task was terminated")
       else
         raise DeadTaskError, "task is already dead"
@@ -96,7 +103,7 @@ module Celluloid
 
     # Nicer string inspect for tasks
     def inspect
-      "#<#{self.class}:0x#{object_id.to_s(16)} @type=#{@type.inspect}, @meta=#{@meta.inspect} @status=#{@status.inspect}>"
+      "#<#{self.class}:0x#{object_id.to_s(16)} @type=#{@type.inspect}, @meta=#{@meta.inspect}, @status=#{@status.inspect}>"
     end
   end
 
