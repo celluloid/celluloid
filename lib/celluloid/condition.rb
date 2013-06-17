@@ -1,7 +1,7 @@
 module Celluloid
   class ConditionError < Celluloid::Error; end
 
-  # ConditionVariable-like signaling between tasks and actors
+  # ConditionVariable-like signaling between tasks and threads
   class Condition
     class Waiter
       def initialize(condition, task, mailbox)
@@ -23,11 +23,9 @@ module Celluloid
       end
     end
 
-    attr_reader :owner
-
     def initialize
       @mutex = Mutex.new
-      @tasks = []
+      @waiters = []
     end
 
     # Wait for the given signal and return the associated value
@@ -42,7 +40,7 @@ module Celluloid
       waiter = Waiter.new(self, task, Celluloid.mailbox)
 
       @mutex.synchronize do
-        @tasks << waiter
+        @waiters << waiter
       end
 
       result = Celluloid.suspend :condwait, waiter
@@ -53,7 +51,7 @@ module Celluloid
     # Send a signal to the first task waiting on this condition
     def signal(value = nil)
       @mutex.synchronize do
-        if waiter = @tasks.shift
+        if waiter = @waiters.shift
           waiter << SignalConditionRequest.new(waiter.task, value)
         else
           Logger.debug("Celluloid::Condition signaled spuriously")
@@ -61,11 +59,11 @@ module Celluloid
       end
     end
 
-    # Broadcast a value to all waiting tasks
+    # Broadcast a value to all waiting tasks and threads
     def broadcast(value = nil)
       @mutex.synchronize do
-        @tasks.each { |waiter| waiter << SignalConditionRequest.new(waiter.task, value) }
-        @tasks.clear
+        @waiters.each { |waiter| waiter << SignalConditionRequest.new(waiter.task, value) }
+        @waiters.clear
       end
     end
 
