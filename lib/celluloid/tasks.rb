@@ -24,12 +24,13 @@ module Celluloid
       Task.current.suspend(status)
     end
 
-    attr_reader :type, :status
+    attr_reader :type, :meta, :status
     attr_accessor :chain_id
 
     # Create a new task
-    def initialize(type)
+    def initialize(type, meta)
       @type     = type
+      @meta     = meta
       @status   = :new
 
       actor     = Thread.current[:celluloid_actor]
@@ -95,7 +96,7 @@ module Celluloid
 
     # Nicer string inspect for tasks
     def inspect
-      "#<#{self.class}:0x#{object_id.to_s(16)} @type=#{@type.inspect}, @status=#{@status.inspect}>"
+      "#<#{self.class}:0x#{object_id.to_s(16)} @type=#{@type.inspect}, @meta=#{@meta.inspect} @status=#{@status.inspect}>"
     end
   end
 

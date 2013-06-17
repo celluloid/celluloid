@@ -14,7 +14,7 @@ shared_context "a Celluloid Task" do |task_class|
   let(:suspend_state) { :doing_something }
   let(:actor)         { MockActor.new }
 
-  subject { task_class.new(task_type) { Celluloid::Task.suspend(suspend_state) } }
+  subject { task_class.new(task_type, {}) { Celluloid::Task.suspend(suspend_state) } }
 
   before :each do
     Thread.current[:celluloid_actor] = actor
@@ -37,7 +37,7 @@ shared_context "a Celluloid Task" do |task_class|
   end
 
   it "raises exceptions outside" do
-    task = task_class.new(task_type) do
+    task = task_class.new(task_type, {}) do
       raise "failure"
     end
     expect do

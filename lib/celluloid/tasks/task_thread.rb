@@ -2,7 +2,7 @@ module Celluloid
   # Tasks with a Thread backend
   class TaskThread < Task
     # Run the given block within a task
-    def initialize(type)
+    def initialize(type, meta)
       @resume_queue = Queue.new
       @exception_queue = Queue.new
       @yield_mutex  = Mutex.new

@@ -1,7 +1,7 @@
 module Celluloid
   class StackDump
 
-    class TaskState < Struct.new(:task_class, :status, :backtrace)
+    class TaskState < Struct.new(:task_class, :type, :meta, :status, :backtrace)
     end
 
     class ActorState
@@ -43,7 +43,7 @@ module Celluloid
         state.status = :idle
       else
         state.status = :running
-        state.tasks = tasks.collect { |t| TaskState.new(t.class, t.status, t.backtrace) }
+        state.tasks = tasks.collect { |t| TaskState.new(t.class, t.type, t.meta, t.status, t.backtrace) }
       end
 
       state.backtrace = actor.thread.backtrace if actor.thread
@@ -70,7 +70,8 @@ module Celluloid
           string << "Tasks:\n"
 
           actor.tasks.each_with_index do |task, i|
-            string << "  #{i+1}) #{task.task_class}: #{task.status}\n"
+            string << "  #{i+1}) #{task.task_class}[#{task.type}]: #{task.status}\n"
+            string << "      #{task.meta.inspect}\n"
             display_backtrace task.backtrace, string
           end
         end

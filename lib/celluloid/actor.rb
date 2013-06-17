@@ -311,7 +311,7 @@ module Celluloid
       when SystemEvent
         handle_system_event message
       when Call
-        task(:call, message.method) {
+        task(:call, :method_name => message.method) {
           if @receiver_block_executions && meth = message.method
             if meth == :__send__
               meth = message.arguments.first
@@ -336,7 +336,7 @@ module Celluloid
     def handle_system_event(event)
       case event
       when ExitEvent
-        task(:exit_handler, @exit_handler) { handle_exit_event event }
+        task(:exit_handler, :method_name => @exit_handler) { handle_exit_event event }
       when LinkingRequest
         event.process(links)
       when NamingRequest
@@ -384,12 +384,12 @@ module Celluloid
         Logger.warn("DEPRECATION WARNING: #{@subject.class}#finalize is deprecated and will be removed in Celluloid 1.0. " +
           "Define finalizers with '#{@subject.class}.finalizer :callback.'")
 
-        task(:finalizer, :finalize) { @subject.finalize }
+        task(:finalizer, :method_name => :finalize) { @subject.finalize }
       end
 
       finalizer = @subject.class.finalizer
       if finalizer && @subject.respond_to?(finalizer, true)
-        task(:finalizer, :finalize) { @subject.__send__(finalizer) }
+        task(:finalizer, :method_name => :finalize) { @subject.__send__(finalizer) }
       end
     rescue => ex
       Logger.crash("#{@subject.class}#finalize crashed!", ex)
@@ -410,11 +410,12 @@ module Celluloid
     end
 
     # Run a method inside a task unless it's exclusive
-    def task(task_type, method_name = nil, &block)
+    def task(task_type, meta = nil, &block)
+      method_name = meta && meta.fetch(:method_name, nil)
       if @exclusives && (@exclusives == :all || (method_name && @exclusives.include?(method_name.to_sym)))
         exclusive { block.call }
       else
-        @task_class.new(task_type, &block).resume
+        @task_class.new(task_type, meta, &block).resume
       end
     end
   end
