@@ -25,12 +25,11 @@ module Celluloid
     end
 
     attr_reader :type, :status
-    attr_accessor :chain_id, :name
+    attr_accessor :chain_id
 
     # Create a new task
     def initialize(type)
       @type     = type
-      @name     = nil
       @status   = :new
 
       actor     = Thread.current[:celluloid_actor]
