@@ -952,4 +952,15 @@ shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
       a1.ask_name_with_timeout(a2, 0.6).should == :foo
     end
   end
+
+  context "raw message sends" do
+    it "logs on unhandled messages" do
+      Celluloid.logger = mock.as_null_object
+      Celluloid.logger.should_receive(:debug).with("Discarded message (unhandled): first")
+
+      actor = actor_class.new "Irma Gladden"
+      actor.mailbox << :first
+      sleep Celluloid::TIMER_QUANTUM
+    end
+  end
 end

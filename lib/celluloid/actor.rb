@@ -327,7 +327,9 @@ module Celluloid
       when BlockResponse, Response
         message.dispatch
       else
-        @receivers.handle_message(message)
+        unless @receivers.handle_message(message)
+          Logger.debug "Discarded message (unhandled): #{message}"
+        end
       end
       message
     end
