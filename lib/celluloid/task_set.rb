@@ -2,7 +2,7 @@ require 'set'
 require 'forwardable'
 
 module Celluloid
-  if defined?(JRUBY_VERSION)
+  if defined? JRUBY_VERSION
     require 'jruby/synchronized'
 
     class TaskSet
@@ -15,9 +15,35 @@ module Celluloid
         @tasks = Set.new
       end
     end
+  elsif defined? Rubinius
+    class TaskSet
+      def initialize
+        @tasks = Set.new
+      end
+
+      def <<(task)
+        Rubinius.synchronize(self) { @tasks << task }
+      end
+
+      def delete(task)
+        Rubinius.synchronize(self) { @tasks.delete task }
+      end
+
+      def first
+        Rubinius.synchronize(self) { @tasks.first }
+      end
+
+      def empty?
+        Rubinius.synchronize(self) { @tasks.empty? }
+      end
+
+      def to_a
+        Rubinius.synchronize(self) { @tasks.to_a }
+      end
+    end
   else
-    # FIXME: this should fare fine for MRI thanks to the GIL
-    # But whither be JRuby::Synchronized for rbx?
+    # Assume we're on MRI, where we have the GIL. But what about IronRuby?
+    # Or MacRuby. Do people care? This will break Celluloid::StackDumps
     TaskSet = Set
   end
 end
