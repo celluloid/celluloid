@@ -190,28 +190,9 @@ module Celluloid
       @running = false
     end
 
-    # Is this actor running in exclusive mode?
-    def exclusive?
-      @exclusive
-    end
-
-    # Execute a code block in exclusive mode.
-    def exclusive
-      if @exclusive
-        yield
-      else
-        begin
-          @exclusive = true
-          yield
-        ensure
-          @exclusive = false
-        end
-      end
-    end
-
     # Perform a linking request with another actor
     def linking_request(receiver, type)
-      exclusive do
+      Celluloid.exclusive do
         start_time = Time.now
         receiver.mailbox << LinkingRequest.new(Actor.current, type)
         system_events = []
@@ -414,13 +395,15 @@ module Celluloid
     end
 
     # Run a method inside a task unless it's exclusive
-    def task(task_type, meta = nil, &block)
+    def task(task_type, meta = nil)
       method_name = meta && meta.fetch(:method_name, nil)
-      if @exclusives && (@exclusives == :all || (method_name && @exclusives.include?(method_name.to_sym)))
-        exclusive { block.call }
-      else
-        @task_class.new(task_type, meta, &block).resume
-      end
+      @task_class.new(task_type, meta) {
+        if @exclusives && (@exclusives == :all || (method_name && @exclusives.include?(method_name.to_sym)))
+          Celluloid.exclusive { yield }
+        else
+          yield
+        end
+      }.resume
     end
   end
 end

@@ -33,6 +33,7 @@ module Celluloid
       @meta     = meta
       @status   = :new
 
+      @exclusive         = false
       @dangerous_suspend = @meta ? @meta.delete(:dangerous_suspend) : false
 
       actor     = Thread.current[:celluloid_actor]
@@ -65,6 +66,8 @@ module Celluloid
 
     # Suspend the current task, changing the status to the given argument
     def suspend(status)
+      raise "Cannot suspend while in exclusive mode" if exclusive?
+
       @status = status
 
       if @dangerous_suspend
@@ -85,14 +88,35 @@ module Celluloid
       nil
     end
 
+    # Execute a code block in exclusive mode.
+    def exclusive
+      if @exclusive
+        yield
+      else
+        begin
+          @exclusive = true
+          yield
+        ensure
+          @exclusive = false
+        end
+      end
+    end
+
     # Terminate this task
     def terminate
+      raise "Cannot terminate an exclusive task" if exclusive?
+
       if running?
         Celluloid.logger.warn "Terminating task: type=#{@type.inspect}, meta=#{@meta.inspect}, status=#{@status.inspect}"
         resume Task::TerminatedError.new("task was terminated")
       else
         raise DeadTaskError, "task is already dead"
       end
+    end
+
+    # Is this task running in exclusive mode?
+    def exclusive?
+      @exclusive
     end
 
     def backtrace
