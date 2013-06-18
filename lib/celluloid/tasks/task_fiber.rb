@@ -5,9 +5,11 @@ module Celluloid
   class TaskFiber < Task
 
     def create
+      queue = Thread.current[:celluloid_queue]
       @fiber = Fiber.new do
         # FIXME: cannot use the writer as specs run inside normal Threads
         Thread.current[:celluloid_role] = :actor
+        Thread.current[:celluloid_queue] = queue
         yield
       end
     end
