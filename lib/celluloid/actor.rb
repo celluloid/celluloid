@@ -408,7 +408,7 @@ module Celluloid
         end
       end
 
-      tasks.each { |task| task.terminate }
+      tasks.to_a.each { |task| task.terminate }
     rescue => ex
       Logger.crash("#{@subject.class}: CLEANUP CRASHED!", ex)
     end

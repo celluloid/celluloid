@@ -59,7 +59,7 @@ module Celluloid
       return unless task
 
       chain_id = CallChain.current_id
-      actor.tasks.any? { |t| t != task && t.chain_id == chain_id }
+      actor.tasks.to_a.any? { |t| t != task && t.chain_id == chain_id }
     end
 
     # Define an exception handler for actor crashes
@@ -549,6 +549,7 @@ require 'celluloid/signals'
 require 'celluloid/stack_dump'
 require 'celluloid/system_events'
 require 'celluloid/tasks'
+require 'celluloid/task_set'
 require 'celluloid/thread_handle'
 require 'celluloid/uuid'
 
