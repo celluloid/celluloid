@@ -101,10 +101,18 @@ module Celluloid
       end
     end
 
+    def boot
+      init
+      start
+    end
+
+    def init
+      self.internal_pool = InternalPool.new
+    end
+
     # Launch default services
     # FIXME: We should set up the supervision hierarchy here
-    def boot
-      internal_pool.reset
+    def start
       Celluloid::Notifications::Fanout.supervise_as :notifications_fanout
       Celluloid::IncidentReporter.supervise_as :default_incident_reporter, STDERR
     end
@@ -157,13 +165,14 @@ module Celluloid
       end
     rescue Timeout::Error
       Logger.error("Couldn't cleanly terminate all actors in #{shutdown_timeout} seconds!")
-      # TODO: cleanup all threads
       actors.each do |actor|
         begin
           Actor.kill(actor)
         rescue DeadActorError, MailboxDead
         end
       end
+    ensure
+      internal_pool.kill
     end
   end
 
@@ -508,3 +517,4 @@ Celluloid.task_class = Celluloid::TaskFiber
 Celluloid.logger     = Logger.new(STDERR)
 Celluloid.shutdown_timeout = 10
 Celluloid.register_shutdown
+Celluloid.init
