@@ -7,7 +7,9 @@ Coveralls.wear!
 
 logfile = File.open(File.expand_path("../../log/test.log", __FILE__), 'a')
 logfile.sync = true
-Celluloid.logger = Logger.new(logfile)
+
+logger = Logger.new(logfile)
+
 Celluloid.shutdown_timeout = 1
 
 Dir['./spec/support/*.rb'].map {|f| require f }
@@ -19,5 +21,7 @@ RSpec.configure do |config|
   config.before do |example|
     Celluloid.shutdown
     Celluloid.boot
+
+    Celluloid.logger = logger
   end
 end
