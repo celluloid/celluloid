@@ -46,15 +46,8 @@ module Celluloid
       def resolve(hostname)
         host = @hosts[hostname]
         if host
-          begin
-            return Resolv::IPv4.create(host)
-          rescue ArgumentError
-          end
-
-          begin
-            return Resolv::IPv6.create(host)
-          rescue ArgumentError
-          end
+          return Resolv::IPv4.create(host) rescue ArgumentError
+          return Resolv::IPv6.create(host) rescue ArgumentError
 
           raise Resolv::ResolvError, "invalid entry in hosts file: #{host}"
         end
