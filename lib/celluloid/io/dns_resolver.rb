@@ -71,8 +71,7 @@ module Celluloid
         addrs = []
         # The answer might include IN::CNAME entries so filters them out
         # to include IN::A & IN::AAAA entries only.
-        response.each_answer { |name, ttl, value| addrs << (value.respond_to?(:address) ? value.address : nil) }
-        addrs.compact!
+        response.each_answer { |name, ttl, value| addrs << value.address if value.respond_to?(:address) }
 
         return if addrs.empty?
         return addrs.first if addrs.size == 1
