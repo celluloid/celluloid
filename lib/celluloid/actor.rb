@@ -158,7 +158,7 @@ module Celluloid
       end
 
       @proxy = (options[:proxy_class] || ActorProxy).new(self)
-      Celluloid.actor_created(self)
+      Celluloid::Monitoring.actor_created(self) if $CELLULOID_MONITORING
       @subject.instance_variable_set(OWNER_IVAR, self)
     end
 
@@ -211,7 +211,7 @@ module Celluloid
 
           case message
           when LinkingResponse
-            Celluloid.actors_linked(self, receiver)
+            Celluloid::Monitoring.actors_linked(self, receiver) if $CELLULOID_MONITORING
             # We're done!
             system_events.each { |ev| handle_system_event(ev) }
             return
@@ -331,7 +331,7 @@ module Celluloid
         event.process(links)
       when NamingRequest
         @name = event.name
-        Celluloid.actor_named(self)
+        Celluloid::Monitoring.actor_named(self) if $CELLULOID_MONITORING
       when TerminationRequest
         terminate
       when SignalConditionRequest
@@ -380,7 +380,7 @@ module Celluloid
 
     # Clean up after this actor
     def cleanup(exit_event)
-      Celluloid.actor_died(self)
+      Celluloid::Monitoring.actor_died(self) if $CELLULOID_MONITORING
       @mailbox.shutdown
       @links.each do |actor|
         if actor.mailbox.alive?

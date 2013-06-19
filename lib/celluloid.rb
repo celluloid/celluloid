@@ -506,6 +506,11 @@ require 'celluloid/logging'
 
 require 'celluloid/legacy' unless defined?(CELLULOID_FUTURE)
 
+unless defined?($CELLULOID_MONITORING)
+  $CELLULOID_MONITORING = false
+end
+
+
 # Configure default systemwide settings
 Celluloid.task_class = Celluloid::TaskFiber
 Celluloid.logger     = Logger.new(STDERR)
