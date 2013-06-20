@@ -506,9 +506,7 @@ require 'celluloid/logging'
 
 require 'celluloid/legacy' unless defined?(CELLULOID_FUTURE)
 
-unless defined?($CELLULOID_MONITORING)
-  $CELLULOID_MONITORING = false
-end
+$CELLULOID_MONITORING = false
 
 
 # Configure default systemwide settings

@@ -1,3 +1,7 @@
+require 'celluloid'
+
+$CELLULOID_MONITORING = true
+
 module Celluloid
   module Monitoring
     
