@@ -44,19 +44,11 @@ module Celluloid
       end
 
       def resolve(hostname)
-        host = @hosts[hostname]
-        if host
-          begin
-            return Resolv::IPv4.create(host)
-          rescue ArgumentError
+        if host = @hosts[hostname]
+          unless ip_address = resolve_host(host)
+            raise Resolv::ResolvError, "invalid entry in hosts file: #{host}"
           end
-
-          begin
-            return Resolv::IPv6.create(host)
-          rescue ArgumentError
-          end
-
-          raise Resolv::ResolvError, "invalid entry in hosts file: #{host}"
+          return ip_address
         end
 
         query = Resolv::DNS::Message.new
@@ -76,6 +68,19 @@ module Celluloid
         return if addrs.empty?
         return addrs.first if addrs.size == 1
         addrs
+      end
+
+      private
+
+      def resolve_host(host)
+        resolve_ip(Resolv::IPv4, host) || resolve_ip(Resolv::IPv6, host)
+      end
+
+      def resolve_ip(klass, host)
+        begin
+          klass.create(host)
+        rescue ArgumentError
+        end
       end
     end
   end
