@@ -3,6 +3,9 @@ require 'thread'
 require 'timeout'
 require 'set'
 
+require 'celluloid/version'
+require 'celluloid/property'
+
 module Celluloid
   Error = Class.new StandardError
 
@@ -525,8 +528,6 @@ module Celluloid
     Thread.current[:celluloid_actor].proxy.future meth, *args, &block
   end
 end
-
-require 'celluloid/version'
 
 require 'celluloid/calls'
 require 'celluloid/call_chain'
