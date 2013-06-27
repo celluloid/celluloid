@@ -37,11 +37,7 @@ module Celluloid
           return ip_address
         end
 
-        query = Resolv::DNS::Message.new
-        query.id = self.class.generate_id
-        query.rd = 1
-        query.add_question hostname, Resolv::DNS::Resource::IN::A
-
+        query = build_query(hostname)
         @socket.send query.encode, 0, @server, DNS_PORT
         data, _ = @socket.recvfrom(512)
         response = Resolv::DNS::Message.decode(data)
@@ -67,6 +63,14 @@ module Celluloid
 
       def resolv
         @resolv ||= Resolv::Hosts.new
+      end
+
+      def build_query(hostname)
+        Resolv::DNS::Message.new.tap do |query|
+          query.id = self.class.generate_id
+          query.rd = 1
+          query.add_question hostname, Resolv::DNS::Resource::IN::A
+        end
       end
 
       def resolve_host(host)
