@@ -10,7 +10,6 @@ rvm:
 matrix:
   allow_failures:
     - rvm: ruby-head
-    - rvm: jruby-19mode # jruby 1.7.3 fibers are broken
     - rvm: jruby-head
     - rvm: rbx-19mode # deadlocks :(
 
