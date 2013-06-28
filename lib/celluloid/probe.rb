@@ -5,6 +5,9 @@ $CELLULOID_MONITORING = true
 module Celluloid
   class Probe
     include Celluloid
+    include Celluloid::Notifications
+    
+    NOTIFICATIONS_TOPIC_BASE = 'celluloid.events.%s'
     
     def self.queue
       @queue ||= Queue.new
@@ -14,21 +17,12 @@ module Celluloid
       Actor[:probe_actor] or raise DeadActorError, "probe actor not running"
     end
     
-    def initialize
-      @listeners = {}
-    end
-    
     def run
       loop do
         dispatch_event(*self.class.queue.pop)
       end
     end
 
-    
-    def on_event(filter = nil, &block)
-      @listeners[filter] ||= []
-      @listeners[filter] << block
-    end
     
     def self.actor_created(actor)
       trigger_event(:actor_created, actor)
@@ -50,13 +44,7 @@ module Celluloid
 
   private
     def dispatch_event(cmd, args)
-      if @listeners.has_key?(nil)
-        @listeners[nil].each {|cb| cb.call(cmd, *args) }
-      end
-      
-      if @listeners.has_key?(cmd)
-        @listeners[cmd].each {|cb| cb.call(cmd, *args) }
-      end
+      publish(NOTIFICATIONS_TOPIC_BASE % cmd, args)
     end
     
     def self.trigger_event(name, *args)
