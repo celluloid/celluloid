@@ -285,6 +285,15 @@ shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
     end
   end
 
+  context "mocking out the proxy" do
+    let(:actor) { actor_class.new "Troy McClure" }
+
+    it "allows mocking async calls" do
+      actor.async.should_receive(:foo).once
+      actor.async.foo
+    end
+  end
+
   context :exceptions do
     it "reraises exceptions which occur during synchronous calls in the sender" do
       actor = actor_class.new "James Dean" # is this in bad taste?
