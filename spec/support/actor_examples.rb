@@ -288,6 +288,11 @@ shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
   context "mocking out the proxy" do
     let(:actor) { actor_class.new "Troy McClure" }
 
+    it "allows mocking return values" do
+      actor.should_receive(:name).and_return "Spiderman"
+      actor.name.should == "Spiderman"
+    end
+
     it "allows mocking raises" do
       actor.should_receive(:foo).and_raise ArgumentError
       expect { actor.foo }.to raise_error(ArgumentError)
