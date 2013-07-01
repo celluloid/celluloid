@@ -299,9 +299,14 @@ shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
       actor.should be_alive
     end
 
-    it "allows mocking async calls" do
+    it "allows mocking async calls via the async proxy" do
       actor.async.should_receive(:foo).once
       actor.async.foo
+    end
+
+    it "allows mocking async calls via #async send" do
+      actor.should_receive(:async).once.with(:foo)
+      actor.async :foo
     end
   end
 
