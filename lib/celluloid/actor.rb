@@ -121,7 +121,7 @@ module Celluloid
       # Forcibly kill a given actor
       def kill(actor)
         actor.thread.kill
-        actor.mailbox.shutdown
+        actor.mailbox.shutdown if actor.mailbox.alive?
       end
 
       # Wait for an actor to terminate
