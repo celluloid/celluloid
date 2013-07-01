@@ -56,7 +56,6 @@ module Celluloid
 
       message
     rescue IOError
-      shutdown # force shutdown of the mailbox
       raise MailboxShutdown, "mailbox shutdown called during receive"
     end
 
