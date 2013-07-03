@@ -133,12 +133,15 @@ module Celluloid
 
     # Wrap the given subject with an Actor
     def initialize(subject, options = {})
-      @subject      = subject
-      @mailbox      = options[:mailbox] || Mailbox.new
+      @subject = subject
+
+      @mailbox          = options.fetch(:mailbox_class, Mailbox).new
+      @mailbox.max_size = options.fetch(:mailbox_size, nil)
+
+      @task_class   = options[:task_class] || Celluloid.task_class
       @exit_handler = options[:exit_handler]
       @exclusives   = options[:exclusive_methods]
       @receiver_block_executions = options[:receiver_block_executions]
-      @task_class   = options[:task_class] || Celluloid.task_class
 
       @tasks     = TaskSet.new
       @links     = Links.new
