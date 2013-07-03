@@ -901,12 +901,12 @@ shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
     end
   end
 
-  context :mailbox_limit do
+  context :mailbox_size do
     subject do
       Class.new do
         include included_module
         task_class task_klass
-        mailbox.max_size = 100
+        mailbox_size 100
       end
     end
 

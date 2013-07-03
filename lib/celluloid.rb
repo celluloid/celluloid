@@ -4,7 +4,6 @@ require 'timeout'
 require 'set'
 
 require 'celluloid/version'
-require 'celluloid/property'
 
 module Celluloid
   Error = Class.new StandardError
@@ -23,6 +22,28 @@ module Celluloid
     def included(klass)
       klass.send :extend,  ClassMethods
       klass.send :include, InstanceMethods
+
+      setup_properties(klass)
+    end
+
+    def setup_properties(klass)
+      klass.send :extend, Properties
+
+      klass.property :mailbox_class, :default => Celluloid::Mailbox
+      klass.property :proxy_class,   :default => Celluloid::ActorProxy
+      klass.property :task_class,    :default => Celluloid.task_class
+      klass.property :mailbox_size
+
+      klass.property :execute_block_on_receiver,
+        :default => [:after, :every, :receive],
+        :multi   => true
+
+      klass.property :finalizer
+      klass.property :exit_handler
+
+      klass.send(:define_singleton_method, :trap_exit) do |*args|
+        exit_handler(*args)
+      end
     end
 
     # Are we currently inside of an actor?
@@ -198,63 +219,6 @@ module Celluloid
       Actor.join(new(*args, &block))
     end
 
-    # Trap errors from actors we're linked to when they exit
-    def exit_handler(callback = nil)
-      if callback
-        @exit_handler = callback.to_sym
-      elsif defined?(@exit_handler)
-        @exit_handler
-      elsif superclass.respond_to? :exit_handler
-        superclass.exit_handler
-      end
-    end
-    alias_method :trap_exit, :exit_handler
-
-    # Define a callback to run when the actor is finalized.
-    def finalizer(callback = nil)
-      if callback
-        @finalizer = callback.to_sym
-      elsif defined?(@finalizer)
-        @finalizer
-      elsif superclass.respond_to? :finalizer
-        superclass.finalizer
-      end
-    end
-
-    # Define the mailbox class for this class
-    def mailbox_class(klass = nil)
-      if klass
-        mailbox.class = klass
-      else
-        mailbox.class
-      end
-    end
-
-    def proxy_class(klass = nil)
-      if klass
-        @proxy_class = klass
-      elsif defined?(@proxy_class)
-        @proxy_class
-      elsif superclass.respond_to? :proxy_class
-        superclass.proxy_class
-      else
-        Celluloid::ActorProxy
-      end
-    end
-
-    # Define the default task type for this class
-    def task_class(klass = nil)
-      if klass
-        @task_class = klass
-      elsif defined?(@task_class)
-        @task_class
-      elsif superclass.respond_to? :task_class
-        superclass.task_class
-      else
-        Celluloid.task_class
-      end
-    end
-
     # Mark methods as running exclusively
     def exclusive(*methods)
       if methods.empty?
@@ -265,54 +229,21 @@ module Celluloid
       end
     end
 
-    # Mark methods as running blocks on the receiver
-    def execute_block_on_receiver(*methods)
-      receiver_block_executions.merge methods.map(&:to_sym)
-    end
-
-    def receiver_block_executions
-      @receiver_block_executions ||= Set.new([:after, :every, :receive])
-    end
-
     # Configuration options for Actor#new
     def actor_options
       {
-        :mailbox           => mailbox.build,
+        :mailbox_class     => mailbox_class,
+        :mailbox_size      => mailbox_size,
         :proxy_class       => proxy_class,
         :task_class        => task_class,
         :exit_handler      => exit_handler,
         :exclusive_methods => defined?(@exclusive_methods) ? @exclusive_methods : nil,
-        :receiver_block_executions => receiver_block_executions
+        :receiver_block_executions => execute_block_on_receiver
       }
     end
 
     def ===(other)
       other.kind_of? self
-    end
-
-    def mailbox
-      @mailbox_factory ||= MailboxFactory.new(self)
-    end
-
-    class MailboxFactory
-      attr_accessor :class, :max_size
-
-      def initialize(actor)
-        @actor    = actor
-        @class    = nil
-        @max_size = nil
-      end
-
-      def build
-        mailbox = mailbox_class.new
-        mailbox.max_size = @max_size
-        mailbox
-      end
-
-      private
-      def mailbox_class
-        @class || (@actor.superclass.respond_to?(:mailbox_class) && @actor.superclass.mailbox_class) || Celluloid::Mailbox
-      end
     end
   end
 
@@ -543,6 +474,7 @@ require 'celluloid/logger'
 require 'celluloid/mailbox'
 require 'celluloid/evented_mailbox'
 require 'celluloid/method'
+require 'celluloid/properties'
 require 'celluloid/receivers'
 require 'celluloid/registry'
 require 'celluloid/responses'
