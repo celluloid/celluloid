@@ -11,8 +11,8 @@ module Celluloid
       end
 
       # Start this application (and watch it with a supervisor)
-      def run!
-        group = new do |_group|
+      def run!(reg=nil)
+        group = new(reg) do |_group|
           blocks.each do |block|
             block.call(_group)
           end
@@ -21,9 +21,9 @@ module Celluloid
       end
 
       # Run the application in the foreground with a simple watchdog
-      def run
+      def run(reg=nil)
         loop do
-          supervisor = run!
+          supervisor = run!(reg)
 
           # Take five, toplevel supervisor
           sleep 5 while supervisor.alive?
