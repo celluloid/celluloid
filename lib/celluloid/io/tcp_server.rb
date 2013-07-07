@@ -5,7 +5,7 @@ module Celluloid
     # TCPServer with combined blocking and evented support
     class TCPServer
       extend Forwardable
-      def_delegators :@server, :listen, :sysaccept, :close, :closed?, :addr
+      def_delegators :@server, :listen, :sysaccept, :close, :closed?, :addr, :setsockopt
 
       def initialize(hostname, port)
         @server = ::TCPServer.new(hostname, port)
