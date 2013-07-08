@@ -21,13 +21,11 @@ describe Celluloid::SupervisionGroup do
   end
 
   it "accepts a private actor registry" do
-    my_reg = Celluloid::Registry.new
-
-    MyGroup.run!(my_reg)
+    my_registry = Celluloid::Registry.new
+    MyGroup.run!(my_registry)
     sleep 0.01
 
-    my_reg[:example].should be_running
-
+    my_registry[:example].should be_running
   end
 
   context "pool" do
