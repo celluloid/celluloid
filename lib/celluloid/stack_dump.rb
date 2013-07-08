@@ -66,9 +66,8 @@ module Celluloid
     end
 
     def snapshot
-      Thread.list.each do |thread|
-        if thread.celluloid?
-          next unless thread.role == :actor
+      Celluloid.internal_pool.each do |thread|
+        if thread.role == :actor
           @actors << snapshot_actor(thread.actor) if thread.actor
         else
           @threads << snapshot_thread(thread)

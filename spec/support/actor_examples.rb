@@ -148,7 +148,7 @@ shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
 
     actor = klass.new
     actor.terminate
-    Celluloid::Actor.join(actor)
+    Celluloid::Actor.join(actor) unless defined?(JRUBY_VERSION)
   end
 
   it "calls the user defined finalizer" do
@@ -327,6 +327,8 @@ shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
     it "raises DeadActorError if methods are synchronously called on a dead actor" do
       actor = actor_class.new "James Dean"
       actor.crash rescue nil
+
+      sleep 0.1 # hax to prevent a race between exit handling and the next call
 
       expect do
         actor.greet
