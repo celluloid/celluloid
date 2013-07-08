@@ -3,6 +3,8 @@ require 'thread'
 module Celluloid
   # Maintain a thread pool FOR SPEED!!
   class InternalPool
+    attr_accessor :max_idle
+
     def initialize
       @group = ThreadGroup.new
       @mutex = Mutex.new
