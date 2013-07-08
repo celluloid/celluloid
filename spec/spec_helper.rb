@@ -6,12 +6,22 @@ require 'coveralls'
 Coveralls.wear!
 
 logfile = File.open(File.expand_path("../../log/test.log", __FILE__), 'a')
-Celluloid.logger = Logger.new(logfile)
+logfile.sync = true
+
+logger = Celluloid.logger = Logger.new(logfile)
+
+Celluloid.shutdown_timeout = 1
 
 RSpec.configure do |config|
+  config.filter_run :focus => true
+  config.run_all_when_everything_filtered = true
+
   config.before do
+    Celluloid.logger = logger
     Celluloid.shutdown
+
     Celluloid.boot
+
     FileUtils.rm("/tmp/cell_sock") if File.exist?("/tmp/cell_sock")
   end
 end
