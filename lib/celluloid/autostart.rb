@@ -1,3 +1,3 @@
 require 'celluloid'
 
-Celluloid.boot
+Celluloid.start

@@ -77,8 +77,8 @@ module Celluloid
       # Obtain all running actors in the system
       def all
         actors = []
-        Thread.list.each do |t|
-          next unless t.celluloid? && t.role == :actor
+        Celluloid.internal_pool.each do |t|
+          next unless t.role == :actor
           actors << t.actor.proxy if t.actor && t.actor.respond_to?(:proxy)
         end
         actors

@@ -1,6 +1,6 @@
 require 'rubygems'
 require 'bundler/setup'
-require 'celluloid/autostart'
+require 'celluloid'
 require 'celluloid/rspec'
 require 'coveralls'
 Coveralls.wear!
@@ -21,6 +21,10 @@ RSpec.configure do |config|
   config.before do
     Celluloid.logger = logger
     Celluloid.shutdown
+    sleep 0.01
+
+    Celluloid.internal_pool.assert_inactive
+
     Celluloid.boot
   end
 end

@@ -6,6 +6,8 @@ module Celluloid
       true
     end
 
+    attr_accessor :busy
+
     # Obtain the role of this thread
     def role
       self[:celluloid_role]
