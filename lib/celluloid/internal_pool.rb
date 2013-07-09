@@ -131,6 +131,7 @@ module Celluloid
     def kill
       @mutex.synchronize do
         finalize
+        @running = false
         @group.list.each(&:kill)
       end
     end
@@ -138,7 +139,6 @@ module Celluloid
     private
 
     def finalize
-      @running = false
       @max_idle = 0
     end
   end
