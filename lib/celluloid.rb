@@ -160,8 +160,6 @@ module Celluloid
           rescue DeadActorError
           end
         end
-
-        Logger.debug "Shutdown completed cleanly"
       end
     rescue Timeout::Error
       Logger.error("Couldn't cleanly terminate all actors in #{shutdown_timeout} seconds!")
