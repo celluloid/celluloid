@@ -17,6 +17,10 @@ module Celluloid
       Actor[:probe_actor] or raise DeadActorError, "probe actor not running"
     end
     
+    def self.run
+      probe.async.run()
+    end
+    
     def run
       loop do
         dispatch_event(*self.class.queue.pop)
