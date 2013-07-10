@@ -23,10 +23,6 @@ module Celluloid
       klass.send :extend,  ClassMethods
       klass.send :include, InstanceMethods
 
-      setup_properties(klass)
-    end
-
-    def setup_properties(klass)
       klass.send :extend, Properties
 
       klass.property :mailbox_class, :default => Celluloid::Mailbox
