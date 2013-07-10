@@ -137,7 +137,7 @@ module Celluloid
       Timeout.timeout(shutdown_timeout) do
         internal_pool.shutdown
 
-        Logger.debug "Terminating #{actors.size} actors..." if actors.size > 0
+        Logger.debug "Terminating #{actors.size} #{(actors.size > 1) ? 'actors' : 'actor'}..." if actors.size > 0
 
         # Attempt to shut down the supervision tree, if available
         Supervisor.root.terminate if Supervisor.root
