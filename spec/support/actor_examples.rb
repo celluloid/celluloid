@@ -144,7 +144,7 @@ shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
     end
 
     Celluloid.logger = mock.as_null_object
-    Celluloid.logger.should_receive(:warn).with("Dangerously suspending task: type=:call, meta={:method_name=>:initialize}, status=:sleeping")
+    Celluloid.logger.should_receive(:warn).with(/Dangerously suspending task: type=:call, meta={:method_name=>:initialize}, status=:sleeping/)
 
     actor = klass.new
     actor.terminate
@@ -171,7 +171,7 @@ shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
     end
 
     Celluloid.logger = mock.as_null_object
-    Celluloid.logger.should_receive(:warn).with("Dangerously suspending task: type=:finalizer, meta={:method_name=>:cleanup}, status=:sleeping")
+    Celluloid.logger.should_receive(:warn).with(/Dangerously suspending task: type=:finalizer, meta={:method_name=>:cleanup}, status=:sleeping/)
 
     actor = klass.new
     actor.terminate
