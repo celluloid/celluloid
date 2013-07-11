@@ -55,7 +55,7 @@ shared_context "a Celluloid Mailbox" do
   end
 
   it "logs discarded messages" do
-    Celluloid.logger = mock.as_null_object
+    Celluloid.logger = double.as_null_object
     Celluloid.logger.should_receive(:debug).with("Discarded message (mailbox is dead): third")
 
     subject.max_size = 2
@@ -65,7 +65,7 @@ shared_context "a Celluloid Mailbox" do
   end
 
   it "discard messages when dead" do
-    Celluloid.logger = mock.as_null_object
+    Celluloid.logger = double.as_null_object
     Celluloid.logger.should_receive(:debug).with("Discarded message (mailbox is dead): first")
     Celluloid.logger.should_receive(:debug).with("Discarded message (mailbox is dead): second")
     Celluloid.logger.should_receive(:debug).with("Discarded message (mailbox is dead): third")
