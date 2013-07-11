@@ -143,7 +143,7 @@ shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
       end
     end
 
-    Celluloid.logger = mock.as_null_object
+    Celluloid.logger = double.as_null_object
     Celluloid.logger.should_receive(:warn).with(/Dangerously suspending task: type=:call, meta={:method_name=>:initialize}, status=:sleeping/)
 
     actor = klass.new
@@ -170,7 +170,7 @@ shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
       end
     end
 
-    Celluloid.logger = mock.as_null_object
+    Celluloid.logger = double.as_null_object
     Celluloid.logger.should_receive(:warn).with(/Dangerously suspending task: type=:finalizer, meta={:method_name=>:cleanup}, status=:sleeping/)
 
     actor = klass.new
@@ -409,7 +409,7 @@ shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
     end
 
     it "logs a warning when terminating tasks" do
-      Celluloid.logger = mock.as_null_object
+      Celluloid.logger = double.as_null_object
       Celluloid.logger.should_receive(:warn).with("Terminating task: type=:call, meta={:method_name=>:sleepy}, status=:sleeping")
 
       actor = actor_class.new "Arnold Schwarzenegger"
@@ -995,7 +995,7 @@ shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
 
   context "raw message sends" do
     it "logs on unhandled messages" do
-      Celluloid.logger = mock.as_null_object
+      Celluloid.logger = double.as_null_object
       Celluloid.logger.should_receive(:debug).with("Discarded message (unhandled): first")
 
       actor = actor_class.new "Irma Gladden"
