@@ -8,6 +8,7 @@ module Celluloid
     def initialize
       @group = ThreadGroup.new
       @mutex = Mutex.new
+      @threads = []
 
       # TODO: should really adjust this based on usage
       @max_idle = 16
@@ -15,11 +16,11 @@ module Celluloid
     end
 
     def busy_size
-      @group.list.select(&:busy).size
+      @threads.select(&:busy).size
     end
 
     def idle_size
-      @group.list.reject(&:busy).size
+      @threads.reject(&:busy).size
     end
 
     def assert_running
@@ -48,13 +49,13 @@ module Celluloid
     end
 
     def each
-      to_a.each do |thread|
+      @threads.each do |thread|
         yield thread
       end
     end
 
     def to_a
-      @group.list
+      @threads
     end
 
     # Get a thread from the pool, running the given block
@@ -63,7 +64,7 @@ module Celluloid
         assert_running
 
         begin
-          idle = @group.list.reject(&:busy)
+          idle = @threads.reject(&:busy)
           if idle.empty?
             thread = create
           else
@@ -105,6 +106,7 @@ module Celluloid
       end
 
       thread[:celluloid_queue] = queue
+      @threads << thread
       @group.add(thread)
       thread
     end
@@ -122,7 +124,7 @@ module Celluloid
     def shutdown
       @mutex.synchronize do
         finalize
-        @group.list.each do |thread|
+        @threads.each do |thread|
           thread[:celluloid_queue] << nil
         end
       end
@@ -132,6 +134,8 @@ module Celluloid
       @mutex.synchronize do
         finalize
         @running = false
+
+        @threads.shift.kill until @threads.empty?
         @group.list.each(&:kill)
       end
     end
