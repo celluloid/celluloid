@@ -65,6 +65,19 @@ shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
     method.arity.should be(1)
   end
 
+  it "supports #name calls via #method" do
+    method = actor_class.new("Troy McClure").method(:greet)
+    method.name.should == :greet
+  end
+
+  it "supports #parameters via #method" do
+    method = actor_class.new("Troy McClure").method(:greet)
+    method.parameters.should == []
+
+    method = actor_class.new("Troy McClure").method(:change_name)
+    method.parameters.should == [[:req, :new_name]]
+  end
+
   it "supports future(:method) syntax for synchronous future calls" do
     actor = actor_class.new "Troy McClure"
     future = actor.future :greet
