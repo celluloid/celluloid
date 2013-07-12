@@ -34,6 +34,11 @@ shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
     actor.object_id.should_not eq(Kernel.object_id)
   end
 
+  it "implements respond_to? correctly" do
+    actor = actor_class.new 'Troy McClure'
+    actor.should respond_to(:alive?)
+  end
+
   it "supports synchronous calls" do
     actor = actor_class.new "Troy McClure"
     actor.greet.should eq("Hi, I'm Troy McClure")
