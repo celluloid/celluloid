@@ -84,6 +84,7 @@ module Celluloid
         thread.busy = false
         if idle_size >= @max_idle
           thread[:celluloid_queue] << nil
+          @threads.delete(thread)
         else
           clean_thread_locals(thread)
         end
