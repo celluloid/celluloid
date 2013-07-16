@@ -18,6 +18,10 @@ module Celluloid
     end
     
     def self.run
+      # spawn the actor if not found
+      unless Actor[:probe_actor] && Actor[:probe_actor].alive?
+        supervise_as(:probe_actor)
+      end
       probe.async.run()
     end
     
@@ -66,4 +70,3 @@ module Celluloid
   end
 end
 
-Celluloid::Probe.supervise_as(:probe_actor)
