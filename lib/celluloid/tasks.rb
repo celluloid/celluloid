@@ -70,7 +70,7 @@ module Celluloid
 
       @status = status
 
-      if @dangerous_suspend
+      if $CELLULOID_DEBUG && @dangerous_suspend
         warning = "Dangerously suspending task: "
         warning << [
           "type=#{@type.inspect}",
