@@ -5,7 +5,6 @@ module Celluloid
     # Asynchronous DNS resolver using Celluloid::IO::UDPSocket
     class DNSResolver
       RESOLV_CONF = '/etc/resolv.conf'
-      HOSTS       = '/etc/hosts'
       DNS_PORT    = 53
 
       @mutex = Mutex.new
@@ -19,21 +18,8 @@ module Celluloid
         File.read(config).scan(/^\s*nameserver\s+([0-9.:]+)/).flatten
       end
 
-      # FIXME: Y U NO Resolv::Hosts?
-      def self.hosts(hostfile = HOSTS)
-        hosts = {}
-        File.open(hostfile) do |f|
-          f.each_line do |host_entry|
-            entries = host_entry.gsub(/#.*$/, '').gsub(/\s+/, ' ').split(' ')
-            addr = entries.shift
-            entries.each { |e| hosts[e] ||= addr }
-          end
-        end
-        hosts
-      end
-
       def initialize
-        @nameservers, @hosts = self.class.nameservers, self.class.hosts
+        @nameservers = self.class.nameservers
 
         # TODO: fall back on other nameservers if the first one is unavailable
         @server = @nameservers.first
@@ -44,18 +30,14 @@ module Celluloid
       end
 
       def resolve(hostname)
-        if host = @hosts[hostname]
+        if host = resolve_hostname(hostname)
           unless ip_address = resolve_host(host)
             raise Resolv::ResolvError, "invalid entry in hosts file: #{host}"
           end
           return ip_address
         end
 
-        query = Resolv::DNS::Message.new
-        query.id = self.class.generate_id
-        query.rd = 1
-        query.add_question hostname, Resolv::DNS::Resource::IN::A
-
+        query = build_query(hostname)
         @socket.send query.encode, 0, @server, DNS_PORT
         data, _ = @socket.recvfrom(512)
         response = Resolv::DNS::Message.decode(data)
@@ -71,6 +53,25 @@ module Celluloid
       end
 
       private
+
+      def resolve_hostname(hostname)
+        # Resolv::Hosts#getaddresses pushes onto a stack
+        # so since we want the first occurance, simply
+        # pop off the stack.
+        resolv.getaddresses(hostname).pop rescue nil
+      end
+
+      def resolv
+        @resolv ||= Resolv::Hosts.new
+      end
+
+      def build_query(hostname)
+        Resolv::DNS::Message.new.tap do |query|
+          query.id = self.class.generate_id
+          query.rd = 1
+          query.add_question hostname, Resolv::DNS::Resource::IN::A
+        end
+      end
 
       def resolve_host(host)
         resolve_ip(Resolv::IPv4, host) || resolve_ip(Resolv::IPv6, host)
