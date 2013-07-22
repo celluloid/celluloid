@@ -7,12 +7,8 @@ module Celluloid
       extend Forwardable
       def_delegators :@server, :listen, :sysaccept, :close, :closed?, :addr, :setsockopt
 
-      def initialize(hostname_or_port, port=nil)
-        if(port.nil?)
-          @server = ::TCPServer.new(hostname_or_port)
-        else
-          @server = ::TCPServer.new(hostname_or_port, port)
-        end
+      def initialize(hostname_or_port, port = nil)
+        @server = ::TCPServer.new(hostname_or_port, port)
       end
 
       def accept
