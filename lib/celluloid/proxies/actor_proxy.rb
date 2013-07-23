@@ -16,14 +16,6 @@ module Celluloid
       @future_proxy = FutureProxy.new(@mailbox, @klass)
     end
 
-    def class
-      method_missing :__send__, :class
-    end
-
-    def send(meth, *args, &block)
-      method_missing :send, meth, *args, &block
-    end
-
     def _send_(meth, *args, &block)
       method_missing :__send__, meth, *args, &block
     end
@@ -34,32 +26,12 @@ module Celluloid
       "#<Celluloid::ActorProxy(#{@klass}) dead>"
     end
 
-    def name
-      method_missing :name
-    end
-
-    def is_a?(klass)
-      method_missing :is_a?, klass
-    end
-
-    def kind_of?(klass)
-      method_missing :kind_of?, klass
-    end
-
-    def methods(include_ancestors = true)
-      method_missing :methods, include_ancestors
-    end
-
     def method(name)
       Method.new(self, name)
     end
 
     def alive?
       @mailbox.alive?
-    end
-
-    def to_s
-      method_missing :to_s
     end
 
     alias_method :sync, :method_missing
