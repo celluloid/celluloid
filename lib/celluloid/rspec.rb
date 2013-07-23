@@ -6,3 +6,5 @@ module Celluloid
   # Timer accuracy enforced by the tests (50ms)
   TIMER_QUANTUM = 0.05
 end
+
+$CELLULOID_DEBUG = true

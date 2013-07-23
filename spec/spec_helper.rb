@@ -6,8 +6,6 @@ require 'bundler/setup'
 require 'celluloid'
 require 'celluloid/rspec'
 
-$CELLULOID_DEBUG = true
-
 logfile = File.open(File.expand_path("../../log/test.log", __FILE__), 'a')
 logfile.sync = true
 
