@@ -46,10 +46,6 @@ module Celluloid
       method_missing :kind_of?, klass
     end
 
-    def respond_to?(meth, include_private = false)
-      method_missing :respond_to?, meth, include_private
-    end
-
     def methods(include_ancestors = true)
       method_missing :methods, include_ancestors
     end
