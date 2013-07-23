@@ -4,6 +4,9 @@ module Celluloid
   class ActorProxy < SyncProxy
     attr_reader :thread
 
+    # Used for reflecting on proxy objects themselves
+    def __class__; ActorProxy; end
+
     def initialize(actor)
       @thread = actor.thread
 
