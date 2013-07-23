@@ -3,12 +3,19 @@ module Celluloid
   class SyncProxy < AbstractProxy
     attr_reader :mailbox
 
+    # Used for reflecting on proxy objects themselves
+    def __class__; SyncProxy; end
+
     def initialize(mailbox, klass)
       @mailbox, @klass = mailbox, klass
     end
 
     def inspect
       "#<Celluloid::SyncProxy(#{@klass})>"
+    end
+
+    def respond_to?(meth, include_private = false)
+      __class__.instance_methods.include?(meth) || super
     end
 
     def method_missing(meth, *args, &block)

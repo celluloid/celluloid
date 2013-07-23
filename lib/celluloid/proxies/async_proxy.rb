@@ -3,6 +3,9 @@ module Celluloid
   class AsyncProxy < AbstractProxy
     attr_reader :mailbox
 
+    # Used for reflecting on proxy objects themselves
+    def __class__; AsyncProxy; end
+
     def initialize(mailbox, klass)
       @mailbox, @klass = mailbox, klass
     end
