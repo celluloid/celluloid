@@ -13,19 +13,32 @@ class TestProbeClient
   attr_reader :buffer
   
   def initialize()
+    @condition = Condition.new
     subscribe(/celluloid\.events\..+/, :event_received)
     @buffer = []
   end
   
   def wait
-    while @buffer.empty?
-      sleep 0.01
+    @condition.wait()
+  end
+  
+  
+  def wait_event(topic, expected_actor1 = nil, expected_actor2 = nil)
+    loop do
+      wait()
+      
+      while ev = @buffer.shift()
+        if (ev[0] == topic) && (ev[1].mailbox.address == expected_actor1.mailbox.address) &&
+          (expected_actor2.nil? || (ev[2].mailbox.address == expected_actor2.mailbox.address) )
+          return ev
+        end
+      end
     end
   end
   
   def event_received(topic, args)
-    # puts "[EVENT] #{topic} #{args[0].mailbox.address} #{args[0].name}"
     @buffer << [topic, args[0], args[1]]
+    @condition.signal
   end
 end
 
@@ -36,29 +49,43 @@ describe "Probe" do
       client = TestProbeClient.new
       Celluloid::Probe.run()
       
-      sleep 0.2
-      
       create_events = []
-      named_events = []
+      received_named_events = {
+        :default_incident_reporter => nil,
+        :notifications_fanout      => nil
+      }
       
-      client.buffer.each do |topic, a1, a2|
-        case topic
-        when 'celluloid.events.actor_created' then create_events << [topic, a1]
-        when 'celluloid.events.actor_named'   then named_events  << [topic, a1]
+      # wait for the events we seek
+      Timeout.timeout(5) do
+        loop do
+          client.wait()
+          
+          while ev = client.buffer.shift()
+            if ev[0] == 'celluloid.events.actor_created'
+              create_events << ev
+              
+            elsif ev[0] == 'celluloid.events.actor_named'
+              if received_named_events.keys.include?(ev[1].name)
+                received_named_events[ev[1].name] = ev[1].mailbox.address
+              end
+            end
+          end
+          
+          if received_named_events.all?{|_, v| v != nil }
+            break
+          end
         end
       end
       
-      create_events.size.should == 7
-      named_events.size.should == 3
+      received_named_events.all?{|_, v| v != nil }.should == true
       
-      # first check that we got all the named events
-      named_events.map{|_, a| a.name }.sort.should == [:default_incident_reporter, :notifications_fanout, :probe_actor]
       
-      # and we should have a create event for each actor
-      named_events.each do |_, a|
-        found = create_events.detect{|_, aa| aa.mailbox.address == a.mailbox.address }
+      # now check we got the create events for every actors
+      received_named_events.each do |_, mailbox_address|
+        found = create_events.detect{|_, aa| aa.mailbox.address == mailbox_address }
         found.should_not == nil
       end
+      
     end
     
   end
@@ -66,24 +93,17 @@ describe "Probe" do
   describe 'after boot' do
     before do
       Celluloid::Probe.run()
-      
-      # give some time for the core to finish booting its actors
-      # so they don't interfere with the test
-      sleep 0.4
     end
   
     it 'should send a notification when an actor is spawned' do
       client = TestProbeClient.new
       a = DummyActor.new
       
-      client.wait()
-      
-      events = client.buffer.select do |topic, arg1|
-        (topic == 'celluloid.events.actor_created') &&
-        (arg1.mailbox.address == a.mailbox.address)
+      event = Timeout.timeout(5) do
+        client.wait_event('celluloid.events.actor_created', a)
       end
       
-      events.size.should == 1
+      event.should_not == nil
     end
     
     it 'should send a notification when an actor is named' do
@@ -91,14 +111,11 @@ describe "Probe" do
       a = DummyActor.new
       Celluloid::Actor['a name'] = a
       
-      client.wait()
-      
-      events = client.buffer.select do |topic, arg1|
-        (topic == 'celluloid.events.actor_named') &&
-        (arg1.mailbox.address == a.mailbox.address)
+      event = Timeout.timeout(5) do
+        client.wait_event('celluloid.events.actor_named', a)
       end
       
-      events.size.should == 1
+      event.should_not == nil
     end
     
     it 'should send a notification when actor dies' do
@@ -106,14 +123,11 @@ describe "Probe" do
       a = DummyActor.new
       a.terminate
       
-      client.wait()
-      
-      events = client.buffer.select do |topic, arg1|
-        (topic == 'celluloid.events.actor_died') &&
-        (arg1.mailbox.address == a.mailbox.address)
+      event = Timeout.timeout(5) do
+        client.wait_event('celluloid.events.actor_died', a)
       end
       
-      events.size.should == 1
+      event.should_not == nil
     end
     
     it 'should send a notification when actors are linked' do
@@ -122,15 +136,11 @@ describe "Probe" do
       b = DummyActor.new
       a.link(b)
       
-      client.wait()
-      
-      events = client.buffer.select do |topic, a1, a2|
-        (topic == 'celluloid.events.actors_linked') &&
-        (a1.mailbox.address == a.mailbox.address) &&
-        (a2.mailbox.address == b.mailbox.address)
+      event = Timeout.timeout(5) do
+        client.wait_event('celluloid.events.actors_linked', a, b)
       end
       
-      events.size.should == 1
+      event.should_not == nil
     end
     
   end
