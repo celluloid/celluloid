@@ -132,6 +132,7 @@ module Celluloid
 
     # Shut down all running actors
     def shutdown
+      $CELLULOID_MONITORING = false if $CELLULOID_MONITORING
       actors = Actor.all
 
       Timeout.timeout(shutdown_timeout) do
