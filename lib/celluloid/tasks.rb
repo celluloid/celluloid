@@ -83,8 +83,8 @@ module Celluloid
 
       value = signal
 
-      raise value if value.is_a?(Celluloid::ResumableError)
       @status = :running
+      raise value if value.is_a?(Celluloid::ResumableError)
 
       value
     end
