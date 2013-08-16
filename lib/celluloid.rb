@@ -3,13 +3,12 @@ require 'thread'
 require 'timeout'
 require 'set'
 
-require 'celluloid/version'
-
 if defined?(JRUBY_VERSION) && JRUBY_VERSION == "1.7.3"
   raise "Celluloid is broken on JRuby 1.7.3. Please upgrade to 1.7.4+"
 end
 
 module Celluloid
+  VERSION = '0.15.0.pre'
   Error = Class.new StandardError
 
   extend self # expose all instance methods as singleton methods
@@ -171,6 +170,10 @@ module Celluloid
       end
     ensure
       internal_pool.kill
+    end
+
+    def version
+      VERSION
     end
   end
 
