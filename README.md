@@ -99,7 +99,9 @@ Installation
 
 Add this line to your application's Gemfile:
 
-    gem 'celluloid'
+```ruby
+gem 'celluloid'
+```
 
 And then execute:
 
@@ -111,7 +113,9 @@ Or install it yourself as:
 
 Inside of your Ruby program, require Celluloid with:
 
-    require 'celluloid/autostart'
+```ruby
+require 'celluloid/autostart'
+```
 
 Supported Platforms
 -------------------
