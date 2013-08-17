@@ -216,12 +216,12 @@ module Celluloid
     # * args: array of arguments to pass when creating a worker
     #
     def pool(options = {})
-      PoolManager.new(self, options)
+      PoolManager.new(self, options).pool
     end
 
     # Same as pool, but links to the pool manager
     def pool_link(options = {})
-      PoolManager.new_link(self, options)
+      PoolManager.new_link(self, options).pool
     end
 
     # Run an actor in the foreground
@@ -483,6 +483,7 @@ require 'celluloid/links'
 require 'celluloid/logger'
 require 'celluloid/mailbox'
 require 'celluloid/evented_mailbox'
+require 'celluloid/forwarding_mailbox'
 require 'celluloid/method'
 require 'celluloid/properties'
 require 'celluloid/receivers'
@@ -502,6 +503,7 @@ require 'celluloid/proxies/actor_proxy'
 require 'celluloid/proxies/async_proxy'
 require 'celluloid/proxies/future_proxy'
 require 'celluloid/proxies/block_proxy'
+require 'celluloid/proxies/pool_proxy'
 
 require 'celluloid/actor'
 require 'celluloid/future'
