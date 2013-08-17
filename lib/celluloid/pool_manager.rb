@@ -1,127 +1,135 @@
-require 'set'
+# Manages a pool of workers
+# Accumulates/stores messages and supervises a group of workers
+#
+# ```ruby
+# p = AnyCelluloidClass.pool size: 3 # size defaults to number of cores
+# p.any_method                # perform synchronously
+# p.async.long_running_method # perform asynchronously
+# p.future.i_want_this_back   # perform as a future
+# ```
+#
+# `pools` use two separate proxies to control `pool` commands vs
+# `PoolManager` commands.
+# ```ruby
+# # Klass.pool returns the proxy for the pool (i.e. workers)
+# p = AnyCelluloidClass.pool # => Celluloid::PoolProxy(AnyCelluloidClass)
+#
+# # Get the proxy for the manager from the poolProxy
+# p.__manager__ # => Celluloid::ActorProxy(Celluloid::PoolManager)
+#
+# # Return to the pool from the manager
+# p.__manager__.pool # Celluloid::PoolProxy(AnyCelluloidClass)
+# ```
+#
+# You may store these `pool` object in the registry as any actor
+# ```ruby
+# Celluloid::Actor[:pool] = q
+# ```
+
+# We piggyback on SupervisionGroup's Member class
+require 'celluloid/supervision_group'
 
 module Celluloid
-  # Manages a fixed-size pool of workers
-  # Delegates work (i.e. methods) and supervises workers
-  # Don't use this class directly. Instead use MyKlass.pool
   class PoolManager
     include Celluloid
-    trap_exit :__crash_handler__
-    finalizer :__shutdown__
+    attr_reader :size, :master_mailbox, :worker_class
 
+    trap_exit :restart_actor
+
+    # Don't use PoolManager.new, use Klass.pool instead
     def initialize(worker_class, options = {})
       @size = options[:size] || [Celluloid.cores, 2].max
-      raise ArgumentError, "minimum pool size is 2" if @size < 2
 
       @worker_class = worker_class
+      @master_mailbox = ForwardingMailbox.new
       @args = options[:args] ? Array(options[:args]) : []
 
-      @idle = @size.times.map { worker_class.new_link(*@args) }
 
-      # FIXME: Another data structure (e.g. Set) would be more appropriate
-      # here except it causes MRI to crash :o
-      @busy = []
+      @registry = Registry.root
+      @group    = []
+      resize_group
     end
 
+    # Terminate our supervised group on finalization
+    finalizer :__shutdown__
     def __shutdown__
-      terminators = (@idle + @busy).each do |actor|
-        begin
-          actor.future(:terminate)
-        rescue DeadActorError
-        end
-      end
-
-      terminators.compact.each { |terminator| terminator.value rescue nil }
+      @master_mailbox.shutdown
+      group.reverse_each(&:terminate)
     end
 
-    def _send_(method, *args, &block)
-      worker = __provision_worker__
+    ###########
+    # Helpers #
+    ###########
 
-      begin
-        worker._send_ method, *args, &block
-      rescue DeadActorError # if we get a dead actor out of the pool
-        wait :respawn_complete
-        worker = __provision_worker__
-        retry
-      rescue Exception => ex
-        abort ex
-      ensure
-        if worker.alive?
-          @idle << worker
-          @busy.delete worker
-        end
-      end
+    # Access the pool's proxy
+    def pool
+      PoolProxy.new Actor.current
     end
 
-    def name
-      _send_ @mailbox, :name
+    # Resize this pool's worker group
+    # NOTE: Using this to down-size your pool CAN truncate ongoing work!
+    #   Workers which are waiting on blocks/sleeping will receive a termination
+    #   request prematurely!
+    # @param num [Integer] Number of workers to use
+    def size=(num)
+      @size = num
+      resize_group
     end
 
-    def is_a?(klass)
-      _send_ :is_a?, klass
-    end
-
-    def kind_of?(klass)
-      _send_ :kind_of?, klass
-    end
-
-    def methods(include_ancestors = true)
-      _send_ :methods, include_ancestors
-    end
-
-    def to_s
-      _send_ :to_s
+    # Return the size of the pool backlog
+    # @return [Integer] the number of messages pooling
+    def backlog
+      @master_mailbox.size
     end
 
     def inspect
-      _send_ :inspect
+      "<Celluloid::ActorProxy(#{self.class}) @size=#{@size} @worker_class=#{@worker_class} @backlog=#{backlog}>"
     end
 
-    def size
-      @size
-    end
+    ####################
+    # Group Management #
+    ####################
 
-    def busy_size
-      @busy.length
-    end
-
-    def idle_size
-      @idle.length
-    end
-
-    # Provision a new worker
-    def __provision_worker__
-      while @idle.empty?
-        # Wait for responses from one of the busy workers
-        response = exclusive { receive { |msg| msg.is_a?(Response) } }
-        Thread.current[:celluloid_actor].handle_message(response)
+    # Restart a crashed actor
+    def restart_actor(actor, reason)
+      member = group.find do |_member|
+        _member.actor == actor
       end
+      raise "A group member went missing. This shouldn't be!" unless member
 
-      worker = @idle.shift
-      @busy << worker
-
-      worker
-    end
-
-    # Spawn a new worker for every crashed one
-    def __crash_handler__(actor, reason)
-      @busy.delete actor
-      @idle.delete actor
-      return unless reason
-
-      @idle << @worker_class.new_link(*@args)
-      signal :respawn_complete
-    end
-
-    def respond_to?(method, include_private = false)
-      super || @worker_class.instance_methods.include?(method.to_sym)
-    end
-
-    def method_missing(method, *args, &block)
-      if respond_to?(method)
-        _send_ method, *args, &block
+      if reason
+        member.restart(reason)
       else
-        super
+        # Remove from group on clean shutdown
+        group.delete_if do |_member|
+          _member.actor == actor
+        end
+      end
+    end
+
+    private
+    def group
+      @group ||= []
+    end
+
+    # Resize the worker group in this pool
+    # You should probably be using #size=
+    # @param target [Integer] the targeted number of workers to grow to
+    def resize_group(target = size)
+      delta = target - group.size
+      if delta == 0
+        # *Twiddle thumbs*
+        return
+      elsif delta > 0
+        # Increase pool size
+        delta.times do
+          worker = SupervisionGroup::Member.new @registry, @worker_class, :args => @args
+          group << worker
+          @master_mailbox.add_subscriber(worker.actor.mailbox)
+        end
+      else
+        # Truncate pool
+        delta.abs.times { @master_mailbox << TerminationRequest.new }
       end
     end
   end

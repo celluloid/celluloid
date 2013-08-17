@@ -148,4 +148,21 @@ module Celluloid
     end
   end
 
+  # ForwardingCall allows a mailbox to forward its messages to another.
+  class ForwardingCall < Call
+
+    # Do not block if no work found
+    TIMEOUT = 0
+
+    def initialize(sender)
+      @sender = sender
+    end
+
+    # Pull the next message from the sender, if available
+    def dispatch(obj)
+      msg = @sender.receive(TIMEOUT)
+      ::Celluloid.mailbox << msg if msg
+    end
+  end
+
 end
