@@ -38,9 +38,12 @@ module Celluloid
       
       def trigger_event(name, *args)
         return unless $CELLULOID_MONITORING
-        Actor[:probe_actor].async.dispatch_event(name, args)
-      rescue NoMethodError # thrown if probe actor doesn't exist yet
-        INITIAL_EVENTS << [name, args]
+        probe_actor = Actor[:probe_actor]
+        if probe_actor
+          probe_actor.async.dispatch_event(name, args)
+        else
+          INITIAL_EVENTS << (name, args)
+        end
       end
     
       def find_actor(obj)
