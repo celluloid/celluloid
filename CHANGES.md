@@ -1,3 +1,10 @@
+0.15.0.pre (2013-08-21)
+-----------------------
+* Improved DNS resolver with less NIH and more Ruby stdlib goodness
+* Better match Ruby stdlib TCPServer API
+* Add missing #setsockopt method on Celluloid::IO::TCPServer
+* Add missing #peeraddr method on Celluloid::IO::SSLSocket
+
 0.14.0 (2013-05-07)
 -------------------
 * Add `close_read`/`close_write` delegates for rack-hijack support
