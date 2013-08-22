@@ -1,3 +1,19 @@
+0.15.0.pre (2013-08-21)
+-----------------------
+* Remove legacy support for "bang"-method based async invocation
+* Generic timeout support with Celluloid#timeout
+* Implement recursion detection for #inspect, avoiding infinite loop bugs
+* Fix various inheritance anomalies in class attributes (e.g. mailbox_class)
+* Avoid letting version.rb define an unusable Celluloid module
+* Remove "Shutdown completed cleanly" message that was annoying everyone
+* Subclass all Celluloid exceptions from Celluloid::Error
+* Log all unhandled messages
+* Celluloid::Conditions are now usable ubiquitously, not just inside actors
+* Introspection support for number of threads in the Celluloid thread pool
+* Use a ThreadGroup to track the threads in the Celluloid thread pool
+* Reimplement signal system on top of Conditions
+* Add metadata like the current method to Celluloid::StackDumps
+
 0.14.0 (2013-05-07)
 -------------------
 * Use a Thread-subclass for Celluloid
