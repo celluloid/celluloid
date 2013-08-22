@@ -1,5 +1,5 @@
 module Celluloid
   module ZMQ
-    VERSION = "0.14.0"
+    VERSION = "0.15.0.pre"
   end
 end

@@ -1,3 +1,7 @@
+0.15.0.pre (2013-08-21)
+-----------------------
+* Tracking release for Celluloid 0.15
+
 0.14.0 (2013-05-07)
 -------------------
 * Add pubsub example
