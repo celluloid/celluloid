@@ -99,6 +99,12 @@ module Celluloid
       def to_io
         @socket
       end
+
+      # Receives a message
+      def recv(maxlen, flags = nil)
+        raise NotImplementedError, "flags not supported" if flags
+        readpartial(maxlen)
+      end
     end
   end
 end
