@@ -148,6 +148,7 @@ module Celluloid
       end
 
       def terminate
+        @registry.delete(@name) if @name
         @actor.terminate if @actor
       rescue DeadActorError
       end
