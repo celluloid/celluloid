@@ -2,6 +2,9 @@
 require File.expand_path('../lib/celluloid/io/version', __FILE__)
 
 Gem::Specification.new do |gem|
+  gem.name          = "celluloid-io"
+  gem.version       = Celluloid::IO::VERSION
+  gem.license       = 'MIT'
   gem.authors       = ["Tony Arcieri"]
   gem.email         = ["tony.arcieri@gmail.com"]
   gem.description   = "Evented IO for Celluloid actors"
@@ -11,9 +14,7 @@ Gem::Specification.new do |gem|
   gem.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   gem.files         = `git ls-files`.split("\n")
   gem.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
-  gem.name          = "celluloid-io"
   gem.require_paths = ["lib"]
-  gem.version       = Celluloid::IO::VERSION
 
   gem.add_dependency 'celluloid', '>= 0.15.0.pre'
   gem.add_dependency 'nio4r',     '>= 0.5.0'
