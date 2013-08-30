@@ -368,11 +368,15 @@ module Celluloid
     # Run the user-defined finalizer, if one is set
     def run_finalizer
       finalizer = @subject.class.finalizer
-      if finalizer && @subject.respond_to?(finalizer, true)
-        task(:finalizer, :method_name => finalizer, :dangerous_suspend => true) { @subject.__send__(finalizer) }
+      return unless finalizer && @subject.respond_to?(finalizer, true)
+
+      task(:finalizer, :method_name => finalizer, :dangerous_suspend => true) do
+        begin
+          @subject.__send__(finalizer)
+        rescue => ex
+          Logger.crash("#{@subject.class}#finalize crashed!", ex)
+        end
       end
-    rescue => ex
-      Logger.crash("#{@subject.class}#finalize crashed!", ex)
     end
 
     # Clean up after this actor
