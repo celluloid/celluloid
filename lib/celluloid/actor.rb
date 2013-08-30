@@ -314,7 +314,7 @@ module Celluloid
         message.dispatch
       else
         unless @receivers.handle_message(message)
-          Logger.debug "Discarded message (unhandled): #{message}"
+          Logger.debug "Discarded message (unhandled): #{message}" if $CELLULOID_DEBUG
         end
       end
       message
