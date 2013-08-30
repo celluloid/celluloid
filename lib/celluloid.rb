@@ -8,7 +8,7 @@ if defined?(JRUBY_VERSION) && JRUBY_VERSION == "1.7.3"
 end
 
 module Celluloid
-  VERSION = '0.15.0.pre'
+  VERSION = '0.15.0.pre2'
   Error = Class.new StandardError
 
   extend self # expose all instance methods as singleton methods
