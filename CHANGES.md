@@ -1,7 +1,8 @@
-0.15.0.pre (2013-08-21)
------------------------
+0.15.0.pre2 (2013-08-29)
+------------------------
 * Improved DNS resolver with less NIH and more Ruby stdlib goodness
 * Better match Ruby stdlib TCPServer API
+* Add missing #send and #recv on Celluloid::IO::TCPSocket
 * Add missing #setsockopt method on Celluloid::IO::TCPServer
 * Add missing #peeraddr method on Celluloid::IO::SSLSocket
 
