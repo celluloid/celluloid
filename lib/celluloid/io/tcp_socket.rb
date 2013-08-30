@@ -105,6 +105,13 @@ module Celluloid
         raise NotImplementedError, "flags not supported" if flags && !flags.zero?
         readpartial(maxlen)
       end
+
+      # Send a message
+      def send(msg, flags, dest_sockaddr = nil)
+        raise NotImplementedError, "dest_sockaddr not supported" if dest_sockaddr
+        raise NotImplementedError, "flags not supported" unless flags.zero?
+        write(msg)
+      end
     end
   end
 end
