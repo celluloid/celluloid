@@ -416,16 +416,9 @@ module Celluloid
 
   # Timeout on task suspension (eg Sync calls to other actors)
   def timeout(duration)
-    bt = caller
-    task = Task.current
-    timer = after(duration) do
-      exception = Task::TimeoutError.new
-      exception.set_backtrace bt
-      task.resume exception
+    Thread.current[:celluloid_actor].timeout(duration) do
+      yield
     end
-    yield
-  ensure
-    timer.cancel if timer
   end
 
   # Run given block in an exclusive mode: all synchronous calls block the whole
