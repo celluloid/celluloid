@@ -28,6 +28,12 @@ describe Celluloid::SupervisionGroup do
     my_registry[:example].should be_running
   end
 
+  it "removes actors from the registry when terminating" do
+    group = MyGroup.run!
+    group.terminate
+    Celluloid::Actor[:example].should be_nil
+  end
+
   context "pool" do
     before :all do
       class MyActor
