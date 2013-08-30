@@ -268,6 +268,19 @@ module Celluloid
       @timers.every(interval) { task(:timer, &block) }
     end
 
+    def timeout(duration)
+      bt = caller
+      task = Task.current
+      timer = @timers.after(duration) do
+        exception = Task::TimeoutError.new("execution expired")
+        exception.set_backtrace bt
+        task.resume exception
+      end
+      yield
+    ensure
+      timer.cancel if timer
+    end
+
     class Sleeper
       def initialize(timers, interval)
         @timers = timers
