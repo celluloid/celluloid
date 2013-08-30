@@ -102,7 +102,7 @@ module Celluloid
 
       # Receives a message
       def recv(maxlen, flags = nil)
-        raise NotImplementedError, "flags not supported" if flags
+        raise NotImplementedError, "flags not supported" if flags && !flags.zero?
         readpartial(maxlen)
       end
     end
