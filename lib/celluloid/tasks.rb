@@ -40,6 +40,7 @@ module Celluloid
       @chain_id = CallChain.current_id
 
       raise NotActorError, "can't create tasks outside of actors" unless actor
+      raise "can't create tasks inside of tasks" if Thread.current[:celluloid_task]
 
       create do
         begin
@@ -67,6 +68,7 @@ module Celluloid
     # Suspend the current task, changing the status to the given argument
     def suspend(status)
       raise "Cannot suspend while in exclusive mode" if exclusive?
+      raise "Cannot suspend a task from outside of itself" unless Task.current == self
 
       @status = status
 
@@ -91,6 +93,7 @@ module Celluloid
 
     # Resume a suspended task, giving it a value to return if needed
     def resume(value = nil)
+      raise "Cannot resume a task from inside of a task" if Thread.current[:celluloid_task]
       deliver(value)
       nil
     end
