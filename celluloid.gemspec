@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 Gem::Specification.new do |gem|
   gem.name        = 'celluloid'
-  gem.version     = '0.15.0.pre2'
+  gem.version     = '0.15.0'
   gem.platform    = Gem::Platform::RUBY
   gem.summary     = 'Actor-based concurrent object framework for Ruby'
   gem.description = 'Celluloid enables people to build concurrent programs out of concurrent objects just as easily as they build sequential programs out of sequential objects'
@@ -17,7 +17,7 @@ Gem::Specification.new do |gem|
   gem.files        = Dir['README.md', 'lib/**/*', 'spec/**/*']
   gem.require_path = 'lib'
 
-  gem.add_runtime_dependency 'timers', '>= 1.0.0'
+  gem.add_runtime_dependency 'timers', '~> 1.1.0'
 
   gem.add_development_dependency 'rake'
   gem.add_development_dependency 'rspec'

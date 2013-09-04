@@ -1,5 +1,5 @@
-0.15.0.pre2 (2013-08-29)
-------------------------
+0.15.0 (2013-09-04)
+-------------------
 * Remove legacy support for "bang"-method based async invocation
 * Generic timeout support with Celluloid#timeout
 * Implement recursion detection for #inspect, avoiding infinite loop bugs
