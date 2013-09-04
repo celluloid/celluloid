@@ -16,7 +16,7 @@ Gem::Specification.new do |gem|
   gem.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
   gem.require_paths = ["lib"]
 
-  gem.add_dependency 'celluloid', '>= 0.15.0.pre'
+  gem.add_dependency 'celluloid', '>= 0.15.0'
   gem.add_dependency 'nio4r',     '>= 0.5.0'
 
   gem.add_development_dependency 'rake'
