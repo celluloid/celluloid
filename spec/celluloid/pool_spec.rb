@@ -49,4 +49,11 @@ describe "Celluloid.pool" do
   it "terminates" do
     expect { subject.terminate }.to_not raise_exception
   end
+
+  it "handles many requests" do
+    futures = 10.times.map do
+      subject.future.process
+    end
+    futures.map(&:value)
+  end
 end

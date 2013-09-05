@@ -91,6 +91,7 @@ module Celluloid
 
     # Provision a new worker
     def __provision_worker__
+      Task.current.guard_warnings = true
       while @idle.empty?
         # Wait for responses from one of the busy workers
         response = exclusive { receive { |msg| msg.is_a?(Response) } }
