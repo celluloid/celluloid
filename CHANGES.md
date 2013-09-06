@@ -1,3 +1,7 @@
+0.15.1 (2013-09-06)
+-------------------
+* Only raise on nested tasks if $CELLULOID_DEBUG is set
+
 0.15.0 (2013-09-04)
 -------------------
 * Remove legacy support for "bang"-method based async invocation
