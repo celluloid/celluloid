@@ -25,7 +25,7 @@ module Celluloid
     end
 
     attr_reader :type, :meta, :status
-    attr_accessor :chain_id
+    attr_accessor :chain_id, :guard_warnings
 
     # Create a new task
     def initialize(type, meta)
@@ -35,6 +35,7 @@ module Celluloid
 
       @exclusive         = false
       @dangerous_suspend = @meta ? @meta.delete(:dangerous_suspend) : false
+      @guard_warnings    = false
 
       actor     = Thread.current[:celluloid_actor]
       @chain_id = CallChain.current_id
@@ -93,7 +94,7 @@ module Celluloid
 
     # Resume a suspended task, giving it a value to return if needed
     def resume(value = nil)
-      raise "Cannot resume a task from inside of a task" if Thread.current[:celluloid_task]
+      guard "Cannot resume a task from inside of a task" if Thread.current[:celluloid_task]
       deliver(value)
       nil
     end
@@ -140,6 +141,14 @@ module Celluloid
     # Nicer string inspect for tasks
     def inspect
       "#<#{self.class}:0x#{object_id.to_s(16)} @type=#{@type.inspect}, @meta=#{@meta.inspect}, @status=#{@status.inspect}>"
+    end
+
+    def guard(message)
+      if @guard_warnings
+        Logger.warn message if $CELLULOID_DEBUG
+      else
+        raise message
+      end
     end
   end
 end
