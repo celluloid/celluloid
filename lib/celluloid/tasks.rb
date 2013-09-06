@@ -41,7 +41,7 @@ module Celluloid
       @chain_id = CallChain.current_id
 
       raise NotActorError, "can't create tasks outside of actors" unless actor
-      raise "can't create tasks inside of tasks" if Thread.current[:celluloid_task]
+      guard "can't create tasks inside of tasks" if Thread.current[:celluloid_task]
 
       create do
         begin
@@ -147,7 +147,7 @@ module Celluloid
       if @guard_warnings
         Logger.warn message if $CELLULOID_DEBUG
       else
-        raise message
+        raise message if $CELLULOID_DEBUG
       end
     end
   end
