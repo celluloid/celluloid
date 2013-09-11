@@ -13,6 +13,8 @@ module Celluloid
       end
     when 'mingw', 'mswin'
       @cores = Integer(ENV["NUMBER_OF_PROCESSORS"][/\d+/])
+    when 'freebsd'
+      @cores = Integer(`sysctl hw.ncpu`[/\d+/])
     else
       @cores = nil
     end
