@@ -1,3 +1,7 @@
+HEAD
+----
+* Celluloid::IO.copy_stream support (uses a background thread)
+
 0.15.0 (2013-09-04)
 -------------------
 * Improved DNS resolver with less NIH and more Ruby stdlib goodness
