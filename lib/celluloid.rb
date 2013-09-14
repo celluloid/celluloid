@@ -3,10 +3,6 @@ require 'thread'
 require 'timeout'
 require 'set'
 
-if defined?(JRUBY_VERSION) && JRUBY_VERSION == "1.7.3"
-  raise "Celluloid is broken on JRuby 1.7.3. Please upgrade to 1.7.4+"
-end
-
 module Celluloid
   VERSION = '0.16.0.pre'
   Error = Class.new StandardError
@@ -461,6 +457,10 @@ module Celluloid
   def future(meth = nil, *args, &block)
     Thread.current[:celluloid_actor].proxy.future meth, *args, &block
   end
+end
+
+if defined?(JRUBY_VERSION) && JRUBY_VERSION == "1.7.3"
+  raise "Celluloid is broken on JRuby 1.7.3. Please upgrade to 1.7.4+"
 end
 
 require 'celluloid/calls'
