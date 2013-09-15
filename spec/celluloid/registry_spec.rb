@@ -34,12 +34,12 @@ describe Celluloid::Registry do
     before do
       Celluloid::Actor[:marilyn] ||= Marilyn.new
     end
-    
+
     it "removes reference to actors' name from the registry" do
       Celluloid::Registry.root.delete(:marilyn)
       Celluloid::Actor.registered.should_not include :marilyn
     end
-    
+
     it "returns actor removed from the registry" do
       rval = Celluloid::Registry.root.delete(:marilyn)
       rval.should be_kind_of(Marilyn)

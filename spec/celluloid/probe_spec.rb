@@ -5,19 +5,19 @@ class DummyActor; include Celluloid; end
 class TestProbeClient
   include Celluloid
   include Celluloid::Notifications
-  
+
   attr_reader :buffer
-  
+
   def initialize()
     @condition = Condition.new
     subscribe(/celluloid\.events\..+/, :event_received)
     @buffer = []
   end
-  
+
   def wait
     @condition.wait
   end
-  
+
   def wait_event(topic, expected_actor1 = nil, expected_actor2 = nil)
     loop do
       wait
@@ -29,7 +29,7 @@ class TestProbeClient
       end
     end
   end
-  
+
   def event_received(topic, args)
     @buffer << [topic, args[0], args[1]]
     @condition.signal
@@ -72,7 +72,7 @@ describe "Probe" do
       end
     end
   end
-  
+
   describe 'after boot' do
     it 'should send a notification when an actor is spawned' do
       client = TestProbeClient.new
@@ -83,7 +83,7 @@ describe "Probe" do
       end
       event.should_not == nil
     end
-    
+
     it 'should send a notification when an actor is named' do
       client = TestProbeClient.new
       Celluloid::Probe.run
@@ -94,7 +94,7 @@ describe "Probe" do
       end
       event.should_not == nil
     end
-    
+
     it 'should send a notification when actor dies' do
       client = TestProbeClient.new
       Celluloid::Probe.run
@@ -105,7 +105,7 @@ describe "Probe" do
       end
       event.should_not == nil
     end
-    
+
     it 'should send a notification when actors are linked' do
       client = TestProbeClient.new
       Celluloid::Probe.run

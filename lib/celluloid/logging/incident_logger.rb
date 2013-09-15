@@ -111,7 +111,7 @@ module Celluloid
       end
       messages.sort
     end
-    
+
     def clear
       @buffer_mutex.synchronize do
         @buffers.each { |buffer| buffer.clear }
