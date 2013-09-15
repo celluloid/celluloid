@@ -46,12 +46,12 @@ module Celluloid
       end
     end
 
-    class ThreadState < Struct.new(:thread_id, :backtrace)
+    class ThreadState < Struct.new(:thread_id, :backtrace, :role)
       include DisplayBacktrace
 
       def dump
         string = ""
-        string << "Thread 0x#{thread_id.to_s(16)}:\n"
+        string << "Thread 0x#{thread_id.to_s(16)} (#{role}):\n"
         display_backtrace backtrace, string
         string
       end
@@ -94,7 +94,7 @@ module Celluloid
     end
 
     def snapshot_thread(thread)
-      ThreadState.new(thread.object_id, thread.backtrace)
+      ThreadState.new(thread.object_id, thread.backtrace, thread.role)
     end
 
     def dump(output = STDERR)
