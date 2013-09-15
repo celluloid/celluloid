@@ -4,6 +4,7 @@ Coveralls.wear!
 require 'rubygems'
 require 'bundler/setup'
 require 'celluloid'
+require 'celluloid/probe'
 require 'celluloid/rspec'
 
 logfile = File.open(File.expand_path("../../log/test.log", __FILE__), 'a')
