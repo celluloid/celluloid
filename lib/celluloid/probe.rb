@@ -42,7 +42,7 @@ module Celluloid
         if probe_actor
           probe_actor.async.dispatch_event(name, args)
         else
-          INITIAL_EVENTS << (name, args)
+          INITIAL_EVENTS << [name, args]
         end
       end
     
