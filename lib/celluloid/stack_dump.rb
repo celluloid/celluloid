@@ -16,16 +16,20 @@ module Celluloid
 
     class ActorState
       include DisplayBacktrace
-
-      attr_accessor :subject_id, :subject_class, :name
+      attr_accessor :name, :id, :cell
       attr_accessor :status, :tasks
       attr_accessor :backtrace
 
       def dump
         string = ""
-        string << "Celluloid::Actor 0x#{subject_id.to_s(16)}: #{subject_class}"
+        string << "Celluloid::Actor 0x#{id.to_s(16)}"
         string << " [#{name}]" if name
         string << "\n"
+
+        if cell
+          string << cell.dump
+          string << "\n"
+        end
 
         if status == :idle
           string << "State: Idle (waiting for messages)\n"
@@ -43,6 +47,12 @@ module Celluloid
         end
 
         string
+      end
+    end
+
+    class CellState < Struct.new(:subject_id, :subject_class)
+      def dump
+        "Celluloid::Cell 0x#{subject_id.to_s(16)}: #{subject_class}"
       end
     end
 
@@ -78,8 +88,12 @@ module Celluloid
 
     def snapshot_actor(actor)
       state = ActorState.new
-      state.subject_id = actor.subject.object_id
-      state.subject_class = actor.subject.class
+      state.id = actor.object_id
+
+      # TODO: delegate to the behavior
+      if actor.behavior.is_a?(Cell)
+        state.cell = snapshot_cell(actor.behavior)
+      end
 
       tasks = actor.tasks
       if tasks.empty?
@@ -90,6 +104,13 @@ module Celluloid
       end
 
       state.backtrace = actor.thread.backtrace if actor.thread
+      state
+    end
+
+    def snapshot_cell(behavior)
+      state = CellState.new
+      state.subject_id = behavior.subject.object_id
+      state.subject_class = behavior.subject.class
       state
     end
 

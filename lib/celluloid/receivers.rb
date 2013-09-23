@@ -46,6 +46,7 @@ module Celluloid
       @receivers.delete receiver
       @timers.cancel receiver.timer if receiver.timer
       receiver.resume message
+      message
     end
   end
 

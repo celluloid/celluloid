@@ -88,8 +88,12 @@ module Celluloid
       @sender << message
     end
 
+    def response
+      Celluloid.suspend(:callwait, self)
+    end
+
     def value
-      Celluloid.suspend(:callwait, self).value
+      response.value
     end
 
     def wait
