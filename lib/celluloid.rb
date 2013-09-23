@@ -29,6 +29,8 @@ module Celluloid
       klass.property :task_class,    :default => Celluloid.task_class
       klass.property :mailbox_size
 
+      klass.property :exclusive_actor, :default => false
+      klass.property :exclusive_methods, :multi => true
       klass.property :execute_block_on_receiver,
         :default => [:after, :every, :receive],
         :multi   => true
@@ -38,6 +40,14 @@ module Celluloid
 
       klass.send(:define_singleton_method, :trap_exit) do |*args|
         exit_handler_name(*args)
+      end
+
+      klass.send(:define_singleton_method, :exclusive) do |*args|
+        if args.any?
+          exclusive_methods(*exclusive_methods, *args)
+        else
+          exclusive_actor true
+        end
       end
     end
 
@@ -225,29 +235,20 @@ module Celluloid
       Actor.join(new(*args, &block))
     end
 
-    # Mark methods as running exclusively
-    def exclusive(*methods)
-      if methods.empty?
-        @exclusive_methods = :all
-      elsif !defined?(@exclusive_methods) || @exclusive_methods != :all
-        @exclusive_methods ||= Set.new
-        @exclusive_methods.merge methods.map(&:to_sym)
-      end
-    end
-
     # Configuration options for Actor#new
     def actor_options
       {
         :mailbox_class     => mailbox_class,
         :mailbox_size      => mailbox_size,
         :task_class        => task_class,
-        :exclusive_methods => defined?(@exclusive_methods) ? @exclusive_methods : nil,
+        :exclusive         => exclusive_actor,
       }
     end
 
     def behavior_options
       {
         :proxy_class               => proxy_class,
+        :exclusive_methods         => exclusive_methods,
         :exit_handler_name         => exit_handler_name,
         :receiver_block_executions => execute_block_on_receiver,
       }
@@ -504,7 +505,7 @@ require 'celluloid/proxies/future_proxy'
 require 'celluloid/proxies/block_proxy'
 
 require 'celluloid/actor'
-require 'celluloid/cell_behavior'
+require 'celluloid/cell'
 require 'celluloid/future'
 require 'celluloid/pool_manager'
 require 'celluloid/supervision_group'

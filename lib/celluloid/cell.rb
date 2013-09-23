@@ -11,7 +11,7 @@ module Celluloid
       end
 
       def call(event)
-        @behavior.task(:exit_handler, :method_name => @method_name) do
+        @behavior.task(:exit_handler, @method_name) do
           @subject.send(@method_name, event.actor, event.reason)
         end
       end
@@ -21,6 +21,7 @@ module Celluloid
       @actor                      = options.fetch(:actor)
       @subject                    = options.fetch(:subject)
       @receiver_block_executions  = options[:receiver_block_executions]
+      @exclusive_methods          = options[:exclusive_methods]
 
       @subject.instance_variable_set(OWNER_IVAR, options.fetch(:actor))
 
@@ -54,13 +55,21 @@ module Celluloid
         end
       end
 
-      task(:call, :method_name => meth, :dangerous_suspend => meth == :initialize) {
+      task(:call, meth, :dangerous_suspend => meth == :initialize) {
         call.dispatch(@subject)
       }
     end
 
-    def task(task_type, method_name = nil, &block)
-      @actor.task(task_type, method_name, &block)
+    def task(task_type, method_name = nil, meta = nil, &block)
+      meta ||= {}
+      meta.merge!(:method_name => method_name)
+      @actor.task(task_type, meta) do
+        if @exclusive_methods && method_name && @exclusive_methods.include?(method_name.to_sym)
+          Celluloid.exclusive { yield }
+        else
+          yield
+        end
+      end
     end
 
     # Run the user-defined finalizer, if one is set
@@ -68,7 +77,7 @@ module Celluloid
       finalizer = @subject.class.finalizer
       return unless finalizer && @subject.respond_to?(finalizer, true)
 
-      task(:finalizer, :method_name => finalizer, :dangerous_suspend => true) do
+      task(:finalizer, finalizer, :dangerous_suspend => true) do
         begin
           @subject.__send__(finalizer)
         rescue => ex

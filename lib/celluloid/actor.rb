@@ -133,11 +133,12 @@ module Celluloid
     end
 
     def initialize(options, behavior_options)
-      @mailbox          = (options.delete(:mailbox_class) { Mailbox }).new
-      @mailbox.max_size = options.delete(:mailbox_size) { nil }
-      @exclusives       = options.delete(:exclusive_methods)
-      @task_class       = options.delete(:task_class) || Celluloid.task_class
-      @exit_handler     = method(:default_exit_handler)
+      @mailbox          = options.fetch(:mailbox_class, Mailbox).new
+      @mailbox.max_size = options.fetch(:mailbox_size, nil)
+
+      @task_class   = options[:task_class] || Celluloid.task_class
+      @exit_handler = method(:default_exit_handler)
+      @exclusive    = options.fetch(:exclusive, false)
 
       @tasks     = TaskSet.new
       @links     = Links.new
@@ -146,7 +147,6 @@ module Celluloid
       @timers    = Timers.new
       @handlers  = Handlers.new
       @running   = false
-      @exclusive = false
       @name      = nil
 
       handle(SystemEvent) do |message|
@@ -391,9 +391,8 @@ module Celluloid
 
     # Run a method inside a task unless it's exclusive
     def task(task_type, meta = nil)
-      method_name = meta && meta.fetch(:method_name, nil)
       @task_class.new(task_type, meta) {
-        if @exclusives && (@exclusives == :all || (method_name && @exclusives.include?(method_name.to_sym)))
+        if @exclusive
           Celluloid.exclusive { yield }
         else
           yield
