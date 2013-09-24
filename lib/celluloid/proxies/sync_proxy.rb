@@ -15,7 +15,7 @@ module Celluloid
     end
 
     def respond_to?(meth, include_private = false)
-      __class__.instance_methods.include?(meth) || super
+      __class__.instance_methods.include?(meth) || method_missing(:respond_to?, meth, include_private)
     end
 
     def method_missing(meth, *args, &block)

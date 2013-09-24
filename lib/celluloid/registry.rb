@@ -15,7 +15,7 @@ module Celluloid
     # Register an Actor
     def []=(name, actor)
       actor_singleton = class << actor; self; end
-      unless actor_singleton.ancestors.include? ActorProxy
+      unless actor_singleton.ancestors.include? AbstractProxy
         raise TypeError, "not an actor"
       end
 

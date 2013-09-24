@@ -9,7 +9,7 @@ module Celluloid
 
       ancestors.first.send(:define_singleton_method, name) do |value = nil, *extra|
         if value
-          value = value ? [value, *extra] : [] if multi
+          value = value ? [value, *send(name), *extra].uniq : [] if multi
           instance_variable_set(ivar_name, value)
         elsif instance_variables.include?(ivar_name)
           instance_variable_get(ivar_name)
