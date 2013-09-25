@@ -250,6 +250,7 @@ module Celluloid
         :proxy_class               => proxy_class,
         :exclusive_methods         => exclusive_methods,
         :exit_handler_name         => exit_handler_name,
+        :finalizer                 => finalizer,
         :receiver_block_executions => execute_block_on_receiver,
       }
     end

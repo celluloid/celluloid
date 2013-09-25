@@ -22,6 +22,7 @@ module Celluloid
       @subject                    = options.fetch(:subject)
       @receiver_block_executions  = options[:receiver_block_executions]
       @exclusive_methods          = options[:exclusive_methods]
+      @finalizer                  = options[:finalizer]
 
       @subject.instance_variable_set(OWNER_IVAR, options.fetch(:actor))
 
@@ -74,14 +75,13 @@ module Celluloid
 
     # Run the user-defined finalizer, if one is set
     def shutdown
-      finalizer = @subject.class.finalizer
-      return unless finalizer && @subject.respond_to?(finalizer, true)
+      return unless @finalizer && @subject.respond_to?(@finalizer, true)
 
-      task(:finalizer, finalizer, :dangerous_suspend => true) do
+      task(:finalizer, @finalizer, :dangerous_suspend => true) do
         begin
-          @subject.__send__(finalizer)
+          @subject.__send__(@finalizer)
         rescue => ex
-          Logger.crash("#{@subject.class}#finalize crashed!", ex)
+          Logger.crash("#{@subject.class} finalizer crashed!", ex)
         end
       end
     end
