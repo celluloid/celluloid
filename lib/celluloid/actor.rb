@@ -80,7 +80,7 @@ module Celluloid
         actors = []
         Celluloid.internal_pool.each do |t|
           next unless t.role == :actor
-          actors << t.actor.proxy if t.actor && t.actor.respond_to?(:proxy)
+          actors << t.actor.behavior_proxy if t.actor && t.actor.respond_to?(:behavior_proxy)
         end
         actors
       end
