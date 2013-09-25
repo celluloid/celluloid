@@ -132,7 +132,9 @@ module Celluloid
       end
     end
 
-    def initialize(options, behavior_options)
+    def initialize(behavior, options)
+      @behavior         = behavior
+
       @mailbox          = options.fetch(:mailbox_class, Mailbox).new
       @mailbox.max_size = options.fetch(:mailbox_size, nil)
 
@@ -152,8 +154,6 @@ module Celluloid
       handle(SystemEvent) do |message|
         handle_system_event message
       end
-
-      @behavior = behavior_options.fetch(:class).new(behavior_options.merge(:actor => self))
     end
 
     def start

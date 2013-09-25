@@ -17,14 +17,14 @@ module Celluloid
       end
     end
 
-    def initialize(options)
-      @actor                      = options.fetch(:actor)
-      @subject                    = options.fetch(:subject)
+    def initialize(subject, options, actor_options)
+      @actor                      = Actor.new(self, actor_options)
+      @subject                    = subject
       @receiver_block_executions  = options[:receiver_block_executions]
       @exclusive_methods          = options[:exclusive_methods]
       @finalizer                  = options[:finalizer]
 
-      @subject.instance_variable_set(OWNER_IVAR, options.fetch(:actor))
+      @subject.instance_variable_set(OWNER_IVAR, @actor)
 
       if exit_handler_name = options[:exit_handler_name]
         @actor.exit_handler = ExitHandler.new(self, @subject, exit_handler_name)
