@@ -222,7 +222,7 @@ module Celluloid
           when LinkingResponse
             Celluloid::Probe.actors_linked(self, receiver) if $CELLULOID_MONITORING
             # We're done!
-            system_events.each { |ev| handle_system_event(ev) }
+            system_events.each { |ev| @mailbox << ev }
             return
           when NilClass
             raise TimeoutError, "linking timeout of #{LINKING_TIMEOUT} seconds exceeded"
