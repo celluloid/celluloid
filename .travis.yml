@@ -10,6 +10,7 @@ rvm:
 matrix:
   allow_failures:
     - rvm: ruby-head
+    - rvm: jruby-19mode # broken :( to be fixed in jruby 1.7.5?!!!
     - rvm: jruby-head
     - rvm: rbx-19mode # deadlocks :(
 
