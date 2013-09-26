@@ -29,8 +29,23 @@ module Celluloid
     end
 
     def self.copy_stream( *params )
-      params = 2.times.inject([]) { |c,n| c << ::IO.try_convert( params.shift ) } + params
-      Celluloid.defer { ::IO.copy_stream( *params ) }
+      src = params.shift
+      dst = params.shift
+
+      raise IOError.new("No source IO in copy_stream") if src.nil?
+      raise IOError.new("No destination IO in copy_stream") if dst.nil?
+
+      begin
+        src = ::IO.try_convert( src )
+        dst = ::IO.try_convert( dst )
+        params = [ src, dst ] + params
+        _de "IO Caller: #{params.inspect}"
+        Celluloid.defer { ::IO.copy_stream( *params ) }
+      rescue
+        while data = src.read(4096)
+          dst << data
+        end
+      end
     end
 
     def wait_readable(io)
