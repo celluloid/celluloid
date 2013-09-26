@@ -36,10 +36,7 @@ module Celluloid
       raise IOError.new("No destination IO in copy_stream") if dst.nil?
 
       begin
-        src = ::IO.try_convert( src )
-        dst = ::IO.try_convert( dst )
-        params = [ src, dst ] + params
-        _de "IO Caller: #{params.inspect}"
+        params = [ ::IO.try_convert( src ), ::IO.try_convert( dst ) ] + params
         Celluloid.defer { ::IO.copy_stream( *params ) }
       rescue
         while data = src.read(4096)
