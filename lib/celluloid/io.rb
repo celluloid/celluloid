@@ -27,6 +27,12 @@ module Celluloid
       actor = Thread.current[:celluloid_actor]
       actor && actor.mailbox.is_a?(Celluloid::IO::Mailbox)
     end
+  
+    # we need this to avoid errors happening once defer {} is called,
+    # in case we want to trap them before defer {} to work around them
+    def self.try_convert( src )
+      ::IO.try_convert( src )
+    end
 
     # unless all parameters are passed along as an *array
     # nil values will still cause an error, at least under jRuby 1.7.4
@@ -39,7 +45,7 @@ module Celluloid
       raise IOError.new("No destination IO in copy_stream") if dst.nil?
 
       begin
-        params = [ ::IO.try_convert( src ), ::IO.try_convert( dst ) ] + params
+        params = [ try_convert( src ), try_convert( dst ) ] + params
         Celluloid.defer { ::IO.copy_stream( *params ) }
       rescue
         while data = src.read(4096)
