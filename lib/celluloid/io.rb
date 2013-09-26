@@ -28,6 +28,9 @@ module Celluloid
       actor && actor.mailbox.is_a?(Celluloid::IO::Mailbox)
     end
 
+    # unless all parameters are passed along as an *array
+    # nil values will still cause an error, at least under jRuby 1.7.4
+    # previous interface to IO.copy_stream had 2 trailing nil defaults beyond src and dst
     def self.copy_stream( *params )
       src = params.shift
       dst = params.shift
