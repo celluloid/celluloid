@@ -28,11 +28,9 @@ module Celluloid
       actor && actor.mailbox.is_a?(Celluloid::IO::Mailbox)
     end
 
-    def self.copy_stream(src, dst, copy_length = nil, src_offset = nil)
-      src = ::IO.try_convert(src)
-      dst = ::IO.try_convert(dst)
-
-      Celluloid.defer { ::IO.copy_stream(src, dst, copy_length, src_offset) }
+    def self.copy_stream( *params )
+      params = 2.times.inject([]) { |c,n| c << ::IO.try_convert( params.shift ) } + params
+      Celluloid.defer { ::IO.copy_stream( *params ) }
     end
 
     def wait_readable(io)
