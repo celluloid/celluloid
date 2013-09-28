@@ -55,5 +55,11 @@ describe Celluloid::SupervisionGroup do
       Celluloid::Actor[:example_pool].args.should eq ['foo']
       Celluloid::Actor[:example_pool].size.should be 3
     end
+
+    it "allows external access to the internal registry" do
+      supervisor = MyGroup.run!
+
+      supervisor[:example].should be_a MyActor
+    end
   end
 end
