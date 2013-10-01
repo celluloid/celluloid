@@ -16,12 +16,9 @@ module Celluloid
       # See IO#sync for full details.
       attr_accessor :sync
 
-      # Default size to read from or write to the stream for buffer operations
-      BLOCK_SIZE = 1024*16
-
       def initialize
         @eof  = false
-        @sync = true # FIXME: hax
+        @sync = true
         @read_buffer = ''.force_encoding(Encoding::ASCII_8BIT)
         @write_buffer = ''.force_encoding(Encoding::ASCII_8BIT)
 
@@ -344,7 +341,6 @@ module Celluloid
       def do_write(s)
         @write_buffer << s
         @write_buffer.force_encoding(Encoding::BINARY)
-        @sync ||= false
 
         if @sync or @write_buffer.size > BLOCK_SIZE or idx = @write_buffer.rindex($/)
           remain = idx ? idx + $/.size : @write_buffer.length
