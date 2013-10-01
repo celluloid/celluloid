@@ -104,6 +104,7 @@ like Celluloid we definitely recommend you check them out:
 * [Celluloid::ZMQ][celluloid-zmq]: "Evented" 0MQ support for Celluloid actors
 * [DCell][dcell]: The Celluloid actor protocol distributed over 0MQ
 * [Reel][reel]: An "evented" web server based on Celluloid::IO
+* [Lattice][lattice]: A concurrent realtime web framework based on Celluloid::IO 
 * [nio4r][nio4r]: "New IO for Ruby": high performance IO selectors
 * [Timers][timers]: A generic Ruby timer library for event-based systems
 
@@ -111,6 +112,7 @@ like Celluloid we definitely recommend you check them out:
 [celluloid-zmq]: https://github.com/celluloid/celluloid-zmq/
 [dcell]: https://github.com/celluloid/dcell/
 [reel]: https://github.com/celluloid/reel/
+[lattice]: https://github.com/celluloid/lattice/
 [nio4r]: https://github.com/celluloid/nio4r/
 [timers]: https://github.com/celluloid/timers/
 
