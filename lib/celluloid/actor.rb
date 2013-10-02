@@ -33,15 +33,7 @@ module Celluloid
     class << self
       extend Forwardable
 
-      def_delegators "Celluloid::Registry.root", :[], :[]=
-
-      def registered
-        Registry.root.names
-      end
-
-      def clear_registry
-        Registry.root.clear
-      end
+      def_delegators "Celluloid.actor_system", :[], :[]=, :delete, :registered, :clear_registry
 
       # Obtain the current actor
       def current
@@ -77,12 +69,7 @@ module Celluloid
 
       # Obtain all running actors in the system
       def all
-        actors = []
-        Celluloid.internal_pool.each do |t|
-          next unless t.role == :actor
-          actors << t.actor.behavior_proxy if t.actor && t.actor.respond_to?(:behavior_proxy)
-        end
-        actors
+        Celluloid.actor_system.running
       end
 
       # Watch for exit events from another actor
@@ -135,6 +122,7 @@ module Celluloid
     def initialize(behavior, options)
       @behavior         = behavior
 
+      @actor_system     = options.fetch(:actor_system)
       @mailbox          = options.fetch(:mailbox_class, Mailbox).new
       @mailbox.max_size = options.fetch(:mailbox_size, nil)
 
@@ -158,7 +146,7 @@ module Celluloid
 
     def start
       @running = true
-      @thread = ThreadHandle.new(:actor) do
+      @thread = ThreadHandle.new(@actor_system, :actor) do
         setup_thread
         run
       end

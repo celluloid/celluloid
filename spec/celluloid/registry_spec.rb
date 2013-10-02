@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Celluloid::Registry do
+describe Celluloid::Registry, actor_system: :global do
   class Marilyn
     include Celluloid
 
@@ -36,12 +36,12 @@ describe Celluloid::Registry do
     end
 
     it "removes reference to actors' name from the registry" do
-      Celluloid::Registry.root.delete(:marilyn)
+      Celluloid::Actor.delete(:marilyn)
       Celluloid::Actor.registered.should_not include :marilyn
     end
 
     it "returns actor removed from the registry" do
-      rval = Celluloid::Registry.root.delete(:marilyn)
+      rval = Celluloid::Actor.delete(:marilyn)
       rval.should be_kind_of(Marilyn)
     end
   end

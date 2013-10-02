@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe "Blocks" do
+describe "Blocks", actor_system: :global do
   class MyBlockActor
     include Celluloid
 

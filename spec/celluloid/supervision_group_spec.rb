@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Celluloid::SupervisionGroup do
+describe Celluloid::SupervisionGroup, actor_system: :global do
   before :all do
     class MyActor
       include Celluloid

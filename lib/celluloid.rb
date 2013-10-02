@@ -13,10 +13,18 @@ module Celluloid
   BARE_OBJECT_WARNING_MESSAGE = "WARNING: BARE CELLULOID OBJECT "
 
   class << self
-    attr_accessor :internal_pool    # Internal thread pool
+    attr_writer   :actor_system     # Default Actor System
     attr_accessor :logger           # Thread-safe logger class
     attr_accessor :task_class       # Default task type to use
     attr_accessor :shutdown_timeout # How long actors have to terminate
+
+    def actor_system
+      if Thread.current.celluloid?
+        Thread.current[:celluloid_actor_system] or raise Error, "actor system not running"
+      else
+        Thread.current[:celluloid_actor_system] || @actor_system
+      end
+    end
 
     def included(klass)
       klass.send :extend,  ClassMethods
@@ -75,7 +83,7 @@ module Celluloid
 
     # Perform a stack dump of all actors to the given output object
     def stack_dump(output = STDERR)
-      Celluloid::StackDump.new.dump(output)
+      actor_system.stack_dump.print(output)
     end
     alias_method :dump, :stack_dump
 
@@ -112,18 +120,15 @@ module Celluloid
     end
 
     def init
-      self.internal_pool = InternalPool.new
+      @actor_system = ActorSystem.new
     end
 
-    # Launch default services
-    # FIXME: We should set up the supervision hierarchy here
     def start
-      Celluloid::Notifications::Fanout.supervise_as :notifications_fanout
-      Celluloid::IncidentReporter.supervise_as :default_incident_reporter, STDERR
+      actor_system.start
     end
 
     def running?
-      internal_pool
+      actor_system && actor_system.running?
     end
 
     def register_shutdown
@@ -145,41 +150,7 @@ module Celluloid
 
     # Shut down all running actors
     def shutdown
-      actors = Actor.all
-
-      Timeout.timeout(shutdown_timeout) do
-        internal_pool.shutdown
-
-        Logger.debug "Terminating #{actors.size} #{(actors.size > 1) ? 'actors' : 'actor'}..." if actors.size > 0
-
-        # Attempt to shut down the supervision tree, if available
-        Supervisor.root.terminate if Supervisor.root
-
-        # Actors cannot self-terminate, you must do it for them
-        actors.each do |actor|
-          begin
-            actor.terminate!
-          rescue DeadActorError
-          end
-        end
-
-        actors.each do |actor|
-          begin
-            Actor.join(actor)
-          rescue DeadActorError
-          end
-        end
-      end
-    rescue Timeout::Error
-      Logger.error("Couldn't cleanly terminate all actors in #{shutdown_timeout} seconds!")
-      actors.each do |actor|
-        begin
-          Actor.kill(actor)
-        rescue DeadActorError, MailboxDead
-        end
-      end
-    ensure
-      internal_pool.kill
+      actor_system.shutdown
     end
 
     def version
@@ -239,9 +210,14 @@ module Celluloid
       Actor.join(new(*args, &block))
     end
 
+    def actor_system
+      Celluloid.actor_system
+    end
+
     # Configuration options for Actor#new
     def actor_options
       {
+        :actor_system      => actor_system,
         :mailbox_class     => mailbox_class,
         :mailbox_size      => mailbox_size,
         :task_class        => task_class,
@@ -512,6 +488,7 @@ require 'celluloid/proxies/block_proxy'
 require 'celluloid/actor'
 require 'celluloid/cell'
 require 'celluloid/future'
+require 'celluloid/actor_system'
 require 'celluloid/pool_manager'
 require 'celluloid/supervision_group'
 require 'celluloid/supervisor'

@@ -69,7 +69,9 @@ module Celluloid
 
     attr_accessor :actors, :threads
 
-    def initialize
+    def initialize(internal_pool)
+      @internal_pool = internal_pool
+
       @actors  = []
       @threads = []
 
@@ -77,7 +79,7 @@ module Celluloid
     end
 
     def snapshot
-      Celluloid.internal_pool.each do |thread|
+      @internal_pool.each do |thread|
         if thread.role == :actor
           @actors << snapshot_actor(thread.actor) if thread.actor
         else
@@ -118,7 +120,7 @@ module Celluloid
       ThreadState.new(thread.object_id, thread.backtrace, thread.role)
     end
 
-    def dump(output = STDERR)
+    def print(output = STDERR)
       @actors.each do |actor|
         output.print actor.dump
       end
