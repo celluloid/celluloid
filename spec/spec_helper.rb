@@ -3,9 +3,8 @@ Coveralls.wear!
 
 require 'rubygems'
 require 'bundler/setup'
-require 'celluloid'
-require 'celluloid/probe'
 require 'celluloid/rspec'
+require 'celluloid/probe'
 
 logfile = File.open(File.expand_path("../../log/test.log", __FILE__), 'a')
 logfile.sync = true
@@ -22,10 +21,11 @@ RSpec.configure do |config|
 
   config.before do
     Celluloid.logger = logger
-    Celluloid.shutdown
-    sleep 0.01
-
-    Celluloid.internal_pool.assert_inactive
+    if Celluloid.running?
+      Celluloid.shutdown
+      sleep 0.01
+      Celluloid.internal_pool.assert_inactive
+    end
 
     Celluloid.boot
   end
