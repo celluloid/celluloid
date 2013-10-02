@@ -27,7 +27,7 @@ module Celluloid
   # messages.
 
   class Actor
-    attr_reader :behavior, :proxy, :tasks, :links, :mailbox, :thread, :name
+    attr_reader :behavior, :proxy, :tasks, :links, :mailbox, :thread, :name, :timers
     attr_writer :exit_handler
 
     class << self

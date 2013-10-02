@@ -17,10 +17,10 @@ describe Celluloid::Condition do
       condition.signal value
     end
 
-    def wait_for_condition
+    def wait_for_condition(timeout = nil)
       @waiting = true
       begin
-        value = @condition.wait
+        value = @condition.wait(timeout)
         @signaled_times += 1
       ensure
         @waiting = false
@@ -61,5 +61,16 @@ describe Celluloid::Condition do
     condition = Celluloid::Condition.new
     actor.async.signal_condition condition, :value
     condition.wait.should eq(:value)
+  end
+
+  it "times out inside normal Threads" do
+    condition = Celluloid::Condition.new
+    lambda { condition.wait(1) }.
+      should raise_error(Celluloid::ConditionError)
+  end
+
+  it "times out inside Tasks" do
+    lambda { actor.wait_for_condition(1) }.
+      should raise_error(Celluloid::ConditionError)
   end
 end
