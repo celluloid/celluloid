@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Celluloid::Future do
+describe Celluloid::Future, actor_system: :global do
   it "creates future objects that can be retrieved later" do
     future = Celluloid::Future.new { 40 + 2 }
     future.value.should == 42

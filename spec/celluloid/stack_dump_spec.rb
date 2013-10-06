@@ -1,6 +1,14 @@
 require 'spec_helper'
 
 describe Celluloid::StackDump do
+  let(:actor_system) do
+    Celluloid::ActorSystem.new
+  end
+
+  subject do
+    actor_system.stack_dump
+  end
+
   class BlockingActor
     include Celluloid
 
@@ -14,13 +22,15 @@ describe Celluloid::StackDump do
       actor_klass = Class.new(BlockingActor) do
         task_class task_klass
       end
-      actor = actor_klass.new
+      actor = actor_system.within do
+        actor_klass.new
+      end
       actor.async.blocking
     end
 
-    @idle_thread = Celluloid.internal_pool.get do
+    @idle_thread = actor_system.get_thread do
     end
-    @active_thread = Celluloid.internal_pool.get do
+    @active_thread = actor_system.get_thread do
       sleep
     end
     @active_thread.role = :other_thing
@@ -30,7 +40,7 @@ describe Celluloid::StackDump do
 
   describe '#actors' do
     it 'should include all actors' do
-      subject.actors.size.should == Celluloid::Actor.all.size
+      subject.actors.size.should == actor_system.running.size
     end
   end
 

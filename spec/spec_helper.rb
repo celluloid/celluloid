@@ -19,14 +19,20 @@ RSpec.configure do |config|
   config.filter_run :focus => true
   config.run_all_when_everything_filtered = true
 
-  config.before do
+  config.around do |ex|
     Celluloid.logger = logger
-    if Celluloid.running?
-      Celluloid.shutdown
-      sleep 0.01
-      Celluloid.internal_pool.assert_inactive
+    Celluloid.actor_system = nil
+    Thread.list.each do |thread|
+      next if thread == Thread.current
+      thread.kill
     end
 
+    ex.run
+  end
+
+  config.around actor_system: :global do |ex|
     Celluloid.boot
+    ex.run
+    Celluloid.shutdown
   end
 end
