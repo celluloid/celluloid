@@ -3,10 +3,6 @@ require 'thread'
 module Celluloid
   # The Registry allows us to refer to specific actors by human-meaningful names
   class Registry
-    class << self
-      attr_reader :root
-    end
-
     def initialize
       @registry = {}
       @registry_lock = Mutex.new
@@ -57,8 +53,5 @@ module Celluloid
       end
       hash
     end
-
-    # Create the default registry
-    @root = new
   end
 end

@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Celluloid::Condition do
+describe Celluloid::Condition, actor_system: :global do
   class ConditionExample
     include Celluloid
 

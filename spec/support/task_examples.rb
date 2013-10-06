@@ -17,11 +17,13 @@ shared_context "a Celluloid Task" do |task_class|
   subject { task_class.new(task_type, {}) { Celluloid::Task.suspend(suspend_state) } }
 
   before :each do
+    Thread.current[:celluloid_actor_system] = Celluloid.actor_system
     Thread.current[:celluloid_actor] = actor
   end
 
   after :each do
     Thread.current[:celluloid_actor] = nil
+    Thread.current[:celluloid_actor_system] = nil
   end
 
   it "begins with status :new" do

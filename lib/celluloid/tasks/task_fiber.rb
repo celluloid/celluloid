@@ -6,10 +6,12 @@ module Celluloid
 
     def create
       queue = Thread.current[:celluloid_queue]
+      actor_system = Thread.current[:celluloid_actor_system]
       @fiber = Fiber.new do
         # FIXME: cannot use the writer as specs run inside normal Threads
         Thread.current[:celluloid_role] = :actor
         Thread.current[:celluloid_queue] = queue
+        Thread.current[:celluloid_actor_system] = actor_system
         yield
       end
     end

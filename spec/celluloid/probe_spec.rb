@@ -36,7 +36,7 @@ class TestProbeClient
   end
 end
 
-describe "Probe" do
+describe "Probe", actor_system: :global do
   describe 'on boot' do
     it 'should capture system actor spawn' do
       client = TestProbeClient.new
