@@ -415,7 +415,7 @@ shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
 
     it "logs a warning when terminating tasks" do
       Celluloid.logger = double.as_null_object
-      Celluloid.logger.should_receive(:warn).with("Terminating task: type=:call, meta={:method_name=>:sleepy}, status=:sleeping")
+      Celluloid.logger.should_receive(:warn).with(/^Terminating task: type=:call, meta={:method_name=>:sleepy}, status=:sleeping\n/)
 
       actor = actor_class.new "Arnold Schwarzenegger"
       actor.async.sleepy 10
