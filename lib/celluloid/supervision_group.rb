@@ -106,7 +106,12 @@ module Celluloid
       end
       raise "a group member went missing. This shouldn't be!" unless member
 
-      member.restart(reason)
+      if reason
+        member.restart
+      else
+        member.cleanup
+        @members.delete(member)
+      end
     end
 
     # A member of the group
@@ -141,20 +146,21 @@ module Celluloid
         @registry[@name] = @actor if @name
       end
 
-      def restart(reason)
+      def restart
         @actor = nil
-        @registry.delete(@name) if @name
-
-        # Ignore supervisors that shut down cleanly
-        return unless reason
+        cleanup
 
         start
       end
 
       def terminate
-        @registry.delete(@name) if @name
+        cleanup
         @actor.terminate if @actor
       rescue DeadActorError
+      end
+
+      def cleanup
+        @registry.delete(@name) if @name
       end
     end
   end

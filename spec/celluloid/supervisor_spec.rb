@@ -89,4 +89,15 @@ describe Celluloid::Supervisor do
     new_subordinate.should_not eq subordinate
     new_subordinate.state.should be(:working)
   end
+
+  it "removes an actor if it terminates cleanly" do
+    supervisor = Subordinate.supervise(:working)
+    subordinate = supervisor.actors.first
+
+    supervisor.actors.should == [subordinate]
+
+    subordinate.terminate
+
+    supervisor.actors.should be_empty
+  end
 end
