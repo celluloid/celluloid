@@ -1,7 +1,37 @@
 module Celluloid
   module Logger
+    class WithBacktrace
+      def initialize(backtrace)
+        @backtrace = backtrace
+      end
+
+      def debug(string)
+        Celluloid.logger.debug(decorate(string))
+      end
+
+      def info(string)
+        Celluloid.logger.info(decorate(string))
+      end
+
+      def warn(string)
+        Celluloid.logger.warn(decorate(string))
+      end
+
+      def error(string)
+        Celluloid.logger.error(decorate(string))
+      end
+
+      def decorate(string)
+        [string, @backtrace].join("\n\t")
+      end
+    end
+
     @exception_handlers = []
     module_function
+
+    def with_backtrace(backtrace)
+      yield WithBacktrace.new(backtrace) if Celluloid.logger
+    end
 
     # Send a debug message
     def debug(string)
