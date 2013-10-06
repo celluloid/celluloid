@@ -21,32 +21,28 @@ module Celluloid
     end
 
     def dispatch(obj)
+      check(obj)
       _block = @block && @block.to_proc
       obj.public_send(@method, *@arguments, &_block)
-    rescue NoMethodError => ex
-      # Abort if the sender made a mistake
-      raise AbortError.new(ex) unless obj.respond_to? @method
+    end
 
-      # Otherwise something blew up. Crash this actor
-      raise
-    rescue ArgumentError => ex
-      # Abort if the sender made a mistake
+    def check(obj)
+      raise NoMethodError, "undefined method `#{@method}' for #{obj.inspect}" unless obj.respond_to? @method
+
       begin
         arity = obj.method(@method).arity
       rescue NameError
-        # In theory this shouldn't happen, but just in case
-        raise AbortError.new(ex)
+        return
       end
 
       if arity >= 0
-        raise AbortError.new(ex) if @arguments.size != arity
+        raise ArgumentError, "wrong number of arguments (#{@arguments.size} for #{arity})" if @arguments.size != arity
       elsif arity < -1
         mandatory_args = -arity - 1
-        raise AbortError.new(ex) if arguments.size < mandatory_args
+        raise ArgumentError, "wrong number of arguments (#{@arguments.size} for #{mandatory_args}+)" if arguments.size < mandatory_args
       end
-
-      # Otherwise something blew up. Crash this actor
-      raise
+    rescue => ex
+      raise AbortError.new(ex)
     end
   end
 
