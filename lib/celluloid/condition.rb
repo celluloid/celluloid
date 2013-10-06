@@ -4,10 +4,11 @@ module Celluloid
   # ConditionVariable-like signaling between tasks and threads
   class Condition
     class Waiter
-      def initialize(condition, task, mailbox)
+      def initialize(condition, task, mailbox, timeout)
         @condition = condition
         @task = task
         @mailbox = mailbox
+        @timeout = timeout
       end
       attr_reader :condition, :task
 
@@ -16,10 +17,15 @@ module Celluloid
       end
 
       def wait
-        message = @mailbox.receive do |msg|
+        message = @mailbox.receive(@timeout) do |msg|
           msg.is_a?(SignalConditionRequest) && msg.task == Thread.current
         end
-        message.value
+
+        if message
+          message.value
+        else
+          raise ConditionError, "timeout after #{@timeout.inspect} seconds"
+        end
       end
     end
 
@@ -29,21 +35,30 @@ module Celluloid
     end
 
     # Wait for the given signal and return the associated value
-    def wait
+    def wait(timeout = nil)
       raise ConditionError, "cannot wait for signals while exclusive" if Celluloid.exclusive?
 
-      if Thread.current[:celluloid_actor]
+      if actor = Thread.current[:celluloid_actor]
         task = Task.current
+        if timeout
+          bt = caller
+          timer = actor.timers.after(timeout) do
+            exception = ConditionError.new("timeout after #{timeout.inspect} seconds")
+            exception.set_backtrace bt
+            task.resume exception
+          end
+        end
       else
         task = Thread.current
       end
-      waiter = Waiter.new(self, task, Celluloid.mailbox)
+      waiter = Waiter.new(self, task, Celluloid.mailbox, timeout)
 
       @mutex.synchronize do
         @waiters << waiter
       end
 
       result = Celluloid.suspend :condwait, waiter
+      timer.cancel if timer
       raise result if result.is_a? ConditionError
       result
     end
