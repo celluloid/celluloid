@@ -113,7 +113,9 @@ module Celluloid
       raise "Cannot terminate an exclusive task" if exclusive?
 
       if running?
-        Celluloid.logger.warn "Terminating task: type=#{@type.inspect}, meta=#{@meta.inspect}, status=#{@status.inspect}"
+        Logger.with_backtrace(backtrace) do |logger|
+          logger.warn "Terminating task: type=#{@type.inspect}, meta=#{@meta.inspect}, status=#{@status.inspect}"
+        end
         exception = Task::TerminatedError.new("task was terminated")
         exception.set_backtrace(caller)
         resume exception
