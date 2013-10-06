@@ -341,6 +341,8 @@ module Celluloid
         terminate
       when SignalConditionRequest
         event.call
+      else
+        Logger.debug "Discarded message (unhandled): #{message}" if $CELLULOID_DEBUG
       end
     end
 
