@@ -1,3 +1,7 @@
+0.15.2 (2013-10-06)
+-------------------
+* require 'celluloid/test' for at_exit-free testing
+
 0.15.1 (2013-09-06)
 -------------------
 * Only raise on nested tasks if $CELLULOID_DEBUG is set
