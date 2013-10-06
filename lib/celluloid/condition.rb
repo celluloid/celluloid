@@ -54,7 +54,9 @@ module Celluloid
         if waiter = @waiters.shift
           waiter << SignalConditionRequest.new(waiter.task, value)
         else
-          Logger.debug("Celluloid::Condition signaled spuriously")
+          Logger.with_backtrace(caller(3)) do |logger|
+            logger.debug("Celluloid::Condition signaled spuriously")
+          end
         end
       end
     end
