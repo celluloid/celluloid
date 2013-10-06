@@ -81,7 +81,7 @@ module Celluloid
     def add(klass, options)
       member = Member.new(@registry, klass, options)
       @members << member
-      member
+      member.actor
     end
 
     def actors
