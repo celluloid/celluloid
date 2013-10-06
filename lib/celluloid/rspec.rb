@@ -8,3 +8,5 @@ module Celluloid
 end
 
 $CELLULOID_DEBUG = true
+
+require 'celluloid/test'

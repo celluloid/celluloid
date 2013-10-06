@@ -116,6 +116,10 @@ module Celluloid
       Celluloid::IncidentReporter.supervise_as :default_incident_reporter, STDERR
     end
 
+    def running?
+      internal_pool
+    end
+
     def register_shutdown
       return if @shutdown_registered
       # Terminate all actors at exit
@@ -510,5 +514,8 @@ require 'celluloid/legacy' unless defined?(CELLULOID_FUTURE)
 Celluloid.task_class = Celluloid::TaskFiber
 Celluloid.logger     = Logger.new(STDERR)
 Celluloid.shutdown_timeout = 10
-Celluloid.register_shutdown
-Celluloid.init
+
+unless $CELLULOID_TEST
+  Celluloid.register_shutdown
+  Celluloid.init
+end
