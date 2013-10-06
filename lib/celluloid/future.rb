@@ -24,9 +24,9 @@ module Celluloid
     def initialize
       @address = Celluloid.uuid
       @mutex = Mutex.new
+      @condition = Condition.new
       @ready = false
       @result = nil
-      @forwards = nil
     end
 
     # Check if this future has a value yet
@@ -44,31 +44,18 @@ module Celluloid
         if @ready
           ready = true
           result = @result
-        else
-          case @forwards
-          when Array
-            @forwards << Celluloid.mailbox
-          when NilClass
-            @forwards = Celluloid.mailbox
-          else
-            @forwards = [@forwards, Celluloid.mailbox]
-          end
         end
       ensure
         @mutex.unlock
       end
 
       unless ready
-        result = Celluloid.receive(timeout) do |msg|
-          msg.is_a?(Future::Result) && msg.future == self
-        end
+        result = @condition.wait(timeout)
       end
 
-      if result
-        result.value
-      else
-        raise TimeoutError, "Timed out"
-      end
+      result.value
+    rescue Celluloid::ConditionError => e
+      raise TimeoutError, e.message
     end
     alias_method :call, :value
 
@@ -79,9 +66,7 @@ module Celluloid
       @mutex.synchronize do
         raise "the future has already happened!" if @ready
 
-        if @forwards
-          @forwards.is_a?(Array) ? @forwards.each { |f| f << result } : @forwards << result
-        end
+        @condition.broadcast result
 
         @result = result
         @ready = true
