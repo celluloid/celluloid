@@ -87,11 +87,10 @@ module Celluloid
     def actors
       @members.map(&:actor)
     end
-    
+
     def [](actor_name)
       @registry[actor_name]
     end
-      
 
     finalizer :finalize
 
