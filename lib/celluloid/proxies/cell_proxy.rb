@@ -51,6 +51,10 @@ module Celluloid
       @actor_proxy.alive?
     end
 
+    def dead?
+      @actor_proxy.dead?
+    end
+
     def thread
       @actor_proxy.thread
     end
