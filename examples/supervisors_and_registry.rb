@@ -27,8 +27,8 @@ puts "*** Demonstrating using the Supervisor API directly"
 supervisor = MyActor.supervise
 
 # We can get to the current version of an actor by calling
-# Celluloid::Supervisor#actor. This prints ':clean'
-puts "We should be in a clean state now: #{supervisor.actor.state}"
+# Celluloid::Supervisor#actors. This prints ':clean'
+puts "We should be in a clean state now: #{supervisor.actors.first.state}"
 puts "Brace yourself for a crash message..."
 
 # If we call a method that crashes an actor, it will print out a debug message,
@@ -43,7 +43,7 @@ puts "The supervisor should automatically restart the actor"
 
 # By now we'll be back in a :clean state!
 begin
-  puts "We should now be in a clean state again: #{supervisor.actor.state}"
+  puts "We should now be in a clean state again: #{supervisor.actors.first.state}"
 rescue Celluloid::DeadActorError
   # Perhaps we got ahold of the actor before the supervisor restarted it
   retry
