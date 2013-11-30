@@ -43,7 +43,7 @@ module Celluloid
       end
 
       # Obtain the name of the current actor
-      def name
+      def registered_name
         actor = Thread.current[:celluloid_actor]
         raise NotActorError, "not in actor scope" unless actor
         actor.name

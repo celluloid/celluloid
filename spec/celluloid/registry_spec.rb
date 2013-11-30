@@ -27,7 +27,7 @@ describe Celluloid::Registry, actor_system: :global do
 
   it "knows its name once registered" do
     Celluloid::Actor[:marilyn] = Marilyn.new
-    Celluloid::Actor[:marilyn].name.should == :marilyn
+    Celluloid::Actor[:marilyn].registered_name.should == :marilyn
   end
 
   describe :delete do

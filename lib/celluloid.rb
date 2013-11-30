@@ -270,9 +270,10 @@ module Celluloid
     end
 
     # Obtain the name of the current actor
-    def name
-      Actor.name
+    def registered_name
+      Actor.registered_name
     end
+    alias_method :name, :registered_name
 
     def inspect
       return "..." if Celluloid.detect_recursion
