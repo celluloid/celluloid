@@ -7,6 +7,22 @@ module Celluloid
   # Actors communicate with asynchronous messages. Messages are buffered in
   # Mailboxes until Actors can act upon them.
   class Mailbox
+
+    class << self
+      attr_reader :registry
+    end
+    @registry = {}
+
+    def self.register(type)
+      Mailbox.registry[type] = self
+    end
+
+    def self.build(type)
+      Mailbox.registry.fetch(type).new
+    end
+
+    register :messages
+
     include Enumerable
 
     # A unique address at which this mailbox can be found

@@ -15,7 +15,7 @@ module Celluloid
   class << self
     attr_writer   :actor_system     # Default Actor System
     attr_accessor :logger           # Thread-safe logger class
-    attr_accessor :task_class       # Default task type to use
+    attr_accessor :task_type        # Default task type to use
     attr_accessor :shutdown_timeout # How long actors have to terminate
 
     def actor_system
@@ -32,9 +32,9 @@ module Celluloid
 
       klass.send :extend, Properties
 
-      klass.property :mailbox_class, :default => Celluloid::Mailbox
       klass.property :proxy_class,   :default => Celluloid::CellProxy
-      klass.property :task_class,    :default => Celluloid.task_class
+      klass.property :task_type,     :default => Celluloid.task_type
+      klass.property :mailbox_type,  :default => :messages
       klass.property :mailbox_size
 
       klass.property :exclusive_actor, :default => false
@@ -45,6 +45,14 @@ module Celluloid
 
       klass.property :finalizer
       klass.property :exit_handler_name
+
+      klass.send(:define_singleton_method, :dispatch_with) do |type|
+        task_type(type)
+      end
+
+      klass.send(:define_singleton_method, :react_to) do |type|
+        mailbox_type(type)
+      end
 
       klass.send(:define_singleton_method, :trap_exit) do |*args|
         exit_handler_name(*args)
@@ -218,9 +226,9 @@ module Celluloid
     def actor_options
       {
         :actor_system      => actor_system,
-        :mailbox_class     => mailbox_class,
+        :task_type         => task_type || Celluloid.task_type,
+        :mailbox_type      => mailbox_type,
         :mailbox_size      => mailbox_size,
-        :task_class        => task_class,
         :exclusive         => exclusive_actor,
       }
     end
@@ -501,7 +509,7 @@ require 'celluloid/legacy' unless defined?(CELLULOID_FUTURE)
 $CELLULOID_MONITORING = false
 
 # Configure default systemwide settings
-Celluloid.task_class = Celluloid::TaskFiber
+Celluloid.task_type  = :fiber
 Celluloid.logger     = Logger.new(STDERR)
 Celluloid.shutdown_timeout = 10
 

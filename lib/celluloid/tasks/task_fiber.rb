@@ -3,6 +3,7 @@ module Celluloid
 
   # Tasks with a Fiber backend
   class TaskFiber < Task
+    register :fiber
 
     def create
       queue = Thread.current[:celluloid_queue]

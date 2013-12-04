@@ -14,6 +14,19 @@ module Celluloid
 
     class TimeoutError < ResumableError; end # kill a running task after timeout
 
+    class << self
+      attr_reader :registry
+    end
+    @registry = {}
+
+    def self.register(type)
+      Task.registry[type] = self
+    end
+
+    def self.fetch(type)
+      Task.registry.fetch(type)
+    end
+
     # Obtain the current task
     def self.current
       Thread.current[:celluloid_task] or raise NotTaskError, "not within a task context"

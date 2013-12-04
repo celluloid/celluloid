@@ -1,18 +1,17 @@
 shared_examples "a Celluloid Actor" do |included_module|
-  describe "using Fibers" do
-    include_examples "Celluloid::Actor examples", included_module, Celluloid::TaskFiber
-  end
-  describe "using Threads" do
-    include_examples "Celluloid::Actor examples", included_module, Celluloid::TaskThread
+  Celluloid::Task.registry.dup.each do |type,_|
+    describe "dispatching with #{type}" do
+      include_examples "Celluloid::Actor examples", included_module, type
+    end
   end
 end
 
-shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
+shared_examples "Celluloid::Actor examples" do |included_module, task_type|
   class ExampleCrash < StandardError
     attr_accessor :foo
   end
 
-  let(:actor_class) { ExampleActorClass.create(included_module, task_klass) }
+  let(:actor_class) { ExampleActorClass.create(included_module, task_type) }
 
   it "returns the actor's class, not the proxy's" do
     actor = actor_class.new "Troy McClure"
@@ -93,7 +92,7 @@ shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
   it "handles circular synchronous calls" do
     klass = Class.new do
       include included_module
-      task_class task_klass
+      dispatch_with task_type
 
       def greet_by_proxy(actor)
         actor.greet
@@ -112,7 +111,7 @@ shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
   it "detects recursion" do
     klass1 = Class.new do
       include included_module
-      task_class task_klass
+      dispatch_with task_type
 
       def recursion_test(recurse_through = nil)
         if recurse_through
@@ -125,7 +124,7 @@ shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
 
     klass2 = Class.new do
       include included_module
-      task_class task_klass
+      dispatch_with task_type
 
       def recursion_thunk(other)
         other.recursion_test
@@ -154,7 +153,7 @@ shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
   it "warns about suspending the initialize" do
     klass = Class.new do
       include included_module
-      task_class task_klass
+      dispatch_with task_type
 
       def initialize
         sleep 0.1
@@ -179,7 +178,7 @@ shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
   it "warns about suspending the finalizer" do
     klass = Class.new do
       include included_module
-      task_class task_klass
+      dispatch_with task_type
 
       finalizer :cleanup
 
@@ -251,7 +250,7 @@ shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
   it "supports recursive inspect with other actors" do
     klass = Class.new do
       include included_module
-      task_class task_klass
+      dispatch_with task_type
 
       attr_accessor :other
 
@@ -315,7 +314,7 @@ shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
     it "includes both sender and receiver in exception traces" do
       ExampleReceiver = Class.new do
         include included_module
-        task_class task_klass
+        dispatch_with task_type
 
         def receiver_method
           raise ExampleCrash, "the spec purposely crashed me :("
@@ -324,7 +323,7 @@ shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
 
       ExampleCaller = Class.new do
         include included_module
-        task_class task_klass
+        dispatch_with task_type
 
         def sender_method
           ExampleReceiver.new.receiver_method
@@ -460,7 +459,7 @@ shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
     let(:supervisor_class) do
       Class.new do # like a boss
         include included_module
-        task_class task_klass
+        dispatch_with task_type
         trap_exit :lambaste_subordinate
 
         def initialize(name)
@@ -555,7 +554,7 @@ shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
     before do
       @signaler = Class.new do
         include included_module
-        task_class task_klass
+        dispatch_with task_type
 
         def initialize
           @waiting  = false
@@ -613,7 +612,7 @@ shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
     subject do
       Class.new do
         include included_module
-        task_class task_klass
+        dispatch_with task_type
 
         attr_reader :tasks
 
@@ -680,7 +679,7 @@ shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
     subject do
       Class.new do
         include included_module
-        task_class task_klass
+        dispatch_with task_type
         exclusive
 
         attr_reader :tasks
@@ -713,7 +712,7 @@ shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
     before do
       @receiver = Class.new do
         include included_module
-        task_class task_klass
+        dispatch_with task_type
         execute_block_on_receiver :signal_myself
 
         def signal_myself(obj, &block)
@@ -748,7 +747,7 @@ shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
     before do
       @klass = Class.new do
         include included_module
-        task_class task_klass
+        dispatch_with task_type
 
         def initialize
           @sleeping = false
@@ -853,7 +852,7 @@ shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
     before do
       @klass = Class.new do
         include included_module
-        task_class task_klass
+        dispatch_with task_type
         attr_reader :blocker
 
         def initialize
@@ -891,7 +890,7 @@ shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
       tasks.size.should be 2
 
       blocking_task = tasks.find { |t| t.status != :running }
-      blocking_task.should be_a task_klass
+      blocking_task.should be_a Celluloid::Task.fetch(task_type)
       blocking_task.status.should be :callwait
 
       actor.blocker.unblock
@@ -900,14 +899,16 @@ shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
     end
   end
 
-  context :mailbox_class do
-    class ExampleMailbox < Celluloid::Mailbox; end
+  context :mailbox_type do
+    class ExampleMailbox < Celluloid::Mailbox
+      register :example
+    end
 
     subject do
       Class.new do
         include included_module
-        task_class task_klass
-        mailbox_class ExampleMailbox
+        dispatch_with task_type
+        react_to :example
       end
     end
 
@@ -925,7 +926,7 @@ shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
     subject do
       Class.new do
         include included_module
-        task_class task_klass
+        dispatch_with task_type
         mailbox_size 100
       end
     end
@@ -945,7 +946,7 @@ shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
     subject do
       Class.new do
         include included_module
-        task_class task_klass
+        dispatch_with task_type
         proxy_class ExampleProxy
       end
     end
@@ -961,12 +962,14 @@ shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
   end
 
   context :task_class do
-    class ExampleTask < Celluloid::TaskFiber; end
+    class ExampleTask < Celluloid::TaskFiber
+      register :example
+    end
 
     subject do
       Class.new do
         include included_module
-        task_class ExampleTask
+        dispatch_with :example
       end
     end
 

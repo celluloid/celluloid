@@ -18,9 +18,9 @@ describe Celluloid::StackDump do
   end
 
   before(:each) do
-    [Celluloid::TaskFiber, Celluloid::TaskThread].each do |task_klass|
+    Celluloid::Task.registry.each do |type,_|
       actor_klass = Class.new(BlockingActor) do
-        task_class task_klass
+        dispatch_with type
       end
       actor = actor_system.within do
         actor_klass.new
