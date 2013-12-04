@@ -6,8 +6,6 @@ describe Celluloid::ActorSystem do
   end
 
   it "supports non-global ActorSystem" do
-    Celluloid.actor_system.should be_nil
-
     subject.within do
       Celluloid.actor_system.should == subject
     end
@@ -63,5 +61,9 @@ describe Celluloid::ActorSystem do
       should raise_error("Thread pool is not running")
   end
 
+  it "warns nicely when no actor system is started" do
+    lambda { TestActor.new }.
+      should raise_error("Celluloid is not yet started; use Celluloid.boot")
+  end
 
 end

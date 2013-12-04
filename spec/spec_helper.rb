@@ -35,4 +35,11 @@ RSpec.configure do |config|
     ex.run
     Celluloid.shutdown
   end
+
+  config.around actor_system: :within do |ex|
+    Celluloid::ActorSystem.new.within do
+      ex.run
+    end
+  end
+
 end

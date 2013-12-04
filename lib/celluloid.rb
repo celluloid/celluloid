@@ -22,7 +22,7 @@ module Celluloid
       if Thread.current.celluloid?
         Thread.current[:celluloid_actor_system] or raise Error, "actor system not running"
       else
-        Thread.current[:celluloid_actor_system] || @actor_system
+        Thread.current[:celluloid_actor_system] || @actor_system or raise Error, "Celluloid is not yet started; use Celluloid.boot"
       end
     end
 
