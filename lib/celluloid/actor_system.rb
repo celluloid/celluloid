@@ -64,8 +64,6 @@ module Celluloid
     def shutdown
       actors = running
       Timeout.timeout(shutdown_timeout) do
-        @internal_pool.shutdown
-
         Logger.debug "Terminating #{actors.size} #{(actors.size > 1) ? 'actors' : 'actor'}..." if actors.size > 0
 
         # Actors cannot self-terminate, you must do it for them
@@ -82,6 +80,8 @@ module Celluloid
           rescue DeadActorError
           end
         end
+
+        @internal_pool.shutdown
       end
     rescue Timeout::Error
       Logger.error("Couldn't cleanly terminate all actors in #{shutdown_timeout} seconds!")

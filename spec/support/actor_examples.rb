@@ -417,6 +417,15 @@ shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
       end.to raise_exception(Celluloid::DeadActorError)
     end
 
+    it "terminates cleanly on Celluloid shutdown" do
+      Celluloid::Actor.stub(:kill).and_call_original
+
+      actor = actor_class.new "Arnold Schwarzenegger"
+
+      Celluloid.shutdown
+      Celluloid::Actor.should_not have_received(:kill)
+    end
+
     it "raises the right DeadActorError if terminate! called after terminated" do
       actor = actor_class.new "Arnold Schwarzenegger"
       actor.terminate
