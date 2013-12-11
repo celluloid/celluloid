@@ -20,7 +20,7 @@ Gem::Specification.new do |gem|
   gem.add_runtime_dependency 'timers', '~> 1.1.0'
 
   gem.add_development_dependency 'rake'
-  gem.add_development_dependency 'rspec'
+  gem.add_development_dependency 'rspec', '~> 2.14.1'
   gem.add_development_dependency 'guard-rspec'
   gem.add_development_dependency 'benchmark_suite'
 end
