@@ -62,4 +62,19 @@ describe Celluloid::SupervisionGroup, actor_system: :global do
       supervisor[:example].should be_a MyActor
     end
   end
+
+  context "supervision group tree" do
+    before :all do
+      class MyParentGroup < Celluloid::SupervisionGroup
+        supervise MyGroup, :as => :my_group
+      end
+    end
+
+    it "starts child-supervised actors" do
+      MyParentGroup.run!
+      sleep 0.001
+
+      Celluloid::Actor[:example].should be_running
+    end
+  end
 end
