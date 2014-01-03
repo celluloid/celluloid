@@ -10,7 +10,7 @@ module Celluloid
     finalizer :__shutdown__
 
     def initialize(worker_class, options = {})
-      @size = options[:size] || [Celluloid.cores, 2].max
+      @size = options[:size] || [Celluloid.cores || 2, 2].max
       raise ArgumentError, "minimum pool size is 2" if @size < 2
 
       @worker_class = worker_class
