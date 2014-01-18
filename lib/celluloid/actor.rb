@@ -1,31 +1,9 @@
 require 'timers'
 
 module Celluloid
-  # Don't do Actor-like things outside Actor scope
-  class NotActorError < Celluloid::Error; end
-
-  # Trying to do something to a dead actor
-  class DeadActorError < Celluloid::Error; end
-
-  # A timeout occured before the given request could complete
-  class TimeoutError < Celluloid::Error; end
-
-  # The sender made an error, not the current actor
-  class AbortError < Celluloid::Error
-    attr_reader :cause
-
-    def initialize(cause)
-      @cause = cause
-      super "caused by #{cause.inspect}: #{cause.to_s}"
-    end
-  end
-
-  LINKING_TIMEOUT = 5 # linking times out after 5 seconds
-
   # Actors are Celluloid's concurrency primitive. They're implemented as
   # normal Ruby objects wrapped in threads which communicate with asynchronous
   # messages.
-
   class Actor
     attr_reader :behavior, :proxy, :tasks, :links, :mailbox, :thread, :name, :timers
     attr_writer :exit_handler

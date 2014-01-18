@@ -4,10 +4,13 @@ require 'timeout'
 require 'set'
 
 module Celluloid
-  VERSION = '0.16.0.pre'
-  Error = Class.new StandardError
+  # Expose all instance methods as singleton methods
+  extend self
 
-  extend self # expose all instance methods as singleton methods
+  VERSION = '0.16.0.pre'
+
+  # Linking times out after 5 seconds
+  LINKING_TIMEOUT = 5
 
   # Warning message added to Celluloid objects accessed outside their actors
   BARE_OBJECT_WARNING_MESSAGE = "WARNING: BARE CELLULOID OBJECT "
@@ -450,6 +453,8 @@ end
 if defined?(JRUBY_VERSION) && JRUBY_VERSION == "1.7.3"
   raise "Celluloid is broken on JRuby 1.7.3. Please upgrade to 1.7.4+"
 end
+
+require 'celluloid/exceptions'
 
 require 'celluloid/calls'
 require 'celluloid/call_chain'
