@@ -144,18 +144,16 @@ module Celluloid
 
     # Run the actor loop
     def run
-      begin
-        while @running
-          if message = @mailbox.receive(timeout_interval)
-            handle_message message
-          else
-            # No message indicates a timeout
-            @timers.fire
-            @receivers.fire_timers
-          end
+      while @running
+        begin
+          message = @mailbox.receive(timeout_interval)
+          handle_message message
+        rescue TimeoutError
+          @timers.fire
+          @receivers.fire_timers
+        rescue MailboxShutdown
+          @running = false
         end
-      rescue MailboxShutdown
-        # If the mailbox detects shutdown, exit the actor
       end
 
       shutdown

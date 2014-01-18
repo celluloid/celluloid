@@ -42,10 +42,11 @@ module Celluloid
 
       until message
         if timeout
+          # TODO: use hitimes/timers instead of Time.now
           now = Time.now
           wait_until ||= now + timeout
           wait_interval = wait_until - now
-          return if wait_interval < 0
+          raise(TimeoutError, "mailbox timeout exceeded", nil) if wait_interval <= 0
         else
           wait_interval = nil
         end
