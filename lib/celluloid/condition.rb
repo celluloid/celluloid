@@ -17,15 +17,15 @@ module Celluloid
       end
 
       def wait
-        message = @mailbox.receive(@timeout) do |msg|
-          msg.is_a?(SignalConditionRequest) && msg.task == Thread.current
-        end
-
-        if message
-          message.value
-        else
+        begin
+          message = @mailbox.receive(@timeout) do |msg|
+            msg.is_a?(SignalConditionRequest) && msg.task == Thread.current
+          end
+        rescue TimeoutError
           raise ConditionError, "timeout after #{@timeout.inspect} seconds"
-        end
+        end until message
+
+        message.value
       end
     end
 
