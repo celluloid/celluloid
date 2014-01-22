@@ -33,6 +33,22 @@ module Celluloid
         @socket.identity
       end
 
+      def set(option, value, length = nil)
+        unless ::ZMQ::Util.resultcode_ok? @socket.setsockopt(option, value, length)
+          raise IOError, "couldn't set value for option #{option}: #{::ZMQ::Util.error_string}"
+        end
+      end
+
+      def get(option)
+        option_value = []
+
+        unless ::ZMQ::Util.resultcode_ok? @socket.getsockopt(option, option_value)
+          raise IOError, "couldn't get value for option #{option}: #{::ZMQ::Util.error_string}"
+        end
+
+        option_value[0]
+      end
+
       # Bind to the given 0MQ address
       # Address should be in the form: tcp://1.2.3.4:5678/
       def bind(addr)
