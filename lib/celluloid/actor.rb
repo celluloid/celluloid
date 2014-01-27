@@ -182,15 +182,14 @@ module Celluloid
             msg.type == type
           end
 
-          case message
-          when LinkingResponse
+          if message.instance_of? LinkingResponse
             Celluloid::Probe.actors_linked(self, receiver) if $CELLULOID_MONITORING
             # We're done!
             system_events.each { |ev| @mailbox << ev }
             return
-          when NilClass
+          elsif message.instance_of? NilClass
             raise TimeoutError, "linking timeout of #{LINKING_TIMEOUT} seconds exceeded"
-          when SystemEvent
+          elsif message.instance_of? SystemEvent
             # Queue up pending system events to be processed after we've successfully linked
             system_events << message
           else raise 'wtf'
@@ -293,17 +292,16 @@ module Celluloid
 
     # Handle high-priority system event messages
     def handle_system_event(event)
-      case event
-      when ExitEvent
+      if event.instance_of? ExitEvent
         handle_exit_event(event)
-      when LinkingRequest
+      elsif event.instance_of? LinkingRequest
         event.process(links)
-      when NamingRequest
+      elsif event.instance_of? NamingRequest
         @name = event.name
         Celluloid::Probe.actor_named(self) if $CELLULOID_MONITORING
-      when TerminationRequest
+      elsif event.instance_of? TerminationRequest
         terminate
-      when SignalConditionRequest
+      elsif event.instance_of? SignalConditionRequest
         event.call
       else
         Logger.debug "Discarded message (unhandled): #{message}" if $CELLULOID_DEBUG
