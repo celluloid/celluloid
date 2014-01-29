@@ -15,4 +15,10 @@ RSpec.configure do |config|
     ex.run
     Celluloid.shutdown
   end
+
+  config.around do |ex|
+    Celluloid::ZMQ.init(1) unless example.metadata[:no_init]
+    ex.run
+    Celluloid::ZMQ.terminate
+  end
 end
