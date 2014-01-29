@@ -19,7 +19,7 @@ module Celluloid
         klass.mailbox_class Celluloid::ZMQ::Mailbox
       end
 
-      # Obtain a 0MQ context (or lazily initialize it)
+      # Obtain a 0MQ context
       def init(worker_threads = 1)
         return @context if @context
         @context = ::ZMQ::Context.new(worker_threads)
