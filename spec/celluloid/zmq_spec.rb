@@ -28,7 +28,7 @@ describe Celluloid::ZMQ do
   end
 
   describe ".init" do
-    it "inits a ZMQ context" do
+    it "inits a ZMQ context", :no_init do
       Celluloid::ZMQ.init
       server = bind(Celluloid::ZMQ.context.socket(::ZMQ::REQ))
       client = connect(Celluloid::ZMQ.context.socket(::ZMQ::REP))
@@ -37,6 +37,17 @@ describe Celluloid::ZMQ do
       message = ""
       client.recv_string(message)
       message.should eq("hello world")
+    end
+
+    it "raises an error when trying to access context and it isn't initialized", :no_init do
+      expect { Celluloid::ZMQ.context }.to raise_error(Celluloid::ZMQ::UninitializedError)
+    end
+
+    it "raises an error when trying to access context after it is terminated" do
+      Celluloid::ZMQ.terminate
+      expect { Celluloid::ZMQ.context }.to raise_error(Celluloid::ZMQ::UninitializedError)
+      Celluloid::ZMQ.init
+      Celluloid::ZMQ.context.should_not be_nil
     end
   end
 end
