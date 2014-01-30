@@ -1,4 +1,9 @@
 shared_context "a Celluloid Mailbox" do
+  after do
+    Celluloid.logger.stub(:debug)
+    subject.shutdown if subject.alive?
+  end
+
   it "receives messages" do
     message = :ohai
 
