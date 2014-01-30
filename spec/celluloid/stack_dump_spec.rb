@@ -28,12 +28,12 @@ describe Celluloid::StackDump do
       actor.async.blocking
     end
 
-    @idle_thread = actor_system.get_thread do
-    end
     @active_thread = actor_system.get_thread do
       sleep
     end
     @active_thread.role = :other_thing
+    @idle_thread = actor_system.get_thread do
+    end
 
     sleep 0.01
   end
