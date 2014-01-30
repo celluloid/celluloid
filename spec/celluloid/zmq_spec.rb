@@ -50,4 +50,33 @@ describe Celluloid::ZMQ do
       Celluloid::ZMQ.context.should_not be_nil
     end
   end
+
+  describe Celluloid::ZMQ::RepSocket do
+    it "receives messages" do
+      actor = Class.new do
+        include Celluloid::ZMQ
+
+        finalizer :close_socket
+
+        def initialize(port)
+          @socket = Celluloid::ZMQ::RepSocket.new
+          @socket.connect("tcp://127.0.0.1:#{port}")
+        end
+
+        def fetch
+          @socket.read
+        end
+
+        def close_socket
+          @socket.close
+        end
+      end
+      server = bind(Celluloid::ZMQ.context.socket(::ZMQ::REQ))
+      client = actor.new(ports[0])
+
+      server.send_string("hello world")
+      result = client.fetch
+      result.should eq("hello world")
+    end
+  end
 end
