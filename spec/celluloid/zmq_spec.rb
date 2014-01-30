@@ -52,8 +52,8 @@ describe Celluloid::ZMQ do
   end
 
   describe Celluloid::ZMQ::RepSocket do
-    it "receives messages" do
-      actor = Class.new do
+    let(:actor) do
+      Class.new do
         include Celluloid::ZMQ
 
         finalizer :close_socket
@@ -61,6 +61,10 @@ describe Celluloid::ZMQ do
         def initialize(port)
           @socket = Celluloid::ZMQ::RepSocket.new
           @socket.connect("tcp://127.0.0.1:#{port}")
+        end
+
+        def say_hi
+          "Hi!"
         end
 
         def fetch
@@ -71,12 +75,25 @@ describe Celluloid::ZMQ do
           @socket.close
         end
       end
+    end
+
+    it "receives messages" do
       server = bind(Celluloid::ZMQ.context.socket(::ZMQ::REQ))
       client = actor.new(ports[0])
 
       server.send_string("hello world")
       result = client.fetch
       result.should eq("hello world")
+    end
+
+    it "suspends actor while waiting for message" do
+      server = bind(Celluloid::ZMQ.context.socket(::ZMQ::REQ))
+      client = actor.new(ports[0])
+
+      result = client.future.fetch
+      client.say_hi.should eq("Hi!")
+      server.send_string("hello world")
+      result.value.should eq("hello world")
     end
   end
 end
