@@ -106,4 +106,58 @@ describe Celluloid::ZMQ do
       result.value.should eq("hello world")
     end
   end
+
+  describe Celluloid::ZMQ::ReqSocket do
+    let(:actor) do
+      Class.new do
+        include Celluloid::ZMQ
+
+        finalizer :close_socket
+
+        def initialize(port)
+          @socket = Celluloid::ZMQ::ReqSocket.new
+          @socket.connect("tcp://127.0.0.1:#{port}")
+        end
+
+        def say_hi
+          "Hi!"
+        end
+
+        def send(message)
+          @socket.write(message)
+          true
+        end
+
+        def close_socket
+          @socket.close
+        end
+      end
+    end
+
+    it "sends messages" do
+      client = bind(Celluloid::ZMQ.context.socket(::ZMQ::REP))
+      server = actor.new(ports[0])
+
+      server.send("hello world")
+
+      message = ""
+      client.recv_string(message)
+      message.should eq("hello world")
+    end
+
+    it "suspends actor while waiting for message to be sent" do
+      client = bind(Celluloid::ZMQ.context.socket(::ZMQ::REP))
+      server = actor.new(ports[0])
+
+      result = server.future.send("hello world")
+
+      server.say_hi.should eq("Hi!")
+
+      message = ""
+      client.recv_string(message)
+      message.should eq("hello world")
+
+      result.value.should be_true
+    end
+  end
 end
