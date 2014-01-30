@@ -77,23 +77,6 @@ module Celluloid
       end
     end
 
-    # Retrieve the next message in the mailbox
-    def next_message
-      message = nil
-
-      if block_given?
-        index = @messages.index do |msg|
-          yield(msg) || msg.is_a?(SystemEvent)
-        end
-
-        message = @messages.slice!(index, 1).first if index
-      else
-        message = @messages.shift
-      end
-
-      message
-    end
-
     # Shut down this mailbox and clean up its contents
     def shutdown
       raise MailboxDead, "mailbox already shutdown" if @dead
@@ -141,6 +124,23 @@ module Celluloid
     end
 
     private
+
+    # Retrieve the next message in the mailbox
+    def next_message
+      message = nil
+
+      if block_given?
+        index = @messages.index do |msg|
+          yield(msg) || msg.is_a?(SystemEvent)
+        end
+
+        message = @messages.slice!(index, 1).first if index
+      else
+        message = @messages.shift
+      end
+
+      message
+    end
 
     def dead_letter(message)
       Logger.debug "Discarded message (mailbox is dead): #{message}" if $CELLULOID_DEBUG
