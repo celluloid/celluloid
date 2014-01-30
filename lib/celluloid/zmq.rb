@@ -13,6 +13,8 @@ module Celluloid
     UninitializedError = Class.new StandardError
 
     class << self
+      attr_writer :context
+
       # Included hook to pull in Celluloid
       def included(klass)
         klass.send :include, ::Celluloid

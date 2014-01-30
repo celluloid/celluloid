@@ -39,6 +39,16 @@ describe Celluloid::ZMQ do
       message.should eq("hello world")
     end
 
+    it "can set ZMQ context manually", :no_init do
+      context = ::ZMQ::Context.new(1)
+      begin
+        Celluloid::ZMQ.context = context
+        Celluloid::ZMQ.context.should eq(context)
+      ensure
+        context.terminate
+      end
+    end
+
     it "raises an error when trying to access context and it isn't initialized", :no_init do
       expect { Celluloid::ZMQ.context }.to raise_error(Celluloid::ZMQ::UninitializedError)
     end
