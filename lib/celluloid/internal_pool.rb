@@ -6,7 +6,6 @@ module Celluloid
     attr_accessor :max_idle
 
     def initialize
-      @group = ThreadGroup.new
       @mutex = Mutex.new
       @threads = []
 
@@ -108,7 +107,6 @@ module Celluloid
 
       thread[:celluloid_queue] = queue
       @threads << thread
-      @group.add(thread)
       thread
     end
 
@@ -137,7 +135,6 @@ module Celluloid
         @running = false
 
         @threads.shift.kill until @threads.empty?
-        @group.list.each(&:kill)
       end
     end
 
