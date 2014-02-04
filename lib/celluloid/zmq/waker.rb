@@ -50,6 +50,7 @@ module Celluloid
         @receiver.close rescue nil
         nil
       end
+      alias_method :shutdown, :cleanup
     end
   end
 end

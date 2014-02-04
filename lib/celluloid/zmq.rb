@@ -10,6 +10,8 @@ require 'celluloid/zmq/waker'
 module Celluloid
   # Actors which run alongside 0MQ sockets
   module ZMQ
+    UninitializedError = Class.new StandardError
+
     class << self
       attr_writer :context
 
@@ -19,15 +21,20 @@ module Celluloid
         klass.mailbox_class Celluloid::ZMQ::Mailbox
       end
 
-      # Obtain a 0MQ context (or lazily initialize it)
-      def context(worker_threads = 1)
+      # Obtain a 0MQ context
+      def init(worker_threads = 1)
         return @context if @context
         @context = ::ZMQ::Context.new(worker_threads)
       end
-      alias_method :init, :context
+
+      def context
+        raise UninitializedError, "you must initialize Celluloid::ZMQ by calling Celluloid::ZMQ.init" unless @context
+        @context
+      end
 
       def terminate
-        @context.terminate
+        @context.terminate if @context
+        @context = nil
       end
     end
 
