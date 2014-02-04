@@ -104,4 +104,4 @@ sleep
 Copyright
 ---------
 
-Copyright (c) 2012 Tony Arcieri. See LICENSE.txt for further details.
+Copyright (c) 2014 Tony Arcieri. See LICENSE.txt for further details.
