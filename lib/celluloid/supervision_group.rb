@@ -5,6 +5,24 @@ module Celluloid
     trap_exit :restart_actor
 
     class << self
+      def new(registry = nil)
+        super(registry) do |_group|
+          blocks.each do |block|
+            block.call(_group)
+          end
+          yield _group if block_given?
+        end
+      end
+
+      def new_link(registry = nil)
+        super(registry) do |_group|
+          blocks.each do |block|
+            block.call(_group)
+          end
+          yield _group if block_given?
+        end
+      end
+
       # Actors or sub-applications to be supervised
       def blocks
         @blocks ||= []
