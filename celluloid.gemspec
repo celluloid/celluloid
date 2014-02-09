@@ -14,7 +14,7 @@ Gem::Specification.new do |gem|
   gem.required_ruby_version     = '>= 1.9.2'
   gem.required_rubygems_version = '>= 1.3.6'
 
-  gem.files        = Dir['README.md', 'lib/**/*', 'spec/**/*']
+  gem.files        = Dir['README.md', 'LICENSE.txt', 'lib/**/*', 'spec/**/*']
   gem.require_path = 'lib'
 
   gem.add_runtime_dependency 'timers', '~> 2.0.0'
