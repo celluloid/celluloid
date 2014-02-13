@@ -5,9 +5,9 @@ module Celluloid
     # Used for reflecting on proxy objects themselves
     def __class__; CellProxy; end
 
-    def initialize(actor_proxy, mailbox, klass)
+    def initialize(actor_thread, mailbox, klass)
       super(mailbox, klass)
-      @actor_proxy  = actor_proxy
+      @actor_thread  = actor_thread
       @sync_proxy   = SyncProxy.new(mailbox, klass)
       @async_proxy  = AsyncProxy.new(mailbox, klass)
       @future_proxy = FutureProxy.new(mailbox, klass)
@@ -48,21 +48,24 @@ module Celluloid
     end
 
     def alive?
-      @actor_proxy.alive?
+      @mailbox.alive?
     end
 
     def thread
-      @actor_proxy.thread
+      @actor_thread
     end
 
     # Terminate the associated actor
     def terminate
-      @actor_proxy.terminate
+      terminate!
+      Actor.join(self)
+      nil
     end
 
     # Terminate the associated actor asynchronously
     def terminate!
-      @actor_proxy.terminate!
+      ::Kernel.raise DeadActorError, "actor already terminated" unless alive?
+      @mailbox << TerminationRequest.new
     end
   end
 end

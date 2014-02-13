@@ -129,7 +129,6 @@ module Celluloid
         run
       end
 
-      @proxy = ActorProxy.new(@thread, @mailbox)
       Celluloid::Probe.actor_created(self) if $CELLULOID_MONITORING
     end
 

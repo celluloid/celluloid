@@ -41,7 +41,7 @@ module Celluloid
       end
 
       @actor.start
-      @proxy = (options[:proxy_class] || CellProxy).new(@actor.proxy, @actor.mailbox, @subject.class.to_s)
+      @proxy = (options[:proxy_class] || CellProxy).new(@actor.thread, @actor.mailbox, @subject.class.to_s)
     end
     attr_reader :proxy, :subject
 
