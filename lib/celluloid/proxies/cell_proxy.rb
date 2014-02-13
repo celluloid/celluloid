@@ -5,9 +5,9 @@ module Celluloid
     # Used for reflecting on proxy objects themselves
     def __class__; CellProxy; end
 
-    def initialize(actor_thread, mailbox, klass)
-      super(mailbox, klass)
-      @actor_thread  = actor_thread
+    def initialize(actor, klass)
+      super(actor.mailbox, klass)
+      @actor        = actor
       @sync_proxy   = SyncProxy.new(mailbox, klass)
       @async_proxy  = AsyncProxy.new(mailbox, klass)
       @future_proxy = FutureProxy.new(mailbox, klass)
@@ -52,13 +52,13 @@ module Celluloid
     end
 
     def thread
-      @actor_thread
+      @actor.thread
     end
 
     # Terminate the associated actor
     def terminate
       terminate!
-      Actor.join(self)
+      Actor.join(@actor)
       nil
     end
 
