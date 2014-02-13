@@ -5,7 +5,7 @@ module Celluloid
   # normal Ruby objects wrapped in threads which communicate with asynchronous
   # messages.
   class Actor
-    attr_reader :behavior, :proxy, :tasks, :links, :mailbox, :thread, :name, :timers
+    attr_reader :behavior, :tasks, :links, :mailbox, :thread, :name, :timers
     attr_writer :exit_handler
 
     class << self
