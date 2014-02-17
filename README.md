@@ -104,7 +104,7 @@ like Celluloid we definitely recommend you check them out:
 * [Celluloid::ZMQ][celluloid-zmq]: "Evented" 0MQ support for Celluloid actors
 * [DCell][dcell]: The Celluloid actor protocol distributed over 0MQ
 * [Reel][reel]: An "evented" web server based on Celluloid::IO
-* [Lattice][lattice]: A concurrent realtime web framework based on Celluloid::IO 
+* [Lattice][lattice]: A concurrent realtime web framework based on Celluloid::IO
 * [nio4r][nio4r]: "New IO for Ruby": high performance IO selectors
 * [Timers][timers]: A generic Ruby timer library for event-based systems
 
@@ -167,5 +167,5 @@ Contributing to Celluloid
 License
 -------
 
-Copyright (c) 2014 Tony Arcieri. Distributed under the MIT License. See
+Copyright (c) 2011-2014 Tony Arcieri. Distributed under the MIT License. See
 LICENSE.txt for further details.
