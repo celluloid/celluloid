@@ -46,13 +46,14 @@ module Celluloid
       until message
         if timeout
           @timers.after(timeout) {
-            raise(TimeoutError, "mailbox timeout exceeded", nil)
+            message = next_message(block)
+            raise(TimeoutError, "mailbox timeout exceeded", nil) if message.nil?
           }
+          @timers.wait
+        else
+          message = next_message(block)
         end
-        @timers.wait
-        message = next_message(block)
       end
-
       message
     rescue IOError
       raise MailboxShutdown, "mailbox shutdown called during receive"
