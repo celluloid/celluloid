@@ -1,4 +1,5 @@
 require 'thread'
+require 'timers'
 
 module Celluloid
   class MailboxDead < Celluloid::Error; end # you can't receive from the dead
@@ -20,6 +21,7 @@ module Celluloid
       @dead      = false
       @condition = ConditionVariable.new
       @max_size  = nil
+      @timers    = Timers.new
     end
 
     # Add a message to the Mailbox
@@ -48,6 +50,7 @@ module Celluloid
     # Receive a message from the Mailbox
     def receive(timeout = nil, &block)
       message = nil
+      wait_interval = nil
 
       @mutex.lock
       begin
@@ -58,13 +61,9 @@ module Celluloid
 
           unless message
             if timeout
-              # TODO: use hitimes/timers instead of Time.now
-              now = Time.now
-              wait_until ||= now + timeout
-              wait_interval = wait_until - now
-              raise(TimeoutError, "mailbox timeout exceeded", nil) if wait_interval <= 0
-            else
-              wait_interval = nil
+              raise(TimeoutError, "mailbox timeout exceeded", nil) unless wait_interval.nil?
+              @timers.after(timeout)
+              wait_interval = @timers.wait_interval
             end
 
             @condition.wait(@mutex, wait_interval)
