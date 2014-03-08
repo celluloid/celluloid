@@ -5,7 +5,6 @@ module Celluloid
     trap_exit :restart_actor
 
     class << self
-      finalizer :finalize
 
       # Actors or sub-applications to be supervised
       def blocks
@@ -56,6 +55,8 @@ module Celluloid
         end
       end
     end
+
+    finalizer :finalize
 
     # Start the group
     def initialize(registry = nil)
