@@ -42,16 +42,21 @@ module Celluloid
     # Receive a message from the Mailbox
     def receive(timeout = nil, &block)
       message = next_message(block)
+      wait_interval = nil
 
       until message
-        if timeout
-          @timers.after(timeout) do
-            message = next_message(block)
-            raise(TimeoutError, "mailbox timeout exceeded", nil) if message.nil?
+        message = next_message(block)
+
+        unless message
+          if timeout
+            raise(TimeoutError, "mailbox timeout exceeded", nil) unless wait_interval.nil?
+            @timers.after(timeout)
+            wait_interval = @timers.wait_interval
           end
-          @timers.wait
-        else
-          message = next_message(block)
+
+          @reactor.run_once(wait_interval) do
+            @timers.fire
+          end
         end
       end
 
