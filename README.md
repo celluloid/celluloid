@@ -153,7 +153,8 @@ Celluloid requires Ruby 1.9 mode on all interpreters.
 Additional Reading
 ------------------
 
-* [Concurrent Object-Oriented Programming in Python with ATOM](http://python.org/workshops/1997-10/proceedings/atom/):
+* [Concurrent Object-Oriented Programming in Python with
+  ATOM](http://citeseerx.ist.psu.edu/viewdoc/download;jsessionid=11A3EACE78AAFF6D6D62A64118AFCA7C?doi=10.1.1.47.5074&rep=rep1&type=pdf):
   a similar system to Celluloid written in Python
 
 Contributing to Celluloid
