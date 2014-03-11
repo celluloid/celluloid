@@ -351,6 +351,11 @@ module Celluloid
     Thread.current[:celluloid_actor].links
   end
 
+  #Obtain the current supervisor for this actor if one exists.
+  def supervisor
+    Thread.current[:celluloid_actor].supervisor
+  end
+
   # Watch for exit events from another actor
   def monitor(actor)
     Actor.monitor(actor)

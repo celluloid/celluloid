@@ -363,5 +363,10 @@ module Celluloid
         end
       }.resume
     end
+
+    # Retreive the supervisor of this actor if there is one.
+    def supervisor
+      @supervisor ||= @links.to_a.select{|link| link.class <= SupervisionGroup}.first
+    end
   end
 end
