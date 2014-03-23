@@ -347,7 +347,7 @@ module Celluloid
         end
       end
 
-      tasks.to_a.each { |task| task.terminate }
+      tasks.to_a.each(&:terminate)
     rescue => ex
       # TODO: metadata
       Logger.crash("CLEANUP CRASHED!", ex)
