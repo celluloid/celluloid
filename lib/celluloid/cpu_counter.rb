@@ -4,7 +4,11 @@ module Celluloid
   module CPUCounter
     case RbConfig::CONFIG['host_os'][/^[A-Za-z]+/]
     when 'darwin'
-      @cores = Integer(`/usr/sbin/sysctl hw.ncpu`[/\d+/])
+      begin
+        @cores = Integer(`/usr/sbin/sysctl hw.ncpu`[/\d+/])
+      rescue Errno::EINTR
+        @cores = nil
+      end
     when 'linux'
       @cores = if File.exists?("/sys/devices/system/cpu/present")
         File.read("/sys/devices/system/cpu/present").split('-').last.to_i+1
