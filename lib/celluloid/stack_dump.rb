@@ -3,6 +3,7 @@ module Celluloid
     module DisplayBacktrace
       def display_backtrace(backtrace, output, indent = nil)
         backtrace ||= ["EMPTY BACKTRACE"]
+        backtrace = [ backtrace ] if backtrace.is_a? String
         backtrace.each do |line|
           output << indent if indent
           output << "\t" << line << "\n"
