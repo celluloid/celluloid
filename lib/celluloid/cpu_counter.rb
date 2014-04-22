@@ -25,6 +25,13 @@ module Celluloid
       else
         @cores = nil
       end
+    rescue => ex
+      if ENV['CELLULOID_IGNORE_CORE_COUNTING_ERRORS'] == 'true'
+        $stderr.puts(ex.message + "; ignoring and setting cores to nil")
+        @cores = nil
+      else
+        raise 
+      end
     end
 
   end

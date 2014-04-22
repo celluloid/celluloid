@@ -7,17 +7,47 @@ describe Celluloid::CPUCounter do
       RbConfig::CONFIG['host_os'] = fake_host_os
       Celluloid::CPUCounter.instance_variable_set("@cores",nil)
     end
+
     after do
       RbConfig::CONFIG['host_os'] = @actual_host_os
       ENV["NUMBER_OF_PROCESSORS"] = nil
     end
+
     let(:num_cores) { 1024 }
+
+    shared_context "can optionally ignore unexpected conditions" do
+      before do
+        Celluloid::CPUCounter.stub(:`).and_raise(Errno::EINTR)
+        File.stub(:exists?).and_raise(Errno::EACCES)
+        ENV['CELLULOID_IGNORE_CORE_COUNTING_ERRORS'] = nil
+      end
+      context "when we do not want to blow up" do
+        before do
+          ENV['CELLULOID_IGNORE_CORE_COUNTING_ERRORS'] = 'true'
+          $stderr.should_receive(:puts)
+        end
+        it "returns nil instead of blowing up" do
+          Celluloid::CPUCounter.cores.should == nil
+        end
+      end
+      context "by default, when we do want to blow up" do
+        it "blows up" do
+          expect {
+            Celluloid::CPUCounter.cores
+          }.to raise_error
+        end
+      end
+    end
+
     context 'darwin' do
       let(:fake_host_os) { 'darwin' }
-      it "uses sysctl" do
-        Celluloid::CPUCounter.should_receive(:`).with("/usr/sbin/sysctl hw.ncpu").and_return("hw.ncpu: #{num_cores}")
-        Celluloid::CPUCounter.cores.should == num_cores
+      context "when everything is OK" do
+        it "uses sysctl" do
+          Celluloid::CPUCounter.should_receive(:`).with("/usr/sbin/sysctl hw.ncpu").and_return("hw.ncpu: #{num_cores}")
+          Celluloid::CPUCounter.cores.should == num_cores
+        end
       end
+      include_context "can optionally ignore unexpected conditions"
     end
     context 'linux' do
       let(:fake_host_os) { 'linux' }
@@ -36,6 +66,7 @@ describe Celluloid::CPUCounter do
           Celluloid::CPUCounter.cores.should == num_cores
         end
       end
+      include_context "can optionally ignore unexpected conditions"
     end
     context 'mingw' do
       let(:fake_host_os) { 'mingw' }
@@ -53,10 +84,13 @@ describe Celluloid::CPUCounter do
     end
     context 'freebsd' do
       let(:fake_host_os) { 'freebsd' }
-      it "uses sysctl" do
-        Celluloid::CPUCounter.should_receive(:`).with("sysctl hw.ncpu").and_return("hw.ncpu: #{num_cores}")
-        Celluloid::CPUCounter.cores.should == num_cores
+      context "when everything is OK" do
+        it "uses sysctl" do
+          Celluloid::CPUCounter.should_receive(:`).with("sysctl hw.ncpu").and_return("hw.ncpu: #{num_cores}")
+          Celluloid::CPUCounter.cores.should == num_cores
+        end
       end
+      include_context "can optionally ignore unexpected conditions"
     end
     context 'ENCOM OS-12' do
       let(:fake_host_os) { 'encom_os-12' }
