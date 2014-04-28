@@ -18,7 +18,7 @@ module Celluloid
                  else
                    Dir["/sys/devices/system/cpu/cpu*"].select { |n| n=~/cpu\d+/ }.count
                  end
-      when 'mingw', 'mswin'
+      when 'mingw', 'mswin', 'cygwin'
         @cores = Integer(ENV["NUMBER_OF_PROCESSORS"][/\d+/])
       when 'freebsd'
         @cores = Integer(`sysctl hw.ncpu`[/\d+/])
