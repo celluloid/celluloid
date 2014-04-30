@@ -3,6 +3,14 @@ require 'spec_helper'
 describe Celluloid::CPUCounter do
   describe :cores do
     before do
+      msg = "you forgot to stub this! (at #{__FILE__}:#{__LINE__})"
+      Celluloid::CPUCounter.stub(:`) do |args|
+        msg = "backtick stub called with: #{args.inspect} - " + msg
+        raise(RuntimeError, msg)
+      end
+      File.stub(:exists?).and_raise(RuntimeError, msg)
+      ::IO.stub(:open).and_raise(RuntimeError, msg)
+
       @actual_host_os = RbConfig::CONFIG['host_os']
       RbConfig::CONFIG['host_os'] = fake_host_os
       Celluloid::CPUCounter.instance_variable_set("@cores",nil)
