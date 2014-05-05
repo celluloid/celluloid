@@ -1,4 +1,5 @@
---color 
---format documentation 
+--color
+--format documentation
 --backtrace
---default_path spec
+--order random
+--warnings
