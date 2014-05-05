@@ -7,7 +7,6 @@ module Celluloid
     class DNSResolver
       # Maximum UDP packet we'll accept
       MAX_PACKET_SIZE = 512
-      RESOLV_CONF     = '/etc/resolv.conf'
       DNS_PORT        = 53
 
       @mutex = Mutex.new
@@ -17,7 +16,7 @@ module Celluloid
         @mutex.synchronize { @identifier = (@identifier + 1) & 0xFFFF }
       end
 
-      def self.nameservers(config = RESOLV_CONF)
+      def self.nameservers(config = Resolv::Hosts::DefaultFileName)
         Resolv::DNS::Config.default_config_hash(config)[:nameserver]
       end
 
