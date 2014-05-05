@@ -81,6 +81,22 @@ module Celluloid
       @size
     end
 
+    def size=(new_size)
+      new_size = [0, new_size].max
+
+      if new_size > size
+        delta = new_size - size
+        delta.times { @idle << @worker_class.new_link(*@args) }
+      else
+        (size - new_size).times do
+          worker = __provision_worker__
+          unlink worker
+          @busy.delete worker
+        end
+      end
+      @size = new_size
+    end
+
     def busy_size
       @busy.length
     end
