@@ -92,6 +92,7 @@ module Celluloid
           worker = __provision_worker__
           unlink worker
           @busy.delete worker
+          worker.terminate
         end
       end
       @size = new_size
