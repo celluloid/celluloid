@@ -9,32 +9,19 @@ module Celluloid
   private
 
     def self.count_cores
-      case RbConfig::CONFIG['host_os'][/^[A-Za-z]+/]
+      result = ENV['NUMBER_OF_PROCESSORS'] || case RbConfig::CONFIG['host_os'][/^[A-Za-z]+/]
       when 'darwin'
-        @cores = Integer(`/usr/sbin/sysctl hw.ncpu`[/\d+/])
+        `/usr/sbin/sysctl -n hw.ncpu`
+      when /bsd|dragonfly/
+        `/sbin/sysctl -n hw.ncpu`
       when 'linux'
-        @cores = if File.exists?("/sys/devices/system/cpu/present")
-                   File.read("/sys/devices/system/cpu/present").split('-').last.to_i+1
-                 else
-                   Dir["/sys/devices/system/cpu/cpu*"].select { |n| n=~/cpu\d+/ }.count
-                 end
-      when 'mingw', 'mswin', 'cygwin'
-        @cores = Integer(ENV["NUMBER_OF_PROCESSORS"][/\d+/])
-      when 'freebsd'
-        @cores = Integer(`sysctl hw.ncpu`[/\d+/])
-      else
-        @cores = nil
+        begin
+          return ::IO.read('/sys/devices/system/cpu/present').split('-').last.to_i+1
+        rescue Errno::ENOENT
+          return Dir["/sys/devices/system/cpu/cpu*"].select { |n| n=~/cpu\d+/ }.count
+        end
       end
-    rescue => ex
-      if ENV['CELLULOID_IGNORE_CORE_COUNTING_ERRORS'] == 'true'
-        $stderr.puts(ex.message + "; ignoring and setting cores to nil")
-        @cores = nil
-      else
-        raise 
-      end
+      result && Integer(result[/\d+/])
     end
-
   end
 end
-
-
