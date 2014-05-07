@@ -24,7 +24,7 @@ module Celluloid
     end
 
     def __shutdown__
-      terminators = (@idle + @busy).each do |actor|
+      terminators = (@idle + @busy).map do |actor|
         begin
           actor.future(:terminate)
         rescue DeadActorError
