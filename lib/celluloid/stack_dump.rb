@@ -3,6 +3,7 @@ module Celluloid
     module DisplayBacktrace
       def display_backtrace(backtrace, output, indent = nil)
         backtrace ||= ["EMPTY BACKTRACE"]
+        raise TypeError "Not an array" unless backtrace.is_a? Array
         backtrace.each do |line|
           output << indent if indent
           output << "\t" << line << "\n"
