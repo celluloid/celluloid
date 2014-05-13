@@ -14,9 +14,21 @@ describe "Celluloid.pool", actor_system: :global do
       end
     end
 
+    def sleepy_work
+      t = Time.now.to_f
+      sleep 0.25
+      t
+    end
+
     def crash
       raise ExampleError, "zomgcrash"
     end
+  end
+
+  def test_concurrency_of(pool)
+    baseline = Time.now.to_f
+    values = 10.times.map { pool.future.sleepy_work }.map(&:value)
+    values.select {|t| t - baseline < 0.1 }.length
   end
 
   subject { MyWorker.pool }
@@ -55,5 +67,26 @@ describe "Celluloid.pool", actor_system: :global do
       subject.future.process
     end
     futures.map(&:value)
+  end
+
+  context "#size=" do
+    subject { MyWorker.pool size: 4 }
+
+    it "should adjust the pool size up" do
+      test_concurrency_of(subject).should == 4
+
+      subject.size = 6
+      subject.size.should == 6
+
+      test_concurrency_of(subject).should == 6
+    end
+
+    it "should adjust the pool size down" do
+      test_concurrency_of(subject).should == 4
+
+      subject.size = 2
+      subject.size.should == 2
+      test_concurrency_of(subject).should == 2
+    end
   end
 end
