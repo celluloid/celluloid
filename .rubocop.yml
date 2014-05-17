@@ -123,6 +123,9 @@ EmptyLines:
 EmptyLinesAroundBody:
   Enabled: false
 
+Encoding:
+  Enabled: false
+
 # Offense count: 1
 # Configuration parameters: AlignWith, SupportedStyles.
 EndAlignment:
