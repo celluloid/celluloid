@@ -10,4 +10,4 @@ module Celluloid
       Thread.current[:celluloid_chain_id]
     end
   end
- end
+end
