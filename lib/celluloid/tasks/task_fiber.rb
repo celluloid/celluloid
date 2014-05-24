@@ -37,7 +37,7 @@ module Celluloid
     end
 
     def backtrace
-      "#{self.class} backtrace unavailable. Please try `Celluloid.task_class = Celluloid::TaskThread` if you need backtraces here."
+      ["#{self.class} backtrace unavailable. Please try `Celluloid.task_class = Celluloid::TaskThread` if you need backtraces here."]
     end
   end
 end
