@@ -38,24 +38,16 @@ module Celluloid
 
     # Receive a message from the Mailbox
     def receive(timeout = nil, &block)
-      message = next_message(block)
-
-      until message
-        if timeout
-          # TODO: use hitimes/timers instead of Time.now
-          now = Time.now
-          wait_until ||= now + timeout
-          wait_interval = wait_until - now
-          raise(TimeoutError, "mailbox timeout exceeded", nil) if wait_interval <= 0
-        else
-          wait_interval = nil
-        end
-
-        @reactor.run_once(wait_interval)
-        message = next_message(block)
+      # Get a message if it is available and process it immediately if possible:
+      if message = next_message(block)
+        return message
       end
-
-      message
+      
+      # ... otherwise, run the reactor once, either blocking or will return after the given timeout.
+      @reactor.run_once(timeout)
+      
+      # This is a hack to get the main Actor#run loop to recompute the timeout:
+      raise TimeoutError
     rescue IOError
       raise MailboxShutdown, "mailbox shutdown called during receive"
     end
