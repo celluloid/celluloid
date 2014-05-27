@@ -1,3 +1,5 @@
+require 'timers'
+
 module Celluloid
   # An alternative implementation of Celluloid::Mailbox using Reactor
   class EventedMailbox < Celluloid::Mailbox
@@ -7,6 +9,7 @@ module Celluloid
       super()
       # @condition won't be used in the class.
       @reactor = reactor_class.new
+      @timers  = Timers.new
     end
 
     # Add a message to the Mailbox
@@ -39,20 +42,22 @@ module Celluloid
     # Receive a message from the Mailbox
     def receive(timeout = nil, &block)
       message = next_message(block)
+      wait_interval = nil
 
       until message
-        if timeout
-          # TODO: use hitimes/timers instead of Time.now
-          now = Time.now
-          wait_until ||= now + timeout
-          wait_interval = wait_until - now
-          raise(TimeoutError, "mailbox timeout exceeded", nil) if wait_interval <= 0
-        else
-          wait_interval = nil
-        end
-
-        @reactor.run_once(wait_interval)
         message = next_message(block)
+
+        unless message
+          if timeout
+            raise(TimeoutError, "mailbox timeout exceeded", nil) unless wait_interval.nil?
+            @timers.after(timeout)
+            wait_interval = @timers.wait_interval
+          end
+
+          @reactor.run_once(wait_interval) do
+            @timers.fire
+          end
+        end
       end
 
       message
