@@ -19,6 +19,14 @@ shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
     actor.class.should eq(actor_class)
   end
 
+  it "knows who its supervisor is" do
+    class MyGroup < Celluloid::SupervisionGroup
+      supervise Class.new{include Celluloid}, :as => :example
+    end
+    supervisor = MyGroup.run!
+    supervisor.actors.first.supervisor.should eq supervisor
+  end
+
   it "compares with the actor's class in a case statement" do
     case actor_class.new("Troy McClure")
     when actor_class

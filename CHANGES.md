@@ -4,6 +4,7 @@ HEAD
   #registered_name to avoid conflicts with the built-in Ruby
   Class.name method
 * Update to timers 2.0.0
+* An actor can now return its supervisor if one exists via Celluloid::Actor#supervisor.
 
 0.15.0 (2013-09-04)
 -------------------
