@@ -1,4 +1,6 @@
+
 require 'timers'
+require 'timers/timeout'
 
 module Celluloid
   # Actors are Celluloid's concurrency primitive. They're implemented as
@@ -170,31 +172,37 @@ module Celluloid
     # Perform a linking request with another actor
     def linking_request(receiver, type)
       Celluloid.exclusive do
-        start_time = Time.now
+        linking_timeout = Timers::Timeout.new(LINKING_TIMEOUT)
+        
         receiver.mailbox << LinkingRequest.new(Actor.current, type)
         system_events = []
-
-        loop do
-          wait_interval = start_time + LINKING_TIMEOUT - Time.now
-          message = @mailbox.receive(wait_interval) do |msg|
-            msg.is_a?(LinkingResponse) &&
-            msg.actor.mailbox.address == receiver.mailbox.address &&
-            msg.type == type
+        
+        linking_timeout.while_time_remaining do |remaining|
+          begin
+            message = @mailbox.receive(remaining) do |msg|
+              msg.is_a?(LinkingResponse) &&
+              msg.actor.mailbox.address == receiver.mailbox.address &&
+              msg.type == type
+            end
+          rescue TimeoutError
+            next # IO reactor did something, no message in queue yet.
           end
-
+          
           if message.instance_of? LinkingResponse
             Celluloid::Probe.actors_linked(self, receiver) if $CELLULOID_MONITORING
+            
             # We're done!
             system_events.each { |ev| @mailbox << ev }
+            
             return
-          elsif message.instance_of? NilClass
-            raise TimeoutError, "linking timeout of #{LINKING_TIMEOUT} seconds exceeded"
           elsif message.is_a? SystemEvent
             # Queue up pending system events to be processed after we've successfully linked
             system_events << message
           else raise "Unexpected message type: #{message.class}. Expected LinkingResponse, NilClass, SystemEvent."
           end
         end
+        
+        raise TimeoutError, "linking timeout of #{LINKING_TIMEOUT} seconds exceeded"
       end
     end
 
