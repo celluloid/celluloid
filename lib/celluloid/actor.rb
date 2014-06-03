@@ -172,10 +172,10 @@ module Celluloid
     def linking_request(receiver, type)
       Celluloid.exclusive do
         linking_timeout = Timers::Timeout.new(LINKING_TIMEOUT)
-        
+
         receiver.mailbox << LinkingRequest.new(Actor.current, type)
         system_events = []
-        
+
         linking_timeout.while_time_remaining do |remaining|
           begin
             message = @mailbox.receive(remaining) do |msg|
@@ -186,13 +186,13 @@ module Celluloid
           rescue TimeoutError
             next # IO reactor did something, no message in queue yet.
           end
-          
+
           if message.instance_of? LinkingResponse
             Celluloid::Probe.actors_linked(self, receiver) if $CELLULOID_MONITORING
-            
+
             # We're done!
             system_events.each { |ev| @mailbox << ev }
-            
+
             return
           elsif message.is_a? SystemEvent
             # Queue up pending system events to be processed after we've successfully linked
@@ -200,7 +200,7 @@ module Celluloid
           else raise "Unexpected message type: #{message.class}. Expected LinkingResponse, NilClass, SystemEvent."
           end
         end
-        
+
         raise TimeoutError, "linking timeout of #{LINKING_TIMEOUT} seconds exceeded"
       end
     end
