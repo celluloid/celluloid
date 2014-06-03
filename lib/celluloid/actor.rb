@@ -1,6 +1,5 @@
 
 require 'timers'
-require 'timers/timeout'
 
 module Celluloid
   # Actors are Celluloid's concurrency primitive. They're implemented as
@@ -114,7 +113,7 @@ module Celluloid
       @links     = Links.new
       @signals   = Signals.new
       @receivers = Receivers.new
-      @timers    = Timers.new
+      @timers    = Timers::Group.new
       @handlers  = Handlers.new
       @running   = false
       @name      = nil
