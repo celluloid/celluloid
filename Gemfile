@@ -1,6 +1,8 @@
 source 'https://rubygems.org'
 gemspec
 
+gem 'timers', github: 'celluloid/timers'
+
 gem 'coveralls', require: false
 gem 'pry'
 
