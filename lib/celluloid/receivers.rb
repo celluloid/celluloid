@@ -1,4 +1,5 @@
 require 'set'
+
 require 'timers'
 
 module Celluloid
@@ -6,7 +7,7 @@ module Celluloid
   class Receivers
     def initialize
       @receivers = Set.new
-      @timers = Timers.new
+      @timers = Timers::Group.new
     end
 
     # Receive an asynchronous message

@@ -42,10 +42,10 @@ module Celluloid
       if message = next_message(block)
         return message
       end
-      
+
       # ... otherwise, run the reactor once, either blocking or will return after the given timeout.
       @reactor.run_once(timeout)
-      
+
       # This is a hack to get the main Actor#run loop to recompute the timeout:
       raise TimeoutError
     rescue IOError
