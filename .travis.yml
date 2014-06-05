@@ -6,14 +6,14 @@ rvm:
   - ruby-head
   - jruby
   - jruby-head
-  - rbx
+  - rbx-2
 
 matrix:
   allow_failures:
     - rvm: ruby-head
     - rvm: jruby
     - rvm: jruby-head
-    - rvm: rbx
+    - rvm: rbx-2
 
 notifications:
   irc: "irc.freenode.org#celluloid"
