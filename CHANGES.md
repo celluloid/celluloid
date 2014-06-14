@@ -5,6 +5,14 @@ HEAD
   Class.name method
 * Update to timers 2.0.0
 
+0.15.2 (2013-10-06)
+-------------------
+* require 'celluloid/test' for at_exit-free testing
+
+0.15.1 (2013-09-06)
+-------------------
+* Only raise on nested tasks if $CELLULOID_DEBUG is set
+
 0.15.0 (2013-09-04)
 -------------------
 * Remove legacy support for "bang"-method based async invocation
