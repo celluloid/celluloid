@@ -21,25 +21,25 @@ describe Celluloid::Links do
   end
 
   it 'is Enumerable' do
-    subject.should be_an(Enumerable)
+    expect(subject).to be_an(Enumerable)
   end
 
   it 'adds actors by their mailbox address' do
-    subject.include?(first_actor).should be_false
+    expect(subject.include?(first_actor)).to be_false
     subject << first_actor
-    subject.include?(first_actor).should be_true
+    expect(subject.include?(first_actor)).to be_true
   end
 
   it 'removes actors by their mailbox address' do
     subject << first_actor
-    subject.include?(first_actor).should be_true
+    expect(subject.include?(first_actor)).to be_true
     subject.delete first_actor
-    subject.include?(first_actor).should be_false
+    expect(subject.include?(first_actor)).to be_false
   end
 
   it 'iterates over all actors' do
     subject << first_actor
     subject << second_actor
-    subject.inject([]) { |all, a| all << a }.should == [first_actor, second_actor]
+    expect(subject.inject([]) { |all, a| all << a }).to eq([first_actor, second_actor])
   end
 end
