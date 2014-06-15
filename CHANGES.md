@@ -3,7 +3,7 @@ HEAD
 * Obtain actor names via Celluloid::Actor.registered_name and
   #registered_name to avoid conflicts with the built-in Ruby
   Class.name method
-* Update to timers 2.0.0
+* Update to timers 3.0.0
 
 0.15.2 (2013-10-06)
 -------------------
