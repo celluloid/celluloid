@@ -72,7 +72,7 @@ describe "Celluloid.pool", actor_system: :global do
   context "#size=" do
     subject { MyWorker.pool size: 4 }
 
-    it "should adjust the pool size up" do
+    it "should adjust the pool size up", pending: 'flaky' do
       expect(test_concurrency_of(subject)).to eq(4)
 
       subject.size = 6
