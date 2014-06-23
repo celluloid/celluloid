@@ -7,8 +7,8 @@ describe Celluloid::CPUCounter do
     let(:num_cores) { 1024 }
 
     before do
-      allow(described_class).to receive(:`) { fail 'backtick stub called' }
-      allow(::IO).to receive(:open).and_raise('IO.open stub called!')
+      described_class.stub(:`) { fail 'backtick stub called' }
+      ::IO.stub(:open).and_raise('IO.open stub called!')
       described_class.instance_variable_set('@cores', nil)
     end
 
@@ -29,7 +29,7 @@ describe Celluloid::CPUCounter do
 
       context 'when /sys/devices/system/cpu/present exists' do
         before do
-          expect(::IO).to receive(:read).with('/sys/devices/system/cpu/present')
+          ::IO.should_receive(:read).with('/sys/devices/system/cpu/present')
             .and_return("dunno-whatever-#{num_cores - 1}")
         end
         it { should eq num_cores }
@@ -37,7 +37,7 @@ describe Celluloid::CPUCounter do
 
       context 'when /sys/devices/system/cpu/present does NOT exist' do
         before do
-          expect(::IO).to receive(:read).with('/sys/devices/system/cpu/present')
+          ::IO.should_receive(:read).with('/sys/devices/system/cpu/present')
             .and_raise(Errno::ENOENT)
         end
 
@@ -45,7 +45,7 @@ describe Celluloid::CPUCounter do
           before do
             cpu_entries = (1..num_cores).map { |n| "cpu#{n}" }
             cpu_entries << 'non-cpu-entry-to-ignore'
-            expect(Dir).to receive(:[]).with('/sys/devices/system/cpu/cpu*')
+            Dir.should_receive(:[]).with('/sys/devices/system/cpu/cpu*')
               .and_return(cpu_entries)
           end
           it { should eq num_cores }
@@ -53,23 +53,23 @@ describe Celluloid::CPUCounter do
 
         context 'when /sys/devices/system/cpu/cpu* files DO NOT exist' do
           before do
-            expect(Dir).to receive(:[]).with('/sys/devices/system/cpu/cpu*')
+            Dir.should_receive(:[]).with('/sys/devices/system/cpu/cpu*')
               .and_return([])
           end
 
           context 'when sysctl blows up' do
-            before { allow(described_class).to receive(:`).and_raise(Errno::EINTR) }
+            before { described_class.stub(:`).and_raise(Errno::EINTR) }
             specify { expect { subject }.to raise_error }
           end
 
           context 'when sysctl fails' do
-            before { allow(described_class).to receive(:`).and_return(`false`) }
+            before { described_class.stub(:`).and_return(`false`) }
             it { should be nil }
           end
 
           context 'when sysctl succeeds' do
             before do
-              expect(described_class).to receive(:`).with('sysctl -n hw.ncpu')
+              described_class.should_receive(:`).with('sysctl -n hw.ncpu')
                 .and_return(num_cores.to_s)
               `true`
             end

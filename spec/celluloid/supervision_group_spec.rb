@@ -17,7 +17,7 @@ describe Celluloid::SupervisionGroup, actor_system: :global do
     MyGroup.run!
     sleep 0.01 # startup time hax
 
-    expect(Celluloid::Actor[:example]).to be_running
+    Celluloid::Actor[:example].should be_running
   end
 
   it "accepts a private actor registry" do
@@ -25,13 +25,13 @@ describe Celluloid::SupervisionGroup, actor_system: :global do
     MyGroup.run!(my_registry)
     sleep 0.01
 
-    expect(my_registry[:example]).to be_running
+    my_registry[:example].should be_running
   end
 
   it "removes actors from the registry when terminating" do
     group = MyGroup.run!
     group.terminate
-    expect(Celluloid::Actor[:example]).to be_nil
+    Celluloid::Actor[:example].should be_nil
   end
 
   context "pool" do
@@ -51,15 +51,15 @@ describe Celluloid::SupervisionGroup, actor_system: :global do
       MyGroup.run!
       sleep 0.001 # startup time hax
 
-      expect(Celluloid::Actor[:example_pool]).to be_running
-      expect(Celluloid::Actor[:example_pool].args).to eq ['foo']
-      expect(Celluloid::Actor[:example_pool].size).to be 3
+      Celluloid::Actor[:example_pool].should be_running
+      Celluloid::Actor[:example_pool].args.should eq ['foo']
+      Celluloid::Actor[:example_pool].size.should be 3
     end
 
     it "allows external access to the internal registry" do
       supervisor = MyGroup.run!
 
-      expect(supervisor[:example]).to be_a MyActor
+      supervisor[:example].should be_a MyActor
     end
   end
 end

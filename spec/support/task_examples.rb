@@ -27,15 +27,15 @@ shared_context "a Celluloid Task" do |task_class|
   end
 
   it "begins with status :new" do
-    expect(subject.status).to be :new
+    subject.status.should be :new
   end
 
   it "resumes" do
-    expect(subject).to be_running
+    subject.should be_running
     subject.resume
-    expect(subject.status).to eq(suspend_state)
+    subject.status.should eq(suspend_state)
     subject.resume
-    expect(subject).not_to be_running
+    subject.should_not be_running
   end
 
   it "raises exceptions outside" do

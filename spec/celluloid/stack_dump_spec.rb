@@ -40,7 +40,7 @@ describe Celluloid::StackDump do
 
   describe '#actors' do
     it 'should include all actors' do
-      expect(subject.actors.size).to eq(actor_system.running.size)
+      subject.actors.size.should == actor_system.running.size
     end
   end
 
@@ -50,11 +50,11 @@ describe Celluloid::StackDump do
     end
 
     it 'should include idle threads' do
-      expect(subject.threads.map(&:thread_id)).to include(@idle_thread.object_id)
+      subject.threads.map(&:thread_id).should include(@idle_thread.object_id)
     end
 
     it 'should include threads checked out of the pool for roles other than :actor' do
-      expect(subject.threads.map(&:thread_id)).to include(@active_thread.object_id)
+      subject.threads.map(&:thread_id).should include(@active_thread.object_id)
     end
 
     it 'should have the correct roles', pending: 'flaky' do

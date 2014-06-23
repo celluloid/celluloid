@@ -49,6 +49,6 @@ describe "Blocks", actor_system: :global do
       "somevalue",
     ]
 
-    expect($data).to eq(expected)
+    $data.should eq(expected)
   end
 end

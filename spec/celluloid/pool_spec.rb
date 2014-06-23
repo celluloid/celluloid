@@ -34,18 +34,18 @@ describe "Celluloid.pool", actor_system: :global do
   subject { MyWorker.pool }
 
   it "processes work units synchronously" do
-    expect(subject.process).to be :done
+    subject.process.should be :done
   end
 
   it "processes work units asynchronously" do
     queue = Queue.new
     subject.async.process(queue)
-    expect(queue.pop).to be :done
+    queue.pop.should be :done
   end
 
   it "handles crashes" do
     expect { subject.crash }.to raise_error(ExampleError)
-    expect(subject.process).to be :done
+    subject.process.should be :done
   end
 
   it "uses a fixed-sized number of threads" do
@@ -55,7 +55,7 @@ describe "Celluloid.pool", actor_system: :global do
     100.times.map { subject.future(:process) }.map(&:value)
 
     new_actors = Celluloid::Actor.all - actors
-    expect(new_actors).to eq []
+    new_actors.should eq []
   end
 
   it "terminates" do
@@ -76,17 +76,17 @@ describe "Celluloid.pool", actor_system: :global do
       expect(test_concurrency_of(subject)).to eq(4)
 
       subject.size = 6
-      expect(subject.size).to eq(6)
+      subject.size.should == 6
 
-      expect(test_concurrency_of(subject)).to eq(6)
+      test_concurrency_of(subject).should == 6
     end
 
     it "should adjust the pool size down" do
-      expect(test_concurrency_of(subject)).to eq(4)
+      test_concurrency_of(subject).should == 4
 
       subject.size = 2
-      expect(subject.size).to eq(2)
-      expect(test_concurrency_of(subject)).to eq(2)
+      subject.size.should == 2
+      test_concurrency_of(subject).should == 2
     end
   end
 end

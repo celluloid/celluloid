@@ -34,8 +34,8 @@ describe Celluloid::Notifications, actor_system: :global do
     president = President.new
 
     president.die
-    expect(marilyn.mourning).to eq("Mr. President")
-    expect(jackie.mourning).not_to eq("Mr. President")
+    marilyn.mourning.should eq("Mr. President")
+    jackie.mourning.should_not eq("Mr. President")
   end
 
   it 'allows multiple subscriptions from the same actor' do
@@ -47,7 +47,7 @@ describe Celluloid::Notifications, actor_system: :global do
     president = President.new
 
     president.die
-    expect(marilyn.mourning_count).to be(2)
+    marilyn.mourning_count.should be(2)
   end
 
 
@@ -61,8 +61,8 @@ describe Celluloid::Notifications, actor_system: :global do
     president = President.new
 
     president.die
-    expect(marilyn.mourning).to eq("Mr. President")
-    expect(jackie.mourning).to eq("Mr. President")
+    marilyn.mourning.should eq("Mr. President")
+    jackie.mourning.should eq("Mr. President")
   end
 
   it 'publishes even if there are no subscribers' do
@@ -77,7 +77,7 @@ describe Celluloid::Notifications, actor_system: :global do
 
     president = President.new
     president.die
-    expect(marilyn.mourning).to eq("Mr. President")
+    marilyn.mourning.should eq("Mr. President")
   end
 
   it 'allows unsubscribing' do
@@ -88,7 +88,7 @@ describe Celluloid::Notifications, actor_system: :global do
 
     president = President.new
     president.die
-    expect(marilyn.mourning).to be_nil
+    marilyn.mourning.should be_nil
   end
 
   it 'prunes dead subscriptions' do
@@ -102,7 +102,7 @@ describe Celluloid::Notifications, actor_system: :global do
     marilyn.terminate
     after_listeners = Celluloid::Notifications.notifier.listeners_for("death").size
 
-    expect(after_listeners).to eq(listeners - 1)
+    after_listeners.should == listeners - 1
   end
 
   it 'prunes multiple subscriptions from a dead actor' do
@@ -115,6 +115,6 @@ describe Celluloid::Notifications, actor_system: :global do
     marilyn.terminate
     after_listeners = Celluloid::Notifications.notifier.listeners_for("death").size
 
-    expect(after_listeners).to eq(listeners - 2)
+    after_listeners.should eq(listeners - 2)
   end
 end

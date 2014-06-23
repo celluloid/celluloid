@@ -22,7 +22,7 @@ describe Celluloid::SyncCall, actor_system: :global do
       actor.the_method_that_wasnt_there
     end.to raise_exception(NoMethodError)
 
-    expect(actor).to be_alive
+    actor.should be_alive
   end
 
   it "aborts with ArgumentError when a method is called with too many arguments" do
@@ -30,13 +30,13 @@ describe Celluloid::SyncCall, actor_system: :global do
       actor.actual_method("with too many arguments")
     end.to raise_exception(ArgumentError)
 
-    expect(actor).to be_alive
+    actor.should be_alive
   end
 
   it "preserves call chains across synchronous calls" do
     actor2 = CallExampleActor.new(actor)
 
     uuid, next_actor_uuid = actor2.chained_call_ids
-    expect(uuid).to eq next_actor_uuid
+    uuid.should eq next_actor_uuid
   end
 end
