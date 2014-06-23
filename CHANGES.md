@@ -1,9 +1,19 @@
-HEAD
-----
+0.16.0.pre (2014-06-22)
+-----------------------
+* Factor apart Celluloid::Cell (concurrent objects) from Celluloid::Actor
+* Introduce Celluloid::ActorSystem as an abstraction around the backend
+  actor implementation (idea borrowed from Akka)
+* Celluloid::Probe system for monitoring system behavior
+* Fix handling of timeouts with Celluloid::EventedMailbox (i.e. Celluloid::IO
+  and Celluloid::ZMQ)
+* Add timeout support to Celluloid::Condition
 * Obtain actor names via Celluloid::Actor.registered_name and
   #registered_name to avoid conflicts with the built-in Ruby
   Class.name method
 * Update to timers 3.0.0
+* Dynamically resizable pools
+* Remove use of core Ruby ThreadGroups
+* Simplified CPU core detector
 
 0.15.2 (2013-10-06)
 -------------------
