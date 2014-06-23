@@ -1,5 +1,7 @@
-HEAD
-----
+0.16.0.pre2 (2014-06-22)
+------------------------
+* Fix bug handling simultaneous read/write interests
+* Use Resolv::DNS::Config to obtain nameservers
 * Celluloid::IO.copy_stream support (uses a background thread)
 
 0.15.0 (2013-09-04)
