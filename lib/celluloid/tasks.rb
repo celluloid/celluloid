@@ -166,7 +166,7 @@ module Celluloid
 
     def thread_metadata
       method = @meta && @meta[:method_name] || "<no method>"
-      klass = Thread.current[:celluloid_actor].behavior.subject.bare_object.class
+      klass = Thread.current[:celluloid_actor] && Thread.current[:celluloid_actor].behavior.subject.bare_object.class || "<no actor>"
       format("[Celluloid] %s#%s", klass, method)
     end
   end
