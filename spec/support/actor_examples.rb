@@ -285,6 +285,31 @@ shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
     actor.send('foo').should eq('oof')
   end
 
+  context "when executing under JRuby" do
+    let(:klass) {
+      Class.new do
+        include included_module
+        task_class task_klass
+
+        def current_thread_name
+          java_thread.get_name
+        end
+
+        def java_thread
+          Thread.current.to_java.getNativeThread
+        end
+      end
+    }
+
+    it "sets execution info" do
+      klass.new.current_thread_name.should == "Class#current_thread_name"
+    end
+
+    it "unsets execution info after task completion" do
+      klass.new.java_thread.get_name.should == "<unused>"
+    end
+  end if RUBY_PLATFORM == "java"
+
   context "mocking methods" do
     let(:actor) { actor_class.new "Troy McClure" }
 
