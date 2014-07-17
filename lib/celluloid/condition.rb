@@ -17,15 +17,23 @@ module Celluloid
       end
 
       def wait
-        begin
-          message = @mailbox.receive(@timeout) do |msg|
+        message = nil
+        
+        # We are waiting for a specific message within the given timeout:
+        Timers::Timeout.for(@timeout) do |remaining|
+          message = @mailbox.receive(remaining) do |msg|
             msg.is_a?(SignalConditionRequest) && msg.task == Thread.current
           end
-        rescue TimeoutError
+          
+          break if message
+        end
+        
+        # If the message was received, we are good, otherwise signal an error:
+        if message
+          return message.value
+        else
           raise ConditionError, "timeout after #{@timeout.inspect} seconds"
-        end until message
-
-        message.value
+        end
       end
     end
 
