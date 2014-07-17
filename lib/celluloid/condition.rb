@@ -20,7 +20,7 @@ module Celluloid
         message = nil
         
         # We are waiting for a specific message within the given timeout:
-        Timers::Timeout.for(@timeout) do |remaining|
+        Timers::Wait.for(@timeout) do |remaining|
           message = @mailbox.receive(remaining) do |msg|
             msg.is_a?(SignalConditionRequest) && msg.task == Thread.current
           end

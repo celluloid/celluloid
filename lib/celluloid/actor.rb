@@ -181,7 +181,7 @@ module Celluloid
         receiver.mailbox << LinkingRequest.new(Actor.current, type)
         system_events = []
 
-        Timers::Timeout.for(LINKING_TIMEOUT) do |remaining|
+        Timers::Wait.for(LINKING_TIMEOUT) do |remaining|
           message = @mailbox.receive(remaining) do |msg|
             msg.is_a?(LinkingResponse) &&
             msg.actor.mailbox.address == receiver.mailbox.address &&

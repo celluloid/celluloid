@@ -17,7 +17,7 @@ Gem::Specification.new do |gem|
   gem.files        = Dir['README.md', 'LICENSE.txt', 'lib/**/*', 'spec/**/*']
   gem.require_path = 'lib'
 
-  gem.add_runtime_dependency 'timers', '~> 3.0.0'
+  gem.add_runtime_dependency 'timers', '~> 3.1.0'
 
   gem.add_development_dependency 'rake'
   gem.add_development_dependency 'rspec', '~> 2.14.1'

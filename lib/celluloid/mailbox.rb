@@ -50,7 +50,7 @@ module Celluloid
       @mutex.synchronize do
         raise MailboxDead, "attempted to receive from a dead mailbox" if @dead
         
-        Timers::Timeout.for(timeout) do |interval|
+        Timers::Wait.for(timeout) do |interval|
           message = next_message(&block)
           
           break if message
