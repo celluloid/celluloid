@@ -34,14 +34,20 @@ module Celluloid
       dead_letter(message)
     end
 
-    # Receive a message from the Mailbox
+    # Receive a message from the Mailbox, or return nil.
+    # The case in which a nil return is received before the timeout expires
+    # occurs when the reactor processes at least one event before the timeout.
+    # That event might have scheduled more timers, so the timeout is now
+    # incorrect. We return nil so that the actor can fire any times and update
+    # the interval.
     def receive(timeout = nil, &block)
       # Get a message if it is available and process it immediately if possible:
       if message = next_message(block)
         return message
       end
 
-      # ... otherwise, run the reactor once, either blocking or will return after the given timeout.
+      # ... otherwise, run the reactor once, either blocking or will return 
+      # after the given timeout.
       @reactor.run_once(timeout)
 
       return nil
