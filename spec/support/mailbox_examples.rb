@@ -39,9 +39,7 @@ shared_context "a Celluloid Mailbox" do
     interval = 0.1
     started_at = Time.now
 
-    expect do
-      subject.receive(interval) { false }
-    end.to be == nil
+    expect(subject.receive(interval) { false }).to be == nil
 
     (Time.now - started_at).should be_within(Celluloid::TIMER_QUANTUM).of interval
   end
