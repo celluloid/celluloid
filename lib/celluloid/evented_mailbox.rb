@@ -46,8 +46,7 @@ module Celluloid
       # ... otherwise, run the reactor once, either blocking or will return after the given timeout.
       @reactor.run_once(timeout)
 
-      # This is a hack to get the main Actor#run loop to recompute the timeout:
-      raise TimeoutError
+      return nil
     rescue IOError
       raise MailboxShutdown, "mailbox shutdown called during receive"
     end

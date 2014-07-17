@@ -5,9 +5,9 @@ require 'timers'
 module Celluloid
   # Allow methods to directly interact with the actor protocol
   class Receivers
-    def initialize
+    def initialize(timers)
+      @timers = timers
       @receivers = Set.new
-      @timers = Timers::Group.new
     end
 
     # Receive an asynchronous message
@@ -27,16 +27,6 @@ module Celluloid
         @receivers << receiver
         Task.suspend :receiving
       end
-    end
-
-    # How long to wait until the next timer fires
-    def wait_interval
-      @timers.wait_interval
-    end
-
-    # Fire any pending timers
-    def fire_timers
-      @timers.fire
     end
 
     # Handle incoming messages

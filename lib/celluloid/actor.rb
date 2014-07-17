@@ -112,8 +112,8 @@ module Celluloid
       @tasks     = TaskSet.new
       @links     = Links.new
       @signals   = Signals.new
-      @receivers = Receivers.new
       @timers    = Timers::Group.new
+      @receivers = Receivers.new(@timers)
       @handlers  = Handlers.new
       @running   = false
       @name      = nil
@@ -147,11 +147,16 @@ module Celluloid
     def run
       while @running
         begin
-          message = @mailbox.receive(timeout_interval)
-          handle_message message
-        rescue TimeoutError
-          @timers.fire
-          @receivers.fire_timers
+          # Timers#wait calls #fire at the end of the block if there are pending timers.
+          @timers.wait do |interval|
+            # Interval might be negative which means there are pending timers which need to fire immediately:
+            interval = 0 if interval and interval < 0
+            
+            message = @mailbox.receive(interval)
+            
+            # The message might be nil if no message was received within the specified interval:
+            handle_message(message) if message
+          end
         rescue MailboxShutdown
           @running = false
         end
@@ -171,21 +176,18 @@ module Celluloid
     # Perform a linking request with another actor
     def linking_request(receiver, type)
       Celluloid.exclusive do
-        linking_timeout = Timers::Timeout.new(LINKING_TIMEOUT)
-
         receiver.mailbox << LinkingRequest.new(Actor.current, type)
         system_events = []
 
-        linking_timeout.while_time_remaining do |remaining|
-          begin
-            message = @mailbox.receive(remaining) do |msg|
-              msg.is_a?(LinkingResponse) &&
-              msg.actor.mailbox.address == receiver.mailbox.address &&
-              msg.type == type
-            end
-          rescue TimeoutError
-            next # IO reactor did something, no message in queue yet.
+        Timers::Timeout.for(LINKING_TIMEOUT) do |remaining|
+          message = @mailbox.receive(remaining) do |msg|
+            msg.is_a?(LinkingResponse) &&
+            msg.actor.mailbox.address == receiver.mailbox.address &&
+            msg.type == type
           end
+
+          # Wait until we receive a message:
+          next if message == nil
 
           if message.instance_of? LinkingResponse
             Celluloid::Probe.actors_linked(self, receiver) if $CELLULOID_MONITORING
@@ -197,7 +199,7 @@ module Celluloid
           elsif message.is_a? SystemEvent
             # Queue up pending system events to be processed after we've successfully linked
             system_events << message
-          else raise "Unexpected message type: #{message.class}. Expected LinkingResponse, NilClass, SystemEvent."
+          else raise "Unexpected message type: #{message.class}. Expected LinkingResponse, SystemEvent."
           end
         end
 
@@ -226,20 +228,6 @@ module Celluloid
         break message unless message.is_a?(SystemEvent)
 
         handle_system_event(message)
-      end
-    end
-
-    # How long to wait until the next timer fires
-    def timeout_interval
-      i1 = @timers.wait_interval
-      i2 = @receivers.wait_interval
-
-      if i1 and i2
-        i1 < i2 ? i1 : i2
-      elsif i1
-        i1
-      else
-        i2
       end
     end
 

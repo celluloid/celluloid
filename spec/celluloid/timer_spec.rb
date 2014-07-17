@@ -8,14 +8,20 @@ class EveryActor
 		@times = []
 		@start = Time.now
 		
-		every(1) { @trace << 1; @times << offset }
-		every(2) { @trace << 2; @times << offset }
-		every(1) { @trace << 11; @times << offset }
-		every(2) { @trace << 22; @times << offset }
+		puts "Scheduling timers..."
+		every(1) { log(1) }
+		every(2) { log(2) }
+		every(1) { log(11) }
+		every(2) { log(22) }
 	end
 	
-	def offset
-		Time.now - @start
+	def log(t)
+		@trace << t
+		
+		offset = Time.now - @start
+		@times << offset
+		
+		puts "log(#{t}) @ #{offset}"
 	end
 	
 	attr :trace

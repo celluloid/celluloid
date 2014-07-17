@@ -41,7 +41,7 @@ shared_context "a Celluloid Mailbox" do
 
     expect do
       subject.receive(interval) { false }
-    end.to raise_exception(Celluloid::TimeoutError)
+    end.to be == nil
 
     (Time.now - started_at).should be_within(Celluloid::TIMER_QUANTUM).of interval
   end
