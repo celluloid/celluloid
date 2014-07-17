@@ -21,7 +21,7 @@ class EveryActor
 		offset = Time.now - @start
 		@times << offset
 		
-		puts "log(#{t}) @ #{offset}"
+		# puts "log(#{t}) @ #{offset}"
 	end
 	
 	attr :trace
