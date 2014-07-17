@@ -11,8 +11,7 @@ module Celluloid
 
     # Add a message to the Mailbox
     def <<(message)
-      @mutex.lock
-      begin
+      @mutex.synchronize do
         if mailbox_full || @dead
           dead_letter(message)
           return
@@ -27,13 +26,12 @@ module Celluloid
 
         current_actor = Thread.current[:celluloid_actor]
         @reactor.wakeup unless current_actor && current_actor.mailbox == self
-      rescue IOError
-        Logger.crash "reactor crashed", $!
-        dead_letter(message)
-      ensure
-        @mutex.unlock rescue nil
       end
-      nil
+      
+      return nil
+    rescue IOError
+      Logger.crash "reactor crashed", $!
+      dead_letter(message)
     end
 
     # Receive a message from the Mailbox
@@ -53,11 +51,8 @@ module Celluloid
 
     # Obtain the next message from the mailbox that matches the given block
     def next_message(block)
-      @mutex.lock
-      begin
+      @mutex.synchronize do
         super(&block)
-      ensure
-        @mutex.unlock rescue nil
       end
     end
 
