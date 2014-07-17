@@ -156,6 +156,8 @@ module Celluloid
             
             # The message might be nil if no message was received within the specified interval:
             handle_message(message) if message
+            
+            break if @running == false
           end
         rescue MailboxShutdown
           @running = false
