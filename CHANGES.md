@@ -14,6 +14,8 @@
 * Dynamically resizable pools
 * Remove use of core Ruby ThreadGroups
 * Simplified CPU core detector
+* Better thread names on JRuby for easier debugging
+* Thread safety fixes to internal thread pool
 
 0.15.2 (2013-10-06)
 -------------------
