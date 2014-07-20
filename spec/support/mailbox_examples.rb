@@ -37,13 +37,14 @@ shared_context "a Celluloid Mailbox" do
 
   it "waits for a given timeout interval" do
     interval = 0.1
-    started_at = Time.now
+    10.times do
+      started_at = Time.now
 
-    expect do
-      subject.receive(interval) { false }
-    end.to raise_exception(Celluloid::TimeoutError)
+      # This isn't necessarily true for an evented mailbox.
+      expect(subject.receive(interval) { false }).to be == nil
 
-    (Time.now - started_at).should be_within(Celluloid::TIMER_QUANTUM).of interval
+      (Time.now - started_at).should be_within(Celluloid::TIMER_QUANTUM).of interval
+    end
   end
 
   it "has a size" do

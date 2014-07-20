@@ -11,8 +11,7 @@ module Celluloid
 
     # Add a message to the Mailbox
     def <<(message)
-      @mutex.lock
-      begin
+      @mutex.synchronize do
         if mailbox_full || @dead
           dead_letter(message)
           return
@@ -27,38 +26,39 @@ module Celluloid
 
         current_actor = Thread.current[:celluloid_actor]
         @reactor.wakeup unless current_actor && current_actor.mailbox == self
-      rescue IOError
-        Logger.crash "reactor crashed", $!
-        dead_letter(message)
-      ensure
-        @mutex.unlock rescue nil
       end
-      nil
+      
+      return nil
+    rescue IOError
+      Logger.crash "reactor crashed", $!
+      dead_letter(message)
     end
 
-    # Receive a message from the Mailbox
+    # Receive a message from the Mailbox, or return nil.
+    # The case in which a nil return is received before the timeout expires
+    # occurs when the reactor processes at least one event before the timeout.
+    # That event might have scheduled more timers, so the timeout is now
+    # incorrect. We return nil so that the actor can fire any times and update
+    # the interval.
     def receive(timeout = nil, &block)
       # Get a message if it is available and process it immediately if possible:
       if message = next_message(block)
         return message
       end
 
-      # ... otherwise, run the reactor once, either blocking or will return after the given timeout.
+      # ... otherwise, run the reactor once, either blocking or will return 
+      # after the given timeout.
       @reactor.run_once(timeout)
 
-      # This is a hack to get the main Actor#run loop to recompute the timeout:
-      raise TimeoutError
+      return nil
     rescue IOError
       raise MailboxShutdown, "mailbox shutdown called during receive"
     end
 
     # Obtain the next message from the mailbox that matches the given block
     def next_message(block)
-      @mutex.lock
-      begin
+      @mutex.synchronize do
         super(&block)
-      ensure
-        @mutex.unlock rescue nil
       end
     end
 

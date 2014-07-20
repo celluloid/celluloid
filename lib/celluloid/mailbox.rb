@@ -24,8 +24,7 @@ module Celluloid
 
     # Add a message to the Mailbox
     def <<(message)
-      @mutex.lock
-      begin
+      @mutex.synchronize do
         if mailbox_full || @dead
           dead_letter(message)
           return
@@ -39,63 +38,49 @@ module Celluloid
         end
 
         @condition.signal
-        nil
-      ensure
-        @mutex.unlock rescue nil
       end
+      
+      return nil
     end
 
     # Receive a message from the Mailbox
     def receive(timeout = nil, &block)
       message = nil
 
-      @mutex.lock
-      begin
+      @mutex.synchronize do
         raise MailboxDead, "attempted to receive from a dead mailbox" if @dead
-
-        begin
+        
+        Timers::Wait.for(timeout) do |interval|
           message = next_message(&block)
-
-          unless message
-            if timeout
-              # TODO: use hitimes/timers instead of Time.now
-              now = Time.now
-              wait_until ||= now + timeout
-              wait_interval = wait_until - now
-              raise(TimeoutError, "mailbox timeout exceeded", nil) if wait_interval <= 0
-            else
-              wait_interval = nil
-            end
-
-            @condition.wait(@mutex, wait_interval)
-          end
-        end until message
-
-        message
-      ensure
-        @mutex.unlock rescue nil
+          
+          break if message
+          
+          @condition.wait(@mutex, interval)
+        end
       end
+      
+      return message
     end
 
     # Shut down this mailbox and clean up its contents
     def shutdown
       raise MailboxDead, "mailbox already shutdown" if @dead
-
-      @mutex.lock
-      begin
+      
+      messages = []
+      
+      @mutex.synchronize do
         yield if block_given?
         messages = @messages
         @messages = []
         @dead = true
-      ensure
-        @mutex.unlock rescue nil
       end
 
       messages.each do |msg|
         dead_letter msg
         msg.cleanup if msg.respond_to? :cleanup
       end
-      true
+      
+      return true
     end
 
     # Is the mailbox alive?

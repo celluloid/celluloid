@@ -38,9 +38,7 @@ module Celluloid
     def value(timeout = nil)
       ready = result = nil
 
-      begin
-        @mutex.lock
-
+      @mutex.synchronize do
         if @ready
           ready = true
           result = @result
@@ -54,8 +52,6 @@ module Celluloid
             @forwards = [@forwards, Celluloid.mailbox]
           end
         end
-      ensure
-        @mutex.unlock
       end
 
       unless ready
