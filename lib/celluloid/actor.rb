@@ -156,8 +156,6 @@ module Celluloid
               break unless @running
             end
           end
-        rescue TimeoutError
-          @timers.fire
         rescue MailboxShutdown
           @running = false
         end
