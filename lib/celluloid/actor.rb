@@ -112,8 +112,8 @@ module Celluloid
       @tasks     = TaskSet.new
       @links     = Links.new
       @signals   = Signals.new
-      @receivers = Receivers.new
       @timers    = Timers::Group.new
+      @receivers = Receivers.new(@timers)
       @handlers  = Handlers.new
       @running   = false
       @name      = nil
@@ -147,11 +147,15 @@ module Celluloid
     def run
       while @running
         begin
-          message = @mailbox.receive(timeout_interval)
-          handle_message message
-        rescue TimeoutError
-          @timers.fire
-          @receivers.fire_timers
+          @timers.wait do |interval|
+            interval = 0 if interval and interval < 0
+            
+            if message = @mailbox.check(interval)
+              handle_message(message)
+
+              break unless @running
+            end
+          end
         rescue MailboxShutdown
           @running = false
         end
@@ -171,12 +175,10 @@ module Celluloid
     # Perform a linking request with another actor
     def linking_request(receiver, type)
       Celluloid.exclusive do
-        linking_timeout = Timers::Timeout.new(LINKING_TIMEOUT)
-
         receiver.mailbox << LinkingRequest.new(Actor.current, type)
         system_events = []
 
-        linking_timeout.while_time_remaining do |remaining|
+        Timers::Wait.for(LINKING_TIMEOUT) do |remaining|
           begin
             message = @mailbox.receive(remaining) do |msg|
               msg.is_a?(LinkingResponse) &&
@@ -226,20 +228,6 @@ module Celluloid
         break message unless message.is_a?(SystemEvent)
 
         handle_system_event(message)
-      end
-    end
-
-    # How long to wait until the next timer fires
-    def timeout_interval
-      i1 = @timers.wait_interval
-      i2 = @receivers.wait_interval
-
-      if i1 and i2
-        i1 < i2 ? i1 : i2
-      elsif i1
-        i1
-      else
-        i2
       end
     end
 
