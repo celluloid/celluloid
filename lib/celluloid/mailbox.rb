@@ -53,28 +53,22 @@ module Celluloid
       begin
         raise MailboxDead, "attempted to receive from a dead mailbox" if @dead
 
-        begin
+        Timers::Wait.for(timeout) do |remaining|
           message = next_message(&block)
 
-          unless message
-            if timeout
-              # TODO: use hitimes/timers instead of Time.now
-              now = Time.now
-              wait_until ||= now + timeout
-              wait_interval = wait_until - now
-              raise(TimeoutError, "mailbox timeout exceeded", nil) if wait_interval <= 0
-            else
-              wait_interval = nil
-            end
+          break message if message
 
-            @condition.wait(@mutex, wait_interval)
-          end
-        end until message
-
-        message
+          @condition.wait(@mutex, remaining)
+        end
+        
+        if message == nil
+          raise TimeoutError.new("receive timeout exceeded")
+        end
       ensure
         @mutex.unlock rescue nil
       end
+      
+      return message
     end
 
     # Shut down this mailbox and clean up its contents
