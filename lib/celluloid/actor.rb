@@ -147,13 +147,15 @@ module Celluloid
     def run
       while @running
         begin
-          interval = @timers.wait_interval
-          
-          interval = 0 if interval and interval < 0
-          
-          message = @mailbox.receive(interval)
-          
-          handle_message message
+          @timers.wait do |interval|
+            interval = 0 if interval and interval < 0
+            
+            message = @mailbox.receive(interval)
+            
+            handle_message message
+            
+            break unless @running
+          end
         rescue TimeoutError
           @timers.fire
         rescue MailboxShutdown
