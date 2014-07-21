@@ -45,8 +45,9 @@ module Celluloid
       end
     end
 
-    # Receive a message from the Mailbox
-    def receive(timeout = nil, &block)
+    # Receive a message from the Mailbox. May return nil and may return before
+    # the specified timeout.
+    def check(timeout = nil, &block)
       message = nil
 
       @mutex.lock
@@ -60,15 +61,23 @@ module Celluloid
 
           @condition.wait(@mutex, remaining)
         end
-        
-        if message == nil
-          raise TimeoutError.new("receive timeout exceeded")
-        end
       ensure
         @mutex.unlock rescue nil
       end
       
       return message
+    end
+
+    # Receive a letter from the mailbox. Guaranteed to return a message. If
+    # timeout is exceeded, raise a TimeoutError.
+    def receive(timeout = nil, &block)
+      Timers::Wait.for(timeout) do |remaining|
+        if message = check(timeout, &block)
+          return message
+        end
+      end
+      
+      raise TimeoutError.new("receive timeout exceeded")
     end
 
     # Shut down this mailbox and clean up its contents
