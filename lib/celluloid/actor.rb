@@ -171,12 +171,10 @@ module Celluloid
     # Perform a linking request with another actor
     def linking_request(receiver, type)
       Celluloid.exclusive do
-        linking_timeout = Timers::Timeout.new(LINKING_TIMEOUT)
-
         receiver.mailbox << LinkingRequest.new(Actor.current, type)
         system_events = []
 
-        linking_timeout.while_time_remaining do |remaining|
+        Timers::Wait.for(LINKING_TIMEOUT) do |remaining|
           begin
             message = @mailbox.receive(remaining) do |msg|
               msg.is_a?(LinkingResponse) &&
