@@ -1,5 +1,5 @@
-0.16.0.pre (2014-06-22)
------------------------
+0.16.0.pre3 (2014-07-27)
+------------------------
 * Factor apart Celluloid::Cell (concurrent objects) from Celluloid::Actor
 * Introduce Celluloid::ActorSystem as an abstraction around the backend
   actor implementation (idea borrowed from Akka)
@@ -10,7 +10,7 @@
 * Obtain actor names via Celluloid::Actor.registered_name and
   #registered_name to avoid conflicts with the built-in Ruby
   Class.name method
-* Update to timers 3.0.0
+* Update to timers 4.0.0
 * Dynamically resizable pools
 * Remove use of core Ruby ThreadGroups
 * Simplified CPU core detector
