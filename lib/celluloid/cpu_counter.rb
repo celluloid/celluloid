@@ -27,6 +27,7 @@ module Celluloid
       def from_sysctl
         result = `sysctl -n hw.ncpu`
         result if $?.success?
+      rescue Errno::ENOENT
       end
     end
   end
