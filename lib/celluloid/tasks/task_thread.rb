@@ -1,6 +1,8 @@
 module Celluloid
   # Tasks with a Thread backend
   class TaskThread < Task
+    register :thread
+
     # Run the given block within a task
     def initialize(type, meta)
       @resume_queue = Queue.new

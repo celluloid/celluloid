@@ -102,10 +102,10 @@ module Celluloid
       @behavior         = behavior
 
       @actor_system     = options.fetch(:actor_system)
-      @mailbox          = options.fetch(:mailbox_class, Mailbox).new
+      @mailbox          = Mailbox.build(options.fetch(:mailbox_type))
       @mailbox.max_size = options.fetch(:mailbox_size, nil)
 
-      @task_class   = options[:task_class] || Celluloid.task_class
+      @task_class   = Task.fetch(options[:task_type])
       @exit_handler = method(:default_exit_handler)
       @exclusive    = options.fetch(:exclusive, false)
 
