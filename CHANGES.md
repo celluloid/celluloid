@@ -1,3 +1,8 @@
+0.16.0 (2014-09-04)
+-------------------
+* Support for setting socket options
+* More specs
+
 0.15.0 (2013-09-04)
 -------------------
 * Tracking release for Celluloid 0.15
