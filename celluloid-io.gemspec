@@ -20,7 +20,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency 'nio4r',     '>= 1.0.0'
 
   gem.add_development_dependency 'rake'
-  gem.add_development_dependency 'rspec'
+  gem.add_development_dependency 'rspec', '~> 2.14.0'
   gem.add_development_dependency 'benchmark_suite'
   gem.add_development_dependency 'guard-rspec'
   gem.add_development_dependency 'rb-fsevent', '~> 0.9.1' if RUBY_PLATFORM =~ /darwin/
