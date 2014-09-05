@@ -1,3 +1,7 @@
+HEAD
+----
+* Fix $CELLULOID_TEST warnings
+
 0.16.0 (2014-09-04)
 -------------------
 * Factor apart Celluloid::Cell (concurrent objects) from Celluloid::Actor
