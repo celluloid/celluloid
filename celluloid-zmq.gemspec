@@ -16,7 +16,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency "ffi-rzmq"
 
   gem.add_development_dependency "rake"
-  gem.add_development_dependency "rspec"
+  gem.add_development_dependency "rspec", "~> 2.14.0"
 
   # Files
   ignores = File.read(".gitignore").split(/\r?\n/).reject{ |f| f =~ /^(#.+|\s*)$/ }.map {|f| Dir[f] }.flatten
