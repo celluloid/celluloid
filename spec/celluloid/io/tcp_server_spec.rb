@@ -5,7 +5,7 @@ describe Celluloid::IO::TCPServer do
     let(:payload) { 'ohai' }
 
     it "can be initialized without a host" do
-      expect{ server = Celluloid::IO::TCPServer.new(2000); server.close }.to_not raise_error
+      expect { Celluloid::IO::TCPServer.new(2000).close }.to_not raise_error
     end
 
     context "inside Celluloid::IO" do
