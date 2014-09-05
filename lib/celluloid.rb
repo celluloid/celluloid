@@ -510,7 +510,7 @@ Celluloid.task_class = Celluloid::TaskFiber
 Celluloid.logger     = Logger.new(STDERR)
 Celluloid.shutdown_timeout = 10
 
-unless $CELLULOID_TEST
+unless defined?($CELLULOID_TEST) && $CELLULOID_TEST
   Celluloid.register_shutdown
   Celluloid.init
 end
