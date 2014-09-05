@@ -7,7 +7,7 @@ module Celluloid
   # Expose all instance methods as singleton methods
   extend self
 
-  VERSION = '0.16.0.pre3'
+  VERSION = '0.16.0'
 
   # Linking times out after 5 seconds
   LINKING_TIMEOUT = 5

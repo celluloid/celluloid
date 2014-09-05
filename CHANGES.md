@@ -1,5 +1,5 @@
-0.16.0.pre3 (2014-07-27)
-------------------------
+0.16.0 (2014-09-04)
+-------------------
 * Factor apart Celluloid::Cell (concurrent objects) from Celluloid::Actor
 * Introduce Celluloid::ActorSystem as an abstraction around the backend
   actor implementation (idea borrowed from Akka)
