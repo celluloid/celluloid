@@ -17,6 +17,7 @@ module Celluloid
 
       def connect
         @socket.connect_nonblock
+        self
       rescue ::IO::WaitReadable
         wait_readable
         retry
