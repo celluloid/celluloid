@@ -1,5 +1,6 @@
 HEAD
 ----
+* Make "Terminating task" log messages debug-level events
 * Fix $CELLULOID_TEST warnings
 
 0.16.0 (2014-09-04)
