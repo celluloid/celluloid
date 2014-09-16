@@ -1,5 +1,46 @@
+require 'time'
+
 module Celluloid
   module Logger
+    def self.formatter(severity, datetime, progname, msg)
+      thread = Thread.current
+      id = " " * 36
+      thread_type = "thread"
+      if thread.celluloid?
+        id = thread.call_chain_id if thread.call_chain_id
+        thread_type = "celluloid-thread"
+        if actor = thread.actor
+          if task = thread.task
+            task_info = "%s[%s](%s)" % [task.class, task.object_id.to_s(16), task.type]
+            msg = "%s %s" % [task_info, msg]
+          end
+          if actor.behavior.is_a?(Cell)
+            msg = "%s %s" % [actor.behavior.subject.class, msg]
+          end
+          actor_info = "%s[%s]" % [actor.behavior.class, actor.object_id.to_s(16)]
+          msg = "%s %s" % [actor_info, msg]
+        end
+      end
+      thread_id = if thread == Thread.main
+                    "main"
+                  else
+                    thread.object_id.to_s(16)
+                  end
+
+      "%7s %s %s %s[%s] %s\n" % [
+        severity,
+        $$,
+        datetime.iso8601(6),
+        thread_type,
+        thread_id,
+        msg,
+      ]
+    rescue Exception => e
+      ["FAIL: #{e.inspect}", *e.backtrace, ""].join("\n")
+    end
+
+    FORMATTER = method(:formatter)
+
     class WithBacktrace
       def initialize(backtrace)
         @backtrace = backtrace
