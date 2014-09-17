@@ -18,6 +18,7 @@ module Celluloid
   class << self
     attr_writer   :actor_system     # Default Actor System
     attr_accessor :logger           # Thread-safe logger class
+    attr_accessor :log_actor_crashes
     attr_accessor :task_class       # Default task type to use
     attr_accessor :shutdown_timeout # How long actors have to terminate
 
