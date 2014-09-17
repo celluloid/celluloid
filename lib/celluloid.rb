@@ -18,6 +18,7 @@ module Celluloid
   class << self
     attr_writer   :actor_system     # Default Actor System
     attr_accessor :logger           # Thread-safe logger class
+    attr_accessor :log_actor_crashes
     attr_accessor :task_class       # Default task type to use
     attr_accessor :shutdown_timeout # How long actors have to terminate
 
@@ -509,6 +510,7 @@ $CELLULOID_MONITORING = false
 Celluloid.task_class = Celluloid::TaskFiber
 Celluloid.logger     = Logger.new(STDERR)
 Celluloid.shutdown_timeout = 10
+Celluloid.log_actor_crashes = true
 
 unless defined?($CELLULOID_TEST) && $CELLULOID_TEST
   Celluloid.register_shutdown

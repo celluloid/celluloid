@@ -55,8 +55,10 @@ module Celluloid
 
     # Handle a crash
     def crash(string, exception)
-      string << "\n" << format_exception(exception)
-      error string
+      if Celluloid.log_actor_crashes
+        string << "\n" << format_exception(exception)
+        error string
+      end
 
       @exception_handlers.each do |handler|
         begin
