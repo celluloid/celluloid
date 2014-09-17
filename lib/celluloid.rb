@@ -509,6 +509,7 @@ $CELLULOID_MONITORING = false
 Celluloid.task_class = Celluloid::TaskFiber
 Celluloid.logger     = Logger.new(STDERR)
 Celluloid.shutdown_timeout = 10
+Celluloid.log_actor_crashes = true
 
 unless defined?($CELLULOID_TEST) && $CELLULOID_TEST
   Celluloid.register_shutdown
