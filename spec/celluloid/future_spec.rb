@@ -29,4 +29,10 @@ describe Celluloid::Future, actor_system: :global do
     future = Celluloid::Future.new { sleep 2 }
     expect { future.value(1) }.to raise_exception(Celluloid::TimeoutError)
   end
+
+  it "can have its value set by signaling directly" do
+    future = Celluloid::Future.new
+    future.signal :foo
+    expect(future.value(1)).to eql(:foo)
+  end
 end
