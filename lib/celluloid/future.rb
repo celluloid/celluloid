@@ -74,6 +74,9 @@ module Celluloid
 
     # Signal this future with the given result value
     def signal(value)
+      unless value.is_a?(Celluloid::Response)
+        value = Celluloid::SuccessResponse.new(nil, value)
+      end
       result = Result.new(value, self)
 
       @mutex.synchronize do
