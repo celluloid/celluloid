@@ -176,6 +176,17 @@ module Celluloid
       end
     end
 
+    # XPubSockets are just like PubSockets but reading from them gives you the
+    # subscription/unsubscription channels as they're joined/left.
+    class XPubSocket < Socket
+      include WritableSocket
+      include ReadableSocket
+
+      def initialize
+        super :xpub
+      end
+    end
+
     # SubSockets are the counterpart of PubSockets (PUB/SUB)
     class SubSocket < Socket
       include ReadableSocket
