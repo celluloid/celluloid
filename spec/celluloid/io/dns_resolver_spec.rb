@@ -2,6 +2,14 @@ require 'spec_helper'
 
 describe Celluloid::IO::DNSResolver do
   describe '#resolve' do
+    it 'resolves hostnames statically from hosts file without nameservers' do
+      # /etc/resolv.conf doesn't exist on Mac OSX when no networking is
+      # disabled, thus .nameservers would return nil
+      Celluloid::IO::DNSResolver.should_receive(:nameservers).at_most(:once) { nil }
+      resolver = Celluloid::IO::DNSResolver.new
+      resolver.resolve('localhost').should eq Resolv::IPv4.create("127.0.0.1")
+    end
+
     it 'resolves hostnames' do
       resolver = Celluloid::IO::DNSResolver.new
       resolver.resolve('localhost').should eq Resolv::IPv4.create("127.0.0.1")

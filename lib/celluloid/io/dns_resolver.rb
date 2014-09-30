@@ -20,16 +20,6 @@ module Celluloid
         Resolv::DNS::Config.default_config_hash[:nameserver]
       end
 
-      def initialize
-        @nameservers = self.class.nameservers
-
-        @server = IPAddr.new(@nameservers.sample)
-
-        # The non-blocking secret sauce is here, as this is actually a
-        # Celluloid::IO::UDPSocket
-        @socket = UDPSocket.new(@server.family)
-      end
-
       def resolve(hostname)
         if host = resolve_hostname(hostname)
           unless ip_address = resolve_host(host)
@@ -37,6 +27,13 @@ module Celluloid
           end
           return ip_address
         end
+
+        @nameservers = self.class.nameservers
+        @server = IPAddr.new(@nameservers.sample)
+
+        # The non-blocking secret sauce is here, as this is actually a
+        # Celluloid::IO::UDPSocket
+        @socket = UDPSocket.new(@server.family)
 
         query = build_query(hostname)
         @socket.send query.encode, 0, @server.to_s, DNS_PORT
