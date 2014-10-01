@@ -21,7 +21,9 @@ module Celluloid
       end
 
       def initialize
-        @nameservers = self.class.nameservers
+        # early return for edge case when there are no nameservers configured
+        # but we still want to be able to static lookups using #resolve_hostname
+        @nameservers = self.class.nameservers or return
 
         @server = IPAddr.new(@nameservers.sample)
 
