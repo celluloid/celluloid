@@ -36,8 +36,9 @@ module Celluloid
       # Register an actor class or a sub-group to be launched and supervised
       # Available options are:
       #
-      # * as: register this application in the Celluloid::Actor[] directory
-      # * args: start the actor with the given arguments
+      # @option options [Symbol, Object] :as register this application in the Celluloid::Actor[] directory
+      # @option options [#call, Object] :args start the actor with the given
+      #   arguments (lazy evaluation if it responds to #call)
       def supervise(klass, options = {})
         blocks << lambda do |group|
           group.add klass, options
@@ -47,8 +48,9 @@ module Celluloid
       # Register a pool of actors to be launched on group startup
       # Available options are:
       #
-      # * as: register this application in the Celluloid::Actor[] directory
-      # * args: start the actor pool with the given arguments
+      # @option options [String, Symbol] :as register this application in the Celluloid::Actor[] directory
+      # @option options [#call, Object] :args start the actor with the given
+      #   arguments (lazy evaluation if it responds to #call)
       def pool(klass, options = {})
         blocks << lambda do |group|
           group.pool klass, options
@@ -112,6 +114,8 @@ module Celluloid
 
     # A member of the group
     class Member
+      # @option options [#call, Object] :args ([]) arguments array for the
+      #   actor's constructor (lazy evaluation if it responds to #call)
       def initialize(registry, klass, options = {})
         @registry = registry
         @klass = klass
@@ -121,7 +125,7 @@ module Celluloid
 
         @name = options['as']
         @block = options['block']
-        @args = options['args'] ? Array(options['args']) : []
+        @args = prepare_args(options['args'])
         @method = options['method'] || 'new_link'
         @pool = @method == 'pool_link'
         @pool_size = options['size'] if @pool
@@ -157,6 +161,15 @@ module Celluloid
 
       def cleanup
         @registry.delete(@name) if @name
+      end
+
+      private
+
+      # Executes args if it has the method #call, and converts the return
+      # value to an Array. Otherwise, it just converts it to an Array.
+      def prepare_args(args)
+        args = args.call if args.respond_to?(:call)
+        Array(args)
       end
     end
 
