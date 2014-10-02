@@ -5,6 +5,8 @@ describe Celluloid::SupervisionGroup, actor_system: :global do
     class MyActor
       include Celluloid
 
+      attr_reader :args
+      def initialize(*args) @args = args end
       def running?; :yep; end
     end
 
@@ -32,6 +34,26 @@ describe Celluloid::SupervisionGroup, actor_system: :global do
     group = MyGroup.run!
     group.terminate
     Celluloid::Actor[:example].should be_nil
+  end
+
+  context "args" do
+    it "passes them"  do
+      group_klass = Class.new(Celluloid::SupervisionGroup) do
+        supervise MyActor, as: :example, args: [:foo, :bar]
+      end
+      group_klass.run!
+      sleep 0.01
+      Celluloid::Actor[:example].args.should eq([:foo, :bar])
+    end
+
+    it "supports lazy evaluation" do
+      group_klass = Class.new(Celluloid::SupervisionGroup) do
+        supervise MyActor, as: :example, args: ->{ :lazy }
+      end
+      group_klass.run!
+      sleep 0.01
+      Celluloid::Actor[:example].args.should eq([:lazy])
+    end
   end
 
   context "pool" do
