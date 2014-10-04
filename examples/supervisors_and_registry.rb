@@ -34,7 +34,7 @@ puts "Brace yourself for a crash message..."
 # If we call a method that crashes an actor, it will print out a debug message,
 # then restart an actor in a clean state
 begin
-  supervisor.actor.broken_method
+  supervisor.actors.first.broken_method
 rescue NameError
   puts "Uhoh, we crashed the actor..."
 end
