@@ -16,8 +16,10 @@ describe Celluloid::IO::DNSResolver do
     end
 
     it "resolves domain names" do
-      resolver = Celluloid::IO::DNSResolver.new
-      resolver.resolve("celluloid.io").should == Resolv::IPv4.create("207.97.227.245")
+      resolver    = Celluloid::IO::DNSResolver.new
+      nameservers = resolver.resolve("celluloid.io")
+      expect(nameservers).to include Resolv::IPv4.create("104.28.21.100")
+      expect(nameservers).to include Resolv::IPv4.create("104.28.20.100")
     end
 
     it "resolves CNAME responses" do
