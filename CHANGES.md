@@ -1,3 +1,7 @@
+0.16.1 (2014-10-08)
+-------------------
+* Revert read/write interest patch as it caused file descriptor leaks
+
 0.16.0 (2014-09-04)
 -------------------
 * Fix bug handling simultaneous read/write interests
