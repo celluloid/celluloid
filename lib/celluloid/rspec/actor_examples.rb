@@ -246,6 +246,12 @@ shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
     actor.inspect.should include('dead')
   end
 
+  it "reports private methods properly when dead" do
+    actor = actor_class.new "Troy McClure"
+    actor.terminate
+    actor.private_methods.should_not raise_error
+  end
+
   it "supports recursive inspect with other actors" do
     klass = Class.new do
       include included_module
