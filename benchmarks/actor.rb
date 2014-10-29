@@ -28,7 +28,7 @@ mailbox = Celluloid::Mailbox.new
 
 latch_in, latch_out = Queue.new, Queue.new
 latch = Thread.new do
-  while true
+  loop do
     n = latch_in.pop
     for i in 0..n; mailbox.receive; end
     latch_out << :done

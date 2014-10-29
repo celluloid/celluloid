@@ -149,7 +149,7 @@ module Celluloid
         begin
           @timers.wait do |interval|
             interval = 0 if interval and interval < 0
-            
+
             if message = @mailbox.check(interval)
               handle_message(message)
 

@@ -118,7 +118,7 @@ module Celluloid
 
     # Inspect the contents of the Mailbox
     def inspect
-      "#<#{self.class}:#{object_id.to_s(16)} @messages=[#{map { |m| m.inspect }.join(', ')}]>"
+      "#<#{self.class}:#{object_id.to_s(16)} @messages=[#{map(&:inspect).join(', ')}]>"
     end
 
     # Number of messages in the Mailbox

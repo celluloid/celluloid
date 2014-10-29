@@ -114,7 +114,7 @@ module Celluloid
 
     def clear
       @buffer_mutex.synchronize do
-        @buffers.each { |buffer| buffer.clear }
+        @buffers.each(&:clear)
       end
     end
 

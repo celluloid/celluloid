@@ -23,8 +23,8 @@ class EveryActor
     # puts "log(#{t}) @ #{offset}"
   end
   
-  attr :trace
-  attr :times
+  attr_reader :trace
+  attr_reader :times
 end
 
 describe Celluloid::Actor do

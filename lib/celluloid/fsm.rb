@@ -44,7 +44,7 @@ module Celluloid
       def state(*args, &block)
         if args.last.is_a? Hash
           # Stringify keys :/
-          options = args.pop.inject({}) { |h,(k,v)| h[k.to_s] = v; h }
+          options = args.pop.each_with_object({}) { |(k,v), h| h[k.to_s] = v }
         else
           options = {}
         end
@@ -155,10 +155,9 @@ module Celluloid
         return @delayed_transition
       end
 
-      if defined?(@delayed_transition) and @delayed_transition
-        @delayed_transition.cancel
-        @delayed_transition = nil
-      end
+      return unless defined?(@delayed_transition) and @delayed_transition
+      @delayed_transition.cancel
+      @delayed_transition = nil
     end
 
     # FSM states as declared by Celluloid::FSM.state
@@ -168,7 +167,7 @@ module Celluloid
       def initialize(name, transitions = nil, &block)
         @name, @block = name, block
         @transitions = nil
-        @transitions = Array(transitions).map { |t| t.to_sym } if transitions
+        @transitions = Array(transitions).map(&:to_sym) if transitions
       end
 
       def call(obj)
