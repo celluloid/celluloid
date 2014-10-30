@@ -121,7 +121,7 @@ module Celluloid
         @klass = klass
 
         # Stringify keys :/
-        options = options.inject({}) { |h,(k,v)| h[k.to_s] = v; h }
+        options = options.each_with_object({}) { |(k,v), h| h[k.to_s] = v }
 
         @name = options['as']
         @block = options['block']

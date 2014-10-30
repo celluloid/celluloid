@@ -27,6 +27,7 @@ module Celluloid
     end
 
     @exception_handlers = []
+
     module_function
 
     def with_backtrace(backtrace)

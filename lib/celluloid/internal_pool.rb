@@ -30,13 +30,12 @@ module Celluloid
     end
 
     def assert_inactive
-      if active?
-        message = "Thread pool is still active"
-        if defined?(JRUBY_VERSION)
-          Celluloid.logger.warn message
-        else
-          raise Error, message
-        end
+      return unless active?
+      message = "Thread pool is still active"
+      if defined?(JRUBY_VERSION)
+        Celluloid.logger.warn message
+      else
+        raise Error, message
       end
     end
 

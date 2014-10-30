@@ -240,7 +240,7 @@ module Celluloid
     end
 
     def ===(other)
-      other.kind_of? self
+      other.is_a? self
     end
   end
 
