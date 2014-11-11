@@ -132,7 +132,7 @@ module Celluloid
     end
 
     def respond_to?(method, include_private = false)
-      super || @worker_class.instance_methods.include?(method.to_sym)
+      super || worker_respond_to?(method, include_private)
     end
     
     def method(method)
