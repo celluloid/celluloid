@@ -132,7 +132,23 @@ module Celluloid
     end
 
     def respond_to?(method, include_private = false)
-      super || @worker_class.instance_methods.include?(method.to_sym)
+      super || worker_respond_to?(method, include_private)
+    end
+    
+    def method(method)
+      if @worker_class && worker_respond_to?(method)
+        worker_method(method)
+      else
+        super
+      end
+    end
+    
+    def worker_respond_to?(method, include_private = false)
+      @worker_class.instance_methods.include?(method.to_sym)
+    end
+
+    def worker_method(method)
+      @worker_class.instance_method(method)
     end
 
     def method_missing(method, *args, &block)
