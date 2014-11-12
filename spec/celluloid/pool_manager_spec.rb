@@ -90,16 +90,30 @@ describe "Celluloid.pool", actor_system: :global do
     end
   end
 
-  context "when called asynchronously" do
-    let(:log) { Queue.new }
+  context "when called synchronously" do
+    subject { MyWorker.pool }
 
-    before do
-      Celluloid::Logger.should_receive(:debug) { |msg| log << msg }
+    it { should respond_to(:process) }
+    it { should respond_to(:inspect) }
+    it { should_not respond_to(:foo) }
+  end
+
+  context "when called asynchronously" do
+    subject { MyWorker.pool.async }
+
+    context "with logging" do
+      it "logs calls with incorrect argument" do
+        expected = /async call `process` aborted!.*wrong number of arguments/m
+        Celluloid::Logger.should_receive(:debug).with(expected)
+        subject.process(:something, :one_argument_too_many)
+        sleep 0.001 # Let Celluloid do it's async magic
+      end
     end
 
-    it "verifies arguments" do
-      subject.async.process(:something, :one_argument_too_many)
-      expect(log.pop).to match(/async call `process` aborted!.*wrong number of arguments/m)
+    context "when unintialized" do
+      it "should provide reasonable dump" do
+        expect(subject.inspect).to eq('#<Celluloid::AsyncProxy(Celluloid::PoolManager)>')
+      end
     end
   end
 end
