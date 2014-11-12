@@ -27,13 +27,19 @@ module Celluloid
     end
 
     def check(obj)
-      raise NoMethodError, "undefined method `#{@method}' for #{obj.inspect}" unless obj.respond_to? @method
-
+      # NOTE: don't use respond_to? here
       begin
-        arity = obj.method(@method).arity
+        meth = obj.method(@method)
       rescue NameError
-        return
+        inspect_dump = begin
+                         obj.inspect
+                       rescue RuntimeError, NameError
+                         simulated_inspect_dump(obj)
+                       end
+        raise NoMethodError, "undefined method `#{@method}' for #{inspect_dump}"
       end
+
+      arity = meth.arity
 
       if arity >= 0
         raise ArgumentError, "wrong number of arguments (#{@arguments.size} for #{arity})" if @arguments.size != arity
@@ -43,6 +49,16 @@ module Celluloid
       end
     rescue => ex
       raise AbortError.new(ex)
+    end
+
+    def simulated_inspect_dump(obj)
+      vars = obj.instance_variables.map do |var|
+        begin
+          "#{var}=#{obj.instance_variable_get(var).inspect}"
+        rescue RuntimeError
+        end
+      end.compact.join(" ")
+      "#<#{obj.class}:0x#{obj.object_id.to_s(16)} #{vars}>"
     end
   end
 
