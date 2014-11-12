@@ -134,22 +134,6 @@ module Celluloid
     def respond_to?(method, include_private = false)
       super || worker_respond_to?(method, include_private)
     end
-    
-    def method(method)
-      if @worker_class && worker_respond_to?(method)
-        worker_method(method)
-      else
-        super
-      end
-    end
-    
-    def worker_respond_to?(method, include_private = false)
-      @worker_class.instance_methods.include?(method.to_sym)
-    end
-
-    def worker_method(method)
-      @worker_class.instance_method(method)
-    end
 
     def method_missing(method, *args, &block)
       if respond_to?(method)
@@ -157,6 +141,15 @@ module Celluloid
       else
         super
       end
+    end
+
+    # Since PoolManager allocates worker objects only just before calling them,
+    # we can still help Celluloid::Call detect passing invalid parameters to
+    # async methods by checking for those methods on the worker class
+    def method(meth)
+      super
+    rescue NameError
+      @worker_class.instance_method(meth.to_sym)
     end
   end
 end

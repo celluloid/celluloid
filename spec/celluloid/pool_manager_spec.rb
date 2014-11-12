@@ -89,4 +89,17 @@ describe "Celluloid.pool", actor_system: :global do
       test_concurrency_of(subject).should == 2
     end
   end
+
+  context "when called asynchronously" do
+    let(:log) { Queue.new }
+
+    before do
+      Celluloid::Logger.should_receive(:debug) { |msg| log << msg }
+    end
+
+    it "verifies arguments" do
+      subject.async.process(:something, :one_argument_too_many)
+      expect(log.pop).to match(/async call `process` aborted!.*wrong number of arguments/m)
+    end
+  end
 end
