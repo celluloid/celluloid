@@ -131,8 +131,15 @@ module Celluloid
       signal :respawn_complete
     end
 
-    def respond_to?(method, include_private = false)
-      super || worker_respond_to?(method, include_private)
+    def respond_to?(meth, include_private = false)
+      fail NotImplementedError if include_private
+      # NOTE: use method() here since this class
+      # shouldn't be used directly, and method() is less
+      # likely to be "reimplemented" inconsistently
+      # with other Object.*method* methods.
+      method(meth)
+    rescue NameError
+      false
     end
 
     def method_missing(method, *args, &block)
