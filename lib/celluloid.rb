@@ -136,7 +136,8 @@ module Celluloid
     end
 
     def register_shutdown
-      return if @shutdown_registered
+      return if defined?(@shutdown_registered) && @shutdown_registered
+
       # Terminate all actors at exit
       at_exit do
         if defined?(RUBY_ENGINE) && RUBY_ENGINE == "ruby" && RUBY_VERSION >= "1.9"
