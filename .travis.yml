@@ -1,0 +1,19 @@
+before_install: sudo apt-get install libzmq3-dev
+
+rvm:
+  - 1.9.3
+  - 2.0.0
+  - ruby-head
+  - jruby-19mode
+  - jruby-head
+  - rbx-19mode
+
+matrix:
+  allow_failures:
+    - rvm: jruby-19mode
+    - rvm: rbx-19mode
+    - rvm: ruby-head
+    - rvm: jruby-head
+
+notifications:
+  irc: "irc.freenode.org#celluloid"
