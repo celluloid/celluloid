@@ -16,9 +16,11 @@ This repository contains the following subcomponents of Celluloid:
 
 * [celluloid]: the core library of the Celluloid concurrency framework
 * [celluloid-io]: evented IO support for Celluloid
+* [celluloid-zmq]: evented sockets for the [0MQ] framework
 
 [celluloid]: https://github.com/celluloid/celluloid/tree/master/celluloid/
 [celluloid-io]: https://github.com/celluloid/celluloid/tree/master/celluloid-io/
+[celluloid-zmq]: https://github.com/celluloid/celluloid/tree/master/celluloid-zmq/
 
 Additional Repositories
 -----------------------
@@ -26,13 +28,11 @@ Additional Repositories
 The following other repositories either integrate with or augment
 Celluloid's core functionality:
 
-* [Celluloid::ZMQ]: evented sockets for the [0MQ] framework
 * [DCell]: distributed Celluloid built on top of [Celluloid::ZMQ]
 * [Reel]: a Celluloid::IO-powered web server
 * [http.rb]: an fast, easy-to-use HTTP library with [Celluloid::IO] support
 * [timers]: fast, pure Ruby timers, providing Celluloid's timing subsystem
 
-[Celluloid::ZMQ]: https://github.com/celluloid/celluloid-zmq/
 [DCell]: https://github.com/celluloid/dcell/
 [Reel]: https://github.com/celluloid/reel/
 [http.rb]: https://github.com/tarcieri/http.rb/
