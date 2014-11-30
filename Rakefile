@@ -9,7 +9,7 @@ task :default do
   SUBPROJECTS.each do |project|
     Bundler.with_clean_env do
       Dir.chdir(project) do
-        sh 'bundle'
+        sh 'bundle install --retry=3'
 
         success = false
         RETRIES.times do
