@@ -1,5 +1,6 @@
 require 'rake'
 require 'bundler'
+require 'timeout'
 
 SUBPROJECTS = %w(celluloid celluloid-io celluloid-zmq)
 RETRIES     = 3
@@ -13,7 +14,14 @@ task :default do
 
         success = false
         RETRIES.times do
-          success = system('bundle exec rake spec')
+          success = begin
+            timeout(TIMEOUT) do
+              system('bundle exec rake spec')
+            end
+          rescue Timeout::Error
+            false
+          end
+
           break if success
         end
 
