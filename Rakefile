@@ -3,7 +3,7 @@ require 'bundler'
 require 'timeout'
 
 SUBPROJECTS = %w(celluloid celluloid-io celluloid-zmq)
-RETRIES     = 3
+RETRIES     = 5
 TIMEOUT     = 180
 
 task :default do
