@@ -1,4 +1,7 @@
-script: rake ci
+before_install: sudo apt-get install libzmq3-dev
+
+script: rake
+
 rvm:
   - 1.9.3
   - 2.0.0
@@ -20,9 +23,3 @@ matrix:
 
 notifications:
   irc: "irc.freenode.org#celluloid"
-
-before_install:
-  # Only use 1 job until Travis fixes the rbx --jobs issue.
-  - if [ "$TRAVIS_RUBY_VERSION" == "rbx-2" ] ; then export BUNDLE_JOBS=1 ; fi
-
-install: bundle install --retry=3
