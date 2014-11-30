@@ -4,7 +4,7 @@ require 'timeout'
 
 SUBPROJECTS = %w(celluloid celluloid-io celluloid-zmq)
 RETRIES     = 3
-TIMEOUT     = 300
+TIMEOUT     = 180
 
 task :default do
   SUBPROJECTS.each do |project|
