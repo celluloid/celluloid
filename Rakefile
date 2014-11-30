@@ -10,7 +10,14 @@ task :default do
     Bundler.with_clean_env do
       Dir.chdir(project) do
         sh 'bundle'
-        sh 'bundle exec rake spec'
+
+        success = false
+        RETRIES.times do
+          success = system('bundle exec rake spec')
+          break if success
+        end
+
+        raise "ERROR: #{project} failed to build #{RETRIES} times" unless success
       end
     end
   end
