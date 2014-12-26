@@ -49,6 +49,10 @@ module Celluloid
         if worker.alive?
           @idle << worker
           @busy.delete worker
+
+          # Broadcast that worker is done processing and
+          # waiting idle
+          signal :worker_idle
         end
       end
     end
