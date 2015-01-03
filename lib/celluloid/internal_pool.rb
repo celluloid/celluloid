@@ -127,7 +127,7 @@ module Celluloid
         while proc = queue.pop
           begin
             proc.call
-          rescue => ex
+          rescue Exception => ex
             Logger.crash("thread crashed", ex)
           end
 
