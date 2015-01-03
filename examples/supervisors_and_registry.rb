@@ -17,6 +17,11 @@ class MyActor
   end
 end
 
+def ensure_actor_ready
+  # Hack to ensure crashed actor is ready before accessing the restarted actor
+  sleep 0.1
+end
+
 #
 # Using the Supervisor API directly
 #
@@ -43,6 +48,7 @@ puts "The supervisor should automatically restart the actor"
 
 # By now we'll be back in a :clean state!
 begin
+  ensure_actor_ready
   puts "We should now be in a clean state again: #{supervisor.actors.first.state}"
 rescue Celluloid::DeadActorError
   # Perhaps we got ahold of the actor before the supervisor restarted it
@@ -75,6 +81,7 @@ puts "The supervisor should automatically restart the actor"
 
 # By now we'll be back in a :clean state!
 begin
+  ensure_actor_ready
   puts "We should now be in a clean state again: #{Celluloid::Actor[:my_actor].state}"
 rescue Celluloid::DeadActorError
   # Perhaps we got ahold of the actor before the supervisor restarted it
