@@ -19,8 +19,8 @@ describe Celluloid::Notifications, actor_system: :global do
     include Celluloid
     include Celluloid::Notifications
 
-    def die
-      publish("death", "Mr. President")
+    def die(topic = "death")
+      publish(topic, "Mr. President")
     end
   end
 
@@ -70,6 +70,19 @@ describe Celluloid::Notifications, actor_system: :global do
     president.die
   end
 
+  it 'allows symbol subscriptions' do
+    marilyn = Admirer.new
+    jackie = Admirer.new
+
+    marilyn.subscribe(:death, :someone_died)
+    jackie.subscribe("death", :someone_died)
+
+    president = President.new
+    president.die(:death)
+    marilyn.mourning.should eq("Mr. President")
+    jackie.mourning.should eq("Mr. President")
+  end
+
   it 'allows regex subscriptions' do
     marilyn = Admirer.new
 
@@ -77,6 +90,16 @@ describe Celluloid::Notifications, actor_system: :global do
 
     president = President.new
     president.die
+    marilyn.mourning.should eq("Mr. President")
+  end
+
+  it 'matches symbols against regex subscriptions' do
+    marilyn = Admirer.new
+
+    marilyn.subscribe(/(death|assassination)/, :someone_died)
+
+    president = President.new
+    president.die(:assassination)
     marilyn.mourning.should eq("Mr. President")
   end
 
