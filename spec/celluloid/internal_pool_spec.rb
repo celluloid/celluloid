@@ -43,6 +43,7 @@ describe Celluloid::InternalPool do
       end
     end
   end
+
   it "cleans thread locals from old threads" do
     thread = subject.get { Thread.current[:foo] = :bar }
 
