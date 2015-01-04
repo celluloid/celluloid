@@ -129,9 +129,9 @@ module Celluloid
             proc.call
           rescue => ex
             Logger.crash("thread crashed", ex)
+          ensure
+            put thread
           end
-
-          put thread
         end
       end
 
