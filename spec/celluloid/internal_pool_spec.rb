@@ -29,7 +29,7 @@ describe Celluloid::InternalPool do
         subject.busy_size.should be_zero
 
         queue = Queue.new
-        Celluloid::Logger.should_receive(:crash).once
+
         subject.get { raise exception_class.new("Error") }
 
         subject.idle_size.should be_zero
