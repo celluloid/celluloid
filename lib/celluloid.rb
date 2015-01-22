@@ -411,6 +411,7 @@ module Celluloid
     timers = Thread.current[:celluloid_actor].timers
     timer = timers.after(duration) do
       exception = klass.new("execution expired")
+      exception.extend(Celluloid::ResumableError) if not exception.is_a?(Celluloid::ResumableError)
       exception.set_backtrace bt
       task.resume exception
     end
