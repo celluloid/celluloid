@@ -3,6 +3,8 @@ require 'thread'
 require 'timeout'
 require 'set'
 
+require 'timeout/extensions'
+
 module Celluloid
   # Expose all instance methods as singleton methods
   extend self
