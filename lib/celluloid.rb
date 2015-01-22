@@ -398,11 +398,8 @@ module Celluloid
   # Sleep letting the actor continue processing messages
   def sleep(interval)
     actor = Thread.current[:celluloid_actor]
-    if actor
-      actor.sleep(interval)
-    else
-      Kernel.sleep interval
-    end
+    sleeper = Sleeper.new(actor.timers, interval)
+    Celluloid.suspend(:sleeping, sleeper)
   end
 
   # Timeout on task suspension 
@@ -460,6 +457,23 @@ module Celluloid
   def future(meth = nil, *args, &block)
     Thread.current[:celluloid_actor].behavior_proxy.future meth, *args, &block
   end
+
+
+  class Sleeper
+    def initialize(timers, interval)
+      @timers = timers
+      @interval = interval
+    end
+
+    def before_suspend(task)
+      @timers.after(@interval) { task.resume }
+    end
+
+    def wait
+      Kernel.sleep(@interval)
+    end
+  end
+
 end
 
 if defined?(JRUBY_VERSION) && JRUBY_VERSION == "1.7.3"

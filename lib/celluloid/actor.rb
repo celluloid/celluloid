@@ -246,26 +246,12 @@ module Celluloid
     end
     private :timeout
 
-    class Sleeper
-      def initialize(timers, interval)
-        @timers = timers
-        @interval = interval
-      end
-
-      def before_suspend(task)
-        @timers.after(@interval) { task.resume }
-      end
-
-      def wait
-        Kernel.sleep(@interval)
-      end
-    end
 
     # Sleep for the given amount of time
     def sleep(interval)
-      sleeper = Sleeper.new(@timers, interval)
-      Celluloid.suspend(:sleeping, sleeper)
+      Celluloid::sleep(interval)
     end
+    private :sleep
 
     # Handle standard low-priority messages
     def handle_message(message)
