@@ -124,6 +124,8 @@ module Celluloid
     def create
       queue = Queue.new
       thread = Thread.new do
+        Thread.current.timeout_handler = Celluloid.method(:timeout).to_proc
+        Thread.current.sleep_handler = Celluloid.method(:sleep).to_proc
         while proc = queue.pop
           begin
             proc.call
