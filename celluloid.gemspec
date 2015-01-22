@@ -18,6 +18,7 @@ Gem::Specification.new do |gem|
   gem.require_path = 'lib'
 
   gem.add_runtime_dependency 'timers', '~> 4.0.0'
+  gem.add_runtime_dependency 'timeout-extensions'
 
   gem.add_development_dependency 'rake'
   gem.add_development_dependency 'rspec', '~> 2.14.1'
