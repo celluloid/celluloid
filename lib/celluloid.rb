@@ -398,6 +398,7 @@ module Celluloid
   # Sleep letting the actor continue processing messages
   def sleep(interval)
     actor = Thread.current[:celluloid_actor]
+    return Kernel.sleep(interval) unless actor
     sleeper = Sleeper.new(actor.timers, interval)
     Celluloid.suspend(:sleeping, sleeper)
   end
