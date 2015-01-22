@@ -6,13 +6,13 @@ module Celluloid
   class DeadTaskError < Celluloid::Error; end
 
   # Errors which should be resumed automatically
-  class ResumableError < Celluloid::Error; end
+  module ResumableError ; end
 
   # Tasks are interruptable/resumable execution contexts used to run methods
   class Task
-    class TerminatedError < ResumableError; end # kill a running task after terminate
+    class TerminatedError < Celluloid::Error; include ResumableError ;end # kill a running task after terminate
 
-    class TimeoutError < ResumableError; end # kill a running task after timeout
+    class TimeoutError < Celluloid::Error; include ResumableError ;end # kill a running task after timeout
 
     # Obtain the current task
     def self.current

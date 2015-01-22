@@ -403,12 +403,13 @@ module Celluloid
   end
 
   # Timeout on task suspension 
-  def timeout(duration)
+  # The second argument is the exception that will be raised on timeouts
+  def timeout(duration, klass = Task::TimeoutError)
     bt = caller
     task = Task.current
     timers = Thread.current[:celluloid_actor].timers
     timer = timers.after(duration) do
-      exception = Task::TimeoutError.new("execution expired")
+      exception = klass.new("execution expired")
       exception.set_backtrace bt
       task.resume exception
     end
