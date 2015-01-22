@@ -1028,7 +1028,7 @@ shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
         end
 
         def ask_name_with_timeout(other, duration)
-          timeout(duration) { other.name }
+          Timeout::timeout(duration) { other.name }
         end
       end
     end
