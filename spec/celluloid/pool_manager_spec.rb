@@ -33,6 +33,11 @@ describe "Celluloid.pool", actor_system: :global do
 
   subject { MyWorker.pool }
 
+  let(:crashes) { [] }
+
+  before { Celluloid::Logger.stub(:crash) { |*args| crashes << args } }
+  after { fail "Unexpected crashes: #{crashes.inspect}" unless crashes.empty? }
+
   it "processes work units synchronously" do
     subject.process.should be :done
   end
@@ -44,6 +49,7 @@ describe "Celluloid.pool", actor_system: :global do
   end
 
   it "handles crashes" do
+    Celluloid::Logger.stub(:crash)
     expect { subject.crash }.to raise_error(ExampleError)
     subject.process.should be :done
   end
