@@ -23,6 +23,16 @@ describe "Celluloid.pool", actor_system: :global do
     def crash
       raise ExampleError, "zomgcrash"
     end
+
+    protected
+
+    def a_protected_method
+    end
+
+    private
+
+    def a_private_method
+    end
   end
 
   def test_concurrency_of(pool)
@@ -102,15 +112,28 @@ describe "Celluloid.pool", actor_system: :global do
     it { should respond_to(:process) }
     it { should respond_to(:inspect) }
     it { should_not respond_to(:foo) }
+
+    it { should respond_to(:a_protected_method) }
+    it { should_not respond_to(:a_private_method) }
+
+    context "when include_private is true" do
+      it "should respond_to :a_private_method" do
+        expect(subject.respond_to?(:a_private_method, true)).to eq(true)
+      end
+    end
   end
 
   context "when called asynchronously" do
     subject { MyWorker.pool.async }
 
-    context "with logging" do
-      it "logs calls with incorrect argument" do
-        expected = /async call `process` aborted!.*wrong number of arguments/m
-        Celluloid::Logger.should_receive(:debug).with(expected)
+    context "with incorrect invocation" do
+      before { Celluloid::Logger.stub(:crash) }
+
+      it "logs ArgumentError exception" do
+        Celluloid::Logger.should_receive(:crash).with(
+          anything(),
+          instance_of(ArgumentError))
+
         subject.process(:something, :one_argument_too_many)
         sleep 0.001 # Let Celluloid do it's async magic
       end
