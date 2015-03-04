@@ -41,4 +41,7 @@ RSpec.configure do |config|
     end
   end
 
+  %w(rspec-expectations rspec-core rspec-mocks).each do |gem|
+    config.backtrace_clean_patterns << /gems\/#{gem}-\d+\.\d+\.\d+/
+  end
 end

@@ -136,12 +136,23 @@ module Celluloid
     end
 
     def respond_to?(meth, include_private = false)
-      fail NotImplementedError if include_private
       # NOTE: use method() here since this class
       # shouldn't be used directly, and method() is less
       # likely to be "reimplemented" inconsistently
       # with other Object.*method* methods.
-      method(meth)
+
+      found = method(meth)
+      if include_private
+        found ? true : false
+      else
+        if found.is_a?(UnboundMethod)
+          found.owner.public_instance_methods.include?(meth) ||
+            found.owner.protected_instance_methods.include?(meth)
+        else
+          found.receiver.public_methods.include?(meth) ||
+            found.receiver.protected_methods.include?(meth)
+        end
+      end
     rescue NameError
       false
     end
