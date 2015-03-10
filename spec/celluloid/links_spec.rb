@@ -1,6 +1,4 @@
-require 'spec_helper'
-
-describe Celluloid::Links do
+RSpec.describe Celluloid::Links do
   subject { Celluloid::Links.new }
 
   let(:mailbox_mock) do

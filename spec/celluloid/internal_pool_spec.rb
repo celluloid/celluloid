@@ -1,6 +1,4 @@
-require 'spec_helper'
-
-describe Celluloid::InternalPool do
+RSpec.describe Celluloid::InternalPool do
   it "gets threads from the pool" do
     expect(subject.get { sleep 1 }).to be_a Thread
   end

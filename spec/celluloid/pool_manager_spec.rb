@@ -1,6 +1,4 @@
-require 'spec_helper'
-
-describe "Celluloid.pool", actor_system: :global do
+RSpec.describe "Celluloid.pool", actor_system: :global do
   class ExampleError < StandardError; end
 
   class MyWorker

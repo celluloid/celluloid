@@ -1,6 +1,4 @@
-require 'spec_helper'
-
-describe Celluloid::RingBuffer do
+RSpec.describe Celluloid::RingBuffer do
   subject { Celluloid::RingBuffer.new(2) }
 
   it { is_expected.to be_empty }

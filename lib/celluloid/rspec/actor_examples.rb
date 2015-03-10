@@ -1,4 +1,4 @@
-shared_examples "a Celluloid Actor" do |included_module|
+RSpec.shared_examples "a Celluloid Actor" do |included_module|
   describe "using Fibers" do
     include_examples "Celluloid::Actor examples", included_module, Celluloid::TaskFiber
   end
@@ -7,7 +7,7 @@ shared_examples "a Celluloid Actor" do |included_module|
   end
 end
 
-shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
+RSpec.shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
   class ExampleCrash < StandardError
     attr_accessor :foo
   end

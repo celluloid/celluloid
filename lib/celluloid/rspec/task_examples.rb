@@ -9,7 +9,7 @@ class MockActor
   end
 end
 
-shared_context "a Celluloid Task" do |task_class|
+RSpec.shared_context "a Celluloid Task" do |task_class|
   let(:task_type)     { :foobar }
   let(:suspend_state) { :doing_something }
   let(:actor)         { MockActor.new }

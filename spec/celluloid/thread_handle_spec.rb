@@ -1,6 +1,4 @@
-require 'spec_helper'
-
-describe Celluloid::ThreadHandle do
+RSpec.describe Celluloid::ThreadHandle do
   let(:actor_system) do
     Celluloid::ActorSystem.new
   end

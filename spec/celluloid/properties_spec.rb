@@ -1,6 +1,4 @@
-require 'spec_helper'
-
-describe Celluloid::Properties do
+RSpec.describe Celluloid::Properties do
   let(:default_value) { 42 }
   let(:changed_value) { 43 }
 

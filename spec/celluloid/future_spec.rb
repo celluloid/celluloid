@@ -1,6 +1,4 @@
-require 'spec_helper'
-
-describe Celluloid::Future, actor_system: :global do
+RSpec.describe Celluloid::Future, actor_system: :global do
   it "creates future objects that can be retrieved later" do
     future = Celluloid::Future.new { 40 + 2 }
     expect(future.value).to eq(42)

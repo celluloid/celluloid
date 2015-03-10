@@ -1,6 +1,4 @@
-require 'spec_helper'
-
-describe Celluloid::StackDump do
+RSpec.describe Celluloid::StackDump do
   let(:actor_system) do
     Celluloid::ActorSystem.new
   end

@@ -1,6 +1,4 @@
-require 'spec_helper'
-
-describe Celluloid::CPUCounter do
+RSpec.describe Celluloid::CPUCounter do
   describe "#cores" do
     subject { described_class.cores }
 

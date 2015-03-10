@@ -1,6 +1,4 @@
-require 'spec_helper'
-
-describe Celluloid::UUID do
+RSpec.describe Celluloid::UUID do
   U = Celluloid::UUID
 
   it "generates unique IDs across the BLOCK_SIZE boundary" do

@@ -1,6 +1,4 @@
-require 'spec_helper'
-
-describe Celluloid::FSM, actor_system: :global do
+RSpec.describe Celluloid::FSM, actor_system: :global do
   before :all do
     class TestMachine
       include Celluloid::FSM

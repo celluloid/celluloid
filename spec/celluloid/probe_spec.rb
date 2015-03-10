@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 class DummyActor; include Celluloid; end
 
 class TestProbeClient
@@ -36,7 +34,7 @@ class TestProbeClient
   end
 end
 
-describe "Probe", actor_system: :global do
+RSpec.describe "Probe", actor_system: :global do
   describe 'on boot' do
     it 'should capture system actor spawn' do
       client = TestProbeClient.new

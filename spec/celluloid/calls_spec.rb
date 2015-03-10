@@ -1,6 +1,4 @@
-require 'spec_helper'
-
-describe Celluloid::SyncCall, actor_system: :global do
+RSpec.describe Celluloid::SyncCall, actor_system: :global do
   class CallExampleActor
     include Celluloid
 

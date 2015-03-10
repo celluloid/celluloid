@@ -1,6 +1,4 @@
-require 'spec_helper'
-
-describe Celluloid::Notifications, actor_system: :global do
+RSpec.describe Celluloid::Notifications, actor_system: :global do
   class Admirer
     include Celluloid
     include Celluloid::Notifications

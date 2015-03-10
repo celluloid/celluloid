@@ -1,4 +1,4 @@
-shared_context "a Celluloid Mailbox" do
+RSpec.shared_context "a Celluloid Mailbox" do
   after do
     allow(Celluloid.logger).to receive(:debug)
     subject.shutdown if subject.alive?

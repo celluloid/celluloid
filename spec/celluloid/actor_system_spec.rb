@@ -1,6 +1,4 @@
-require 'spec_helper'
-
-describe Celluloid::ActorSystem do
+RSpec.describe Celluloid::ActorSystem do
   class TestActor
     include Celluloid
   end

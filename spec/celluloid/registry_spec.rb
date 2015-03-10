@@ -1,6 +1,4 @@
-require 'spec_helper'
-
-describe Celluloid::Registry, actor_system: :global do
+RSpec.describe Celluloid::Registry, actor_system: :global do
   class Marilyn
     include Celluloid
 

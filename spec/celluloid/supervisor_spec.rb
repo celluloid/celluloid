@@ -1,6 +1,4 @@
-require 'spec_helper'
-
-describe Celluloid::Supervisor, actor_system: :global do
+RSpec.describe Celluloid::Supervisor, actor_system: :global do
   class SubordinateDead < StandardError; end
 
   class Subordinate
