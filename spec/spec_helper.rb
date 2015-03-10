@@ -49,6 +49,13 @@ RSpec.configure do |config|
     mocks.verify_partial_doubles = true
   end
 
+  config.around(:each) do |example|
+    config.default_retry_count = example.metadata[:flaky] ? (ENV['CI'] ? 5 : 3) : 1
+    example.run
+  end
+
+  # Must be *after* the around hook above
   require 'rspec/retry'
-  config.default_retry_count = ENV['CI'] ? 3 : 1
+  config.verbose_retry = true
+  config.default_sleep_interval = 3
 end

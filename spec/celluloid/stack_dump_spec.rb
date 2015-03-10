@@ -43,19 +43,19 @@ RSpec.describe Celluloid::StackDump do
   end
 
   describe '#threads' do
-    it 'should include threads that are not actors' do # flaky
+    it 'should include threads that are not actors', flaky: true do
       expect(subject.threads.size).to eq(3)
     end
 
-    it 'should include idle threads' do
+    it 'should include idle threads', flaky: true do
       expect(subject.threads.map(&:thread_id)).to include(@idle_thread.object_id)
     end
 
-    it 'should include threads checked out of the pool for roles other than :actor' do
+    it 'should include threads checked out of the pool for roles other than :actor', flaky: true do
       expect(subject.threads.map(&:thread_id)).to include(@active_thread.object_id)
     end
 
-    it 'should have the correct roles' do # flaky
+    it 'should have the correct roles', flaky: true do
       expect(subject.threads.map(&:role)).to include(nil, :other_thing, :task)
     end
   end

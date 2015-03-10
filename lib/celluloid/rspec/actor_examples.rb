@@ -814,7 +814,7 @@ RSpec.shared_examples "Celluloid::Actor examples" do |included_module, task_klas
       end
     end
 
-    it "suspends execution of a method (but not the actor) for a given time" do
+    it "suspends execution of a method (but not the actor) for a given time", flaky: true do
       actor = @klass.new
 
       # Sleep long enough to ensure we're actually seeing behavior when asleep
