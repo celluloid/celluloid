@@ -15,7 +15,6 @@ group :development do
   gem 'guard-rspec'
   gem 'benchmark_suite'
   gem 'rubocop'
-  gem 'transpec'
 end
 
 group :gem_build_tools do
