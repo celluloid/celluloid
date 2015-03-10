@@ -43,4 +43,9 @@ RSpec.configure do |config|
   end
 
   config.filter_gems_from_backtrace(*%w(rspec-expectations rspec-core rspec-mocks))
+
+  config.mock_with :rspec do |mocks|
+    mocks.verify_doubled_constant_names = true
+    mocks.verify_partial_doubles = true
+  end
 end
