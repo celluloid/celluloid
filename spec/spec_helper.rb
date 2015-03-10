@@ -48,4 +48,7 @@ RSpec.configure do |config|
     mocks.verify_doubled_constant_names = true
     mocks.verify_partial_doubles = true
   end
+
+  require 'rspec/retry'
+  config.default_retry_count = ENV['CI'] ? 3 : 1
 end
