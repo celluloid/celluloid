@@ -249,7 +249,7 @@ shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
   it "reports private methods properly when dead" do
     actor = actor_class.new "Troy McClure"
     actor.terminate
-    expect(actor.private_methods).not_to raise_error
+    expect{ actor.private_methods }.not_to raise_error
   end
 
   it "supports recursive inspect with other actors" do

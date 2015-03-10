@@ -51,7 +51,7 @@ shared_context "a Celluloid Mailbox" do
     expect(subject.size).to be_zero
     subject << :foo
     subject << :foo
-    subject.should have(2).entries
+    expect(subject.entries.size).to eq(2)
   end
 
   it "discards messages received when when full" do
