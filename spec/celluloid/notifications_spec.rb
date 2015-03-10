@@ -79,8 +79,8 @@ describe Celluloid::Notifications, actor_system: :global do
 
     president = President.new
     president.die(:death)
-    marilyn.mourning.should eq("Mr. President")
-    jackie.mourning.should eq("Mr. President")
+    expect(marilyn.mourning).to eq("Mr. President")
+    expect(jackie.mourning).to eq("Mr. President")
   end
 
   it 'allows regex subscriptions' do
@@ -100,7 +100,7 @@ describe Celluloid::Notifications, actor_system: :global do
 
     president = President.new
     president.die(:assassination)
-    marilyn.mourning.should eq("Mr. President")
+    expect(marilyn.mourning).to eq("Mr. President")
   end
 
   it 'allows unsubscribing' do

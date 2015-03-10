@@ -25,21 +25,21 @@ describe Celluloid::InternalPool do
   context "with errors in the threads" do
     [StandardError, Exception].each do |exception_class|
       it "puts error'd threads back into the pool" do
-        subject.idle_size.should be_zero
-        subject.busy_size.should be_zero
+        expect(subject.idle_size).to be_zero
+        expect(subject.busy_size).to be_zero
 
         queue = Queue.new
 
         subject.get { raise exception_class.new("Error") }
 
-        subject.idle_size.should be_zero
-        subject.busy_size.should eq 1
+        expect(subject.idle_size).to be_zero
+        expect(subject.busy_size).to eq 1
 
         queue << nil
         sleep 0.01 # hax
 
-        subject.idle_size.should eq 1
-        subject.busy_size.should eq 0
+        expect(subject.idle_size).to eq 1
+        expect(subject.busy_size).to eq 0
       end
     end
   end

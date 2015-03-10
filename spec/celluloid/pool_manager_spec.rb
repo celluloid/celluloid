@@ -45,7 +45,7 @@ describe "Celluloid.pool", actor_system: :global do
 
   let(:crashes) { [] }
 
-  before { Celluloid::Logger.stub(:crash) { |*args| crashes << args } }
+  before { allow(Celluloid::Logger).to receive(:crash) { |*args| crashes << args } }
   after { fail "Unexpected crashes: #{crashes.inspect}" unless crashes.empty? }
 
   it "processes work units synchronously" do
@@ -59,7 +59,7 @@ describe "Celluloid.pool", actor_system: :global do
   end
 
   it "handles crashes" do
-    Celluloid::Logger.stub(:crash)
+    allow(Celluloid::Logger).to receive(:crash)
     expect { subject.crash }.to raise_error(ExampleError)
     expect(subject.process).to be :done
   end
@@ -109,12 +109,12 @@ describe "Celluloid.pool", actor_system: :global do
   context "when called synchronously" do
     subject { MyWorker.pool }
 
-    it { should respond_to(:process) }
-    it { should respond_to(:inspect) }
-    it { should_not respond_to(:foo) }
+    it { is_expected.to respond_to(:process) }
+    it { is_expected.to respond_to(:inspect) }
+    it { is_expected.not_to respond_to(:foo) }
 
-    it { should respond_to(:a_protected_method) }
-    it { should_not respond_to(:a_private_method) }
+    it { is_expected.to respond_to(:a_protected_method) }
+    it { is_expected.not_to respond_to(:a_private_method) }
 
     context "when include_private is true" do
       it "should respond_to :a_private_method" do
@@ -127,10 +127,10 @@ describe "Celluloid.pool", actor_system: :global do
     subject { MyWorker.pool.async }
 
     context "with incorrect invocation" do
-      before { Celluloid::Logger.stub(:crash) }
+      before { allow(Celluloid::Logger).to receive(:crash) }
 
       it "logs ArgumentError exception" do
-        Celluloid::Logger.should_receive(:crash).with(
+        expect(Celluloid::Logger).to receive(:crash).with(
           anything(),
           instance_of(ArgumentError))
 
