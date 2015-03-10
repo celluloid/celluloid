@@ -772,7 +772,7 @@ RSpec.shared_examples "Celluloid::Actor examples" do |included_module, task_klas
       expect(received_obj).to eq(message)
     end
 
-    it "times out after the given interval", :pending => ENV['CI'] do
+    it "times out after the given interval" do
       interval = 0.1
       started_at = Time.now
 
