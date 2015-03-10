@@ -116,7 +116,7 @@ module ExampleActorClass
       private
 
       def delegates?(method_name)
-        return false unless (@delegate ||= nil)
+        return false unless @delegate ||= nil
         @delegate.respond_to?(method_name)
       end
     end

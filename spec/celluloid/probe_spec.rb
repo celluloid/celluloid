@@ -23,7 +23,7 @@ class TestProbeClient
       wait
       while ev = @buffer.shift()
         if (ev[0] == topic) && (ev[1].mailbox.address == expected_actor1.mailbox.address) &&
-          (expected_actor2.nil? || (ev[2].mailbox.address == expected_actor2.mailbox.address) )
+           (expected_actor2.nil? || (ev[2].mailbox.address == expected_actor2.mailbox.address) )
           return ev
         end
       end

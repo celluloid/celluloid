@@ -65,5 +65,4 @@ describe Celluloid::ActorSystem do
     expect { TestActor.new }.
       to raise_error("Celluloid is not yet started; use Celluloid.boot")
   end
-
 end

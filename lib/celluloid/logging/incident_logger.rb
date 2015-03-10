@@ -21,7 +21,6 @@ module Celluloid
         when UNKNOWN then 'UNKNOWN'
         end
       end
-
     end
     include Severity
 

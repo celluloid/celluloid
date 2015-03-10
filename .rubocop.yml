@@ -118,11 +118,6 @@ EmptyLineBetweenDefs:
 EmptyLines:
   Enabled: false
 
-# Offense count: 8
-# Cop supports --auto-correct.
-EmptyLinesAroundBody:
-  Enabled: false
-
 Encoding:
   Enabled: false
 
