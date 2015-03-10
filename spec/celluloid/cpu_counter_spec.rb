@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Celluloid::CPUCounter do
-  describe :cores do
+  describe "#cores" do
     subject { described_class.cores }
 
     let(:num_cores) { 1024 }
