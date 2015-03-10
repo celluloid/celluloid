@@ -9,10 +9,13 @@ describe Celluloid::CPUCounter do
     before do
       allow(described_class).to receive(:`) { fail 'backtick stub called' }
       allow(::IO).to receive(:open).and_raise('IO.open stub called!')
-      described_class.instance_variable_set('@cores', nil)
+      described_class.instance_variable_set(:@cores, nil)
     end
 
-    after { ENV['NUMBER_OF_PROCESSORS'] = nil }
+    after do
+      ENV['NUMBER_OF_PROCESSORS'] = nil
+      described_class.instance_variable_set(:@cores, nil)
+    end
 
     context 'from valid env value' do
       before { ENV['NUMBER_OF_PROCESSORS'] = num_cores.to_s }
