@@ -49,19 +49,19 @@ describe "Celluloid.pool", actor_system: :global do
   after { fail "Unexpected crashes: #{crashes.inspect}" unless crashes.empty? }
 
   it "processes work units synchronously" do
-    subject.process.should be :done
+    expect(subject.process).to be :done
   end
 
   it "processes work units asynchronously" do
     queue = Queue.new
     subject.async.process(queue)
-    queue.pop.should be :done
+    expect(queue.pop).to be :done
   end
 
   it "handles crashes" do
     Celluloid::Logger.stub(:crash)
     expect { subject.crash }.to raise_error(ExampleError)
-    subject.process.should be :done
+    expect(subject.process).to be :done
   end
 
   it "uses a fixed-sized number of threads" do
@@ -71,7 +71,7 @@ describe "Celluloid.pool", actor_system: :global do
     100.times.map { subject.future(:process) }.map(&:value)
 
     new_actors = Celluloid::Actor.all - actors
-    new_actors.should eq []
+    expect(new_actors).to eq []
   end
 
   it "terminates" do
@@ -92,17 +92,17 @@ describe "Celluloid.pool", actor_system: :global do
       expect(test_concurrency_of(subject)).to eq(4)
 
       subject.size = 6
-      subject.size.should == 6
+      expect(subject.size).to eq(6)
 
-      test_concurrency_of(subject).should == 6
+      expect(test_concurrency_of(subject)).to eq(6)
     end
 
     it "should adjust the pool size down", pending: 'flaky' do
-      test_concurrency_of(subject).should == 4
+      expect(test_concurrency_of(subject)).to eq(4)
 
       subject.size = 2
-      subject.size.should == 2
-      test_concurrency_of(subject).should == 2
+      expect(subject.size).to eq(2)
+      expect(test_concurrency_of(subject)).to eq(2)
     end
   end
 

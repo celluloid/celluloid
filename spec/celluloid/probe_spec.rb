@@ -64,11 +64,11 @@ describe "Probe", actor_system: :global do
           end
         end
       end
-      received_named_events.all?{|_, v| v != nil }.should == true
+      expect(received_named_events.all?{|_, v| v != nil }).to eq(true)
       # now check we got the create events for every actors
       received_named_events.each do |_, mailbox_address|
         found = create_events.detect{|_, aa| aa.mailbox.address == mailbox_address }
-        found.should_not == nil
+        expect(found).not_to eq(nil)
       end
     end
   end
@@ -81,7 +81,7 @@ describe "Probe", actor_system: :global do
       event = Timeout.timeout(5) do
         client.wait_event('celluloid.events.actor_created', a)
       end
-      event.should_not == nil
+      expect(event).not_to eq(nil)
     end
 
     it 'should send a notification when an actor is named' do
@@ -92,7 +92,7 @@ describe "Probe", actor_system: :global do
       event = Timeout.timeout(5) do
         client.wait_event('celluloid.events.actor_named', a)
       end
-      event.should_not == nil
+      expect(event).not_to eq(nil)
     end
 
     it 'should send a notification when actor dies' do
@@ -103,7 +103,7 @@ describe "Probe", actor_system: :global do
       event = Timeout.timeout(5) do
         client.wait_event('celluloid.events.actor_died', a)
       end
-      event.should_not == nil
+      expect(event).not_to eq(nil)
     end
 
     it 'should send a notification when actors are linked' do
@@ -115,7 +115,7 @@ describe "Probe", actor_system: :global do
       event = Timeout.timeout(5) do
         client.wait_event('celluloid.events.actors_linked', a, b)
       end
-      event.should_not == nil
+      expect(event).not_to eq(nil)
     end
   end
 end
