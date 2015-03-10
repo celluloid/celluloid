@@ -45,7 +45,7 @@ describe Celluloid::StackDump do
   end
 
   describe '#threads' do
-    it 'should include threads that are not actors', pending: 'flaky' do
+    it 'should include threads that are not actors' do # flaky
       expect(subject.threads.size).to eq(3)
     end
 
@@ -57,7 +57,7 @@ describe Celluloid::StackDump do
       expect(subject.threads.map(&:thread_id)).to include(@active_thread.object_id)
     end
 
-    it 'should have the correct roles', pending: 'flaky' do
+    it 'should have the correct roles' do # flaky
       expect(subject.threads.map(&:role)).to include(nil, :other_thing, :task)
     end
   end
