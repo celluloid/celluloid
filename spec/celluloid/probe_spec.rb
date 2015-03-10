@@ -72,7 +72,7 @@ RSpec.describe "Probe", actor_system: :global do
   end
 
   describe 'after boot' do
-    it 'should send a notification when an actor is spawned' do
+    it 'should send a notification when an actor is spawned', flaky: true do
       client = TestProbeClient.new
       Celluloid::Probe.run
       a = DummyActor.new
@@ -82,7 +82,7 @@ RSpec.describe "Probe", actor_system: :global do
       expect(event).not_to eq(nil)
     end
 
-    it 'should send a notification when an actor is named' do
+    it 'should send a notification when an actor is named', flaky: true  do
       client = TestProbeClient.new
       Celluloid::Probe.run
       a = DummyActor.new
@@ -93,7 +93,7 @@ RSpec.describe "Probe", actor_system: :global do
       expect(event).not_to eq(nil)
     end
 
-    it 'should send a notification when actor dies' do
+    it 'should send a notification when actor dies', flaky: true  do
       client = TestProbeClient.new
       Celluloid::Probe.run
       a = DummyActor.new
@@ -104,7 +104,7 @@ RSpec.describe "Probe", actor_system: :global do
       expect(event).not_to eq(nil)
     end
 
-    it 'should send a notification when actors are linked' do
+    it 'should send a notification when actors are linked', flaky: true  do
       client = TestProbeClient.new
       Celluloid::Probe.run
       a = DummyActor.new
