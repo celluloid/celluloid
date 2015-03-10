@@ -26,14 +26,19 @@ RSpec.describe Celluloid::StackDump do
       actor.async.blocking
     end
 
+    sleep 0.01 # to allow internal_pool to end up with 1 idle thread
+
     @active_thread = actor_system.get_thread do
       sleep
     end
     @active_thread.role = :other_thing
+
+    sleep 0.01 # to allow internal_pool to end up with 1 idle thread
+
     @idle_thread = actor_system.get_thread do
     end
 
-    sleep 0.01
+    sleep 0.01 # to allow internal_pool to end up with 1 idle thread
   end
 
   describe '#actors' do
