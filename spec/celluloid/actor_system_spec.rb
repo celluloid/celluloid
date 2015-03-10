@@ -1,47 +1,45 @@
-require 'spec_helper'
-
-describe Celluloid::ActorSystem do
+RSpec.describe Celluloid::ActorSystem do
   class TestActor
     include Celluloid
   end
 
   it "supports non-global ActorSystem" do
     subject.within do
-      Celluloid.actor_system.should == subject
+      expect(Celluloid.actor_system).to eq(subject)
     end
   end
 
   it "starts default actors" do
     subject.start
 
-    subject.registered.should == [:notifications_fanout, :default_incident_reporter]
+    expect(subject.registered).to eq([:notifications_fanout, :default_incident_reporter])
   end
 
   it "support getting threads" do
     queue = Queue.new
     thread = subject.get_thread do
-      Celluloid.actor_system.should == subject
+      expect(Celluloid.actor_system).to eq(subject)
       queue << nil
     end
     queue.pop
   end
 
   it "allows a stack dump" do
-    subject.stack_dump.should be_a(Celluloid::StackDump)
+    expect(subject.stack_dump).to be_a(Celluloid::StackDump)
   end
 
   it "returns named actors" do
-    subject.registered.should be_empty
+    expect(subject.registered).to be_empty
 
     subject.within do
       TestActor.supervise_as :test
     end
 
-    subject.registered.should == [:test]
+    expect(subject.registered).to eq([:test])
   end
 
   it "returns running actors" do
-    subject.running.should be_empty
+    expect(subject.running).to be_empty
 
     first = subject.within do
       TestActor.new
@@ -51,19 +49,18 @@ describe Celluloid::ActorSystem do
       TestActor.new
     end
 
-    subject.running.should == [first, second]
+    expect(subject.running).to eq([first, second])
   end
 
   it "shuts down" do
     subject.shutdown
 
-    lambda { subject.get_thread }.
-      should raise_error("Thread pool is not running")
+    expect { subject.get_thread }.
+      to raise_error("Thread pool is not running")
   end
 
   it "warns nicely when no actor system is started" do
-    lambda { TestActor.new }.
-      should raise_error("Celluloid is not yet started; use Celluloid.boot")
+    expect { TestActor.new }.
+      to raise_error("Celluloid is not yet started; use Celluloid.boot")
   end
-
 end

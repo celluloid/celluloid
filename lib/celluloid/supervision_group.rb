@@ -5,7 +5,6 @@ module Celluloid
     trap_exit :restart_actor
 
     class << self
-
       # Actors or sub-applications to be supervised
       def blocks
         @blocks ||= []

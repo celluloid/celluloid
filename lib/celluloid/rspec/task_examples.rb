@@ -9,7 +9,7 @@ class MockActor
   end
 end
 
-shared_context "a Celluloid Task" do |task_class|
+RSpec.shared_context "a Celluloid Task" do |task_class|
   let(:task_type)     { :foobar }
   let(:suspend_state) { :doing_something }
   let(:actor)         { MockActor.new }
@@ -27,15 +27,15 @@ shared_context "a Celluloid Task" do |task_class|
   end
 
   it "begins with status :new" do
-    subject.status.should be :new
+    expect(subject.status).to be :new
   end
 
   it "resumes" do
-    subject.should be_running
+    expect(subject).to be_running
     subject.resume
-    subject.status.should eq(suspend_state)
+    expect(subject.status).to eq(suspend_state)
     subject.resume
-    subject.should_not be_running
+    expect(subject).not_to be_running
   end
 
   it "raises exceptions outside" do

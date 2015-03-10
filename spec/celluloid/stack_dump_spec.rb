@@ -1,6 +1,4 @@
-require 'spec_helper'
-
-describe Celluloid::StackDump do
+RSpec.describe Celluloid::StackDump do
   let(:actor_system) do
     Celluloid::ActorSystem.new
   end
@@ -28,36 +26,41 @@ describe Celluloid::StackDump do
       actor.async.blocking
     end
 
+    sleep 0.01 # to allow internal_pool to end up with 1 idle thread
+
     @active_thread = actor_system.get_thread do
       sleep
     end
     @active_thread.role = :other_thing
+
+    sleep 0.01 # to allow internal_pool to end up with 1 idle thread
+
     @idle_thread = actor_system.get_thread do
     end
 
-    sleep 0.01
+    sleep 0.01 # to allow internal_pool to end up with 1 idle thread
   end
 
   describe '#actors' do
     it 'should include all actors' do
-      subject.actors.size.should == actor_system.running.size
+      expect(subject.actors.size).to eq(actor_system.running.size)
     end
   end
 
   describe '#threads' do
-    it 'should include threads that are not actors', pending: 'flaky' do
+    it 'should include threads that are not actors', flaky: true do
       expect(subject.threads.size).to eq(3)
     end
 
-    it 'should include idle threads' do
-      subject.threads.map(&:thread_id).should include(@idle_thread.object_id)
+    it 'should include idle threads', flaky: true do
+      expect(subject.threads.map(&:thread_id)).to include(@idle_thread.object_id)
     end
 
-    it 'should include threads checked out of the pool for roles other than :actor' do
-      subject.threads.map(&:thread_id).should include(@active_thread.object_id)
+    it 'should include threads checked out of the pool for roles other than :actor', flaky: true do
+      expect(subject.threads.map(&:thread_id)).to include(@active_thread.object_id)
     end
 
-    it 'should have the correct roles', pending: 'flaky' do
+    it 'should have the correct roles', flaky: true do
       expect(subject.threads.map(&:role)).to include(nil, :other_thing, :task)
     end
   end

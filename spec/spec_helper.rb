@@ -18,6 +18,7 @@ Dir['./spec/support/*.rb'].map {|f| require f }
 RSpec.configure do |config|
   config.filter_run :focus => true
   config.run_all_when_everything_filtered = true
+  config.disable_monkey_patching!
 
   config.around do |ex|
     Celluloid.actor_system = nil
@@ -41,7 +42,20 @@ RSpec.configure do |config|
     end
   end
 
-  %w(rspec-expectations rspec-core rspec-mocks).each do |gem|
-    config.backtrace_clean_patterns << /gems\/#{gem}-\d+\.\d+\.\d+/
+  config.filter_gems_from_backtrace(*%w(rspec-expectations rspec-core rspec-mocks))
+
+  config.mock_with :rspec do |mocks|
+    mocks.verify_doubled_constant_names = true
+    mocks.verify_partial_doubles = true
   end
+
+  config.around(:each) do |example|
+    config.default_retry_count = example.metadata[:flaky] ? (ENV['CI'] ? 5 : 3) : 1
+    example.run
+  end
+
+  # Must be *after* the around hook above
+  require 'rspec/retry'
+  config.verbose_retry = true
+  config.default_sleep_interval = 3
 end

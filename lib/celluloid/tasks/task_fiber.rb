@@ -3,7 +3,6 @@ module Celluloid
 
   # Tasks with a Fiber backend
   class TaskFiber < Task
-
     def create
       queue = Thread.current[:celluloid_queue]
       actor_system = Thread.current[:celluloid_actor_system]

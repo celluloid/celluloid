@@ -1,6 +1,6 @@
-shared_context "a Celluloid Mailbox" do
+RSpec.shared_context "a Celluloid Mailbox" do
   after do
-    Celluloid.logger.stub(:debug)
+    allow(Celluloid.logger).to receive(:debug)
     subject.shutdown if subject.alive?
   end
 
@@ -8,7 +8,7 @@ shared_context "a Celluloid Mailbox" do
     message = :ohai
 
     subject << message
-    subject.receive.should == message
+    expect(subject.receive).to eq(message)
   end
 
   it "prioritizes system events over other messages" do
@@ -16,7 +16,7 @@ shared_context "a Celluloid Mailbox" do
     subject << :dummy2
 
     subject << Celluloid::SystemEvent.new
-    subject.receive.should be_a(Celluloid::SystemEvent)
+    expect(subject.receive).to be_a(Celluloid::SystemEvent)
   end
 
   it "selectively receives messages with a block" do
@@ -30,9 +30,9 @@ shared_context "a Celluloid Mailbox" do
     subject << foo
     subject << bar
 
-    subject.receive { |msg| msg.is_a? Foo }.should eq(foo)
-    subject.receive { |msg| msg.is_a? Bar }.should eq(bar)
-    subject.receive.should eq(baz)
+    expect(subject.receive { |msg| msg.is_a? Foo }).to eq(foo)
+    expect(subject.receive { |msg| msg.is_a? Bar }).to eq(bar)
+    expect(subject.receive).to eq(baz)
   end
 
   it "waits for a given timeout interval" do
@@ -43,15 +43,15 @@ shared_context "a Celluloid Mailbox" do
       subject.receive(interval) { false }
     end.to raise_exception(Celluloid::TimeoutError)
 
-    (Time.now - started_at).should be_within(Celluloid::TIMER_QUANTUM).of interval
+    expect(Time.now - started_at).to be_within(Celluloid::TIMER_QUANTUM).of interval
   end
 
   it "has a size" do
-    subject.should respond_to(:size)
-    subject.size.should be_zero
+    expect(subject).to respond_to(:size)
+    expect(subject.size).to be_zero
     subject << :foo
     subject << :foo
-    subject.should have(2).entries
+    expect(subject.entries.size).to eq(2)
   end
 
   it "discards messages received when when full" do
@@ -59,11 +59,11 @@ shared_context "a Celluloid Mailbox" do
     subject << :first
     subject << :second
     subject << :third
-    subject.to_a.should =~ [:first, :second]
+    expect(subject.to_a).to match_array([:first, :second])
   end
 
   it "logs discarded messages" do
-    Celluloid.logger.should_receive(:debug).with("Discarded message (mailbox is dead): third")
+    expect(Celluloid.logger).to receive(:debug).with("Discarded message (mailbox is dead): third")
 
     subject.max_size = 2
     subject << :first
@@ -72,9 +72,9 @@ shared_context "a Celluloid Mailbox" do
   end
 
   it "discard messages when dead" do
-    Celluloid.logger.should_receive(:debug).with("Discarded message (mailbox is dead): first")
-    Celluloid.logger.should_receive(:debug).with("Discarded message (mailbox is dead): second")
-    Celluloid.logger.should_receive(:debug).with("Discarded message (mailbox is dead): third")
+    expect(Celluloid.logger).to receive(:debug).with("Discarded message (mailbox is dead): first")
+    expect(Celluloid.logger).to receive(:debug).with("Discarded message (mailbox is dead): second")
+    expect(Celluloid.logger).to receive(:debug).with("Discarded message (mailbox is dead): third")
 
     subject << :first
     subject << :second

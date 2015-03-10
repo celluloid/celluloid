@@ -1,6 +1,4 @@
-require 'spec_helper'
-
-describe "Blocks", actor_system: :global do
+RSpec.describe "Blocks", actor_system: :global do
   class MyBlockActor
     include Celluloid
 
@@ -49,6 +47,6 @@ describe "Blocks", actor_system: :global do
       "somevalue",
     ]
 
-    $data.should eq(expected)
+    expect($data).to eq(expected)
   end
 end

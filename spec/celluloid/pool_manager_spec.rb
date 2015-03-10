@@ -1,6 +1,4 @@
-require 'spec_helper'
-
-describe "Celluloid.pool", actor_system: :global do
+RSpec.describe "Celluloid.pool", actor_system: :global do
   class ExampleError < StandardError; end
 
   class MyWorker
@@ -45,23 +43,23 @@ describe "Celluloid.pool", actor_system: :global do
 
   let(:crashes) { [] }
 
-  before { Celluloid::Logger.stub(:crash) { |*args| crashes << args } }
+  before { allow(Celluloid::Logger).to receive(:crash) { |*args| crashes << args } }
   after { fail "Unexpected crashes: #{crashes.inspect}" unless crashes.empty? }
 
   it "processes work units synchronously" do
-    subject.process.should be :done
+    expect(subject.process).to be :done
   end
 
   it "processes work units asynchronously" do
     queue = Queue.new
     subject.async.process(queue)
-    queue.pop.should be :done
+    expect(queue.pop).to be :done
   end
 
   it "handles crashes" do
-    Celluloid::Logger.stub(:crash)
+    allow(Celluloid::Logger).to receive(:crash)
     expect { subject.crash }.to raise_error(ExampleError)
-    subject.process.should be :done
+    expect(subject.process).to be :done
   end
 
   it "uses a fixed-sized number of threads" do
@@ -71,7 +69,7 @@ describe "Celluloid.pool", actor_system: :global do
     100.times.map { subject.future(:process) }.map(&:value)
 
     new_actors = Celluloid::Actor.all - actors
-    new_actors.should eq []
+    expect(new_actors).to eq []
   end
 
   it "terminates" do
@@ -88,33 +86,33 @@ describe "Celluloid.pool", actor_system: :global do
   context "#size=" do
     subject { MyWorker.pool size: 4 }
 
-    it "should adjust the pool size up", pending: 'flaky' do
+    it "should adjust the pool size up", flaky: true do
       expect(test_concurrency_of(subject)).to eq(4)
 
       subject.size = 6
-      subject.size.should == 6
+      expect(subject.size).to eq(6)
 
-      test_concurrency_of(subject).should == 6
+      expect(test_concurrency_of(subject)).to eq(6)
     end
 
-    it "should adjust the pool size down", pending: 'flaky' do
-      test_concurrency_of(subject).should == 4
+    it "should adjust the pool size down", flaky: true do
+      expect(test_concurrency_of(subject)).to eq(4)
 
       subject.size = 2
-      subject.size.should == 2
-      test_concurrency_of(subject).should == 2
+      expect(subject.size).to eq(2)
+      expect(test_concurrency_of(subject)).to eq(2)
     end
   end
 
   context "when called synchronously" do
     subject { MyWorker.pool }
 
-    it { should respond_to(:process) }
-    it { should respond_to(:inspect) }
-    it { should_not respond_to(:foo) }
+    it { is_expected.to respond_to(:process) }
+    it { is_expected.to respond_to(:inspect) }
+    it { is_expected.not_to respond_to(:foo) }
 
-    it { should respond_to(:a_protected_method) }
-    it { should_not respond_to(:a_private_method) }
+    it { is_expected.to respond_to(:a_protected_method) }
+    it { is_expected.not_to respond_to(:a_private_method) }
 
     context "when include_private is true" do
       it "should respond_to :a_private_method" do
@@ -127,10 +125,10 @@ describe "Celluloid.pool", actor_system: :global do
     subject { MyWorker.pool.async }
 
     context "with incorrect invocation" do
-      before { Celluloid::Logger.stub(:crash) }
+      before { allow(Celluloid::Logger).to receive(:crash) }
 
       it "logs ArgumentError exception" do
-        Celluloid::Logger.should_receive(:crash).with(
+        expect(Celluloid::Logger).to receive(:crash).with(
           anything(),
           instance_of(ArgumentError))
 

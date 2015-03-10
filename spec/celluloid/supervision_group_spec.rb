@@ -1,6 +1,4 @@
-require 'spec_helper'
-
-describe Celluloid::SupervisionGroup, actor_system: :global do
+RSpec.describe Celluloid::SupervisionGroup, actor_system: :global do
   before :all do
     class MyActor
       include Celluloid
@@ -19,7 +17,7 @@ describe Celluloid::SupervisionGroup, actor_system: :global do
     MyGroup.run!
     sleep 0.01 # startup time hax
 
-    Celluloid::Actor[:example].should be_running
+    expect(Celluloid::Actor[:example]).to be_running
   end
 
   it "accepts a private actor registry" do
@@ -27,13 +25,13 @@ describe Celluloid::SupervisionGroup, actor_system: :global do
     MyGroup.run!(my_registry)
     sleep 0.01
 
-    my_registry[:example].should be_running
+    expect(my_registry[:example]).to be_running
   end
 
   it "removes actors from the registry when terminating" do
     group = MyGroup.run!
     group.terminate
-    Celluloid::Actor[:example].should be_nil
+    expect(Celluloid::Actor[:example]).to be_nil
   end
 
   context "args" do
@@ -43,7 +41,7 @@ describe Celluloid::SupervisionGroup, actor_system: :global do
       end
       group_klass.run!
       sleep 0.01
-      Celluloid::Actor[:example].args.should eq([:foo, :bar])
+      expect(Celluloid::Actor[:example].args).to eq([:foo, :bar])
     end
 
     it "supports lazy evaluation" do
@@ -52,7 +50,7 @@ describe Celluloid::SupervisionGroup, actor_system: :global do
       end
       group_klass.run!
       sleep 0.01
-      Celluloid::Actor[:example].args.should eq([:lazy])
+      expect(Celluloid::Actor[:example].args).to eq([:lazy])
     end
   end
 
@@ -73,15 +71,15 @@ describe Celluloid::SupervisionGroup, actor_system: :global do
       MyGroup.run!
       sleep 0.001 # startup time hax
 
-      Celluloid::Actor[:example_pool].should be_running
-      Celluloid::Actor[:example_pool].args.should eq ['foo']
-      Celluloid::Actor[:example_pool].size.should be 3
+      expect(Celluloid::Actor[:example_pool]).to be_running
+      expect(Celluloid::Actor[:example_pool].args).to eq ['foo']
+      expect(Celluloid::Actor[:example_pool].size).to be 3
     end
 
     it "allows external access to the internal registry" do
       supervisor = MyGroup.run!
 
-      supervisor[:example].should be_a MyActor
+      expect(supervisor[:example]).to be_a MyActor
     end
   end
 end

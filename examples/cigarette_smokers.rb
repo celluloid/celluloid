@@ -218,7 +218,7 @@ class Waitress
 
   def note_smokers
     active_smokers = @table.smokers.select(&:smoking?)
-    puts "*** Active smokers: #{active_smokers.map(&:name).join(", ")}"
+    puts "*** Active smokers: #{active_smokers.map(&:name).join(', ')}"
     puts "!!! EVERYBODY SMOKES !!!" if active_smokers.size == @table.smokers.size
   end
 end

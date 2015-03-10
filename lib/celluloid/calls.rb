@@ -132,7 +132,6 @@ module Celluloid
 
   # Asynchronous calls don't wait for a response
   class AsyncCall < Call
-
     def dispatch(obj)
       CallChain.current_id = Celluloid.uuid
       super(obj)
@@ -142,7 +141,6 @@ module Celluloid
     ensure
       CallChain.current_id = nil
     end
-
   end
 
   class BlockCall
@@ -163,5 +161,4 @@ module Celluloid
       @sender << BlockResponse.new(self, response)
     end
   end
-
 end

@@ -1,6 +1,4 @@
-require 'spec_helper'
-
-describe Celluloid::ThreadHandle do
+RSpec.describe Celluloid::ThreadHandle do
   let(:actor_system) do
     Celluloid::ActorSystem.new
   end
@@ -8,12 +6,12 @@ describe Celluloid::ThreadHandle do
   it "knows thread liveliness" do
     queue = Queue.new
     handle = Celluloid::ThreadHandle.new(actor_system) { queue.pop }
-    handle.should be_alive
+    expect(handle).to be_alive
 
     queue << :die
 
     sleep 0.01 # hax
-    handle.should_not be_alive
+    expect(handle).not_to be_alive
   end
 
   it "joins to thread handles" do
@@ -21,6 +19,6 @@ describe Celluloid::ThreadHandle do
   end
 
   it "supports passing a role" do
-    Celluloid::ThreadHandle.new(actor_system, :useful) { Thread.current.role.should == :useful }.join
+    Celluloid::ThreadHandle.new(actor_system, :useful) { expect(Thread.current.role).to eq(:useful) }.join
   end
 end

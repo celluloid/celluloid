@@ -1,6 +1,4 @@
-require 'spec_helper'
-
-describe Celluloid::SyncCall, actor_system: :global do
+RSpec.describe Celluloid::SyncCall, actor_system: :global do
   class CallExampleActor
     include Celluloid
 
@@ -27,7 +25,7 @@ describe Celluloid::SyncCall, actor_system: :global do
         actor.the_method_that_wasnt_there
       end.to raise_exception(NoMethodError)
 
-      actor.should be_alive
+      expect(actor).to be_alive
     end
 
     context "when obj raises during inspect" do
@@ -46,13 +44,13 @@ describe Celluloid::SyncCall, actor_system: :global do
       actor.actual_method("with too many arguments")
     end.to raise_exception(ArgumentError)
 
-    actor.should be_alive
+    expect(actor).to be_alive
   end
 
   it "preserves call chains across synchronous calls" do
     actor2 = CallExampleActor.new(actor)
 
     uuid, next_actor_uuid = actor2.chained_call_ids
-    uuid.should eq next_actor_uuid
+    expect(uuid).to eq next_actor_uuid
   end
 end
