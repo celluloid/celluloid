@@ -3,8 +3,8 @@ require 'spec_helper'
 describe Celluloid::RingBuffer do
   subject { Celluloid::RingBuffer.new(2) }
 
-  it { should be_empty }
-  it { should_not be_full }
+  it { is_expected.to be_empty }
+  it { is_expected.not_to be_full }
 
   it 'should push and shift' do
     subject.push('foo')

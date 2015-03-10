@@ -25,16 +25,16 @@ describe Celluloid::Links do
   end
 
   it 'adds actors by their mailbox address' do
-    expect(subject.include?(first_actor)).to be_false
+    expect(subject.include?(first_actor)).to be_falsey
     subject << first_actor
-    expect(subject.include?(first_actor)).to be_true
+    expect(subject.include?(first_actor)).to be_truthy
   end
 
   it 'removes actors by their mailbox address' do
     subject << first_actor
-    expect(subject.include?(first_actor)).to be_true
+    expect(subject.include?(first_actor)).to be_truthy
     subject.delete first_actor
-    expect(subject.include?(first_actor)).to be_false
+    expect(subject.include?(first_actor)).to be_falsey
   end
 
   it 'iterates over all actors' do

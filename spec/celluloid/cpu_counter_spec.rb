@@ -16,7 +16,7 @@ describe Celluloid::CPUCounter do
 
     context 'from valid env value' do
       before { ENV['NUMBER_OF_PROCESSORS'] = num_cores.to_s }
-      it { should eq num_cores }
+      it { is_expected.to eq num_cores }
     end
 
     context 'from invalid env value' do
@@ -32,7 +32,7 @@ describe Celluloid::CPUCounter do
           expect(::IO).to receive(:read).with('/sys/devices/system/cpu/present')
             .and_return("dunno-whatever-#{num_cores - 1}")
         end
-        it { should eq num_cores }
+        it { is_expected.to eq num_cores }
       end
 
       context 'when /sys/devices/system/cpu/present does NOT exist' do
@@ -48,7 +48,7 @@ describe Celluloid::CPUCounter do
             expect(Dir).to receive(:[]).with('/sys/devices/system/cpu/cpu*')
               .and_return(cpu_entries)
           end
-          it { should eq num_cores }
+          it { is_expected.to eq num_cores }
         end
 
         context 'when /sys/devices/system/cpu/cpu* files DO NOT exist' do
@@ -64,7 +64,7 @@ describe Celluloid::CPUCounter do
 
           context 'when sysctl fails' do
             before { allow(described_class).to receive(:`).and_return(`false`) }
-            it { should be nil }
+            it { is_expected.to be nil }
           end
 
           context 'when sysctl succeeds' do
@@ -73,7 +73,7 @@ describe Celluloid::CPUCounter do
                 .and_return(num_cores.to_s)
               `true`
             end
-            it { should eq num_cores }
+            it { is_expected.to eq num_cores }
           end
         end
       end
