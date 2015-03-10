@@ -11,7 +11,7 @@ if RUBY_PLATFORM =~ /darwin/
 end
 
 group :development do
-  gem 'rspec', '~> 2.14.1'
+  gem 'rspec', '~> 3.2'
   gem 'guard-rspec'
   gem 'benchmark_suite'
   gem 'rubocop'
