@@ -988,12 +988,12 @@ shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
     end
 
     it "uses user-specified proxy" do
-      expect(subject.new).to be_subclass_proxy
+      expect{subject.new.subclass_proxy?}.to_not raise_error
     end
 
     it "retains custom proxy when subclassed" do
       subclass = Class.new(subject)
-      expect(subclass.new).to be_subclass_proxy
+      expect(subclass.new.subclass_proxy?).to be(true)
     end
   end
 
