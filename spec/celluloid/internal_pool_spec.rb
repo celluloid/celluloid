@@ -3,7 +3,7 @@ RSpec.describe Celluloid::InternalPool do
     expect(subject.get { sleep 1 }).to be_a Thread
   end
 
-  it "puts threads back into the pool" do
+  it "puts threads back into the pool", flaky: true do
     expect(subject.idle_size).to be_zero
     expect(subject.busy_size).to be_zero
 
@@ -16,7 +16,7 @@ RSpec.describe Celluloid::InternalPool do
     queue << nil
     sleep 0.01 # hax
 
-    expect(subject.idle_size).to eq 1
+    expect(subject.idle_size).to eq 1 # sometimes is 0
     expect(subject.busy_size).to eq 0
   end
 
