@@ -127,7 +127,7 @@ RSpec.describe "Celluloid.pool", actor_system: :global do
     context "with incorrect invocation" do
       before { allow(Celluloid::Logger).to receive(:crash) }
 
-      it "logs ArgumentError exception" do
+      it "logs ArgumentError exception", flaky: true do
         expect(Celluloid::Logger).to receive(:crash).with(
           anything(),
           instance_of(ArgumentError))
