@@ -26,7 +26,9 @@ module Celluloid
         end
 
         current_actor = Thread.current[:celluloid_actor]
+        @mutex.unlock rescue nil
         @reactor.wakeup unless current_actor && current_actor.mailbox == self
+        @mutex.lock
       rescue IOError
         Logger.crash "reactor crashed", $!
         dead_letter(message)
