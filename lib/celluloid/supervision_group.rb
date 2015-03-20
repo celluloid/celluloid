@@ -69,12 +69,12 @@ module Celluloid
 
     execute_block_on_receiver :initialize, :supervise, :supervise_as
 
-    def supervise(klass, *args, &block)
-      add(klass, :args => args, :block => block)
+    def supervise(klass, options = {}, &block)
+      add(klass, options.merge(:block => block))
     end
 
-    def supervise_as(name, klass, *args, &block)
-      add(klass, :args => args, :block => block, :as => name)
+    def supervise_as(name, klass, options = {}, &block)
+      add(klass, options.merge(:block => block, :as => name))
     end
 
     def pool(klass, options = {})
