@@ -123,7 +123,6 @@ module Celluloid
         options = options.each_with_object({}) { |(k,v), h| h[k.to_s] = v }
 
         @name = options['as']
-        puts "name? #{@name}"
         @block = options['block']
         @args = prepare_args(options['args'])
         @method = options['method'] || 'new_link'
