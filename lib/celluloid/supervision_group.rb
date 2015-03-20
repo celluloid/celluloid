@@ -69,12 +69,12 @@ module Celluloid
 
     execute_block_on_receiver :initialize, :supervise, :supervise_as
 
-    def supervise(klass, *args, &block)
-      add(klass, :args => args, :block => block)
+    def supervise(klass, options = {}, &block)
+      add(klass, options.merge(:block => block))
     end
 
-    def supervise_as(name, klass, *args, &block)
-      add(klass, :args => args, :block => block, :as => name)
+    def supervise_as(name, klass, options = {}, &block)
+      add(klass, options.merge(:block => block, :as => name))
     end
 
     def pool(klass, options = {})
@@ -123,6 +123,7 @@ module Celluloid
         options = options.each_with_object({}) { |(k,v), h| h[k.to_s] = v }
 
         @name = options['as']
+        puts "name? #{@name}"
         @block = options['block']
         @args = prepare_args(options['args'])
         @method = options['method'] || 'new_link'
