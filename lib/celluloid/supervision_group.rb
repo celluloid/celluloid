@@ -35,25 +35,25 @@ module Celluloid
       # Register an actor class or a sub-group to be launched and supervised
       def supervise(klass, *args, &block)
         blocks << lambda do |group|
-          group.add(klass, prepare_options(args).merge(:block => block))
+          group.add(klass, prepare_options(args, :block => block))
         end
       end
 
       def supervise_as(name, klass, *args, &block)
         blocks << lambda do |group|
-          group.add(klass, prepare_options(args).merge(:block => block, :as => name))
+          group.add(klass, prepare_options(args, :block => block, :as => name))
         end
       end
 
       # Register a pool of actors to be launched on group startup
       def pool(klass, *args, &block)
         blocks << lambda do |group|
-          group.pool(klass, prepare_options(args).merge(:block => block))
+          group.pool(klass, prepare_options(args, :block => block))
         end
       end
 
-      def prepare_options(args)
-        ( args.length == 1 and args[0].is_a? Hash ) ? args[0] : { :args => args }
+      def prepare_options(args, options = {})
+      ( ( args.length == 1 and args[0].is_a? Hash ) ? args[0] : { :args => args } ).merge( options )
       end
     end
 
@@ -70,11 +70,11 @@ module Celluloid
     execute_block_on_receiver :initialize, :supervise, :supervise_as
 
     def supervise(klass, *args, &block)
-      add(klass, prepare_options(args).merge(:block => block))
+      add(klass, prepare_options(args, :block => block))
     end
 
     def supervise_as(name, klass, *args, &block)
-      add(klass, prepare_options(args).merge(:block => block, :as => name))
+      add(klass, prepare_options(args, :block => block, :as => name))
     end
 
     def pool(klass, options = {})
@@ -88,8 +88,8 @@ module Celluloid
       member.actor
     end
 
-    def prepare_options(args)
-      ( args.length == 1 and args[0].is_a? Hash ) ? args[0] : { :args => args }
+    def prepare_options(args, options = {})
+      ( ( args.length == 1 and args[0].is_a? Hash ) ? args[0] : { :args => args } ).merge( options )
     end
 
     def actors
