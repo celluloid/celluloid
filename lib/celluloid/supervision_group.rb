@@ -33,27 +33,27 @@ module Celluloid
       end
 
       # Register an actor class or a sub-group to be launched and supervised
-      # Available options are:
-      #
-      # @option options [Symbol, Object] :as register this application in the Celluloid::Actor[] directory
-      # @option options [#call, Object] :args start the actor with the given
-      #   arguments (lazy evaluation if it responds to #call)
-      def supervise(klass, options = {})
+      def supervise(klass, *args, &block)
         blocks << lambda do |group|
-          group.add klass, options
+          group.add(klass, prepare_options(args).merge(:block => block))
+        end
+      end
+
+      def supervise_as(name, klass, *args, &block)
+        blocks << lambda do |group|
+          group.add(klass, prepare_options(args).merge(:block => block, :as => name))
         end
       end
 
       # Register a pool of actors to be launched on group startup
-      # Available options are:
-      #
-      # @option options [String, Symbol] :as register this application in the Celluloid::Actor[] directory
-      # @option options [#call, Object] :args start the actor with the given
-      #   arguments (lazy evaluation if it responds to #call)
-      def pool(klass, options = {})
+      def pool(klass, *args, &block)
         blocks << lambda do |group|
-          group.pool klass, options
+          group.pool(klass, prepare_options(args).merge(:block => block))
         end
+      end
+
+      def prepare_options(args)
+        ( args.length == 1 and args[0].is_a? Hash ) ? args[0] : { :args => args }
       end
     end
 
@@ -77,10 +77,6 @@ module Celluloid
       add(klass, prepare_options(args).merge(:block => block, :as => name))
     end
 
-    def prepare_options(args)
-      ( args.length == 1 and args[0].is_a? Hash ) ? args[0] : { :args => args }
-    end
-
     def pool(klass, options = {})
       options[:method] = 'pool_link'
       add(klass, options)
@@ -90,6 +86,10 @@ module Celluloid
       member = Member.new(@registry, klass, options)
       @members << member
       member.actor
+    end
+
+    def prepare_options(args)
+      ( args.length == 1 and args[0].is_a? Hash ) ? args[0] : { :args => args }
     end
 
     def actors
