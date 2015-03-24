@@ -78,7 +78,7 @@ module Celluloid
     end
 
     def prepare_options(args)
-      ( args.length == 0 and args[0].is_a? Hash ) ? args[0] : { :args => args }
+      ( args.length == 1 and args[0].is_a? Hash ) ? args[0] : { :args => args }
     end
 
     def pool(klass, options = {})
