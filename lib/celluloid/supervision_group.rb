@@ -53,7 +53,7 @@ module Celluloid
       end
 
       def prepare_options(args, options = {})
-      ( ( args.length == 1 and args[0].is_a? Hash ) ? args[0] : { :args => args } ).merge( options )
+        ( ( args.length == 1 and args[0].is_a? Hash ) ? args[0] : { :args => args } ).merge( options )
       end
     end
 
@@ -70,11 +70,11 @@ module Celluloid
     execute_block_on_receiver :initialize, :supervise, :supervise_as
 
     def supervise(klass, *args, &block)
-      add(klass, prepare_options(args, :block => block))
+      add(klass, self.class.prepare_options(args, :block => block))
     end
 
     def supervise_as(name, klass, *args, &block)
-      add(klass, prepare_options(args, :block => block, :as => name))
+      add(klass, self.class.prepare_options(args, :block => block, :as => name))
     end
 
     def pool(klass, options = {})
@@ -86,10 +86,6 @@ module Celluloid
       member = Member.new(@registry, klass, options)
       @members << member
       member.actor
-    end
-
-    def prepare_options(args, options = {})
-      ( ( args.length == 1 and args[0].is_a? Hash ) ? args[0] : { :args => args } ).merge( options )
     end
 
     def actors
