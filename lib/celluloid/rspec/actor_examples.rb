@@ -830,7 +830,7 @@ RSpec.shared_examples "Celluloid::Actor examples" do |included_module, task_klas
       expect(Time.now - started_at).to be_within(Celluloid::TIMER_QUANTUM).of interval
     end
 
-    it "schedules timers which fire in the future" do
+    it "schedules timers which fire in the future", flaky: true do
       actor = @klass.new
 
       interval = Celluloid::TIMER_QUANTUM * 10
