@@ -3,6 +3,8 @@ require 'thread'
 require 'timeout'
 require 'set'
 
+$CELLULOID_DEBUG = false
+
 module Celluloid
   # Expose all instance methods as singleton methods
   extend self
