@@ -32,6 +32,7 @@ If it persists, you should consider [filing a bug report](#filing-a-bug-report).
   * Full steps to reproduce the issue, including minimal reproduction code. A minimal reproduction means only what is necessary to display the problem and nothing more. This is perhaps the most important thing, don't skip it!
   * Output from a reproduction.
   * Full references for version numbers (of Celluloid, dependencies, Ruby, Operating System, etc). One easy way to do this is to post your Gemfile.lock, though you will still need to tell us what version of Ruby is in use.
+* See: [Triage Process](https://github.com/celluloid/celluloid/wiki/Triage-Process)
 * Some more guidelines on filing good bug reports:
   * http://www.chiark.greenend.org.uk/~sgtatham/bugs.html
   * http://itscommonsensestupid.blogspot.com/2008/07/tips-to-write-good-bug-report.html
