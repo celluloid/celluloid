@@ -6,8 +6,6 @@ module Celluloid
     attr_accessor :max_idle
 
     def initialize
-      @pid = $$
-
       @mutex = Mutex.new
       @idle_threads = []
       @all_threads  = []
@@ -54,7 +52,6 @@ module Celluloid
     end
 
     def to_a
-      return [] if forked?
       @mutex.synchronize { @all_threads.dup }
     end
 
@@ -156,10 +153,6 @@ module Celluloid
 
     def finalize
       @max_idle = 0
-    end
-
-    def forked?
-      @pid != $$
     end
   end
 end
