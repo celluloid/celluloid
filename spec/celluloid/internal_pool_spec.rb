@@ -69,18 +69,4 @@ RSpec.describe Celluloid::InternalPool do
 
     expect(subject.to_a.size).to eq(0)
   end
-
-  context "with a running thread" do
-    let(:queue) { Queue.new }
-
-    before { subject.get { queue.pop } }
-    after { queue << nil }
-
-    it "does not return dead threads inside fork()" do
-      # Hack: use child process exit code to store number of threads/actors
-      pid = fork { exit(subject.to_a.size) }
-      child_actor_count = Process.wait2(pid).last.exitstatus
-      expect(child_actor_count).to be_zero
-    end
-  end
 end
