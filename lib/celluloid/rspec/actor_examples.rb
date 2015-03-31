@@ -437,6 +437,19 @@ RSpec.shared_examples "Celluloid::Actor examples" do |included_module, task_klas
       expect(actor).not_to be_alive
     end
 
+    it "is not dead when it's alive" do
+      actor = actor_class.new 'Bill Murray'
+      actor.should be_alive
+      actor.should_not be_dead
+    end
+
+    it "is dead when it's not alive" do
+      actor = actor_class.new 'Bill Murray'
+      actor.terminate
+      actor.should_not be_alive
+      actor.should be_dead
+    end
+
     it "raises DeadActorError if called after terminated" do
       actor = actor_class.new "Arnold Schwarzenegger"
       actor.terminate
