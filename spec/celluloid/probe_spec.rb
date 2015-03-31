@@ -44,11 +44,11 @@ RSpec.describe "Probe", actor_system: :global do
         :default_incident_reporter => nil,
         :notifications_fanout      => nil
       }
+      sleep 0.9
       # wait for the events we seek
       Timeout.timeout(5) do
         loop do
           client.wait
-          sleep 0.9
           while ev = client.buffer.shift
             if ev[0] == 'celluloid.events.actor_created'
               create_events << ev
