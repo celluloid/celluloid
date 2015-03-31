@@ -82,7 +82,7 @@ module Celluloid
     end
   end
 
-  def self.publish *args
-    Notifications.publish *args
+  def self.publish(*args)
+    Notifications.publish(*args)
   end
 end
