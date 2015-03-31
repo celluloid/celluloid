@@ -36,7 +36,7 @@ end
 
 RSpec.describe "Probe", actor_system: :global do
   describe 'on boot' do
-    it 'should capture system actor spawn' do
+    it 'should capture system actor spawn', flaky: true do
       client = TestProbeClient.new
       Celluloid::Probe.run
       create_events = []
@@ -48,6 +48,7 @@ RSpec.describe "Probe", actor_system: :global do
       Timeout.timeout(5) do
         loop do
           client.wait
+          sleep 0.9
           while ev = client.buffer.shift
             if ev[0] == 'celluloid.events.actor_created'
               create_events << ev
