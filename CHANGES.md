@@ -3,6 +3,7 @@ HEAD
 * Make "Terminating task" log messages debug-level events
 * Fix $CELLULOID_TEST warnings
 * Added `.dead?` method on actors, as opposite of `.alive?`
+* Added class/module method to access `publish` outside actors.
 
 0.16.0 (2014-09-04)
 -------------------
