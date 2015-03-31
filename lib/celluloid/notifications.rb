@@ -7,6 +7,7 @@ module Celluloid
     def publish(pattern, *args)
       Celluloid::Notifications.notifier.publish(pattern, *args)
     end
+    module_function :publish
 
     def subscribe(pattern, method)
       Celluloid::Notifications.notifier.subscribe(Actor.current, pattern, method)
