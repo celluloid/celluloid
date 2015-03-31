@@ -34,6 +34,9 @@ class TestProbeClient
   end
 end
 
+puts "CELLULOID_MONITORING: #{$CELLULOID_MONITORING}"
+
+
 RSpec.describe "Probe", actor_system: :global do
   describe 'on boot' do
     it 'should capture system actor spawn', flaky: true do
@@ -44,7 +47,6 @@ RSpec.describe "Probe", actor_system: :global do
         :default_incident_reporter => nil,
         :notifications_fanout      => nil
       }
-      sleep 0.9
       # wait for the events we seek
       Timeout.timeout(5) do
         loop do
