@@ -26,10 +26,11 @@ RSpec.configure do |config|
 
   config.around do |ex|
     Celluloid.actor_system = nil
+
     Thread.list.each do |thread|
       next if thread == Thread.current
       thread.kill
-    end
+    end unless defined?(JRUBY_VERSION) # avoid killing JRuby's Fiber thread
 
     ex.run
   end
