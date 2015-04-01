@@ -15,6 +15,9 @@ matrix:
     - rvm: jruby
     - rvm: jruby-head
     - rvm: rbx-2
+env:
+  - CELLULOID_TASK_CLASS=Celluloid::TaskFiber
+  - CELLULOID_TASK_CLASS=Celluloid::TaskThread
 
 notifications:
   irc: "irc.freenode.org#celluloid"
