@@ -6,7 +6,18 @@ require 'bundler/setup'
 
 # Require in order, so both CELLULOID_TEST and CELLULOID_DEBUG are true
 require 'celluloid/test'
-require 'celluloid/rspec'
+
+module CelluloidSpecs
+  def self.included_module
+    # Celluloid::IO implements this with with 'Celluloid::IO'
+    Celluloid
+  end
+
+  # Timer accuracy enforced by the tests (50ms)
+  TIMER_QUANTUM = 0.05
+end
+
+$CELLULOID_DEBUG = true
 
 require 'celluloid/probe'
 
