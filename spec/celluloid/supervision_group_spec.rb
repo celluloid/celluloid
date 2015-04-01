@@ -56,19 +56,22 @@ RSpec.describe Celluloid::SupervisionGroup, actor_system: :global do
 
   context "pool" do
     before :all do
-      class MyActor
+      class MyPoolActor
+        include Celluloid
+
         attr_reader :args
         def initialize *args
           @args = *args
         end
+        def running?; :yep; end
       end
-      class MyGroup
-        pool MyActor, :as => :example_pool, :args => 'foo', :size => 3
+      class MyPoolGroup < Celluloid::SupervisionGroup
+        pool MyPoolActor, :as => :example_pool, :args => 'foo', :size => 3
       end
     end
 
     it "runs applications and passes pool options and actor args" do
-      MyGroup.run!
+      MyPoolGroup.run!
       sleep 0.001 # startup time hax
 
       expect(Celluloid::Actor[:example_pool]).to be_running

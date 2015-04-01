@@ -510,7 +510,12 @@ require 'celluloid/legacy' unless defined?(CELLULOID_FUTURE)
 $CELLULOID_MONITORING = false
 
 # Configure default systemwide settings
-Celluloid.task_class = Celluloid::TaskFiber
+Celluloid.task_class = begin
+                         Kernel.const_get(ENV['CELLULOID_TASK_CLASS'])
+                       rescue TypeError
+                         Celluloid::TaskFiber
+                       end
+
 Celluloid.logger     = Logger.new(STDERR)
 Celluloid.shutdown_timeout = 10
 Celluloid.log_actor_crashes = true
