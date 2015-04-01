@@ -6,7 +6,18 @@ require 'bundler/setup'
 
 # Require in order, so both CELLULOID_TEST and CELLULOID_DEBUG are true
 require 'celluloid/test'
-require 'celluloid/rspec'
+
+module CelluloidSpecs
+  def self.included_module
+    # Celluloid::IO implements this with with 'Celluloid::IO'
+    Celluloid
+  end
+
+  # Timer accuracy enforced by the tests (50ms)
+  TIMER_QUANTUM = 0.05
+end
+
+$CELLULOID_DEBUG = true
 
 require 'celluloid/probe'
 
@@ -26,10 +37,11 @@ RSpec.configure do |config|
 
   config.around do |ex|
     Celluloid.actor_system = nil
+
     Thread.list.each do |thread|
       next if thread == Thread.current
       thread.kill
-    end
+    end unless defined?(JRUBY_VERSION) # avoid killing JRuby's Fiber thread
 
     ex.run
   end

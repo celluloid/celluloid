@@ -51,8 +51,8 @@ RSpec.describe Celluloid::FSM, actor_system: :global do
   end
 
   context "with a dummy actor attached" do
-    let(:delay_interval) { Celluloid::TIMER_QUANTUM * 10 }
-    let(:sleep_interval) { delay_interval + Celluloid::TIMER_QUANTUM * 10 }
+    let(:delay_interval) { CelluloidSpecs::TIMER_QUANTUM * 10 }
+    let(:sleep_interval) { delay_interval + CelluloidSpecs::TIMER_QUANTUM * 10 }
 
     let(:dummy) do
       Class.new do
