@@ -1,4 +1,5 @@
 script: rake ci
+language: ruby
 rvm:
   - 1.9.3
   - 2.0.0
@@ -15,15 +16,13 @@ matrix:
     - rvm: jruby
     - rvm: jruby-head
     - rvm: rbx-2
-  global:
-    - BUNDLE_JOBS=4
 
 notifications:
   irc: "irc.freenode.org#celluloid"
 
 before_install:
   # Only use 1 job until Travis fixes the rbx --jobs issue.
-  - if [ "$TRAVIS_RUBY_VERSION" == "rbx-2" ] ; then export BUNDLE_JOBS=1 ; fi
+  - if [ "$TRAVIS_RUBY_VERSION" == "rbx-2" ] ; then export BUNDLE_JOBS=1 ; else export BUNDLE_JOBS=4; fi
 
 sudo: false
 install: bundle install --retry=3 --without=development
