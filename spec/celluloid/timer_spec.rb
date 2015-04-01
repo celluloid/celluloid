@@ -33,7 +33,7 @@ RSpec.describe Celluloid::Actor do
 
     sleep 5.5
 
-    times = every_actor.times
+    every_actor.times
     trace = every_actor.trace
 
     Celluloid.shutdown

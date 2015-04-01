@@ -8,105 +8,104 @@ RSpec.shared_examples "a Celluloid Actor" do |included_module|
 end
 
 RSpec.shared_examples "Celluloid::Actor examples" do |included_module, task_klass|
-  class ExampleCrash < StandardError
-    attr_accessor :foo
-  end
-
   let(:actor_class) { ExampleActorClass.create(included_module, task_klass) }
+  let(:actor) { actor_class.new "Troy McClure" }
 
   it "returns the actor's class, not the proxy's" do
-    actor = actor_class.new "Troy McClure"
     expect(actor.class).to eq(actor_class)
   end
 
   it "compares with the actor's class in a case statement" do
-    expect(case actor_class.new("Troy McClure")
-    when actor_class
-      true
-    else
-      false
-    end).to be_truthy
+    expect(
+      case actor
+      when actor_class
+        true
+      else
+        false
+      end
+    ).to be_truthy
   end
 
   it "can be stored in hashes" do
-    actor = actor_class.new "Troy McClure"
     expect(actor.hash).not_to eq(Kernel.hash)
     expect(actor.object_id).not_to eq(Kernel.object_id)
   end
 
   it "implements respond_to? correctly" do
-    actor = actor_class.new 'Troy McClure'
     expect(actor).to respond_to(:alive?)
   end
 
   it "supports synchronous calls" do
-    actor = actor_class.new "Troy McClure"
     expect(actor.greet).to eq("Hi, I'm Troy McClure")
   end
 
-  it "supports synchronous calls with blocks" do
-    actor = actor_class.new "Blocky Ralboa"
-
-    block_executed = false
-    actor.run { block_executed = true }
-    expect(block_executed).to be_truthy
-  end
-
   it "supports synchronous calls via #method" do
-    method = actor_class.new("Troy McClure").method(:greet)
+    method = actor.method(:greet)
     expect(method.call).to eq("Hi, I'm Troy McClure")
   end
 
   it "supports #arity calls via #method" do
-    method = actor_class.new("Troy McClure").method(:greet)
+    method = actor.method(:greet)
     expect(method.arity).to be(0)
 
-    method = actor_class.new("Troy McClure").method(:change_name)
+    method = actor.method(:change_name)
     expect(method.arity).to be(1)
   end
 
   it "supports #name calls via #method" do
-    method = actor_class.new("Troy McClure").method(:greet)
+    method = actor.method(:greet)
     expect(method.name).to eq(:greet)
   end
 
   it "supports #parameters via #method" do
-    method = actor_class.new("Troy McClure").method(:greet)
+    method = actor.method(:greet)
     expect(method.parameters).to eq([])
 
-    method = actor_class.new("Troy McClure").method(:change_name)
+    method = actor.method(:change_name)
     expect(method.parameters).to eq([[:req, :new_name]])
   end
 
   it "supports future(:method) syntax for synchronous future calls" do
-    actor = actor_class.new "Troy McClure"
     future = actor.future :greet
     expect(future.value).to eq("Hi, I'm Troy McClure")
   end
 
   it "supports future.method syntax for synchronous future calls" do
-    actor = actor_class.new "Troy McClure"
     future = actor.future.greet
     expect(future.value).to eq("Hi, I'm Troy McClure")
   end
 
-  it "handles circular synchronous calls" do
-    klass = Class.new do
-      include included_module
-      task_class task_klass
+  context "when a block is passed synchronously to an actor" do
+    let(:actor) { actor_class.new "Blocky Ralboa" }
 
-      def greet_by_proxy(actor)
-        actor.greet
-      end
+    it "the block is called" do
+      block_executed = false
+      actor.run { block_executed = true }
+      expect(block_executed).to be_truthy
+    end
+  end
 
-      def to_s
-        "a ponycopter!"
-      end
+  context "when there is a circular synchronous reference" do
+    let(:ponycopter) do
+      Class.new do
+        include included_module
+        task_class task_klass
+
+        def greet_by_proxy(actor)
+          actor.greet
+        end
+
+        def to_s
+          "a ponycopter!"
+        end
+      end.new
     end
 
-    ponycopter = klass.new
-    actor = actor_class.new ponycopter
-    expect(ponycopter.greet_by_proxy(actor)).to eq("Hi, I'm a ponycopter!")
+    let(:actor) { actor_class.new ponycopter }
+
+    it "is called correctly" do
+      expect(ponycopter.greet_by_proxy(actor)).to eq("Hi, I'm a ponycopter!")
+    end
   end
 
   it "detects recursion" do
@@ -139,88 +138,95 @@ RSpec.shared_examples "Celluloid::Actor examples" do |included_module, task_klas
     expect(actor1.recursion_test(actor2)).to be_truthy
   end
 
-  it "properly handles method_missing" do
-    actor = actor_class.new "Method Missing"
-    expect(actor).to respond_to(:first)
-    expect(actor.first).to be :bar
-  end
+  describe "#respond_to?" do
+    context "with method_missing resolving to :first" do
+      specify { expect(actor).to respond_to(:first) }
 
-  it "properly handles respond_to with include_private" do
-    actor = actor_class.new "Method missing privates"
-    expect(actor.respond_to?(:zomg_private)).to be_falsey
-    expect(actor.respond_to?(:zomg_private, true)).to be_truthy
-  end
-
-  it "warns about suspending the initialize" do
-    klass = Class.new do
-      include included_module
-      task_class task_klass
-
-      def initialize
-        sleep 0.1
+      context "when missing method is called" do
+        specify { expect(actor.first).to be :bar }
       end
     end
 
-    expect(Celluloid.logger).to receive(:warn).with(/Dangerously suspending task: type=:call, meta={:method_name=>:initialize}, status=:sleeping/)
+    context "with a private method" do
+      specify { expect(actor.respond_to?(:zomg_private)).to be_falsey }
 
-    actor = klass.new
-    actor.terminate
-    Celluloid::Actor.join(actor) unless defined?(JRUBY_VERSION)
-  end
-
-  it "calls the user defined finalizer" do
-    actor = actor_class.new "Mr. Bean"
-    expect(actor.wrapped_object).to receive(:my_finalizer)
-    actor.terminate
-    Celluloid::Actor.join(actor)
-  end
-
-  it "warns about suspending the finalizer" do
-    klass = Class.new do
-      include included_module
-      task_class task_klass
-
-      finalizer :cleanup
-
-      def cleanup
-        sleep 0.1
+      context "when :include_private is passed" do
+        specify { expect(actor.respond_to?(:zomg_private, true)).to be_truthy }
       end
     end
+  end
 
-    expect(Celluloid.logger).to receive(:warn).with(/Dangerously suspending task: type=:finalizer, meta={:method_name=>:cleanup}, status=:sleeping/)
+  context "when initialize sleeps" do
+    let(:actor) do
+      Class.new do
+        include included_module
+        task_class task_klass
 
-    actor = klass.new
-    actor.terminate
-    Celluloid::Actor.join(actor)
+        def initialize
+          sleep 0.1
+        end
+      end.new
+    end
+
+    it "warns about suspending the initialize" do
+      expect(Celluloid.logger).to receive(:warn).with(/Dangerously suspending task: type=:call, meta={:method_name=>:initialize}, status=:sleeping/)
+
+      actor.terminate
+      Celluloid::Actor.join(actor) unless defined?(JRUBY_VERSION)
+    end
+  end
+
+  context "with a user defined finalizer" do
+    it "calls the user defined finalizer" do
+      expect(actor.wrapped_object).to receive(:my_finalizer)
+      actor.terminate
+      Celluloid::Actor.join(actor)
+    end
+  end
+
+  context "when actor sleeps in finalizer" do
+    let(:actor) do
+      Class.new do
+        include included_module
+        task_class task_klass
+
+        finalizer :cleanup
+
+        def cleanup
+          sleep 0.1
+        end
+      end.new
+    end
+
+    it "warns about suspending the finalizer" do
+      expect(Celluloid.logger).to receive(:warn).with(/Dangerously suspending task: type=:finalizer, meta={:method_name=>:cleanup}, status=:sleeping/)
+      actor.terminate
+      Celluloid::Actor.join(actor)
+    end
   end
 
   it "supports async(:method) syntax for asynchronous calls" do
-    actor = actor_class.new "Troy McClure"
     actor.async :change_name, "Charlie Sheen"
     expect(actor.greet).to eq("Hi, I'm Charlie Sheen")
   end
 
   it "supports async.method syntax for asynchronous calls" do
-    actor = actor_class.new "Troy McClure"
     actor.async.change_name "Charlie Sheen"
     expect(actor.greet).to eq("Hi, I'm Charlie Sheen")
   end
 
   it "supports async.method syntax for asynchronous calls to itself" do
-    actor = actor_class.new "Troy McClure"
     actor.change_name_async "Charlie Sheen"
     expect(actor.greet).to eq("Hi, I'm Charlie Sheen")
   end
 
   it "allows an actor to call private methods asynchronously" do
-    actor = actor_class.new "Troy McClure"
     actor.call_private
     expect(actor.private_called).to be_truthy
   end
 
   it "knows if it's inside actor scope" do
     expect(Celluloid).not_to be_actor
-    actor = actor_class.new "Troy McClure"
     expect(actor.run do
       Celluloid.actor?
     end).to be_falsey
@@ -231,7 +237,6 @@ RSpec.shared_examples "Celluloid::Actor examples" do |included_module, task_klas
   end
 
   it "inspects properly" do
-    actor = actor_class.new "Troy McClure"
     expect(actor.inspect).to match(/Celluloid::CellProxy\(/)
     expect(actor.inspect).to match(/#{actor_class}/)
     expect(actor.inspect).to include('@name="Troy McClure"')
@@ -239,7 +244,6 @@ RSpec.shared_examples "Celluloid::Actor examples" do |included_module, task_klas
   end
 
   it "inspects properly when dead" do
-    actor = actor_class.new "Troy McClure"
     actor.terminate
     expect(actor.inspect).to match(/Celluloid::CellProxy\(/)
     expect(actor.inspect).to match(/#{actor_class}/)
@@ -247,52 +251,51 @@ RSpec.shared_examples "Celluloid::Actor examples" do |included_module, task_klas
   end
 
   it "reports private methods properly when dead" do
-    actor = actor_class.new "Troy McClure"
     actor.terminate
     expect{ actor.private_methods }.not_to raise_error
   end
 
-  it "supports recursive inspect with other actors" do
-    klass = Class.new do
-      include included_module
-      task_class task_klass
+  context "with actors referencing each other" do
+    let(:klass) do
+      Class.new do
+        include included_module
+        task_class task_klass
 
-      attr_accessor :other
+        attr_accessor :other
 
-      def initialize(other = nil)
-        @other = other
+        def initialize(other = nil)
+          @other = other
+        end
       end
     end
 
-    itchy = klass.new
-    scratchy = klass.new(itchy)
-    itchy.other = scratchy
+    it "supports recursive inspect" do
+      itchy = klass.new
+      scratchy = klass.new(itchy)
+      itchy.other = scratchy
 
-    inspection = itchy.inspect
-    expect(inspection).to match(/Celluloid::CellProxy\(/)
-    expect(inspection).to include("...")
+      inspection = itchy.inspect
+      expect(inspection).to match(/Celluloid::CellProxy\(/)
+      expect(inspection).to include("...")
+    end
   end
 
   it "allows access to the wrapped object" do
-    actor = actor_class.new "Troy McClure"
     expect(actor.wrapped_object).to be_a actor_class
   end
 
   it "warns about leaked wrapped objects via #inspect" do
-    actor = actor_class.new "Troy McClure"
-
     expect(actor.inspect).not_to include Celluloid::BARE_OBJECT_WARNING_MESSAGE
     expect(actor.inspect_thunk).not_to include Celluloid::BARE_OBJECT_WARNING_MESSAGE
     expect(actor.wrapped_object.inspect).to include Celluloid::BARE_OBJECT_WARNING_MESSAGE
   end
 
   it "can override #send" do
-    actor = actor_class.new "Troy McClure"
     expect(actor.send('foo')).to eq('oof')
   end
 
   context "when executing under JRuby" do
-    let(:klass) {
+    let(:actor) do
       Class.new do
         include included_module
         task_class task_klass
@@ -304,21 +307,19 @@ RSpec.shared_examples "Celluloid::Actor examples" do |included_module, task_klas
         def java_thread
           Thread.current.to_java.getNativeThread
         end
-      end
-    }
+      end.new
+    end
 
     it "sets execution info" do
-      expect(klass.new.current_thread_name).to eq("Class#current_thread_name")
+      expect(actor.current_thread_name).to eq("Class#current_thread_name")
     end
 
     it "unsets execution info after task completion" do
-      expect(klass.new.java_thread.get_name).to eq("<unused>")
+      expect(actor.java_thread.get_name).to eq("<unused>")
     end
   end if RUBY_PLATFORM == "java"
 
   context "mocking methods" do
-    let(:actor) { actor_class.new "Troy McClure" }
-
     before do
       expect(actor.wrapped_object).to receive(:external_hello).once.and_return "World"
     end
@@ -333,60 +334,53 @@ RSpec.shared_examples "Celluloid::Actor examples" do |included_module, task_klas
   end
 
   context :exceptions do
-    it "reraises exceptions which occur during synchronous calls in the sender" do
-      actor = actor_class.new "James Dean" # is this in bad taste?
+    context "with a dead actor" do
+      let(:actor) { actor_class.new "James Dean" } # is this in bad taste?
 
-      expect do
-        actor.crash
-      end.to raise_exception(ExampleCrash)
-    end
+      it "reraises exceptions which occur during synchronous calls in the sender" do
+        expect { actor.crash }.to raise_exception(ExampleCrash)
+      end
 
-    it "includes both sender and receiver in exception traces" do
-      example_receiver = Class.new do
-        include included_module
-        task_class task_klass
+      it "includes both sender and receiver in exception traces" do
+        example_receiver = Class.new do
+          include included_module
+          task_class task_klass
 
-        define_method(:receiver_method) do
-          raise ExampleCrash, "the spec purposely crashed me :("
+          define_method(:receiver_method) do
+            raise ExampleCrash, "the spec purposely crashed me :("
+          end
         end
-      end
 
-      excample_caller = Class.new do
-        include included_module
-        task_class task_klass
+        example_caller = Class.new do
+          include included_module
+          task_class task_klass
 
-        define_method(:sender_method) do
-          example_receiver.new.receiver_method
+          define_method(:sender_method) do
+            example_receiver.new.receiver_method
+          end
         end
+
+        ex = example_caller.new.sender_method rescue $!
+
+        expect(ex).to be_a ExampleCrash
+        expect(ex.backtrace.grep(/`sender_method'/)).to be_truthy
+        expect(ex.backtrace.grep(/`receiver_method'/)).to be_truthy
       end
 
-      ex = nil
-      begin
-        excample_caller.new.sender_method
-      rescue => ex
+      it "raises DeadActorError if methods are synchronously called on a dead actor" do
+        actor.crash rescue nil
+
+        sleep 0.1 # hax to prevent a race between exit handling and the next call
+
+        expect { actor.greet }.to raise_exception(Celluloid::DeadActorError)
       end
-
-      expect(ex).to be_a ExampleCrash
-      expect(ex.backtrace.grep(/`sender_method'/)).to be_truthy
-      expect(ex.backtrace.grep(/`receiver_method'/)).to be_truthy
-    end
-
-    it "raises DeadActorError if methods are synchronously called on a dead actor" do
-      actor = actor_class.new "James Dean"
-      actor.crash rescue nil
-
-      sleep 0.1 # hax to prevent a race between exit handling and the next call
-
-      expect do
-        actor.greet
-      end.to raise_exception(Celluloid::DeadActorError)
     end
   end
 
   context :abort do
-    it "raises exceptions in the sender but keeps running" do
-      actor = actor_class.new "Al Pacino"
+    let(:actor) { actor_class.new "Al Pacino" }
 
+    it "raises exceptions in the sender but keeps running" do
       expect do
         actor.crash_with_abort "You die motherfucker!", :bar
       end.to raise_exception(ExampleCrash, "You die motherfucker!")
@@ -395,14 +389,12 @@ RSpec.shared_examples "Celluloid::Actor examples" do |included_module, task_klas
     end
 
     it "converts strings to runtime errors" do
-      actor = actor_class.new "Al Pacino"
       expect do
         actor.crash_with_abort_raw "foo"
       end.to raise_exception(RuntimeError, "foo")
     end
 
     it "crashes the sender if we pass neither String nor Exception" do
-      actor = actor_class.new "Al Pacino"
       expect do
         actor.crash_with_abort_raw 10
       end.to raise_exception(TypeError, "Exception object/String expected, but Fixnum received")
@@ -413,91 +405,93 @@ RSpec.shared_examples "Celluloid::Actor examples" do |included_module, task_klas
   end
 
   context :termination do
-    it "terminates" do
-      actor = actor_class.new "Arnold Schwarzenegger"
-      expect(actor).to be_alive
-      actor.terminate
-      Celluloid::Actor.join(actor)
-      expect(actor).not_to be_alive
+    let(:actor) { actor_class.new "Arnold Schwarzenegger" }
+
+    context "when alive" do
+      specify { expect(actor).to be_alive }
+      specify { expect(actor).to_not be_dead }
     end
 
-    it "can be terminated by a SyncCall" do
-      actor = actor_class.new "Arnold Schwarzenegger"
-      expect(actor).to be_alive
-      actor.shutdown
-      Celluloid::Actor.join(actor)
-      expect(actor).not_to be_alive
+    context "when terminated" do
+      before do
+        actor.terminate
+        Celluloid::Actor.join(actor)
+      end
+
+      specify { expect(actor).not_to be_alive }
+      context "when terminated!" do
+        specify do
+          expect do
+            actor.terminate!
+          end.to raise_exception(Celluloid::DeadActorError, "actor already terminated")
+        end
+      end
     end
 
-    it "kills" do # THOU SHALT ALWAYS KILL
-      actor = actor_class.new "Woody Harrelson"
-      expect(actor).to be_alive
-      Celluloid::Actor.kill(actor)
-      Celluloid::Actor.join(actor)
-      expect(actor).not_to be_alive
+    context "when terminated by a SyncCall" do
+      before do
+        actor.shutdown
+        Celluloid::Actor.join(actor)
+      end
+
+      specify { expect(actor).not_to be_alive }
     end
 
-    it "is not dead when it's alive" do
-      actor = actor_class.new 'Bill Murray'
-      expect( actor ).to be_alive
-      expect( actor ).to_not be_dead
+    context "when killed" do
+      before do
+        Celluloid::Actor.kill(actor)
+        Celluloid::Actor.join(actor)
+      end
+
+      specify { expect(actor).not_to be_alive }
+      specify { expect(actor).to be_dead }
+
+      context "when called" do
+        specify do
+          expect { actor.greet }.to raise_exception(Celluloid::DeadActorError)
+        end
+      end
     end
 
-    it "is dead when it's not alive" do
-      actor = actor_class.new 'Bill Murray'
-      actor.terminate
-      expect( actor ).not_to be_alive
-      expect( actor ).to be_dead
+    context "when celluloid is shutdown" do
+      before do
+        allow(Celluloid::Actor).to receive(:kill).and_call_original
+        actor
+        Celluloid.shutdown
+      end
+
+      it "terminates cleanly on Celluloid shutdown" do
+        expect(Celluloid::Actor).not_to have_received(:kill)
+      end
     end
 
-    it "raises DeadActorError if called after terminated" do
-      actor = actor_class.new "Arnold Schwarzenegger"
-      actor.terminate
+    context "when sleeping" do
+      before do
+        actor.async.sleepy 10
+        actor.greet # make sure the actor has started sleeping
+      end
 
-      expect do
-        actor.greet
-      end.to raise_exception(Celluloid::DeadActorError)
-    end
+      context "when terminated" do
+        it "logs a warning" do
+          expect(Celluloid.logger).to receive(:debug).with(/^Terminating task: type=:call, meta={:method_name=>:sleepy}, status=:sleeping\n/)
 
-    it "terminates cleanly on Celluloid shutdown" do
-      allow(Celluloid::Actor).to receive(:kill).and_call_original
-
-      actor = actor_class.new "Arnold Schwarzenegger"
-
-      Celluloid.shutdown
-      expect(Celluloid::Actor).not_to have_received(:kill)
-    end
-
-    it "raises the right DeadActorError if terminate! called after terminated" do
-      actor = actor_class.new "Arnold Schwarzenegger"
-      actor.terminate
-
-      expect do
-        actor.terminate!
-      end.to raise_exception(Celluloid::DeadActorError, "actor already terminated")
-    end
-
-    it "logs a warning when terminating tasks" do
-      expect(Celluloid.logger).to receive(:debug).with(/^Terminating task: type=:call, meta={:method_name=>:sleepy}, status=:sleeping\n/)
-
-      actor = actor_class.new "Arnold Schwarzenegger"
-      actor.async.sleepy 10
-      actor.greet # make sure the actor has started sleeping
-
-      actor.terminate
+          actor.terminate
+        end
+      end
     end
   end
 
-  context :current_actor do
-    it "knows the current actor" do
-      actor = actor_class.new "Roger Daltrey"
-      expect(actor.current_actor).to eq actor
+  describe '#current_actor' do
+    context "when called on an actor" do
+      let(:actor) { actor_class.new "Roger Daltrey" }
+
+      it "knows the current actor" do
+        expect(actor.current_actor).to eq actor
+      end
     end
 
-    it "raises NotActorError if called outside an actor" do
-      expect do
-        Celluloid.current_actor
-      end.to raise_exception(Celluloid::NotActorError)
+    context "when called outside an actor" do
+      specify { expect { Celluloid.current_actor }.to raise_exception(Celluloid::NotActorError) }
     end
   end
 
@@ -750,12 +744,18 @@ RSpec.shared_examples "Celluloid::Actor examples" do |included_module, task_klas
       end
     end
 
-    it "executes two methods in an exclusive order" do
-      actor = subject.new
-      actor.async.eat_donuts
-      actor.async.drink_coffee
-      sleep Celluloid::TIMER_QUANTUM * 2
-      expect(actor.tasks).to eq(['donuts', 'coffee'])
+    context "with two async methods called" do
+      let(:actor) { subject.new }
+
+      before do
+        actor.async.eat_donuts
+        actor.async.drink_coffee
+        sleep Celluloid::TIMER_QUANTUM * 2
+      end
+
+      it "executes in an exclusive order" do
+        expect(actor.tasks).to eq(['donuts', 'coffee'])
+      end
     end
   end
 
@@ -785,18 +785,20 @@ RSpec.shared_examples "Celluloid::Actor examples" do |included_module, task_klas
       expect(received_obj).to eq(message)
     end
 
-    it "times out after the given interval", flaky: true do
-      interval = 0.1
-      started_at = Time.now
+    context "when exceeding a given time out" do
+      let(:interval) { 0.1 }
 
-      expect(receiver.receive(interval) { false }).to be_nil
-      expect(Time.now - started_at).to be_within(Celluloid::TIMER_QUANTUM).of interval
+      it "times out", flaky: true do
+        started_at = Time.now
+        expect(receiver.receive(interval) { false }).to_not be
+        expect(Time.now - started_at).to be_within(Celluloid::TIMER_QUANTUM).of interval
+      end
     end
   end
 
   context :timers do
-    before do
-      @klass = Class.new do
+    let(:actor) do
+      Class.new do
         include included_module
         task_class task_klass
 
@@ -824,15 +826,15 @@ RSpec.shared_examples "Celluloid::Actor examples" do |included_module, task_klas
 
         def fired?; !!@fired end
         def fired; @fired end
-      end
+      end.new
     end
 
-    it "suspends execution of a method (but not the actor) for a given time", flaky: true do
-      actor = @klass.new
+    let(:interval) { Celluloid::TIMER_QUANTUM * 10 }
+    let(:sleep_interval) { interval + Celluloid::TIMER_QUANTUM } # wonky! #/
 
+    it "suspends execution of a method (but not the actor) for a given time", flaky: true do
       # Sleep long enough to ensure we're actually seeing behavior when asleep
       # but not so long as to delay the test suite unnecessarily
-      interval = Celluloid::TIMER_QUANTUM * 10
       started_at = Time.now
 
       future = actor.future(:do_sleep, interval)
@@ -844,93 +846,72 @@ RSpec.shared_examples "Celluloid::Actor examples" do |included_module, task_klas
     end
 
     it "schedules timers which fire in the future" do
-      actor = @klass.new
-
-      interval = Celluloid::TIMER_QUANTUM * 10
-
       actor.fire_after(interval)
       expect(actor).not_to be_fired
 
-      sleep(interval + Celluloid::TIMER_QUANTUM) # wonky! #/
+      sleep sleep_interval
       expect(actor).to be_fired
     end
 
     it "schedules recurring timers which fire in the future" do
-      actor = @klass.new
-
-      interval = Celluloid::TIMER_QUANTUM * 10
-
       actor.fire_every(interval)
       expect(actor.fired).to be_zero
 
-      sleep(interval + Celluloid::TIMER_QUANTUM) # wonky! #/
+      sleep sleep_interval
       expect(actor.fired).to be 1
 
-      2.times { sleep(interval + Celluloid::TIMER_QUANTUM) } # wonky! #/
+      2.times { sleep sleep_interval }
       expect(actor.fired).to be 3
     end
 
     it "cancels timers before they fire" do
-      actor = @klass.new
-
-      interval = Celluloid::TIMER_QUANTUM * 10
-
       timer = actor.fire_after(interval)
       expect(actor).not_to be_fired
       timer.cancel
 
-      sleep(interval + Celluloid::TIMER_QUANTUM) # wonky! #/
+      sleep sleep_interval
       expect(actor).not_to be_fired
     end
 
     it "allows delays from outside the actor" do
-      actor = @klass.new
-
-      interval = Celluloid::TIMER_QUANTUM * 10
       fired = false
 
-      actor.after(interval) do
-        fired = true
-      end
+      actor.after(interval) { fired = true }
       expect(fired).to be_falsey
 
-      sleep(interval + Celluloid::TIMER_QUANTUM) # wonky! #/
+      sleep sleep_interval
       expect(fired).to be_truthy
     end
   end
 
   context :tasks do
-    before do
-      @klass = Class.new do
+    let(:actor) do
+      Class.new do
         include included_module
         task_class task_klass
         attr_reader :blocker
 
         def initialize
-          @blocker = Blocker.new
+          @blocker = Class.new do
+            include Celluloid
+
+            def block
+              wait :unblock
+            end
+
+            def unblock
+              signal :unblock
+            end
+          end.new
         end
 
         def blocking_call
           @blocker.block
         end
-      end
-
-      class Blocker
-        include Celluloid
-
-        def block
-          wait :unblock
-        end
-
-        def unblock
-          signal :unblock
-        end
-      end
+      end.new
     end
 
     it "knows which tasks are waiting on calls to other actors" do
-      actor = @klass.new
-
       tasks = actor.tasks
       expect(tasks.size).to be 1
 
@@ -985,18 +966,19 @@ RSpec.shared_examples "Celluloid::Actor examples" do |included_module, task_klas
     end
   end
 
-  context :proxy_class do
-    class ExampleProxy < Celluloid::CellProxy
-      def subclass_proxy?
-        true
-      end
-    end
-
+  context '#proxy_class' do
     subject do
       Class.new do
         include included_module
         task_class task_klass
-        proxy_class ExampleProxy
+
+        klass = Class.new(Celluloid::CellProxy) do
+          def subclass_proxy?
+            true
+          end
+        end
+
+        proxy_class klass
       end
     end
 
@@ -1046,17 +1028,14 @@ RSpec.shared_examples "Celluloid::Actor examples" do |included_module, task_klas
       end
     end
 
-    it "allows timing out tasks, raising Celluloid::Task::TimeoutError" do
-      a1 = actor_class.new
-      a2 = actor_class.new
+    let(:a1) { actor_class.new }
+    let(:a2) { actor_class.new }
 
+    it "allows timing out tasks, raising Celluloid::Task::TimeoutError" do
       expect { a1.ask_name_with_timeout a2, 0.3 }.to raise_error(Celluloid::Task::TimeoutError)
     end
 
     it "does not raise when it completes in time" do
-      a1 = actor_class.new
-      a2 = actor_class.new
-
       expect(a1.ask_name_with_timeout(a2, 0.6)).to eq(:foo)
     end
   end
@@ -1064,8 +1043,6 @@ RSpec.shared_examples "Celluloid::Actor examples" do |included_module, task_klas
   context "raw message sends" do
     it "logs on unhandled messages" do
       expect(Celluloid.logger).to receive(:debug).with("Discarded message (unhandled): first")
-
-      actor = actor_class.new "Irma Gladden"
       actor.mailbox << :first
       sleep Celluloid::TIMER_QUANTUM
     end

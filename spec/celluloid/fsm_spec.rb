@@ -1,34 +1,28 @@
-RSpec.describe Celluloid::FSM, actor_system: :global do
-  before :all do
-    class TestMachine
-      include Celluloid::FSM
+class TestMachine
+  include Celluloid::FSM
 
-      def initialize
-        super
-        @fired = false
-      end
-
-      state :callbacked do
-        @fired = true
-      end
-
-      state :pre_done, :to => :done
-      state :another, :done
-
-      def fired?; @fired end
-    end
-
-    class DummyActor
-      include Celluloid
-    end
-
-    class CustomDefaultMachine
-      include Celluloid::FSM
-
-      default_state :foobar
-    end
+  def initialize
+    super
+    @fired = false
   end
 
+  state :callbacked do
+    @fired = true
+  end
+
+  state :pre_done, :to => :done
+  state :another, :done
+
+  def fired?; @fired end
+end
+
+class CustomDefaultMachine
+  include Celluloid::FSM
+
+  default_state :foobar
+end
+
+RSpec.describe Celluloid::FSM, actor_system: :global do
   subject { TestMachine.new }
 
   it "starts in the default state" do
@@ -56,31 +50,49 @@ RSpec.describe Celluloid::FSM, actor_system: :global do
     expect { subject.transition :another }.to raise_exception ArgumentError
   end
 
-  it "transitions to states after a specified delay" do
-    interval = Celluloid::TIMER_QUANTUM * 10
+  context "with a dummy actor attached" do
+    let(:delay_interval) { Celluloid::TIMER_QUANTUM * 10 }
+    let(:sleep_interval) { delay_interval + Celluloid::TIMER_QUANTUM * 10 }
 
-    subject.attach DummyActor.new
-    subject.transition :another
-    subject.transition :done, :delay => interval
+    let(:dummy) do
+      Class.new do
+        include Celluloid
+      end.new
+    end
 
-    expect(subject.state).to be :another
-    sleep interval + Celluloid::TIMER_QUANTUM
+    before do
+      subject.attach dummy
+      subject.transition :another
+    end
 
-    expect(subject.state).to be :done
-  end
+    context "with a delayed transition" do
+      before { subject.transition :done, :delay => delay_interval }
 
-  it "cancels delayed state transitions if another transition is made" do
-    interval = Celluloid::TIMER_QUANTUM * 10
+      context "before delay has ended" do
+        it "stays unchanged" do
+          expect(subject.state).to be :another
+        end
+      end
 
-    subject.attach DummyActor.new
-    subject.transition :another
-    subject.transition :done, :delay => interval
+      context "when delay has ended" do
+        before { sleep sleep_interval }
 
-    expect(subject.state).to be :another
-    subject.transition :pre_done
-    sleep interval + Celluloid::TIMER_QUANTUM
+        it "transitions to delayed state" do
+          expect(subject.state).to be :done
+        end
+      end
 
-    expect(subject.state).to be :pre_done
+      context "when another transition is made meanwhile" do
+        before do
+          subject.transition :pre_done
+          sleep sleep_interval
+        end
+
+        it "cancels delayed state transition" do
+          expect(subject.state).to be :pre_done
+        end
+      end
+    end
   end
 
   context "actor is not set" do
