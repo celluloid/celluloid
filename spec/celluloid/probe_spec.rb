@@ -34,9 +34,12 @@ class TestProbeClient
   end
 end
 
+puts "CELLULOID_MONITORING: #{$CELLULOID_MONITORING}"
+
+
 RSpec.describe "Probe", actor_system: :global do
   describe 'on boot' do
-    it 'should capture system actor spawn' do
+    it 'should capture system actor spawn', flaky: true do
       client = TestProbeClient.new
       Celluloid::Probe.run
       create_events = []

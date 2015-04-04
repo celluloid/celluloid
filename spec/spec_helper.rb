@@ -3,7 +3,11 @@ Coveralls.wear!
 
 require 'rubygems'
 require 'bundler/setup'
+
+# Require in order, so both CELLULOID_TEST and CELLULOID_DEBUG are true
+require 'celluloid/test'
 require 'celluloid/rspec'
+
 require 'celluloid/probe'
 
 logfile = File.open(File.expand_path("../../log/test.log", __FILE__), 'a')
