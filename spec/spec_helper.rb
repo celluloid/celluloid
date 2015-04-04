@@ -71,7 +71,11 @@ RSpec.configure do |config|
 
   config.around(:each) do |example|
     config.default_retry_count = example.metadata[:flaky] ? 5 : 1
-    example.run
+    if example.metadata[:flaky] and ENV['BYPASS_FLAKY'] == "true"
+      example.run broken: true
+    else
+      example.run
+    end
   end
 
   # Must be *after* the around hook above
