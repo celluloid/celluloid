@@ -4,12 +4,12 @@ rvm:
   - 1.9.3
   - 2.2.0
   - jruby
-  - rbx-2
   - ruby-head
   - jruby-head
 
 matrix:
   allow_failures:
+    - rvm: rbx-2
     - rvm: ruby-head
     - rvm: jruby-head
     - env: CLLLD_TASK_CLASS=TaskFiber CLLLD_BYPASS_FLAKY=false
