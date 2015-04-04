@@ -69,7 +69,7 @@ RSpec.configure do |config|
   end
 
   config.around(:each) do |example|
-    config.default_retry_count = example.metadata[:flaky] ? (ENV['CI'] ? 5 : 3) : 1
+    config.default_retry_count = example.metadata[:flaky] ? 5 : 1
     example.run
   end
 
