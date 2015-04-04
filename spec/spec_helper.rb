@@ -41,6 +41,7 @@ RSpec.configure do |config|
     Thread.list.each do |thread|
       next if thread == Thread.current
       if defined?(JRUBY_VERSION)
+        # Avoid disrupting jRuby's "fiber" threads.
         next if /Fiber/ =~ thread.to_java.getNativeThread.get_name
       end
       thread.kill
