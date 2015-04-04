@@ -1,4 +1,6 @@
 # -*- encoding: utf-8 -*-
+require File.expand_path('../lib/celluloid/version', __FILE__)
+
 Gem::Specification.new do |gem|
   gem.name        = 'celluloid'
   gem.version     = Celluloid::VERSION
