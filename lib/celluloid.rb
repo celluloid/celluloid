@@ -512,7 +512,7 @@ $CELLULOID_MONITORING = false
 # Configure default systemwide settings
 Celluloid.task_class = begin
   Celluloid.const_get(ENV['CLLLD_TASK_CLASS'] || fail(TypeError))
-rescue TypeError
+rescue
   Celluloid::TaskFiber
 end
 
