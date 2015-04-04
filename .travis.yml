@@ -14,6 +14,7 @@ matrix:
     - rvm: jruby-head
     - env: CLLLD_TASK_CLASS=Celluloid::TaskFiber CLLLD_BYPASS_FLAKY=true
     - env: CLLLD_TASK_CLASS=Celluloid::TaskThread CLLLD_BYPASS_FLAKY=true
+    - env: CLLLD_TASK_CLASS=Celluloid::TaskThread CLLLD_BYPASS_FLAKY=false
 env:
   - CLLLD_TASK_CLASS=Celluloid::TaskFiber CLLLD_BYPASS_FLAKY=true
   - CLLLD_TASK_CLASS=Celluloid::TaskFiber CLLLD_BYPASS_FLAKY=false
