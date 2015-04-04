@@ -6,6 +6,7 @@ rvm:
   - jruby
   - ruby-head
   - jruby-head
+  - rbx-2
 
 matrix:
   allow_failures:
