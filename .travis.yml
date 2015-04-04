@@ -7,13 +7,11 @@ rvm:
   - rbx-2
   - ruby-head
   - jruby-head
-  - rbx-head
 
 matrix:
   allow_failures:
     - rvm: ruby-head
     - rvm: jruby-head
-    - rvm: rbx-head
 env:
   - CELLULOID_TASK_CLASS=Celluloid::TaskFiber
   - CELLULOID_TASK_CLASS=Celluloid::TaskThread
