@@ -3,15 +3,14 @@ language: ruby
 rvm:
   - 1.9.3
   - 2.2.0
-  - ruby-head
   - jruby
+  - ruby-head
   - jruby-head
   - rbx-2
 
 matrix:
   allow_failures:
     - rvm: ruby-head
-    - rvm: jruby
     - rvm: jruby-head
     - rvm: rbx-2
 env:
