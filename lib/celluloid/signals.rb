@@ -15,9 +15,8 @@ module Celluloid
 
     # Send a signal to all method calls waiting for the given name
     def broadcast(name, value = nil)
-      if condition = @conditions.delete(name)
-        condition.broadcast(value)
-      end
+      condition = @conditions.delete(name)
+      condition.broadcast(value) if condition
     end
   end
 end

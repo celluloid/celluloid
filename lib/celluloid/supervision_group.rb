@@ -33,32 +33,36 @@ module Celluloid
       end
 
       # Register an actor class or a sub-group to be launched and supervised
-      # Available options are:
-      #
-      # * as: register this application in the Celluloid::Actor[] directory
-      # * args: start the actor with the given arguments
-      def supervise(klass, options = {})
+      def supervise(klass, *args, &block)
         blocks << lambda do |group|
-          group.add klass, options
+          group.add(klass, prepare_options(args, :block => block))
+        end
+      end
+
+      def supervise_as(name, klass, *args, &block)
+        blocks << lambda do |group|
+          group.add(klass, prepare_options(args, :block => block, :as => name))
         end
       end
 
       # Register a pool of actors to be launched on group startup
-      # Available options are:
-      #
-      # * as: register this application in the Celluloid::Actor[] directory
-      # * args: start the actor pool with the given arguments
-      def pool(klass, options = {})
+      def pool(klass, *args, &block)
         blocks << lambda do |group|
-          group.pool klass, options
+          group.pool(klass, prepare_options(args, :block => block))
         end
       end
+
+      def prepare_options(args, options = {})
+        ( ( args.length == 1 and args[0].is_a? Hash ) ? args[0] : { :args => args } ).merge( options )
+      end
     end
+
+    finalizer :finalize
 
     # Start the group
     def initialize(registry = nil)
       @members = []
-      @registry = registry || Registry.root
+      @registry = registry || Celluloid.actor_system.registry
 
       yield current_actor if block_given?
     end
@@ -66,11 +70,11 @@ module Celluloid
     execute_block_on_receiver :initialize, :supervise, :supervise_as
 
     def supervise(klass, *args, &block)
-      add(klass, :args => args, :block => block)
+      add(klass, self.class.prepare_options(args, :block => block))
     end
 
     def supervise_as(name, klass, *args, &block)
-      add(klass, :args => args, :block => block, :as => name)
+      add(klass, self.class.prepare_options(args, :block => block, :as => name))
     end
 
     def pool(klass, options = {})
@@ -81,23 +85,15 @@ module Celluloid
     def add(klass, options)
       member = Member.new(@registry, klass, options)
       @members << member
-      member
+      member.actor
     end
 
     def actors
       @members.map(&:actor)
     end
-    
+
     def [](actor_name)
       @registry[actor_name]
-    end
-      
-
-    finalizer :finalize
-
-    # Terminate the group
-    def finalize
-      @members.reverse_each(&:terminate) if @members
     end
 
     # Restart a crashed actor
@@ -107,21 +103,28 @@ module Celluloid
       end
       raise "a group member went missing. This shouldn't be!" unless member
 
-      member.restart(reason)
+      if reason
+        member.restart
+      else
+        member.cleanup
+        @members.delete(member)
+      end
     end
 
     # A member of the group
     class Member
+      # @option options [#call, Object] :args ([]) arguments array for the
+      #   actor's constructor (lazy evaluation if it responds to #call)
       def initialize(registry, klass, options = {})
         @registry = registry
         @klass = klass
 
         # Stringify keys :/
-        options = options.inject({}) { |h,(k,v)| h[k.to_s] = v; h }
+        options = options.each_with_object({}) { |(k,v), h| h[k.to_s] = v }
 
         @name = options['as']
         @block = options['block']
-        @args = options['args'] ? Array(options['args']) : []
+        @args = prepare_args(options['args'])
         @method = options['method'] || 'new_link'
         @pool = @method == 'pool_link'
         @pool_size = options['size'] if @pool
@@ -142,21 +145,37 @@ module Celluloid
         @registry[@name] = @actor if @name
       end
 
-      def restart(reason)
+      def restart
         @actor = nil
-        @registry.delete(@name) if @name
-
-        # Ignore supervisors that shut down cleanly
-        return unless reason
+        cleanup
 
         start
       end
 
       def terminate
-        @registry.delete(@name) if @name
+        cleanup
         @actor.terminate if @actor
       rescue DeadActorError
       end
+
+      def cleanup
+        @registry.delete(@name) if @name
+      end
+
+      private
+
+      # Executes args if it has the method #call, and converts the return
+      # value to an Array. Otherwise, it just converts it to an Array.
+      def prepare_args(args)
+        args = args.call if args.respond_to?(:call)
+        Array(args)
+      end
+    end
+
+    private
+
+    def finalize
+      @members.reverse_each(&:terminate) if @members
     end
   end
 end

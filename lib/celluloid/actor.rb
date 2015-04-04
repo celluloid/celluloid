@@ -1,47 +1,18 @@
+
 require 'timers'
 
 module Celluloid
-  # Don't do Actor-like things outside Actor scope
-  class NotActorError < Celluloid::Error; end
-
-  # Trying to do something to a dead actor
-  class DeadActorError < Celluloid::Error; end
-
-  # A timeout occured before the given request could complete
-  class TimeoutError < Celluloid::Error; end
-
-  # The sender made an error, not the current actor
-  class AbortError < Celluloid::Error
-    attr_reader :cause
-
-    def initialize(cause)
-      @cause = cause
-      super "caused by #{cause.inspect}: #{cause.to_s}"
-    end
-  end
-
-  LINKING_TIMEOUT = 5 # linking times out after 5 seconds
-
   # Actors are Celluloid's concurrency primitive. They're implemented as
   # normal Ruby objects wrapped in threads which communicate with asynchronous
   # messages.
-
   class Actor
-    attr_reader :behavior, :proxy, :tasks, :links, :mailbox, :thread, :name
+    attr_reader :behavior, :proxy, :tasks, :links, :mailbox, :thread, :name, :timers
     attr_writer :exit_handler
 
     class << self
       extend Forwardable
 
-      def_delegators "Celluloid::Registry.root", :[], :[]=
-
-      def registered
-        Registry.root.names
-      end
-
-      def clear_registry
-        Registry.root.clear
-      end
+      def_delegators "Celluloid.actor_system", :[], :[]=, :delete, :registered, :clear_registry
 
       # Obtain the current actor
       def current
@@ -51,7 +22,7 @@ module Celluloid
       end
 
       # Obtain the name of the current actor
-      def name
+      def registered_name
         actor = Thread.current[:celluloid_actor]
         raise NotActorError, "not in actor scope" unless actor
         actor.name
@@ -77,12 +48,7 @@ module Celluloid
 
       # Obtain all running actors in the system
       def all
-        actors = []
-        Celluloid.internal_pool.each do |t|
-          next unless t.role == :actor
-          actors << t.actor.behavior_proxy if t.actor && t.actor.respond_to?(:behavior_proxy)
-        end
-        actors
+        Celluloid.actor_system.running
       end
 
       # Watch for exit events from another actor
@@ -135,6 +101,7 @@ module Celluloid
     def initialize(behavior, options)
       @behavior         = behavior
 
+      @actor_system     = options.fetch(:actor_system)
       @mailbox          = options.fetch(:mailbox_class, Mailbox).new
       @mailbox.max_size = options.fetch(:mailbox_size, nil)
 
@@ -145,8 +112,8 @@ module Celluloid
       @tasks     = TaskSet.new
       @links     = Links.new
       @signals   = Signals.new
-      @receivers = Receivers.new
-      @timers    = Timers.new
+      @timers    = Timers::Group.new
+      @receivers = Receivers.new(@timers)
       @handlers  = Handlers.new
       @running   = false
       @name      = nil
@@ -158,7 +125,7 @@ module Celluloid
 
     def start
       @running = true
-      @thread = ThreadHandle.new(:actor) do
+      @thread = ThreadHandle.new(@actor_system, :actor) do
         setup_thread
         run
       end
@@ -178,18 +145,20 @@ module Celluloid
 
     # Run the actor loop
     def run
-      begin
-        while @running
-          if message = @mailbox.receive(timeout_interval)
-            handle_message message
-          else
-            # No message indicates a timeout
-            @timers.fire
-            @receivers.fire_timers
+      while @running
+        begin
+          @timers.wait do |interval|
+            interval = 0 if interval and interval < 0
+
+            if message = @mailbox.check(interval)
+              handle_message(message)
+
+              break unless @running
+            end
           end
+        rescue MailboxShutdown
+          @running = false
         end
-      rescue MailboxShutdown
-        # If the mailbox detects shutdown, exit the actor
       end
 
       shutdown
@@ -206,32 +175,35 @@ module Celluloid
     # Perform a linking request with another actor
     def linking_request(receiver, type)
       Celluloid.exclusive do
-        start_time = Time.now
         receiver.mailbox << LinkingRequest.new(Actor.current, type)
         system_events = []
 
-        loop do
-          wait_interval = start_time + LINKING_TIMEOUT - Time.now
-          message = @mailbox.receive(wait_interval) do |msg|
-            msg.is_a?(LinkingResponse) &&
-            msg.actor.mailbox.address == receiver.mailbox.address &&
-            msg.type == type
+        Timers::Wait.for(LINKING_TIMEOUT) do |remaining|
+          begin
+            message = @mailbox.receive(remaining) do |msg|
+              msg.is_a?(LinkingResponse) &&
+              msg.actor.mailbox.address == receiver.mailbox.address &&
+              msg.type == type
+            end
+          rescue TimeoutError
+            next # IO reactor did something, no message in queue yet.
           end
 
-          case message
-          when LinkingResponse
+          if message.instance_of? LinkingResponse
             Celluloid::Probe.actors_linked(self, receiver) if $CELLULOID_MONITORING
+
             # We're done!
             system_events.each { |ev| @mailbox << ev }
+
             return
-          when NilClass
-            raise TimeoutError, "linking timeout of #{LINKING_TIMEOUT} seconds exceeded"
-          when SystemEvent
+          elsif message.is_a? SystemEvent
             # Queue up pending system events to be processed after we've successfully linked
             system_events << message
-          else raise 'wtf'
+          else raise "Unexpected message type: #{message.class}. Expected LinkingResponse, NilClass, SystemEvent."
           end
         end
+
+        raise TimeoutError, "linking timeout of #{LINKING_TIMEOUT} seconds exceeded"
       end
     end
 
@@ -256,20 +228,6 @@ module Celluloid
         break message unless message.is_a?(SystemEvent)
 
         handle_system_event(message)
-      end
-    end
-
-    # How long to wait until the next timer fires
-    def timeout_interval
-      i1 = @timers.wait_interval
-      i2 = @receivers.wait_interval
-
-      if i1 and i2
-        i1 < i2 ? i1 : i2
-      elsif i1
-        i1
-      else
-        i2
       end
     end
 
@@ -329,18 +287,19 @@ module Celluloid
 
     # Handle high-priority system event messages
     def handle_system_event(event)
-      case event
-      when ExitEvent
+      if event.instance_of? ExitEvent
         handle_exit_event(event)
-      when LinkingRequest
+      elsif event.instance_of? LinkingRequest
         event.process(links)
-      when NamingRequest
+      elsif event.instance_of? NamingRequest
         @name = event.name
         Celluloid::Probe.actor_named(self) if $CELLULOID_MONITORING
-      when TerminationRequest
+      elsif event.instance_of? TerminationRequest
         terminate
-      when SignalConditionRequest
+      elsif event.instance_of? SignalConditionRequest
         event.call
+      else
+        Logger.debug "Discarded message (unhandled): #{message}" if $CELLULOID_DEBUG
       end
     end
 
@@ -383,7 +342,7 @@ module Celluloid
         end
       end
 
-      tasks.to_a.each { |task| task.terminate }
+      tasks.to_a.each(&:terminate)
     rescue => ex
       # TODO: metadata
       Logger.crash("CLEANUP CRASHED!", ex)

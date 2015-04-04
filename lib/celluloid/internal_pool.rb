@@ -6,9 +6,11 @@ module Celluloid
     attr_accessor :max_idle
 
     def initialize
-      @group = ThreadGroup.new
       @mutex = Mutex.new
-      @threads = []
+      @idle_threads = []
+      @all_threads  = []
+      @busy_size = 0
+      @idle_size = 0
 
       # TODO: should really adjust this based on usage
       @max_idle = 16
@@ -16,27 +18,24 @@ module Celluloid
     end
 
     def busy_size
-      @threads.select(&:busy).size
+      @busy_size
     end
 
     def idle_size
-      @threads.reject(&:busy).size
+      @idle_size
     end
 
     def assert_running
-      unless running?
-        raise Error, "Thread pool is not running"
-      end
+      raise Error, "Thread pool is not running" unless running?
     end
 
     def assert_inactive
-      if active?
-        message = "Thread pool is still active"
-        if defined?(JRUBY_VERSION)
-          Celluloid.logger.warn message
-        else
-          raise Error, message
-        end
+      return unless active?
+      message = "Thread pool is still active"
+      if defined?(JRUBY_VERSION)
+        Celluloid.logger.warn message
+      else
+        raise Error, message
       end
     end
 
@@ -45,17 +44,15 @@ module Celluloid
     end
 
     def active?
-      to_a.any?
+      busy_size + idle_size > 0
     end
 
     def each
-      @threads.each do |thread|
-        yield thread
-      end
+      to_a.each {|thread| yield thread }
     end
 
     def to_a
-      @threads
+      @mutex.synchronize { @all_threads.dup }
     end
 
     # Get a thread from the pool, running the given block
@@ -64,15 +61,16 @@ module Celluloid
         assert_running
 
         begin
-          idle = @threads.reject(&:busy)
-          if idle.empty?
+          if @idle_threads.empty?
             thread = create
           else
-            thread = idle.first
+            thread = @idle_threads.pop
+            @idle_size = @idle_threads.length
           end
         end until thread.status # handle crashed threads
 
         thread.busy = true
+        @busy_size += 1
         thread[:celluloid_queue] << block
         thread
       end
@@ -82,14 +80,45 @@ module Celluloid
     def put(thread)
       @mutex.synchronize do
         thread.busy = false
-        if idle_size >= @max_idle
+        if idle_size + 1 >= @max_idle
           thread[:celluloid_queue] << nil
-          @threads.delete(thread)
+          @busy_size -= 1
+          @all_threads.delete(thread)
         else
+          @idle_threads.push thread
+          @busy_size -= 1
+          @idle_size = @idle_threads.length
           clean_thread_locals(thread)
         end
       end
     end
+
+    def shutdown
+      @mutex.synchronize do
+        finalize
+        @all_threads.each do |thread|
+          thread[:celluloid_queue] << nil
+        end
+        @all_threads.clear
+        @idle_threads.clear
+        @busy_size = 0
+        @idle_size = 0
+      end
+    end
+
+    def kill
+      @mutex.synchronize do
+        finalize
+        @running = false
+
+        @all_threads.shift.kill until @all_threads.empty?
+        @idle_threads.clear
+        @busy_size = 0
+        @idle_size = 0
+      end
+    end
+
+    private
 
     # Create a new thread with an associated queue of procs to run
     def create
@@ -100,15 +129,15 @@ module Celluloid
             proc.call
           rescue => ex
             Logger.crash("thread crashed", ex)
+          ensure
+            put thread
           end
-
-          put thread
         end
       end
 
       thread[:celluloid_queue] = queue
-      @threads << thread
-      @group.add(thread)
+      # @idle_threads << thread
+      @all_threads << thread
       thread
     end
 
@@ -121,27 +150,6 @@ module Celluloid
         thread[key] = nil
       end
     end
-
-    def shutdown
-      @mutex.synchronize do
-        finalize
-        @threads.each do |thread|
-          thread[:celluloid_queue] << nil
-        end
-      end
-    end
-
-    def kill
-      @mutex.synchronize do
-        finalize
-        @running = false
-
-        @threads.shift.kill until @threads.empty?
-        @group.list.each(&:kill)
-      end
-    end
-
-    private
 
     def finalize
       @max_idle = 0

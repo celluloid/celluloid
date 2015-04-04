@@ -48,6 +48,8 @@ module Celluloid
           @status = :running
           actor.setup_thread
 
+          name_current_thread thread_metadata
+
           Thread.current[:celluloid_task] = self
           CallChain.current_id = @chain_id
 
@@ -56,6 +58,7 @@ module Celluloid
         rescue Task::TerminatedError
           # Task was explicitly terminated
         ensure
+          name_current_thread nil
           @status = :dead
           actor.tasks.delete self
         end
@@ -74,14 +77,9 @@ module Celluloid
       @status = status
 
       if $CELLULOID_DEBUG && @dangerous_suspend
-        warning = "Dangerously suspending task: "
-        warning << [
-          "type=#{@type.inspect}",
-          "meta=#{@meta.inspect}",
-          "status=#{@status.inspect}"
-        ].join(", ")
-
-        Logger.warn [warning, *caller[2..8]].join("\n\t")
+        Logger.with_backtrace(caller[2...8]) do |logger|
+          logger.warn "Dangerously suspending task: type=#{@type.inspect}, meta=#{@meta.inspect}, status=#{@status.inspect}"
+        end
       end
 
       value = signal
@@ -118,7 +116,9 @@ module Celluloid
       raise "Cannot terminate an exclusive task" if exclusive?
 
       if running?
-        Celluloid.logger.warn "Terminating task: type=#{@type.inspect}, meta=#{@meta.inspect}, status=#{@status.inspect}"
+        Logger.with_backtrace(backtrace) do |logger|
+          logger.debug "Terminating task: type=#{@type.inspect}, meta=#{@meta.inspect}, status=#{@status.inspect}"
+        end
         exception = Task::TerminatedError.new("task was terminated")
         exception.set_backtrace(caller)
         resume exception
@@ -149,6 +149,25 @@ module Celluloid
       else
         raise message if $CELLULOID_DEBUG
       end
+    end
+
+    private
+
+    def name_current_thread(new_name)
+      return unless RUBY_PLATFORM == "java"
+      if new_name.nil?
+        new_name = Thread.current[:celluloid_original_thread_name]
+        Thread.current[:celluloid_original_thread_name] = nil
+      else
+        Thread.current[:celluloid_original_thread_name] = Thread.current.to_java.getNativeThread.get_name
+      end
+      Thread.current.to_java.getNativeThread.set_name(new_name)
+    end
+
+    def thread_metadata
+      method = @meta && @meta[:method_name] || "<no method>"
+      klass = Thread.current[:celluloid_actor] && Thread.current[:celluloid_actor].behavior.subject.bare_object.class || "<no actor>"
+      format("[Celluloid] %s#%s", klass, method)
     end
   end
 end

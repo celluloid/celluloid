@@ -104,7 +104,7 @@ like Celluloid we definitely recommend you check them out:
 * [Celluloid::ZMQ][celluloid-zmq]: "Evented" 0MQ support for Celluloid actors
 * [DCell][dcell]: The Celluloid actor protocol distributed over 0MQ
 * [Reel][reel]: An "evented" web server based on Celluloid::IO
-* [Lattice][lattice]: A concurrent realtime web framework based on Celluloid::IO 
+* [Lattice][lattice]: A concurrent realtime web framework based on Celluloid::IO
 * [nio4r][nio4r]: "New IO for Ruby": high performance IO selectors
 * [Timers][timers]: A generic Ruby timer library for event-based systems
 
@@ -153,7 +153,8 @@ Celluloid requires Ruby 1.9 mode on all interpreters.
 Additional Reading
 ------------------
 
-* [Concurrent Object-Oriented Programming in Python with ATOM](http://python.org/workshops/1997-10/proceedings/atom/):
+* [Concurrent Object-Oriented Programming in Python with
+  ATOM](http://citeseerx.ist.psu.edu/viewdoc/download;jsessionid=11A3EACE78AAFF6D6D62A64118AFCA7C?doi=10.1.1.47.5074&rep=rep1&type=pdf):
   a similar system to Celluloid written in Python
 
 Contributing to Celluloid
@@ -167,5 +168,5 @@ Contributing to Celluloid
 License
 -------
 
-Copyright (c) 2013 Tony Arcieri. Distributed under the MIT License. See
+Copyright (c) 2011-2014 Tony Arcieri. Distributed under the MIT License. See
 LICENSE.txt for further details.

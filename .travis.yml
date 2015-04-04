@@ -1,18 +1,33 @@
 script: rake ci
+language: ruby
 rvm:
   - 1.9.3
-  - 2.0.0
+  - 2.2.0
+  - jruby
   - ruby-head
-  - jruby-19mode
   - jruby-head
-  - rbx-19mode 
+  - rbx-2
 
 matrix:
   allow_failures:
+    - rvm: rbx-2
     - rvm: ruby-head
-    - rvm: jruby-19mode # broken :( to be fixed in jruby 1.7.5?!!!
     - rvm: jruby-head
-    - rvm: rbx-19mode # deadlocks :(
+    - env: CLLLD_TASK_CLASS=TaskFiber CLLLD_BYPASS_FLAKY=false
+    - env: CLLLD_TASK_CLASS=TaskThread CLLLD_BYPASS_FLAKY=true
+    - env: CLLLD_TASK_CLASS=TaskThread CLLLD_BYPASS_FLAKY=false
+env:
+  - CLLLD_TASK_CLASS=TaskFiber CLLLD_BYPASS_FLAKY=true
+  - CLLLD_TASK_CLASS=TaskFiber CLLLD_BYPASS_FLAKY=false
+  - CLLLD_TASK_CLASS=TaskThread CLLLD_BYPASS_FLAKY=true
+  - CLLLD_TASK_CLASS=TaskThread CLLLD_BYPASS_FLAKY=false
 
 notifications:
   irc: "irc.freenode.org#celluloid"
+
+before_install:
+  # Only use 1 job until Travis fixes the rbx --jobs issue.
+  - if [ "$TRAVIS_RUBY_VERSION" == "rbx-2" ] ; then export BUNDLE_JOBS=1 ; else export BUNDLE_JOBS=4; fi
+
+sudo: false
+install: bundle install --retry=3 --without=development

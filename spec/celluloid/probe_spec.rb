@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 class DummyActor; include Celluloid; end
 
 class TestProbeClient
@@ -23,7 +21,7 @@ class TestProbeClient
       wait
       while ev = @buffer.shift()
         if (ev[0] == topic) && (ev[1].mailbox.address == expected_actor1.mailbox.address) &&
-          (expected_actor2.nil? || (ev[2].mailbox.address == expected_actor2.mailbox.address) )
+           (expected_actor2.nil? || (ev[2].mailbox.address == expected_actor2.mailbox.address) )
           return ev
         end
       end
@@ -36,9 +34,9 @@ class TestProbeClient
   end
 end
 
-describe "Probe" do
+RSpec.describe "Probe", actor_system: :global do
   describe 'on boot' do
-    it 'should capture system actor spawn' do
+    it 'should capture system actor spawn', flaky: true do
       client = TestProbeClient.new
       Celluloid::Probe.run
       create_events = []
@@ -64,27 +62,27 @@ describe "Probe" do
           end
         end
       end
-      received_named_events.all?{|_, v| v != nil }.should == true
+      expect(received_named_events.all?{|_, v| v != nil }).to eq(true)
       # now check we got the create events for every actors
       received_named_events.each do |_, mailbox_address|
         found = create_events.detect{|_, aa| aa.mailbox.address == mailbox_address }
-        found.should_not == nil
+        expect(found).not_to eq(nil)
       end
     end
   end
 
   describe 'after boot' do
-    it 'should send a notification when an actor is spawned' do
+    it 'should send a notification when an actor is spawned', flaky: true do
       client = TestProbeClient.new
       Celluloid::Probe.run
       a = DummyActor.new
       event = Timeout.timeout(5) do
         client.wait_event('celluloid.events.actor_created', a)
       end
-      event.should_not == nil
+      expect(event).not_to eq(nil)
     end
 
-    it 'should send a notification when an actor is named' do
+    it 'should send a notification when an actor is named', flaky: true  do
       client = TestProbeClient.new
       Celluloid::Probe.run
       a = DummyActor.new
@@ -92,10 +90,10 @@ describe "Probe" do
       event = Timeout.timeout(5) do
         client.wait_event('celluloid.events.actor_named', a)
       end
-      event.should_not == nil
+      expect(event).not_to eq(nil)
     end
 
-    it 'should send a notification when actor dies' do
+    it 'should send a notification when actor dies', flaky: true  do
       client = TestProbeClient.new
       Celluloid::Probe.run
       a = DummyActor.new
@@ -103,10 +101,10 @@ describe "Probe" do
       event = Timeout.timeout(5) do
         client.wait_event('celluloid.events.actor_died', a)
       end
-      event.should_not == nil
+      expect(event).not_to eq(nil)
     end
 
-    it 'should send a notification when actors are linked' do
+    it 'should send a notification when actors are linked', flaky: true  do
       client = TestProbeClient.new
       Celluloid::Probe.run
       a = DummyActor.new
@@ -115,7 +113,7 @@ describe "Probe" do
       event = Timeout.timeout(5) do
         client.wait_event('celluloid.events.actors_linked', a, b)
       end
-      event.should_not == nil
+      expect(event).not_to eq(nil)
     end
   end
 end

@@ -1,56 +1,48 @@
-require 'spec_helper'
+class TestMachine
+  include Celluloid::FSM
 
-describe Celluloid::FSM do
-  before :all do
-    class TestMachine
-      include Celluloid::FSM
-
-      def initialize
-        super
-        @fired = false
-      end
-
-      state :callbacked do
-        @fired = true
-      end
-
-      state :pre_done, :to => :done
-      state :another, :done
-
-      def fired?; @fired end
-    end
-
-    class DummyActor
-      include Celluloid
-    end
-
-    class CustomDefaultMachine
-      include Celluloid::FSM
-
-      default_state :foobar
-    end
+  def initialize
+    super
+    @fired = false
   end
 
+  state :callbacked do
+    @fired = true
+  end
+
+  state :pre_done, :to => :done
+  state :another, :done
+
+  def fired?; @fired end
+end
+
+class CustomDefaultMachine
+  include Celluloid::FSM
+
+  default_state :foobar
+end
+
+RSpec.describe Celluloid::FSM, actor_system: :global do
   subject { TestMachine.new }
 
   it "starts in the default state" do
-    subject.state.should eq(TestMachine.default_state)
+    expect(subject.state).to eq(TestMachine.default_state)
   end
 
   it "transitions between states" do
-    subject.state.should_not be :done
+    expect(subject.state).not_to be :done
     subject.transition :done
-    subject.state.should be :done
+    expect(subject.state).to be :done
   end
 
   it "fires callbacks for states" do
-    subject.should_not be_fired
+    expect(subject).not_to be_fired
     subject.transition :callbacked
-    subject.should be_fired
+    expect(subject).to be_fired
   end
 
   it "allows custom default states" do
-    CustomDefaultMachine.new.state.should be :foobar
+    expect(CustomDefaultMachine.new.state).to be :foobar
   end
 
   it "supports constraints on valid state transitions" do
@@ -58,31 +50,49 @@ describe Celluloid::FSM do
     expect { subject.transition :another }.to raise_exception ArgumentError
   end
 
-  it "transitions to states after a specified delay" do
-    interval = Celluloid::TIMER_QUANTUM * 10
+  context "with a dummy actor attached" do
+    let(:delay_interval) { CelluloidSpecs::TIMER_QUANTUM * 10 }
+    let(:sleep_interval) { delay_interval + CelluloidSpecs::TIMER_QUANTUM * 10 }
 
-    subject.attach DummyActor.new
-    subject.transition :another
-    subject.transition :done, :delay => interval
+    let(:dummy) do
+      Class.new do
+        include Celluloid
+      end.new
+    end
 
-    subject.state.should be :another
-    sleep interval + Celluloid::TIMER_QUANTUM
+    before do
+      subject.attach dummy
+      subject.transition :another
+    end
 
-    subject.state.should be :done
-  end
+    context "with a delayed transition" do
+      before { subject.transition :done, :delay => delay_interval }
 
-  it "cancels delayed state transitions if another transition is made" do
-    interval = Celluloid::TIMER_QUANTUM * 10
+      context "before delay has ended" do
+        it "stays unchanged" do
+          expect(subject.state).to be :another
+        end
+      end
 
-    subject.attach DummyActor.new
-    subject.transition :another
-    subject.transition :done, :delay => interval
+      context "when delay has ended" do
+        before { sleep sleep_interval }
 
-    subject.state.should be :another
-    subject.transition :pre_done
-    sleep interval + Celluloid::TIMER_QUANTUM
+        it "transitions to delayed state" do
+          expect(subject.state).to be :done
+        end
+      end
 
-    subject.state.should be :pre_done
+      context "when another transition is made meanwhile" do
+        before do
+          subject.transition :pre_done
+          sleep sleep_interval
+        end
+
+        it "cancels delayed state transition" do
+          expect(subject.state).to be :pre_done
+        end
+      end
+    end
   end
 
   context "actor is not set" do
@@ -100,7 +110,7 @@ describe Celluloid::FSM do
     end
 
     it "should not call transition! if the state is :default" do
-      subject.should_not_receive :transition!
+      expect(subject).not_to receive :transition!
       subject.transition :default
     end
   end

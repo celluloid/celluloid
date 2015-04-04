@@ -24,37 +24,32 @@ module Celluloid
         else
           @messages << message
         end
-
+      ensure
+        @mutex.unlock rescue nil
+      end
+      begin
         current_actor = Thread.current[:celluloid_actor]
         @reactor.wakeup unless current_actor && current_actor.mailbox == self
       rescue IOError
         Logger.crash "reactor crashed", $!
         dead_letter(message)
-      ensure
-        @mutex.unlock rescue nil
       end
       nil
     end
 
     # Receive a message from the Mailbox
-    def receive(timeout = nil, &block)
-      message = next_message(block)
-
-      until message
-        if timeout
-          now = Time.now
-          wait_until ||= now + timeout
-          wait_interval = wait_until - now
-          return if wait_interval < 0
-        else
-          wait_interval = nil
-        end
-
-        @reactor.run_once(wait_interval)
-        message = next_message(block)
+    def check(timeout = nil, &block)
+      # Get a message if it is available and process it immediately if possible:
+      if message = next_message(block)
+        return message
       end
 
-      message
+      # ... otherwise, run the reactor once, either blocking or will return
+      # after the given timeout:
+      @reactor.run_once(timeout)
+
+      # No message was received:
+      return nil
     rescue IOError
       raise MailboxShutdown, "mailbox shutdown called during receive"
     end

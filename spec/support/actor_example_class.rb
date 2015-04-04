@@ -1,3 +1,7 @@
+class ExampleCrash < StandardError
+  attr_accessor :foo
+end
+
 module ExampleActorClass
   def self.create(included_module, task_klass)
     Class.new do
@@ -74,6 +78,8 @@ module ExampleActorClass
         terminate
       end
 
+      # Ideally, this class should implement "fake methods"
+      # consistently, including :methods, :public_methods, etc.
       def method_missing(method_name, *args, &block)
         if delegates?(method_name)
           @delegate.send method_name, *args, &block
@@ -83,7 +89,19 @@ module ExampleActorClass
       end
 
       def respond_to?(method_name, include_private = false)
-        super || delegates?(method_name)
+        if delegates?(method_name)
+          delegates?(method_name)
+        else
+          super
+        end
+      end
+
+      def method(method_name)
+        if delegates?(method_name)
+          @delegate.method(method_name)
+        else
+          super
+        end
       end
 
       def call_private
@@ -102,6 +120,7 @@ module ExampleActorClass
       private
 
       def delegates?(method_name)
+        return false unless @delegate ||= nil
         @delegate.respond_to?(method_name)
       end
     end

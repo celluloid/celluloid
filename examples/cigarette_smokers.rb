@@ -113,10 +113,9 @@ class Smoker
 
   # Check the table for the items we're waiting for
   def check_table
-    if @table.empty?
-      puts "#{name} whistles at waitress... get me smokes!"
-      @table.waitress.async.whistle # We'll decide what to do when the waitress arrives
-    end
+    return unless @table.empty?
+    puts "#{name} whistles at waitress... get me smokes!"
+    @table.waitress.async.whistle # We'll decide what to do when the waitress arrives
   end
 
   # Take the items from the table
@@ -204,7 +203,7 @@ class Waitress
       receiver = smokers.delete_at rand(smokers.size)
       puts "#{self.class} decides that #{receiver.name} gets to smoke!"
 
-      items = smokers.map { |s| s.dispense_commodity }
+      items = smokers.map(&:dispense_commodity)
 
       puts "Waitress collects #{items.map(&:class).join(' and ')} and puts them on the table"
       @table.place(items)
@@ -218,8 +217,8 @@ class Waitress
   end
 
   def note_smokers
-    active_smokers = @table.smokers.select { |s| s.smoking? }
-    puts "*** Active smokers: #{active_smokers.map(&:name).join(", ")}"
+    active_smokers = @table.smokers.select(&:smoking?)
+    puts "*** Active smokers: #{active_smokers.map(&:name).join(', ')}"
     puts "!!! EVERYBODY SMOKES !!!" if active_smokers.size == @table.smokers.size
   end
 end

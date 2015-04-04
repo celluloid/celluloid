@@ -22,6 +22,10 @@ module Celluloid
       @mailbox.alive?
     end
 
+    def dead?
+      !alive?
+    end
+
     # Terminate the associated actor
     def terminate
       terminate!

@@ -21,32 +21,44 @@ module Celluloid
     end
 
     def dispatch(obj)
+      check(obj)
       _block = @block && @block.to_proc
       obj.public_send(@method, *@arguments, &_block)
-    rescue NoMethodError => ex
-      # Abort if the sender made a mistake
-      raise AbortError.new(ex) unless obj.respond_to? @method
+    end
 
-      # Otherwise something blew up. Crash this actor
-      raise
-    rescue ArgumentError => ex
-      # Abort if the sender made a mistake
+    def check(obj)
+      # NOTE: don't use respond_to? here
       begin
-        arity = obj.method(@method).arity
+        meth = obj.method(@method)
       rescue NameError
-        # In theory this shouldn't happen, but just in case
-        raise AbortError.new(ex)
+        inspect_dump = begin
+                         obj.inspect
+                       rescue RuntimeError, NameError
+                         simulated_inspect_dump(obj)
+                       end
+        raise NoMethodError, "undefined method `#{@method}' for #{inspect_dump}"
       end
+
+      arity = meth.arity
 
       if arity >= 0
-        raise AbortError.new(ex) if @arguments.size != arity
+        raise ArgumentError, "wrong number of arguments (#{@arguments.size} for #{arity})" if @arguments.size != arity
       elsif arity < -1
         mandatory_args = -arity - 1
-        raise AbortError.new(ex) if arguments.size < mandatory_args
+        raise ArgumentError, "wrong number of arguments (#{@arguments.size} for #{mandatory_args}+)" if arguments.size < mandatory_args
       end
+    rescue => ex
+      raise AbortError.new(ex)
+    end
 
-      # Otherwise something blew up. Crash this actor
-      raise
+    def simulated_inspect_dump(obj)
+      vars = obj.instance_variables.map do |var|
+        begin
+          "#{var}=#{obj.instance_variable_get(var).inspect}"
+        rescue RuntimeError
+        end
+      end.compact.join(" ")
+      "#<#{obj.class}:0x#{obj.object_id.to_s(16)} #{vars}>"
     end
   end
 
@@ -120,7 +132,6 @@ module Celluloid
 
   # Asynchronous calls don't wait for a response
   class AsyncCall < Call
-
     def dispatch(obj)
       CallChain.current_id = Celluloid.uuid
       super(obj)
@@ -130,7 +141,6 @@ module Celluloid
     ensure
       CallChain.current_id = nil
     end
-
   end
 
   class BlockCall
@@ -151,5 +161,4 @@ module Celluloid
       @sender << BlockResponse.new(self, response)
     end
   end
-
 end

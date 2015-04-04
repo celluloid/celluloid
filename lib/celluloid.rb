@@ -3,20 +3,34 @@ require 'thread'
 require 'timeout'
 require 'set'
 
-module Celluloid
-  VERSION = '0.16.0.pre'
-  Error = Class.new StandardError
+$CELLULOID_DEBUG = false
 
-  extend self # expose all instance methods as singleton methods
+require 'celluloid/version'
+
+module Celluloid
+  # Expose all instance methods as singleton methods
+  extend self
+
+  # Linking times out after 5 seconds
+  LINKING_TIMEOUT = 5
 
   # Warning message added to Celluloid objects accessed outside their actors
   BARE_OBJECT_WARNING_MESSAGE = "WARNING: BARE CELLULOID OBJECT "
 
   class << self
-    attr_accessor :internal_pool    # Internal thread pool
+    attr_writer   :actor_system     # Default Actor System
     attr_accessor :logger           # Thread-safe logger class
+    attr_accessor :log_actor_crashes
     attr_accessor :task_class       # Default task type to use
     attr_accessor :shutdown_timeout # How long actors have to terminate
+
+    def actor_system
+      if Thread.current.celluloid?
+        Thread.current[:celluloid_actor_system] or raise Error, "actor system not running"
+      else
+        Thread.current[:celluloid_actor_system] || @actor_system or raise Error, "Celluloid is not yet started; use Celluloid.boot"
+      end
+    end
 
     def included(klass)
       klass.send :extend,  ClassMethods
@@ -75,7 +89,7 @@ module Celluloid
 
     # Perform a stack dump of all actors to the given output object
     def stack_dump(output = STDERR)
-      Celluloid::StackDump.new.dump(output)
+      actor_system.stack_dump.print(output)
     end
     alias_method :dump, :stack_dump
 
@@ -112,18 +126,20 @@ module Celluloid
     end
 
     def init
-      self.internal_pool = InternalPool.new
+      @actor_system = ActorSystem.new
     end
 
-    # Launch default services
-    # FIXME: We should set up the supervision hierarchy here
     def start
-      Celluloid::Notifications::Fanout.supervise_as :notifications_fanout
-      Celluloid::IncidentReporter.supervise_as :default_incident_reporter, STDERR
+      actor_system.start
+    end
+
+    def running?
+      actor_system && actor_system.running?
     end
 
     def register_shutdown
-      return if @shutdown_registered
+      return if defined?(@shutdown_registered) && @shutdown_registered
+
       # Terminate all actors at exit
       at_exit do
         if defined?(RUBY_ENGINE) && RUBY_ENGINE == "ruby" && RUBY_VERSION >= "1.9"
@@ -141,41 +157,7 @@ module Celluloid
 
     # Shut down all running actors
     def shutdown
-      actors = Actor.all
-
-      Timeout.timeout(shutdown_timeout) do
-        internal_pool.shutdown
-
-        Logger.debug "Terminating #{actors.size} #{(actors.size > 1) ? 'actors' : 'actor'}..." if actors.size > 0
-
-        # Attempt to shut down the supervision tree, if available
-        Supervisor.root.terminate if Supervisor.root
-
-        # Actors cannot self-terminate, you must do it for them
-        actors.each do |actor|
-          begin
-            actor.terminate!
-          rescue DeadActorError
-          end
-        end
-
-        actors.each do |actor|
-          begin
-            Actor.join(actor)
-          rescue DeadActorError
-          end
-        end
-      end
-    rescue Timeout::Error
-      Logger.error("Couldn't cleanly terminate all actors in #{shutdown_timeout} seconds!")
-      actors.each do |actor|
-        begin
-          Actor.kill(actor)
-        rescue DeadActorError, MailboxDead
-        end
-      end
-    ensure
-      internal_pool.kill
+      actor_system.shutdown
     end
 
     def version
@@ -235,9 +217,14 @@ module Celluloid
       Actor.join(new(*args, &block))
     end
 
+    def actor_system
+      Celluloid.actor_system
+    end
+
     # Configuration options for Actor#new
     def actor_options
       {
+        :actor_system      => actor_system,
         :mailbox_class     => mailbox_class,
         :mailbox_size      => mailbox_size,
         :task_class        => task_class,
@@ -256,7 +243,7 @@ module Celluloid
     end
 
     def ===(other)
-      other.kind_of? self
+      other.is_a? self
     end
   end
 
@@ -290,9 +277,10 @@ module Celluloid
     end
 
     # Obtain the name of the current actor
-    def name
-      Actor.name
+    def registered_name
+      Actor.registered_name
     end
+    alias_method :name, :registered_name
 
     def inspect
       return "..." if Celluloid.detect_recursion
@@ -470,6 +458,8 @@ if defined?(JRUBY_VERSION) && JRUBY_VERSION == "1.7.3"
   raise "Celluloid is broken on JRuby 1.7.3. Please upgrade to 1.7.4+"
 end
 
+require 'celluloid/exceptions'
+
 require 'celluloid/calls'
 require 'celluloid/call_chain'
 require 'celluloid/condition'
@@ -508,6 +498,7 @@ require 'celluloid/proxies/block_proxy'
 require 'celluloid/actor'
 require 'celluloid/cell'
 require 'celluloid/future'
+require 'celluloid/actor_system'
 require 'celluloid/pool_manager'
 require 'celluloid/supervision_group'
 require 'celluloid/supervisor'
@@ -519,8 +510,17 @@ require 'celluloid/legacy' unless defined?(CELLULOID_FUTURE)
 $CELLULOID_MONITORING = false
 
 # Configure default systemwide settings
-Celluloid.task_class = Celluloid::TaskFiber
-Celluloid.logger     = Logger.new(STDERR)
+Celluloid.task_class = begin
+  Celluloid.const_get(ENV['CLLLD_TASK_CLASS'] || fail(TypeError))
+rescue
+  Celluloid::TaskFiber
+end
+
+Celluloid.logger = Logger.new(STDERR)
 Celluloid.shutdown_timeout = 10
-Celluloid.register_shutdown
-Celluloid.init
+Celluloid.log_actor_crashes = true
+
+unless defined?($CELLULOID_TEST) && $CELLULOID_TEST
+  Celluloid.register_shutdown
+  Celluloid.init
+end
