@@ -12,13 +12,13 @@ matrix:
   allow_failures:
     - rvm: ruby-head
     - rvm: jruby-head
-    - env: BYPASS_FLAKY=false
-    - env: CELLULOID_TASK_CLASS=Celluloid::TaskThread
+    - env: CLLLD_BYPASS_FLAKY=true CLLLD_TASK_CLASS=Celluloid::TaskFiber
+    - env: CLLLD_BYPASS_FLAKY=true CLLLD_TASK_CLASS=Celluloid::TaskThread
 env:
-  - BYPASS_FLAKY=false
-  - BYPASS_FLAKY=true
-  - CELLULOID_TASK_CLASS=Celluloid::TaskFiber
-  - CELLULOID_TASK_CLASS=Celluloid::TaskThread
+  - CLLLD_BYPASS_FLAKY=true CLLLD_TASK_CLASS=Celluloid::TaskFiber
+  - CLLLD_BYPASS_FLAKY=false CLLLD_TASK_CLASS=Celluloid::TaskFiber
+  - CLLLD_BYPASS_FLAKY=true CLLLD_TASK_CLASS=Celluloid::TaskThread
+  - CLLLD_BYPASS_FLAKY=false CLLLD_TASK_CLASS=Celluloid::TaskThread
 
 notifications:
   irc: "irc.freenode.org#celluloid"

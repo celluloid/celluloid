@@ -511,7 +511,7 @@ $CELLULOID_MONITORING = false
 
 # Configure default systemwide settings
 Celluloid.task_class = begin
-  str = ENV['CELLULOID_TASK_CLASS'] || fail(TypeError)
+  str = ENV['CLLLD_TASK_CLASS'] || fail(TypeError)
   str.split('::').inject(Object) do |mod, class_name|
     mod.const_get(class_name)
   end

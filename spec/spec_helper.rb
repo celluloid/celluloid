@@ -18,6 +18,7 @@ module CelluloidSpecs
 end
 
 $CELLULOID_DEBUG = true
+$CELLULOID_BYPASS_FLAKY = ENV['CLLLD_BYPASS_FLAKY'] == "true"
 
 require 'celluloid/probe'
 
@@ -71,7 +72,7 @@ RSpec.configure do |config|
 
   config.around(:each) do |example|
     config.default_retry_count = example.metadata[:flaky] ? 5 : 1
-    if example.metadata[:flaky] and ENV['BYPASS_FLAKY'] == "true"
+    if example.metadata[:flaky] and $CELLULOID_BYPASS_FLAKY
       example.run broken: true
     else
       example.run
