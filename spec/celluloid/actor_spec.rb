@@ -287,29 +287,31 @@ RSpec.describe Celluloid, actor_system: :global do
     expect(actor.send('foo')).to eq('oof')
   end
 
-  context "when executing under JRuby" do
-    let(:actor) do
-      Class.new do
-        include CelluloidSpecs.included_module
+  if RUBY_PLATFORM == "java" and Celluloid.task_class != Celluloid::TaskFiber
+    context "when executing under JRuby" do
+      let(:actor) do
+        Class.new do
+          include CelluloidSpecs.included_module
 
-        def current_thread_name
-          java_thread.get_name
-        end
+          def current_thread_name
+            java_thread.get_name
+          end
 
-        def java_thread
-          Thread.current.to_java.getNativeThread
-        end
-      end.new
+          def java_thread
+            Thread.current.to_java.getNativeThread
+          end
+        end.new
+      end
+
+      it "sets execution info" do
+        expect(actor.current_thread_name).to eq("Class#current_thread_name")
+      end
+
+      it "unsets execution info after task completion" do
+        expect(actor.java_thread.get_name).to eq("<unused>")
+      end
     end
-
-    it "sets execution info" do
-      expect(actor.current_thread_name).to eq("Class#current_thread_name")
-    end
-
-    it "unsets execution info after task completion" do
-      expect(actor.java_thread.get_name).to eq("<unused>")
-    end
-  end if RUBY_PLATFORM == "java"
+  end
 
   context "mocking methods" do
     before do

@@ -38,13 +38,14 @@ RSpec.configure do |config|
   config.around do |ex|
     Celluloid.actor_system = nil
 
-    unless defined?(JRUBY_VERSION) # avoid killing JRuby's Fiber thread
-      Thread.list.each do |thread|
-        next if thread == Thread.current
-        thread.kill
+    Thread.list.each do |thread|
+      next if thread == Thread.current
+      if defined?(JRUBY_VERSION)
+        next if /Fiber/ =~ thread.to_java.getNativeThread.get_name
       end
+      thread.kill
     end
-    
+
     ex.run
   end
 
