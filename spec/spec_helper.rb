@@ -23,9 +23,6 @@ $CELLULOID_BYPASS_FLAKY = ENV['CLLLD_BYPASS_FLAKY'] == "true"
 require 'celluloid/probe'
 require 'rspec/log_split'
 
-logfile = File.open(File.expand_path("../../log/test.log", __FILE__), 'a')
-logfile.sync = true
-
 Celluloid.shutdown_timeout = 1
 
 Dir['./spec/support/*.rb'].map {|f| require f }
@@ -35,7 +32,7 @@ RSpec.configure do |config|
   config.run_all_when_everything_filtered = true
   config.disable_monkey_patching!
 
-  config.log_split_dir = File.expand_path("../../log", __FILE__)
+  config.log_split_dir = File.expand_path("../../log/#{Time.now.iso8601}", __FILE__)
   config.log_split_module = Celluloid
 
   config.around do |ex|
