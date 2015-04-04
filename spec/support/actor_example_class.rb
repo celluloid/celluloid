@@ -1,3 +1,7 @@
+class ExampleCrash < StandardError
+  attr_accessor :foo
+end
+
 module ExampleActorClass
   def self.create(included_module, task_klass)
     Class.new do

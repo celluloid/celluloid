@@ -5,11 +5,11 @@ require 'set'
 
 $CELLULOID_DEBUG = false
 
+require 'celluloid/version'
+
 module Celluloid
   # Expose all instance methods as singleton methods
   extend self
-
-  VERSION = '0.16.0'
 
   # Linking times out after 5 seconds
   LINKING_TIMEOUT = 5
@@ -510,8 +510,13 @@ require 'celluloid/legacy' unless defined?(CELLULOID_FUTURE)
 $CELLULOID_MONITORING = false
 
 # Configure default systemwide settings
-Celluloid.task_class = Celluloid::TaskFiber
-Celluloid.logger     = Logger.new(STDERR)
+Celluloid.task_class = begin
+  Celluloid.const_get(ENV['CLLLD_TASK_CLASS'] || fail(TypeError))
+rescue
+  Celluloid::TaskFiber
+end
+
+Celluloid.logger = Logger.new(STDERR)
 Celluloid.shutdown_timeout = 10
 Celluloid.log_actor_crashes = true
 

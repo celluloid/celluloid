@@ -1,29 +1,33 @@
 script: rake ci
+language: ruby
 rvm:
   - 1.9.3
-  - 2.0.0
-  - 2.1.4
-  - ruby-head
+  - 2.2.0
   - jruby
+  - ruby-head
   - jruby-head
   - rbx-2
 
 matrix:
   allow_failures:
-    - rvm: 1.9.3
-    - rvm: ruby-head
-    - rvm: jruby
-    - rvm: jruby-head
     - rvm: rbx-2
-  global:
-    - BUNDLE_JOBS=4
+    - rvm: ruby-head
+    - rvm: jruby-head
+    - env: CLLLD_TASK_CLASS=TaskFiber CLLLD_BYPASS_FLAKY=false
+    - env: CLLLD_TASK_CLASS=TaskThread CLLLD_BYPASS_FLAKY=true
+    - env: CLLLD_TASK_CLASS=TaskThread CLLLD_BYPASS_FLAKY=false
+env:
+  - CLLLD_TASK_CLASS=TaskFiber CLLLD_BYPASS_FLAKY=true
+  - CLLLD_TASK_CLASS=TaskFiber CLLLD_BYPASS_FLAKY=false
+  - CLLLD_TASK_CLASS=TaskThread CLLLD_BYPASS_FLAKY=true
+  - CLLLD_TASK_CLASS=TaskThread CLLLD_BYPASS_FLAKY=false
 
 notifications:
   irc: "irc.freenode.org#celluloid"
 
 before_install:
   # Only use 1 job until Travis fixes the rbx --jobs issue.
-  - if [ "$TRAVIS_RUBY_VERSION" == "rbx-2" ] ; then export BUNDLE_JOBS=1 ; fi
+  - if [ "$TRAVIS_RUBY_VERSION" == "rbx-2" ] ; then export BUNDLE_JOBS=1 ; else export BUNDLE_JOBS=4; fi
 
 sudo: false
 install: bundle install --retry=3 --without=development
