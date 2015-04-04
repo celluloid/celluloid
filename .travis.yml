@@ -12,14 +12,14 @@ matrix:
   allow_failures:
     - rvm: ruby-head
     - rvm: jruby-head
-    - env: CLLLD_TASK_CLASS=Celluloid::TaskFiber CLLLD_BYPASS_FLAKY=true
-    - env: CLLLD_TASK_CLASS=Celluloid::TaskThread CLLLD_BYPASS_FLAKY=true
-    - env: CLLLD_TASK_CLASS=Celluloid::TaskThread CLLLD_BYPASS_FLAKY=false
+    - env: CLLLD_TASK_CLASS=TaskFiber CLLLD_BYPASS_FLAKY=true
+    - env: CLLLD_TASK_CLASS=TaskThread CLLLD_BYPASS_FLAKY=true
+    - env: CLLLD_TASK_CLASS=TaskThread CLLLD_BYPASS_FLAKY=false
 env:
-  - CLLLD_TASK_CLASS=Celluloid::TaskFiber CLLLD_BYPASS_FLAKY=true
-  - CLLLD_TASK_CLASS=Celluloid::TaskFiber CLLLD_BYPASS_FLAKY=false
-  - CLLLD_TASK_CLASS=Celluloid::TaskThread CLLLD_BYPASS_FLAKY=true
-  - CLLLD_TASK_CLASS=Celluloid::TaskThread CLLLD_BYPASS_FLAKY=false
+  - CLLLD_TASK_CLASS=TaskFiber CLLLD_BYPASS_FLAKY=true
+  - CLLLD_TASK_CLASS=TaskFiber CLLLD_BYPASS_FLAKY=false
+  - CLLLD_TASK_CLASS=TaskThread CLLLD_BYPASS_FLAKY=true
+  - CLLLD_TASK_CLASS=TaskThread CLLLD_BYPASS_FLAKY=false
 
 notifications:
   irc: "irc.freenode.org#celluloid"
