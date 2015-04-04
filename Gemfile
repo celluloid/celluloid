@@ -17,6 +17,7 @@ group :test do
   gem 'benchmark_suite'
   gem 'rspec', '~> 3.2'
   gem 'rspec-retry'
+  gem 'rspec-log_split'
 end
 
 group :gem_build_tools do
