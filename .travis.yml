@@ -12,6 +12,7 @@ matrix:
   allow_failures:
     - rvm: ruby-head
     - rvm: jruby-head
+    - env: CELLULOID_TASK_CLASS=Celluloid::TaskThread
 env:
   - CELLULOID_TASK_CLASS=Celluloid::TaskFiber
   - CELLULOID_TASK_CLASS=Celluloid::TaskThread
