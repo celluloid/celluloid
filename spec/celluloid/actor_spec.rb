@@ -288,7 +288,7 @@ RSpec.describe Celluloid, actor_system: :global do
   end
 
   if RUBY_PLATFORM == "java" and Celluloid.task_class != Celluloid::Task::Fiber
-    context "when executing under JRuby" do
+    context "when executing under JRuby", flaky: true do
       let(:actor) do
         Class.new do
           include CelluloidSpecs.included_module
