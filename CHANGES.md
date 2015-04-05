@@ -8,7 +8,7 @@ HEAD
 * BREAKING CHANGE: Moved Celluloid::TaskFiber to Celluloid::Task::Fibered
 * BREAKING CHANGE: Moved Celluloid::TaskThread to Celluloid::Task::Threaded
 * Radical Refactor: Celluloid::InternalPool moved to Celluloid::Group::Pool
-* Radical Refactor: *::Group::Pool replaced as default with *::Group::Proactor
+* Radical Refactor: *::Group::Pool replaced as default with *::Group::Spawner
 * Added `rspec-log_split` as replacement logger for itemized testing logs.
 * *::Task::PooledFibers has been found and made available, and compatible ( sometimes 4x faster than even Task::Fibered )
 

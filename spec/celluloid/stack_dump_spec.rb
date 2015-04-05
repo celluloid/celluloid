@@ -3,7 +3,7 @@ RSpec.describe Celluloid::StackDump do
     Celluloid::ActorSystem.new
   end
 
-  flaky = Celluloid.group_class != Celluloid::Group::Proactor
+  flaky = Celluloid.group_class != Celluloid::Group::Spawner
 
   subject do
     actor_system.stack_dump

@@ -1,5 +1,5 @@
-if Celluloid.group_class == Celluloid::Group::Proactor
-  RSpec.describe Celluloid::Group::Proactor do
+if Celluloid.group_class == Celluloid::Group::Spawner
+  RSpec.describe Celluloid::Group::Spawner do
 
     it "gets threads from the pool" do
       expect(subject.get { sleep 1 }).to be_a Thread

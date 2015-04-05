@@ -2,7 +2,7 @@ require 'thread'
 
 module Celluloid
   class Group
-    class Proactor < Group
+    class Spawner < Group
 
       class NoBlock < StandardError; end
 
