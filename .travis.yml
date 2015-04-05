@@ -13,14 +13,14 @@ matrix:
     - rvm: rbx-2
     - rvm: ruby-head
     - rvm: jruby-head
-    - env: CLLLD_TASK_CLASS=Fiber CLLLD_BYPASS_FLAKY=false
-    - env: CLLLD_TASK_CLASS=Thread CLLLD_BYPASS_FLAKY=false
-    - env: CLLLD_TASK_CLASS=Thread CLLLD_GROUP_CLASS=Pool CLLLD_BYPASS_FLAKY=false
+    - env: CLLLD_TASK_CLASS=Fibered CLLLD_BYPASS_FLAKY=false
+    - env: CLLLD_TASK_CLASS=Threaded CLLLD_BYPASS_FLAKY=false
+    - env: CLLLD_TASK_CLASS=Threaded CLLLD_GROUP_CLASS=Pool CLLLD_BYPASS_FLAKY=false
 env:
-  - CLLLD_TASK_CLASS=Fiber
-  - CLLLD_TASK_CLASS=Fiber CLLLD_BYPASS_FLAKY=false
-  - CLLLD_TASK_CLASS=Thread CLLLD_BYPASS_FLAKY=false
-  - CLLLD_TASK_CLASS=Thread CLLLD_GROUP_CLASS=Pool CLLLD_BYPASS_FLAKY=false
+  - CLLLD_TASK_CLASS=Fibered
+  - CLLLD_TASK_CLASS=Fibered CLLLD_BYPASS_FLAKY=false
+  - CLLLD_TASK_CLASS=Threaded CLLLD_BYPASS_FLAKY=false
+  - CLLLD_TASK_CLASS=Threaded CLLLD_GROUP_CLASS=Pool CLLLD_BYPASS_FLAKY=false
 
 notifications:
   irc: "irc.freenode.org#celluloid"
