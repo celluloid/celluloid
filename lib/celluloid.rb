@@ -473,7 +473,7 @@ require 'celluloid/fsm'
 
 require 'celluloid/group'
 require 'celluloid/groups/pool'
-require 'celluloid/groups/proactor'
+require 'celluloid/groups/spawner'
 
 require 'celluloid/links'
 require 'celluloid/logger'
