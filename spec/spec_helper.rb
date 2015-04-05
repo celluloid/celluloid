@@ -6,14 +6,22 @@ require 'bundler/setup'
 
 # Require in order, so both CELLULOID_TEST and CELLULOID_DEBUG are true
 require 'celluloid/test'
-require 'celluloid/rspec'
+
+module CelluloidSpecs
+  def self.included_module
+    # Celluloid::IO implements this with with 'Celluloid::IO'
+    Celluloid
+  end
+
+  # Timer accuracy enforced by the tests (50ms)
+  TIMER_QUANTUM = 0.05
+end
+
+$CELLULOID_DEBUG = true
+$CELLULOID_BYPASS_FLAKY = ENV['CLLLD_BYPASS_FLAKY'] != "false" # defaults to bypass
 
 require 'celluloid/probe'
-
-logfile = File.open(File.expand_path("../../log/test.log", __FILE__), 'a')
-logfile.sync = true
-
-Celluloid.logger = Logger.new(logfile)
+require 'rspec/log_split'
 
 Celluloid.shutdown_timeout = 1
 
@@ -24,10 +32,18 @@ RSpec.configure do |config|
   config.run_all_when_everything_filtered = true
   config.disable_monkey_patching!
 
+  config.log_split_dir = File.expand_path("../../log/#{Time.now.iso8601}", __FILE__)
+  config.log_split_module = Celluloid
+
   config.around do |ex|
     Celluloid.actor_system = nil
+
     Thread.list.each do |thread|
       next if thread == Thread.current
+      if defined?(JRUBY_VERSION)
+        # Avoid disrupting jRuby's "fiber" threads.
+        next if /Fiber/ =~ thread.to_java.getNativeThread.get_name
+      end
       thread.kill
     end
 
@@ -54,8 +70,12 @@ RSpec.configure do |config|
   end
 
   config.around(:each) do |example|
-    config.default_retry_count = example.metadata[:flaky] ? (ENV['CI'] ? 5 : 3) : 1
-    example.run
+    config.default_retry_count = example.metadata[:flaky] ? 3 : 1
+    if example.metadata[:flaky] and $CELLULOID_BYPASS_FLAKY
+      example.run broken: true
+    else
+      example.run
+    end
   end
 
   # Must be *after* the around hook above
