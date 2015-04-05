@@ -171,6 +171,3 @@ module Celluloid
     end
   end
 end
-
-require 'celluloid/tasks/task_fiber'
-require 'celluloid/tasks/task_thread'
