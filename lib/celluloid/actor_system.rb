@@ -3,8 +3,8 @@ module Celluloid
     extend Forwardable
 
     def initialize
-      @internal_pool = InternalPool.new
-      @registry      = Registry.new
+      @group = Celluloid.group_class.new
+      @registry = Registry.new
     end
     attr_reader :registry
 
@@ -27,14 +27,14 @@ module Celluloid
     end
 
     def get_thread
-      @internal_pool.get do
+      @group.get {
         Thread.current[:celluloid_actor_system] = self
         yield
-      end
+      }
     end
 
     def stack_dump
-      Celluloid::StackDump.new(@internal_pool)
+      Celluloid::StackDump.new(@group)
     end
 
     def_delegators "@registry", :[], :get, :[]=, :set, :delete
@@ -49,7 +49,7 @@ module Celluloid
 
     def running
       actors = []
-      @internal_pool.each do |t|
+      @group.each do |t|
         next unless t.role == :actor
         actors << t.actor.behavior_proxy if t.actor && t.actor.respond_to?(:behavior_proxy)
       end
@@ -57,7 +57,7 @@ module Celluloid
     end
 
     def running?
-      @internal_pool.running?
+      @group.active?
     end
 
     # Shut down all running actors
@@ -80,8 +80,6 @@ module Celluloid
           rescue DeadActorError
           end
         end
-
-        @internal_pool.shutdown
       end
     rescue Timeout::Error
       Logger.error("Couldn't cleanly terminate all actors in #{shutdown_timeout} seconds!")
@@ -92,12 +90,12 @@ module Celluloid
         end
       end
     ensure
-      @internal_pool.kill
+      @group.shutdown
       clear_registry
     end
 
     def assert_inactive
-      @internal_pool.assert_inactive
+      @group.assert_inactive
     end
 
     def shutdown_timeout

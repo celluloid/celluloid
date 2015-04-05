@@ -17,7 +17,7 @@ RSpec.describe Celluloid::ActorSystem do
 
   it "support getting threads" do
     queue = Queue.new
-    thread = subject.get_thread do
+    subject.get_thread do
       expect(Celluloid.actor_system).to eq(subject)
       queue << nil
     end
@@ -56,7 +56,7 @@ RSpec.describe Celluloid::ActorSystem do
     subject.shutdown
 
     expect { subject.get_thread }.
-      to raise_error("Thread pool is not running")
+      to raise_error(Celluloid::Group::NotActive)
   end
 
   it "warns nicely when no actor system is started" do
