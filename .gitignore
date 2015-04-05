@@ -6,3 +6,4 @@ tmp/
 .yardoc
 .bundle
 Gemfile.lock
+log

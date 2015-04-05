@@ -36,5 +36,11 @@ module Celluloid
     def call_chain_id
       self[:celluloid_chain_id]
     end
+
+    def <<(proc)
+      self[:celluloid_queue] << proc
+      self
+    end
+
   end
 end
