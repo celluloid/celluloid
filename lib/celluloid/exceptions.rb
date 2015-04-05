@@ -11,6 +11,8 @@ module Celluloid
   # A timeout occured before the given request could complete
   TimeoutError = Class.new(Celluloid::Error)
 
+  RefactorError = Class.new(Celluloid::Error)
+
   # The sender made an error, not the current actor
   class AbortError < Celluloid::Error
     attr_reader :cause

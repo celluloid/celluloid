@@ -56,7 +56,7 @@ RSpec.describe Celluloid::ActorSystem do
     subject.shutdown
 
     expect { subject.get_thread }.
-      to raise_error("Thread pool is not running")
+      to raise_error(Celluloid::Group::NotActive)
   end
 
   it "warns nicely when no actor system is started" do

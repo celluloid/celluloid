@@ -3,6 +3,8 @@ RSpec.describe Celluloid::StackDump do
     Celluloid::ActorSystem.new
   end
 
+  flaky = Celluloid.group_class != Celluloid::Group::Proactor
+
   subject do
     actor_system.stack_dump
   end
@@ -15,8 +17,13 @@ RSpec.describe Celluloid::StackDump do
     end
   end
 
+  threadz = 0
+
   before(:each) do
-    [Celluloid::TaskFiber, Celluloid::TaskThread].each do |task_klass|
+    threadz = 0
+
+    tasks = [Celluloid::TaskFiber, Celluloid::TaskThread]
+    tasks.each do |task_klass|
       actor_klass = Class.new(BlockingActor) do
         task_class task_klass
       end
@@ -25,20 +32,23 @@ RSpec.describe Celluloid::StackDump do
       end
       actor.async.blocking
     end
+    threadz += tasks.length
 
-    sleep 0.01 # to allow internal_pool to end up with 1 idle thread
+    sleep 0.01 # to allow group to end up with 1 idle thread
 
     @active_thread = actor_system.get_thread do
       sleep
     end
+    threadz += 1
     @active_thread.role = :other_thing
 
-    sleep 0.01 # to allow internal_pool to end up with 1 idle thread
+    sleep 0.01 # to allow group to end up with 1 idle thread
 
     @idle_thread = actor_system.get_thread do
     end
+    threadz += 1
 
-    sleep 0.01 # to allow internal_pool to end up with 1 idle thread
+    sleep 0.01 # to allow group to end up with 1 idle thread
   end
 
   describe '#actors' do
@@ -48,19 +58,19 @@ RSpec.describe Celluloid::StackDump do
   end
 
   describe '#threads' do
-    it 'should include threads that are not actors', flaky: true do
-      expect(subject.threads.size).to eq(3)
+    it 'should hold all threads, not only actors', flaky: flaky do
+      expect(subject.threads.size).to eq(threadz)
     end
 
-    it 'should include idle threads', flaky: true do
+    it 'should include idle threads', flaky: flaky do
       expect(subject.threads.map(&:thread_id)).to include(@idle_thread.object_id)
     end
 
-    it 'should include threads checked out of the pool for roles other than :actor', flaky: true do
+    it 'should include threads checked out of the group for roles other than :actor', flaky: flaky do
       expect(subject.threads.map(&:thread_id)).to include(@active_thread.object_id)
     end
 
-    it 'should have the correct roles', flaky: true do
+    it 'should have the correct roles', flaky: flaky do
       expect(subject.threads.map(&:role)).to include(nil, :other_thing, :task)
     end
   end
