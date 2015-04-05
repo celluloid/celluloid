@@ -1,4 +1,4 @@
-RSpec.shared_context "a Celluloid Mailbox" do
+RSpec.shared_examples "a Celluloid Mailbox" do
   after do
     allow(Celluloid.logger).to receive(:debug)
     subject.shutdown if subject.alive?
@@ -43,7 +43,7 @@ RSpec.shared_context "a Celluloid Mailbox" do
       subject.receive(interval) { false }
     end.to raise_exception(Celluloid::TimeoutError)
 
-    expect(Time.now - started_at).to be_within(Celluloid::TIMER_QUANTUM).of interval
+    expect(Time.now - started_at).to be_within(CelluloidSpecs::TIMER_QUANTUM).of interval
   end
 
   it "has a size" do
