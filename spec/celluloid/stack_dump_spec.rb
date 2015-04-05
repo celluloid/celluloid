@@ -22,7 +22,7 @@ RSpec.describe Celluloid::StackDump do
   before(:each) do
     threadz = 0
 
-    tasks = [Celluloid::TaskFiber, Celluloid::TaskThread]
+    tasks = [Celluloid::Task::Fibered, Celluloid::Task::Threaded]
     tasks.each do |task_klass|
       actor_klass = Class.new(BlockingActor) do
         task_class task_klass

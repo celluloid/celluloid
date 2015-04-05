@@ -490,8 +490,8 @@ require 'celluloid/stack_dump'
 require 'celluloid/system_events'
 
 require 'celluloid/tasks'
-require 'celluloid/tasks/fiber'
-require 'celluloid/tasks/thread'
+require 'celluloid/tasks/fibered'
+require 'celluloid/tasks/threaded'
 
 require 'celluloid/task_set'
 require 'celluloid/thread_handle'
@@ -525,7 +525,7 @@ $CELLULOID_MONITORING = false
 Celluloid.task_class = begin
   Celluloid.const_get(ENV['CLLLD_TASK_CLASS'] || fail(TypeError))
 rescue
-  Celluloid::Task::Fiber
+  Celluloid::Task::Fibered
 end
 
 Celluloid.group_class = begin
