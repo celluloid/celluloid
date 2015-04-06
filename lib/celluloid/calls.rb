@@ -22,7 +22,10 @@ module Celluloid
 
     def dispatch(obj)
       _block = @block && @block.to_proc
-      obj.public_send(@method, *@arguments, &_block)
+      result = obj.public_send(@method, *@arguments, &_block)
+      # FIXME: we should only invalidate if the sender is not an actor
+      @block.invalidate if @block
+      result
     rescue NoMethodError => ex
       # Abort if the sender made a mistake
       raise AbortError.new(ex) unless obj.respond_to? @method
