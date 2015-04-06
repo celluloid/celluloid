@@ -45,13 +45,6 @@ module Celluloid
         end
       end
 
-      # Register a pool of actors to be launched on group startup
-      def pool(klass, *args, &block)
-        blocks << lambda do |group|
-          group.pool(klass, prepare_options(args, :block => block))
-        end
-      end
-
       def prepare_options(args, options = {})
         ( ( args.length == 1 and args[0].is_a? Hash and args[0][:args] ) ? args[0] : { :args => args } ).merge( options )
       end
@@ -75,11 +68,6 @@ module Celluloid
 
     def supervise_as(name, klass, *args, &block)
       add(klass, self.class.prepare_options(args, :block => block, :as => name))
-    end
-
-    def pool(klass, options = {})
-      options[:method] = 'pool_link'
-      add(klass, options)
     end
 
     def add(klass, options)
@@ -119,33 +107,31 @@ module Celluloid
         @registry = registry
         @klass = klass
 
-        # Stringify keys :/
-        options = options.each_with_object({}) { |(k,v), h| h[k.to_s] = v }
+        # allows injections at initialize, start, and restart
+        @injections = options.delete(:injections) || {}
 
-        @name = options['as']
-        @block = options['block']
-        @args = prepare_args(options['args'])
-        @method = options['method'] || 'new_link'
-        @pool = @method == 'pool_link'
-        @pool_size = options['size'] if @pool
+        # Stringify keys :/
+        @options = options.each_with_object({}) { |(k,v), h| h[k.to_s] = v }
+
+        @name = @options['as']
+        @block = @options['block']
+        @args = prepare_args(@options['args'])
+        @method = @options['method'] || 'new_link'
+
+        @injections[:initialize].call if @injections[:initialize].is_a? Proc
 
         start
       end
       attr_reader :name, :actor
 
       def start
-        # when it is a pool, then we don't splat the args
-        # and we need to extract the pool size if set
-        if @pool
-          options = {:args => @args}
-          options[:size] = @pool_size if @pool_size
-          @args = [options]
-        end
+        @injections[:start].call if @injections[:start].is_a? Proc
         @actor = @klass.send(@method, *@args, &@block)
         @registry[@name] = @actor if @name
       end
 
       def restart
+        @injections[:restart].call if @injections[:restart].is_a? Proc
         @actor = nil
         cleanup
 

@@ -11,6 +11,7 @@ HEAD
 * Radical Refactor: *::Group::Pool replaced as default with *::Group::Spawner
 * Added `rspec-log_split` as replacement logger for itemized testing logs.
 * *::Task::PooledFibers has been found and made available, and compatible ( sometimes 4x faster than even Task::Fibered )
+* BREAKING CHANGE: PoolManager taken out, and implemented in the `celluloid-pool` gem, separately.
 
 
 0.16.0 (2014-09-04)
