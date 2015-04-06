@@ -21,7 +21,7 @@ module Celluloid
 
     attr_reader :address
 
-    def initialize
+    def initialize &block
       @address = Celluloid.uuid
       @mutex = Mutex.new
       @ready = false
