@@ -134,7 +134,6 @@ module Celluloid
         @injections[:restart].call if @injections[:restart].is_a? Proc
         @actor = nil
         cleanup
-
         start
       end
 
