@@ -1,6 +1,4 @@
-require 'spec_helper'
-
-describe Celluloid::SyncCall do
+RSpec.describe Celluloid::SyncCall, actor_system: :global do
   class CallExampleActor
     include Celluloid
 
@@ -10,6 +8,10 @@ describe Celluloid::SyncCall do
 
     def actual_method; end
 
+    def inspect
+      fail "Please don't call me! I'm not ready yet!"
+    end
+
     def chained_call_ids
       [call_chain_id, @next.call_chain_id]
     end
@@ -17,12 +19,24 @@ describe Celluloid::SyncCall do
 
   let(:actor) { CallExampleActor.new }
 
-  it "aborts with NoMethodError when a nonexistent method is called" do
-    expect do
-      actor.the_method_that_wasnt_there
-    end.to raise_exception(NoMethodError)
+  context "when obj does not respond to a method" do
+    it "raises a NoMethodError" do
+      expect do
+        actor.the_method_that_wasnt_there
+      end.to raise_exception(NoMethodError)
 
-    actor.should be_alive
+      expect(actor).to be_alive
+    end
+
+    context "when obj raises during inspect" do
+      it "should emulate obj.inspect" do
+        expect(actor).to_not receive(:inspect)
+        expect { actor.no_such_method }.to raise_exception(
+          NoMethodError,
+          /undefined method `no_such_method' for #\<CallExampleActor:0x[a-f0-9]+ @next=nil>/
+        )
+      end
+    end
   end
 
   it "aborts with ArgumentError when a method is called with too many arguments" do
@@ -30,13 +44,13 @@ describe Celluloid::SyncCall do
       actor.actual_method("with too many arguments")
     end.to raise_exception(ArgumentError)
 
-    actor.should be_alive
+    expect(actor).to be_alive
   end
 
   it "preserves call chains across synchronous calls" do
     actor2 = CallExampleActor.new(actor)
 
     uuid, next_actor_uuid = actor2.chained_call_ids
-    uuid.should eq next_actor_uuid
+    expect(uuid).to eq next_actor_uuid
   end
 end

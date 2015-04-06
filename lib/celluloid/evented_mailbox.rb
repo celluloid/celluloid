@@ -13,53 +13,44 @@ module Celluloid
     def <<(message)
       @mutex.lock
       begin
-        if mailbox_full
-          Logger.debug "Discarded message: #{message}"
+        if mailbox_full || @dead
+          dead_letter(message)
           return
         end
         if message.is_a?(SystemEvent)
-          # Silently swallow system events sent to dead actors
-          return if @dead
-
           # SystemEvents are high priority messages so they get added to the
           # head of our message queue instead of the end
           @messages.unshift message
         else
-          raise MailboxError, "dead recipient" if @dead
           @messages << message
         end
-
+      ensure
+        @mutex.unlock rescue nil
+      end
+      begin
         current_actor = Thread.current[:celluloid_actor]
         @reactor.wakeup unless current_actor && current_actor.mailbox == self
       rescue IOError
-        raise MailboxError, "dead recipient"
-      ensure
-        @mutex.unlock rescue nil
+        Logger.crash "reactor crashed", $!
+        dead_letter(message)
       end
       nil
     end
 
     # Receive a message from the Mailbox
-    def receive(timeout = nil, &block)
-      message = next_message(block)
-
-      until message
-        if timeout
-          now = Time.now
-          wait_until ||= now + timeout
-          wait_interval = wait_until - now
-          return if wait_interval < 0
-        else
-          wait_interval = nil
-        end
-
-        @reactor.run_once(wait_interval)
-        message = next_message(block)
+    def check(timeout = nil, &block)
+      # Get a message if it is available and process it immediately if possible:
+      if message = next_message(block)
+        return message
       end
 
-      message
+      # ... otherwise, run the reactor once, either blocking or will return
+      # after the given timeout:
+      @reactor.run_once(timeout)
+
+      # No message was received:
+      return nil
     rescue IOError
-      shutdown # force shutdown of the mailbox
       raise MailboxShutdown, "mailbox shutdown called during receive"
     end
 
@@ -75,8 +66,9 @@ module Celluloid
 
     # Cleanup any IO objects this Mailbox may be using
     def shutdown
-      @reactor.shutdown
-      super
+      super do
+        @reactor.shutdown
+      end
     end
   end
 end

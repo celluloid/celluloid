@@ -21,7 +21,6 @@ module Celluloid
         when UNKNOWN then 'UNKNOWN'
         end
       end
-
     end
     include Severity
 
@@ -111,10 +110,10 @@ module Celluloid
       end
       messages.sort
     end
-    
+
     def clear
       @buffer_mutex.synchronize do
-        @buffers.each { |buffer| buffer.clear }
+        @buffers.each(&:clear)
       end
     end
 

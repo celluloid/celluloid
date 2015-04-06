@@ -4,10 +4,24 @@ module Celluloid
   # Celluloid::Future objects allow methods and blocks to run in the
   # background, their values requested later
   class Future
+    def self.new(*args, &block)
+      return super unless block
+
+      future = new
+      Celluloid::ThreadHandle.new(Celluloid.actor_system, :future) do
+        begin
+          call = SyncCall.new(future, :call, args)
+          call.dispatch(block)
+        rescue
+          # Exceptions in blocks will get raised when the value is retrieved
+        end
+      end
+      future
+    end
+
     attr_reader :address
-    
-    # Create a future bound to a given receiver, or with a block to compute
-    def initialize(*args, &block)
+
+    def initialize
       @address = Celluloid.uuid
       @mutex = Mutex.new
       @ready = false
@@ -50,7 +64,6 @@ module Celluloid
 
       begin
         @mutex.lock
-        raise "no call requested" unless @call
 
         if @ready
           ready = true

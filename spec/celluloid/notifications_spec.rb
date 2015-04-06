@@ -1,6 +1,4 @@
-require 'spec_helper'
-
-describe Celluloid::Notifications do
+RSpec.describe Celluloid::Notifications, actor_system: :global do
   class Admirer
     include Celluloid
     include Celluloid::Notifications
@@ -19,8 +17,8 @@ describe Celluloid::Notifications do
     include Celluloid
     include Celluloid::Notifications
 
-    def die
-      publish("death", "Mr. President")
+    def die(topic = "death")
+      publish(topic, "Mr. President")
     end
   end
 
@@ -34,8 +32,8 @@ describe Celluloid::Notifications do
     president = President.new
 
     president.die
-    marilyn.mourning.should eq("Mr. President")
-    jackie.mourning.should_not eq("Mr. President")
+    expect(marilyn.mourning).to eq("Mr. President")
+    expect(jackie.mourning).not_to eq("Mr. President")
   end
 
   it 'allows multiple subscriptions from the same actor' do
@@ -47,7 +45,7 @@ describe Celluloid::Notifications do
     president = President.new
 
     president.die
-    marilyn.mourning_count.should be(2)
+    expect(marilyn.mourning_count).to be(2)
   end
 
 
@@ -61,13 +59,26 @@ describe Celluloid::Notifications do
     president = President.new
 
     president.die
-    marilyn.mourning.should eq("Mr. President")
-    jackie.mourning.should eq("Mr. President")
+    expect(marilyn.mourning).to eq("Mr. President")
+    expect(jackie.mourning).to eq("Mr. President")
   end
 
   it 'publishes even if there are no subscribers' do
     president = President.new
     president.die
+  end
+
+  it 'allows symbol subscriptions' do
+    marilyn = Admirer.new
+    jackie = Admirer.new
+
+    marilyn.subscribe(:death, :someone_died)
+    jackie.subscribe("death", :someone_died)
+
+    president = President.new
+    president.die(:death)
+    expect(marilyn.mourning).to eq("Mr. President")
+    expect(jackie.mourning).to eq("Mr. President")
   end
 
   it 'allows regex subscriptions' do
@@ -77,7 +88,17 @@ describe Celluloid::Notifications do
 
     president = President.new
     president.die
-    marilyn.mourning.should eq("Mr. President")
+    expect(marilyn.mourning).to eq("Mr. President")
+  end
+
+  it 'matches symbols against regex subscriptions' do
+    marilyn = Admirer.new
+
+    marilyn.subscribe(/(death|assassination)/, :someone_died)
+
+    president = President.new
+    president.die(:assassination)
+    expect(marilyn.mourning).to eq("Mr. President")
   end
 
   it 'allows unsubscribing' do
@@ -88,7 +109,7 @@ describe Celluloid::Notifications do
 
     president = President.new
     president.die
-    marilyn.mourning.should be_nil
+    expect(marilyn.mourning).to be_nil
   end
 
   it 'prunes dead subscriptions' do
@@ -102,7 +123,7 @@ describe Celluloid::Notifications do
     marilyn.terminate
     after_listeners = Celluloid::Notifications.notifier.listeners_for("death").size
 
-    after_listeners.should == listeners - 1
+    expect(after_listeners).to eq(listeners - 1)
   end
 
   it 'prunes multiple subscriptions from a dead actor' do
@@ -115,6 +136,6 @@ describe Celluloid::Notifications do
     marilyn.terminate
     after_listeners = Celluloid::Notifications.notifier.listeners_for("death").size
 
-    after_listeners.should eq(listeners - 2)
+    expect(after_listeners).to eq(listeners - 2)
   end
 end

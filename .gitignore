@@ -2,6 +2,7 @@ coverage/
 rdoc/
 doc/
 pkg/
+tmp/
 .yardoc
 .bundle
 Gemfile.lock

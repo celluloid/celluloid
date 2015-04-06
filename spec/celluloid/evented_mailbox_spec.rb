@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 class TestEventedMailbox < Celluloid::EventedMailbox
   class Reactor
     def initialize
@@ -28,7 +26,7 @@ class TestEventedMailbox < Celluloid::EventedMailbox
   end
 end
 
-describe Celluloid::EventedMailbox do
+RSpec.describe Celluloid::EventedMailbox do
   subject { TestEventedMailbox.new }
   it_behaves_like "a Celluloid Mailbox"
 end

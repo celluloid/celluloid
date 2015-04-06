@@ -94,12 +94,36 @@ The following API documentation is also available:
 * [Celluloid class methods](http://rubydoc.info/gems/celluloid/Celluloid/ClassMethods)
 * [All Celluloid classes](http://rubydoc.info/gems/celluloid/index)
 
+Related Projects
+----------------
+
+Celluloid is the parent project of a related ecosystem of other projects. If you
+like Celluloid we definitely recommend you check them out:
+
+* [Celluloid::IO][celluloid-io]: "Evented" IO support for Celluloid actors
+* [Celluloid::ZMQ][celluloid-zmq]: "Evented" 0MQ support for Celluloid actors
+* [DCell][dcell]: The Celluloid actor protocol distributed over 0MQ
+* [Reel][reel]: An "evented" web server based on Celluloid::IO
+* [Lattice][lattice]: A concurrent realtime web framework based on Celluloid::IO
+* [nio4r][nio4r]: "New IO for Ruby": high performance IO selectors
+* [Timers][timers]: A generic Ruby timer library for event-based systems
+
+[celluloid-io]: https://github.com/celluloid/celluloid-io/
+[celluloid-zmq]: https://github.com/celluloid/celluloid-zmq/
+[dcell]: https://github.com/celluloid/dcell/
+[reel]: https://github.com/celluloid/reel/
+[lattice]: https://github.com/celluloid/lattice/
+[nio4r]: https://github.com/celluloid/nio4r/
+[timers]: https://github.com/celluloid/timers/
+
 Installation
 ------------
 
 Add this line to your application's Gemfile:
 
-    gem 'celluloid'
+```ruby
+gem 'celluloid'
+```
 
 And then execute:
 
@@ -111,7 +135,9 @@ Or install it yourself as:
 
 Inside of your Ruby program, require Celluloid with:
 
-    require 'celluloid/autostart'
+```ruby
+require 'celluloid/autostart'
+```
 
 Supported Platforms
 -------------------
@@ -127,7 +153,8 @@ Celluloid requires Ruby 1.9 mode on all interpreters.
 Additional Reading
 ------------------
 
-* [Concurrent Object-Oriented Programming in Python with ATOM](http://python.org/workshops/1997-10/proceedings/atom/):
+* [Concurrent Object-Oriented Programming in Python with
+  ATOM](http://citeseerx.ist.psu.edu/viewdoc/download;jsessionid=11A3EACE78AAFF6D6D62A64118AFCA7C?doi=10.1.1.47.5074&rep=rep1&type=pdf):
   a similar system to Celluloid written in Python
 
 Contributing to Celluloid
@@ -141,5 +168,5 @@ Contributing to Celluloid
 License
 -------
 
-Copyright (c) 2013 Tony Arcieri. Distributed under the MIT License. See
+Copyright (c) 2011-2014 Tony Arcieri. Distributed under the MIT License. See
 LICENSE.txt for further details.

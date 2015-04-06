@@ -3,6 +3,9 @@ module Celluloid
   class AsyncProxy < AbstractProxy
     attr_reader :mailbox
 
+    # Used for reflecting on proxy objects themselves
+    def __class__; AsyncProxy; end
+
     def initialize(mailbox, klass)
       @mailbox, @klass = mailbox, klass
     end
@@ -22,14 +25,9 @@ module Celluloid
         raise "Cannot use blocks with async yet"
       end
 
-      begin
-        @mailbox << AsyncCall.new(meth, args, block)
-      rescue MailboxError
-        # Silently swallow asynchronous calls to dead actors. There's no way
-        # to reliably generate DeadActorErrors for async calls, so users of
-        # async calls should find other ways to deal with actors dying
-        # during an async call (i.e. linking/supervisors)
-      end
+      @mailbox << AsyncCall.new(meth, args, block)
+
+      self
     end
   end
 end
