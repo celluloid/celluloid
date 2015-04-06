@@ -26,6 +26,8 @@ module Celluloid
       end
 
       @mailbox << AsyncCall.new(meth, args, block)
+
+      return self
     end
   end
 end
