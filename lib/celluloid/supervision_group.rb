@@ -53,7 +53,7 @@ module Celluloid
       end
 
       def prepare_options(args, options = {})
-        ( ( args.length == 1 and args[0].is_a? Hash ) ? args[0] : { :args => args } ).merge( options )
+        ( ( args.length == 1 and args[0].is_a? Hash and args[0][:args] ) ? args[0] : { :args => args } ).merge( options )
       end
     end
 
