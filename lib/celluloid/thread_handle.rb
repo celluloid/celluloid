@@ -3,12 +3,11 @@ module Celluloid
   # accidentally do things to threads which have been returned to the pool,
   # such as, say, killing them
   class ThreadHandle
-    def initialize(actor_system, role = nil)
+    def initialize
       @mutex = Mutex.new
       @join  = ConditionVariable.new
 
-      @thread = actor_system.get_thread do
-        Thread.current.role = role
+      @thread = Celluloid.internal_pool.get do
         begin
           yield
         ensure

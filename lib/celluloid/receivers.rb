@@ -1,13 +1,12 @@
 require 'set'
-
 require 'timers'
 
 module Celluloid
   # Allow methods to directly interact with the actor protocol
   class Receivers
-    def initialize(timers)
+    def initialize
       @receivers = Set.new
-      @timers = timers
+      @timers = Timers.new
     end
 
     # Receive an asynchronous message
@@ -29,15 +28,24 @@ module Celluloid
       end
     end
 
+    # How long to wait until the next timer fires
+    def wait_interval
+      @timers.wait_interval
+    end
+
+    # Fire any pending timers
+    def fire_timers
+      @timers.fire
+    end
+
     # Handle incoming messages
     def handle_message(message)
       receiver = @receivers.find { |r| r.match(message) }
       return unless receiver
 
       @receivers.delete receiver
-      receiver.timer.cancel if receiver.timer
+      @timers.cancel receiver.timer if receiver.timer
       receiver.resume message
-      message
     end
   end
 

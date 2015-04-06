@@ -1,6 +1,7 @@
 module Celluloid
   # Method handles that route through an actor proxy
   class Method
+
     def initialize(proxy, name)
       raise NameError, "undefined method `#{name}'" unless proxy.respond_to? name
 
@@ -10,14 +11,6 @@ module Celluloid
 
     def arity
       @proxy.method_missing(:method, @name).arity
-    end
-
-    def name
-      @proxy.method_missing(:method, @name).name
-    end
-
-    def parameters
-      @proxy.method_missing(:method, @name).parameters
     end
 
     def call(*args, &block)

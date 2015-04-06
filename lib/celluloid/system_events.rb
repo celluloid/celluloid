@@ -57,7 +57,6 @@ module Celluloid
     def initialize(task, value)
       @task, @value = task, value
     end
-    attr_reader :task, :value
 
     def call
       @task.resume(@value)

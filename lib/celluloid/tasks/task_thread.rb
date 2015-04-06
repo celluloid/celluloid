@@ -2,7 +2,7 @@ module Celluloid
   # Tasks with a Thread backend
   class TaskThread < Task
     # Run the given block within a task
-    def initialize(type, meta)
+    def initialize(type)
       @resume_queue = Queue.new
       @exception_queue = Queue.new
       @yield_mutex  = Mutex.new
@@ -12,8 +12,7 @@ module Celluloid
     end
 
     def create
-      # TODO: move this to ActorSystem#get_thread (ThreadHandle inside InternalPool)
-      @thread = ThreadHandle.new(Thread.current[:celluloid_actor_system], :task) do
+      @thread = Celluloid.internal_pool.get do
         begin
           ex = @resume_queue.pop
           raise ex if ex.is_a?(Task::TerminatedError)

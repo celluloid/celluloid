@@ -1,4 +1,6 @@
-RSpec.describe Celluloid::Registry, actor_system: :global do
+require 'spec_helper'
+
+describe Celluloid::Registry do
   class Marilyn
     include Celluloid
 
@@ -9,7 +11,7 @@ RSpec.describe Celluloid::Registry, actor_system: :global do
 
   it "registers Actors" do
     Celluloid::Actor[:marilyn] = Marilyn.new
-    expect(Celluloid::Actor[:marilyn].sing_for("Mr. President")).to eq("o/~ Happy birthday, Mr. President")
+    Celluloid::Actor[:marilyn].sing_for("Mr. President").should == "o/~ Happy birthday, Mr. President"
   end
 
   it "refuses to register non-Actors" do
@@ -20,27 +22,27 @@ RSpec.describe Celluloid::Registry, actor_system: :global do
 
   it "lists all registered actors" do
     Celluloid::Actor[:marilyn] = Marilyn.new
-    expect(Celluloid::Actor.registered).to include :marilyn
+    Celluloid::Actor.registered.should include :marilyn
   end
 
   it "knows its name once registered" do
     Celluloid::Actor[:marilyn] = Marilyn.new
-    expect(Celluloid::Actor[:marilyn].registered_name).to eq(:marilyn)
+    Celluloid::Actor[:marilyn].name.should == :marilyn
   end
 
   describe :delete do
     before do
       Celluloid::Actor[:marilyn] ||= Marilyn.new
     end
-
+    
     it "removes reference to actors' name from the registry" do
-      Celluloid::Actor.delete(:marilyn)
-      expect(Celluloid::Actor.registered).not_to include :marilyn
+      Celluloid::Registry.root.delete(:marilyn)
+      Celluloid::Actor.registered.should_not include :marilyn
     end
-
+    
     it "returns actor removed from the registry" do
-      rval = Celluloid::Actor.delete(:marilyn)
-      expect(rval).to be_kind_of(Marilyn)
+      rval = Celluloid::Registry.root.delete(:marilyn)
+      rval.should be_kind_of(Marilyn)
     end
   end
 
@@ -49,10 +51,10 @@ RSpec.describe Celluloid::Registry, actor_system: :global do
       Celluloid::Actor[:marilyn] ||= Marilyn.new
       rval = Celluloid::Actor.clear_registry
       begin
-        expect(rval).to be_kind_of(Hash)
-        expect(rval).to have_key(:marilyn)
-        expect(rval[:marilyn].wrapped_object).to be_instance_of(Marilyn)
-        expect(Celluloid::Actor.registered).to be_empty
+        rval.should be_kind_of(Hash)
+        rval.should have_key(:marilyn)
+        rval[:marilyn].wrapped_object.should be_instance_of(Marilyn)
+        Celluloid::Actor.registered.should be_empty
       ensure
         # Repopulate the registry once we're done
         rval.each { |key, actor| Celluloid::Actor[key] = actor }

@@ -1,9 +1,5 @@
-require 'bundler/gem_tasks'
+require "bundler/gem_tasks"
+Dir["tasks/**/*.task"].each { |task| load task }
 
-Dir['tasks/**/*.rake'].each { |task| load task }
-
-default_tasks = ['spec']
-default_tasks << 'rubocop' unless ENV['CI']
-task default: default_tasks
-
-task ci: %w(spec benchmark)
+task :default => :spec
+task :ci      => %w(spec benchmark)

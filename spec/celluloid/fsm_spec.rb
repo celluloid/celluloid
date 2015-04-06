@@ -1,4 +1,6 @@
-RSpec.describe Celluloid::FSM, actor_system: :global do
+require 'spec_helper'
+
+describe Celluloid::FSM do
   before :all do
     class TestMachine
       include Celluloid::FSM
@@ -29,26 +31,26 @@ RSpec.describe Celluloid::FSM, actor_system: :global do
     end
   end
 
-  subject { TestMachine.new }
+  let(:subject) { TestMachine.new }
 
   it "starts in the default state" do
-    expect(subject.state).to eq(TestMachine.default_state)
+    subject.state.should eq(TestMachine.default_state)
   end
 
   it "transitions between states" do
-    expect(subject.state).not_to be :done
+    subject.state.should_not be :done
     subject.transition :done
-    expect(subject.state).to be :done
+    subject.state.should be :done
   end
 
   it "fires callbacks for states" do
-    expect(subject).not_to be_fired
+    subject.should_not be_fired
     subject.transition :callbacked
-    expect(subject).to be_fired
+    subject.should be_fired
   end
 
   it "allows custom default states" do
-    expect(CustomDefaultMachine.new.state).to be :foobar
+    CustomDefaultMachine.new.state.should be :foobar
   end
 
   it "supports constraints on valid state transitions" do
@@ -63,10 +65,10 @@ RSpec.describe Celluloid::FSM, actor_system: :global do
     subject.transition :another
     subject.transition :done, :delay => interval
 
-    expect(subject.state).to be :another
+    subject.state.should be :another
     sleep interval + Celluloid::TIMER_QUANTUM
 
-    expect(subject.state).to be :done
+    subject.state.should be :done
   end
 
   it "cancels delayed state transitions if another transition is made" do
@@ -76,14 +78,16 @@ RSpec.describe Celluloid::FSM, actor_system: :global do
     subject.transition :another
     subject.transition :done, :delay => interval
 
-    expect(subject.state).to be :another
+    subject.state.should be :another
     subject.transition :pre_done
     sleep interval + Celluloid::TIMER_QUANTUM
 
-    expect(subject.state).to be :pre_done
+    subject.state.should be :pre_done
   end
 
   context "actor is not set" do
+    let(:subject) { TestMachine.new }
+
     context "transition is delayed" do
       it "raises an unattached error" do
         expect { subject.transition :another, :delay => 100 } \
@@ -93,12 +97,14 @@ RSpec.describe Celluloid::FSM, actor_system: :global do
   end
 
   context "transitioning to an invalid state" do
+    let(:subject) { TestMachine.new }
+
     it "raises an argument error" do
       expect { subject.transition :invalid_state }.to raise_error(ArgumentError)
     end
 
     it "should not call transition! if the state is :default" do
-      expect(subject).not_to receive :transition!
+      subject.should_not_receive :transition!
       subject.transition :default
     end
   end

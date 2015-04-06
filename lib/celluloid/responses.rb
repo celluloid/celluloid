@@ -40,4 +40,5 @@ module Celluloid
       @call.task.resume(@result)
     end
   end
+
 end

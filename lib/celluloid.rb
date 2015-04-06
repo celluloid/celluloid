@@ -3,66 +3,21 @@ require 'thread'
 require 'timeout'
 require 'set'
 
-$CELLULOID_DEBUG = false
-
 module Celluloid
-  # Expose all instance methods as singleton methods
-  extend self
-
-  VERSION = '0.16.0'
-
-  # Linking times out after 5 seconds
-  LINKING_TIMEOUT = 5
+  extend self # expose all instance methods as singleton methods
 
   # Warning message added to Celluloid objects accessed outside their actors
   BARE_OBJECT_WARNING_MESSAGE = "WARNING: BARE CELLULOID OBJECT "
 
   class << self
-    attr_writer   :actor_system     # Default Actor System
+    attr_accessor :internal_pool    # Internal thread pool
     attr_accessor :logger           # Thread-safe logger class
-    attr_accessor :log_actor_crashes
     attr_accessor :task_class       # Default task type to use
     attr_accessor :shutdown_timeout # How long actors have to terminate
-
-    def actor_system
-      if Thread.current.celluloid?
-        Thread.current[:celluloid_actor_system] or raise Error, "actor system not running"
-      else
-        Thread.current[:celluloid_actor_system] || @actor_system or raise Error, "Celluloid is not yet started; use Celluloid.boot"
-      end
-    end
 
     def included(klass)
       klass.send :extend,  ClassMethods
       klass.send :include, InstanceMethods
-
-      klass.send :extend, Properties
-
-      klass.property :mailbox_class, :default => Celluloid::Mailbox
-      klass.property :proxy_class,   :default => Celluloid::CellProxy
-      klass.property :task_class,    :default => Celluloid.task_class
-      klass.property :mailbox_size
-
-      klass.property :exclusive_actor, :default => false
-      klass.property :exclusive_methods, :multi => true
-      klass.property :execute_block_on_receiver,
-        :default => [:after, :every, :receive],
-        :multi   => true
-
-      klass.property :finalizer
-      klass.property :exit_handler_name
-
-      klass.send(:define_singleton_method, :trap_exit) do |*args|
-        exit_handler_name(*args)
-      end
-
-      klass.send(:define_singleton_method, :exclusive) do |*args|
-        if args.any?
-          exclusive_methods(*exclusive_methods, *args)
-        else
-          exclusive_actor true
-        end
-      end
     end
 
     # Are we currently inside of an actor?
@@ -89,21 +44,9 @@ module Celluloid
 
     # Perform a stack dump of all actors to the given output object
     def stack_dump(output = STDERR)
-      actor_system.stack_dump.print(output)
+      Celluloid::StackDump.new.dump(output)
     end
     alias_method :dump, :stack_dump
-
-    # Detect if a particular call is recursing through multiple actors
-    def detect_recursion
-      actor = Thread.current[:celluloid_actor]
-      return unless actor
-
-      task = Thread.current[:celluloid_task]
-      return unless task
-
-      chain_id = CallChain.current_id
-      actor.tasks.to_a.any? { |t| t != task && t.chain_id == chain_id }
-    end
 
     # Define an exception handler for actor crashes
     def exception_handler(&block)
@@ -120,26 +63,16 @@ module Celluloid
       end
     end
 
+    # Launch default services
+    # FIXME: We should set up the supervision hierarchy here
     def boot
-      init
-      start
-    end
-
-    def init
-      @actor_system = ActorSystem.new
-    end
-
-    def start
-      actor_system.start
-    end
-
-    def running?
-      actor_system && actor_system.running?
+      internal_pool.reset
+      Celluloid::Notifications::Fanout.supervise_as :notifications_fanout
+      Celluloid::IncidentReporter.supervise_as :default_incident_reporter, STDERR
     end
 
     def register_shutdown
-      return if defined?(@shutdown_registered) && @shutdown_registered
-
+      return if @shutdown_registered
       # Terminate all actors at exit
       at_exit do
         if defined?(RUBY_ENGINE) && RUBY_ENGINE == "ruby" && RUBY_VERSION >= "1.9"
@@ -157,11 +90,34 @@ module Celluloid
 
     # Shut down all running actors
     def shutdown
-      actor_system.shutdown
-    end
+      Timeout.timeout(shutdown_timeout) do
+        internal_pool.shutdown
 
-    def version
-      VERSION
+        actors = Actor.all
+        Logger.debug "Terminating #{actors.size} actors..." if actors.size > 0
+
+        # Attempt to shut down the supervision tree, if available
+        Supervisor.root.terminate if Supervisor.root
+
+        # Actors cannot self-terminate, you must do it for them
+        actors.each do |actor|
+          begin
+            actor.terminate!
+          rescue DeadActorError, MailboxError
+          end
+        end
+
+        actors.each do |actor|
+          begin
+            Actor.join(actor)
+          rescue DeadActorError, MailboxError
+          end
+        end
+
+        Logger.debug "Shutdown completed cleanly"
+      end
+    rescue Timeout::Error
+      Logger.error("Couldn't cleanly terminate all actors in #{shutdown_timeout} seconds!")
     end
   end
 
@@ -169,7 +125,7 @@ module Celluloid
   module ClassMethods
     # Create a new actor
     def new(*args, &block)
-      proxy = Cell.new(allocate, behavior_options, actor_options).proxy
+      proxy = Actor.new(allocate, actor_options).proxy
       proxy._send_(:initialize, *args, &block)
       proxy
     end
@@ -179,7 +135,7 @@ module Celluloid
     def new_link(*args, &block)
       raise NotActorError, "can't link outside actor context" unless Celluloid.actor?
 
-      proxy = Cell.new(allocate, behavior_options, actor_options).proxy
+      proxy = Actor.new(allocate, actor_options).proxy
       Actor.link(proxy)
       proxy._send_(:initialize, *args, &block)
       proxy
@@ -217,33 +173,121 @@ module Celluloid
       Actor.join(new(*args, &block))
     end
 
-    def actor_system
-      Celluloid.actor_system
+    # Trap errors from actors we're linked to when they exit
+    def exit_handler(callback = nil)
+      if callback
+        @exit_handler = callback.to_sym
+      elsif defined?(@exit_handler)
+        @exit_handler
+      elsif superclass.respond_to? :exit_handler
+        superclass.exit_handler
+      end
+    end
+    alias_method :trap_exit, :exit_handler
+
+    # Define a callback to run when the actor is finalized.
+    def finalizer(callback = nil)
+      if callback
+        @finalizer = callback.to_sym
+      elsif defined?(@finalizer)
+        @finalizer
+      elsif superclass.respond_to? :finalizer
+        superclass.finalizer
+      end
+    end
+
+    # Define the mailbox class for this class
+    def mailbox_class(klass = nil)
+      if klass
+        mailbox.class = klass
+      else
+        mailbox.class
+      end
+    end
+    
+    def proxy_class(klass = nil)
+      if klass
+        @proxy_class = klass
+      elsif defined?(@proxy_class)
+        @proxy_class
+      elsif superclass.respond_to? :proxy_class
+        superclass.proxy_class
+      else
+        Celluloid::ActorProxy
+      end
+    end
+
+    # Define the default task type for this class
+    def task_class(klass = nil)
+      if klass
+        @task_class = klass
+      elsif defined?(@task_class)
+        @task_class
+      elsif superclass.respond_to? :task_class
+        superclass.task_class
+      else
+        Celluloid.task_class
+      end
+    end
+
+    # Mark methods as running exclusively
+    def exclusive(*methods)
+      if methods.empty?
+        @exclusive_methods = :all
+      elsif !defined?(@exclusive_methods) || @exclusive_methods != :all
+        @exclusive_methods ||= Set.new
+        @exclusive_methods.merge methods.map(&:to_sym)
+      end
+    end
+
+    # Mark methods as running blocks on the receiver
+    def execute_block_on_receiver(*methods)
+      receiver_block_executions.merge methods.map(&:to_sym)
+    end
+
+    def receiver_block_executions
+      @receiver_block_executions ||= Set.new([:after, :every, :receive])
     end
 
     # Configuration options for Actor#new
     def actor_options
       {
-        :actor_system      => actor_system,
-        :mailbox_class     => mailbox_class,
-        :mailbox_size      => mailbox_size,
+        :mailbox           => mailbox.build,
+        :proxy_class       => proxy_class,
         :task_class        => task_class,
-        :exclusive         => exclusive_actor,
-      }
-    end
-
-    def behavior_options
-      {
-        :proxy_class               => proxy_class,
-        :exclusive_methods         => exclusive_methods,
-        :exit_handler_name         => exit_handler_name,
-        :finalizer                 => finalizer,
-        :receiver_block_executions => execute_block_on_receiver,
+        :exit_handler      => exit_handler,
+        :exclusive_methods => defined?(@exclusive_methods) ? @exclusive_methods : nil,
+        :receiver_block_executions => receiver_block_executions
       }
     end
 
     def ===(other)
-      other.is_a? self
+      other.kind_of? self
+    end
+
+    def mailbox
+      @mailbox_factory ||= MailboxFactory.new(self)
+    end
+
+    class MailboxFactory
+      attr_accessor :class, :max_size
+
+      def initialize(actor)
+        @actor    = actor
+        @class    = nil
+        @max_size = nil
+      end
+
+      def build
+        mailbox = mailbox_class.new
+        mailbox.max_size = @max_size
+        mailbox
+      end
+
+      private
+      def mailbox_class
+        @class || (@actor.superclass.respond_to?(:mailbox_class) && @actor.superclass.mailbox_class) || Celluloid::Mailbox
+      end
     end
   end
 
@@ -277,20 +321,17 @@ module Celluloid
     end
 
     # Obtain the name of the current actor
-    def registered_name
-      Actor.registered_name
+    def name
+      Actor.name
     end
-    alias_method :name, :registered_name
 
     def inspect
-      return "..." if Celluloid.detect_recursion
-
       str = "#<"
 
       if leaked?
         str << Celluloid::BARE_OBJECT_WARNING_MESSAGE
       else
-        str << "Celluloid::CellProxy"
+        str << "Celluloid::ActorProxy"
       end
 
       str << "(#{self.class}:0x#{object_id.to_s(16)})"
@@ -322,7 +363,7 @@ module Celluloid
 
   # Terminate this actor
   def terminate
-    Thread.current[:celluloid_actor].behavior_proxy.terminate!
+    Thread.current[:celluloid_actor].terminate
   end
 
   # Send a signal with the given name to all waiting methods
@@ -342,7 +383,7 @@ module Celluloid
 
   # Obtain the UUID of the current call chain
   def call_chain_id
-    CallChain.current_id
+    Thread.current[:celluloid_chain_id]
   end
 
   # Obtain the running tasks for this actor
@@ -405,23 +446,16 @@ module Celluloid
     end
   end
 
-  # Timeout on task suspension (eg Sync calls to other actors)
-  def timeout(duration)
-    Thread.current[:celluloid_actor].timeout(duration) do
-      yield
-    end
-  end
-
   # Run given block in an exclusive mode: all synchronous calls block the whole
   # actor, not only current message processing.
   def exclusive(&block)
-    Thread.current[:celluloid_task].exclusive(&block)
+    Thread.current[:celluloid_actor].exclusive(&block)
   end
 
   # Are we currently exclusive
   def exclusive?
-    task = Thread.current[:celluloid_task]
-    task && task.exclusive?
+    actor = Thread.current[:celluloid_actor]
+    actor && actor.exclusive?
   end
 
   # Call a block after a given interval, returning a Celluloid::Timer object
@@ -445,23 +479,18 @@ module Celluloid
 
   # Handle async calls within an actor itself
   def async(meth = nil, *args, &block)
-    Thread.current[:celluloid_actor].behavior_proxy.async meth, *args, &block
+    Thread.current[:celluloid_actor].proxy.async meth, *args, &block
   end
 
   # Handle calls to future within an actor itself
   def future(meth = nil, *args, &block)
-    Thread.current[:celluloid_actor].behavior_proxy.future meth, *args, &block
+    Thread.current[:celluloid_actor].proxy.future meth, *args, &block
   end
 end
 
-if defined?(JRUBY_VERSION) && JRUBY_VERSION == "1.7.3"
-  raise "Celluloid is broken on JRuby 1.7.3. Please upgrade to 1.7.4+"
-end
-
-require 'celluloid/exceptions'
+require 'celluloid/version'
 
 require 'celluloid/calls'
-require 'celluloid/call_chain'
 require 'celluloid/condition'
 require 'celluloid/thread'
 require 'celluloid/core_ext'
@@ -474,8 +503,6 @@ require 'celluloid/logger'
 require 'celluloid/mailbox'
 require 'celluloid/evented_mailbox'
 require 'celluloid/method'
-require 'celluloid/properties'
-require 'celluloid/handlers'
 require 'celluloid/receivers'
 require 'celluloid/registry'
 require 'celluloid/responses'
@@ -483,22 +510,18 @@ require 'celluloid/signals'
 require 'celluloid/stack_dump'
 require 'celluloid/system_events'
 require 'celluloid/tasks'
-require 'celluloid/task_set'
 require 'celluloid/thread_handle'
 require 'celluloid/uuid'
 
 require 'celluloid/proxies/abstract_proxy'
 require 'celluloid/proxies/sync_proxy'
-require 'celluloid/proxies/cell_proxy'
 require 'celluloid/proxies/actor_proxy'
 require 'celluloid/proxies/async_proxy'
 require 'celluloid/proxies/future_proxy'
 require 'celluloid/proxies/block_proxy'
 
 require 'celluloid/actor'
-require 'celluloid/cell'
 require 'celluloid/future'
-require 'celluloid/actor_system'
 require 'celluloid/pool_manager'
 require 'celluloid/supervision_group'
 require 'celluloid/supervisor'
@@ -507,15 +530,8 @@ require 'celluloid/logging'
 
 require 'celluloid/legacy' unless defined?(CELLULOID_FUTURE)
 
-$CELLULOID_MONITORING = false
-
 # Configure default systemwide settings
 Celluloid.task_class = Celluloid::TaskFiber
 Celluloid.logger     = Logger.new(STDERR)
 Celluloid.shutdown_timeout = 10
-Celluloid.log_actor_crashes = true
-
-unless defined?($CELLULOID_TEST) && $CELLULOID_TEST
-  Celluloid.register_shutdown
-  Celluloid.init
-end
+Celluloid.register_shutdown

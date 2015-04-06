@@ -1,3 +1,5 @@
-RSpec.describe Celluloid::TaskFiber, actor_system: :within do
+require 'spec_helper'
+
+describe Celluloid::TaskFiber do
   it_behaves_like "a Celluloid Task", Celluloid::TaskFiber
 end

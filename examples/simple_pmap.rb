@@ -7,8 +7,6 @@ module Enumerable
   # Simple parallel map using Celluloid::Futures
   def pmap(&block)
     futures = map { |elem| Celluloid::Future.new(elem, &block) }
-    futures.map(&:value)
+    futures.map { |future| future.value }
   end
 end
-
-p 100.times.pmap {|n| n * 2}

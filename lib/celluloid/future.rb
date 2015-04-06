@@ -4,6 +4,7 @@ module Celluloid
   # Celluloid::Future objects allow methods and blocks to run in the
   # background, their values requested later
   class Future
+<<<<<<< HEAD
     def self.new(*args, &block)
       return super unless block
 
@@ -23,6 +24,12 @@ module Celluloid
     attr_reader :address
 
     def initialize &block
+=======
+    attr_reader :address
+    
+    # Create a future bound to a given receiver, or with a block to compute
+    def initialize(*args, &block)
+>>>>>>> parent of 2798d4f... resolve conflicts
       @address = Celluloid.uuid
       @mutex = Mutex.new
       @ready = false
@@ -65,6 +72,7 @@ module Celluloid
 
       begin
         @mutex.lock
+        raise "no call requested" unless @call
 
         if @ready
           ready = true

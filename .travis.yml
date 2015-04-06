@@ -2,28 +2,17 @@ script: rake ci
 rvm:
   - 1.9.3
   - 2.0.0
-  - 2.1.4
   - ruby-head
-  - jruby
+  - jruby-19mode
   - jruby-head
-  - rbx-2
+  - rbx-19mode 
 
 matrix:
   allow_failures:
-    - rvm: 1.9.3
     - rvm: ruby-head
-    - rvm: jruby
+    - rvm: jruby-19mode # jruby 1.7.3 fibers are broken
     - rvm: jruby-head
-    - rvm: rbx-2
-  global:
-    - BUNDLE_JOBS=4
+    - rvm: rbx-19mode # deadlocks :(
 
 notifications:
   irc: "irc.freenode.org#celluloid"
-
-before_install:
-  # Only use 1 job until Travis fixes the rbx --jobs issue.
-  - if [ "$TRAVIS_RUBY_VERSION" == "rbx-2" ] ; then export BUNDLE_JOBS=1 ; fi
-
-sudo: false
-install: bundle install --retry=3 --without=development

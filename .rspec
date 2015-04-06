@@ -1,5 +1,4 @@
 --color
 --format documentation
---order random
---warnings
---require spec_helper
+--backtrace
+--default_path spec

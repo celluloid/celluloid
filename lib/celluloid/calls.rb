@@ -21,44 +21,32 @@ module Celluloid
     end
 
     def dispatch(obj)
-      check(obj)
       _block = @block && @block.to_proc
       obj.public_send(@method, *@arguments, &_block)
-    end
+    rescue NoMethodError => ex
+      # Abort if the sender made a mistake
+      raise AbortError.new(ex) unless obj.respond_to? @method
 
-    def check(obj)
-      # NOTE: don't use respond_to? here
+      # Otherwise something blew up. Crash this actor
+      raise
+    rescue ArgumentError => ex
+      # Abort if the sender made a mistake
       begin
-        meth = obj.method(@method)
+        arity = obj.method(@method).arity
       rescue NameError
-        inspect_dump = begin
-                         obj.inspect
-                       rescue RuntimeError, NameError
-                         simulated_inspect_dump(obj)
-                       end
-        raise NoMethodError, "undefined method `#{@method}' for #{inspect_dump}"
+        # In theory this shouldn't happen, but just in case
+        raise AbortError.new(ex)
       end
-
-      arity = meth.arity
 
       if arity >= 0
-        raise ArgumentError, "wrong number of arguments (#{@arguments.size} for #{arity})" if @arguments.size != arity
+        raise AbortError.new(ex) if @arguments.size != arity
       elsif arity < -1
         mandatory_args = -arity - 1
-        raise ArgumentError, "wrong number of arguments (#{@arguments.size} for #{mandatory_args}+)" if arguments.size < mandatory_args
+        raise AbortError.new(ex) if arguments.size < mandatory_args
       end
-    rescue => ex
-      raise AbortError.new(ex)
-    end
 
-    def simulated_inspect_dump(obj)
-      vars = obj.instance_variables.map do |var|
-        begin
-          "#{var}=#{obj.instance_variable_get(var).inspect}"
-        rescue RuntimeError
-        end
-      end.compact.join(" ")
-      "#<#{obj.class}:0x#{obj.object_id.to_s(16)} #{vars}>"
+      # Otherwise something blew up. Crash this actor
+      raise
     end
   end
 
@@ -66,7 +54,7 @@ module Celluloid
   class SyncCall < Call
     attr_reader :sender, :task, :chain_id
 
-    def initialize(sender, method, arguments = [], block = nil, task = Thread.current[:celluloid_task], chain_id = CallChain.current_id)
+    def initialize(sender, method, arguments = [], block = nil, task = Thread.current[:celluloid_task], chain_id = Thread.current[:celluloid_chain_id])
       super(method, arguments, block)
 
       @sender   = sender
@@ -75,7 +63,7 @@ module Celluloid
     end
 
     def dispatch(obj)
-      CallChain.current_id = @chain_id
+      Thread.current[:celluloid_chain_id] = @chain_id
       result = super(obj)
       respond SuccessResponse.new(self, result)
     rescue Exception => ex
@@ -88,7 +76,7 @@ module Celluloid
       # Otherwise, it's a bug in this actor and should be reraised
       raise unless ex.is_a?(AbortError)
     ensure
-      CallChain.current_id = nil
+      Thread.current[:celluloid_chain_id] = nil
     end
 
     def cleanup
@@ -98,14 +86,13 @@ module Celluloid
 
     def respond(message)
       @sender << message
-    end
-
-    def response
-      Celluloid.suspend(:callwait, self)
+    rescue MailboxError
+      # It's possible the sender exited or crashed before we could send a
+      # response to them.
     end
 
     def value
-      response.value
+      Celluloid.suspend(:callwait, self).value
     end
 
     def wait
@@ -132,15 +119,17 @@ module Celluloid
 
   # Asynchronous calls don't wait for a response
   class AsyncCall < Call
+
     def dispatch(obj)
-      CallChain.current_id = Celluloid.uuid
+      Thread.current[:celluloid_chain_id] = Celluloid.uuid
       super(obj)
     rescue AbortError => ex
       # Swallow aborted async calls, as they indicate the sender made a mistake
       Logger.debug("#{obj.class}: async call `#@method` aborted!\n#{Logger.format_exception(ex.cause)}")
     ensure
-      CallChain.current_id = nil
+      Thread.current[:celluloid_chain_id] = nil
     end
+
   end
 
   class BlockCall
@@ -161,4 +150,5 @@ module Celluloid
       @sender << BlockResponse.new(self, response)
     end
   end
+
 end

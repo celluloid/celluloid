@@ -1,13 +1,8 @@
-require 'celluloid/rspec/example_actor_class'
-require 'celluloid/rspec/actor_examples'
-require 'celluloid/rspec/mailbox_examples'
-require 'celluloid/rspec/task_examples'
+require File.expand_path('../../../spec/support/example_actor_class', __FILE__)
+require File.expand_path('../../../spec/support/actor_examples', __FILE__)
+require File.expand_path('../../../spec/support/mailbox_examples', __FILE__)
 
 module Celluloid
   # Timer accuracy enforced by the tests (50ms)
   TIMER_QUANTUM = 0.05
 end
-
-$CELLULOID_DEBUG = true
-
-require 'celluloid/test'

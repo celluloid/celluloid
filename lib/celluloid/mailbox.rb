@@ -1,8 +1,8 @@
 require 'thread'
 
 module Celluloid
-  class MailboxDead < Celluloid::Error; end # you can't receive from the dead
-  class MailboxShutdown < Celluloid::Error; end # raised if the mailbox can no longer be used
+  class MailboxError < StandardError; end # you can't message the dead
+  class MailboxShutdown < StandardError; end # raised if the mailbox can no longer be used
 
   # Actors communicate with asynchronous messages. Messages are buffered in
   # Mailboxes until Actors can act upon them.
@@ -26,15 +26,19 @@ module Celluloid
     def <<(message)
       @mutex.lock
       begin
-        if mailbox_full || @dead
-          dead_letter(message)
+        if mailbox_full
+          Logger.debug "Discarded message: #{message}"
           return
         end
         if message.is_a?(SystemEvent)
+          # Silently swallow system events sent to dead actors
+          return if @dead
+
           # SystemEvents are high priority messages so they get added to the
           # head of our message queue instead of the end
           @messages.unshift message
         else
+          raise MailboxError, "dead recipient" if @dead
           @messages << message
         end
 
@@ -45,48 +49,58 @@ module Celluloid
       end
     end
 
-    # Receive a message from the Mailbox. May return nil and may return before
-    # the specified timeout.
-    def check(timeout = nil, &block)
+    # Receive a message from the Mailbox
+    def receive(timeout = nil, &block)
       message = nil
 
       @mutex.lock
       begin
-        raise MailboxDead, "attempted to receive from a dead mailbox" if @dead
+        raise MailboxError, "attempted to receive from a dead mailbox" if @dead
 
-        Timers::Wait.for(timeout) do |remaining|
+        begin
           message = next_message(&block)
 
-          break message if message
+          unless message
+            if timeout
+              now = Time.now
+              wait_until ||= now + timeout
+              wait_interval = wait_until - now
+              return if wait_interval <= 0
+            else
+              wait_interval = nil
+            end
 
-          @condition.wait(@mutex, remaining)
-        end
+            @condition.wait(@mutex, wait_interval)
+          end
+        end until message
+
+        message
       ensure
         @mutex.unlock rescue nil
       end
-      
-      return message
     end
 
-    # Receive a letter from the mailbox. Guaranteed to return a message. If
-    # timeout is exceeded, raise a TimeoutError.
-    def receive(timeout = nil, &block)
-      Timers::Wait.for(timeout) do |remaining|
-        if message = check(timeout, &block)
-          return message
+    # Retrieve the next message in the mailbox
+    def next_message
+      message = nil
+
+      if block_given?
+        index = @messages.index do |msg|
+          yield(msg) || msg.is_a?(SystemEvent)
         end
+
+        message = @messages.slice!(index, 1).first if index
+      else
+        message = @messages.shift
       end
-      
-      raise TimeoutError.new("receive timeout exceeded")
+
+      message
     end
 
     # Shut down this mailbox and clean up its contents
     def shutdown
-      raise MailboxDead, "mailbox already shutdown" if @dead
-
       @mutex.lock
       begin
-        yield if block_given?
         messages = @messages
         @messages = []
         @dead = true
@@ -94,10 +108,7 @@ module Celluloid
         @mutex.unlock rescue nil
       end
 
-      messages.each do |msg|
-        dead_letter msg
-        msg.cleanup if msg.respond_to? :cleanup
-      end
+      messages.each { |msg| msg.cleanup if msg.respond_to? :cleanup }
       true
     end
 
@@ -118,7 +129,7 @@ module Celluloid
 
     # Inspect the contents of the Mailbox
     def inspect
-      "#<#{self.class}:#{object_id.to_s(16)} @messages=[#{map(&:inspect).join(', ')}]>"
+      "#<#{self.class}:#{object_id.to_s(16)} @messages=[#{map { |m| m.inspect }.join(', ')}]>"
     end
 
     # Number of messages in the Mailbox
@@ -127,28 +138,6 @@ module Celluloid
     end
 
     private
-
-    # Retrieve the next message in the mailbox
-    def next_message
-      message = nil
-
-      if block_given?
-        index = @messages.index do |msg|
-          yield(msg) || msg.is_a?(SystemEvent)
-        end
-
-        message = @messages.slice!(index, 1).first if index
-      else
-        message = @messages.shift
-      end
-
-      message
-    end
-
-    def dead_letter(message)
-      Logger.debug "Discarded message (mailbox is dead): #{message}" if $CELLULOID_DEBUG
-    end
-
     def mailbox_full
       @max_size && @messages.size >= @max_size
     end
