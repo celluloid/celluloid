@@ -8,7 +8,7 @@ module Celluloid
 
       attr_accessor :finalizer
 
-      def initialize(options={})
+      def initialize
         super
       end
 
