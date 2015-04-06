@@ -327,6 +327,30 @@ RSpec.describe Celluloid, actor_system: :global do
     end
   end
 
+  context "mocking out the proxy" do
+
+    it "allows mocking return values" do
+      expect(actor).to receive(:name).and_return "Spiderman"
+      expect(actor.name).to eq "Spiderman"
+    end
+
+    it "allows mocking raises" do
+      expect(actor).to receive(:foo).and_raise ArgumentError
+      expect { actor.foo }.to raise_error(ArgumentError)
+      expect(actor).to be_alive
+    end
+
+    it "allows mocking async calls via the async proxy" do
+      expect(actor.async).to receive(:foo).once
+      actor.async.foo
+    end
+
+    it "allows mocking async calls via #async send" do
+      expect(actor).to receive(:async).once.with(:foo)
+      actor.async :foo
+    end
+  end
+
   context :exceptions do
     context "with a dead actor" do
       let(:actor) { actor_class.new "James Dean" } # is this in bad taste?
