@@ -10,9 +10,6 @@ module Celluloid
 
       def initialize(options={})
         super
-        @finalizer = options.fetch(:finalizer, Proc.new { |thread|
-          thread.keys.each { |key| thread[key] = nil }
-        })
       end
 
       def get(&block)
@@ -43,7 +40,7 @@ module Celluloid
           rescue => ex
             Logger.crash("thread crashed", ex)
           ensure
-            @finalizer.call Thread.current
+            Thread.current.keys.each { |key| thread[key] = nil }
           end
         }
 

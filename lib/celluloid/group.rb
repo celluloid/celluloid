@@ -7,7 +7,7 @@ module Celluloid
 
     attr_accessor :group
 
-    def initialize options={}
+    def initialize
       @mutex = Mutex.new
       @group = []
       @running = true
