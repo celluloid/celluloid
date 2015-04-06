@@ -13,6 +13,7 @@ module Celluloid
       @ready = false
       @result = nil
       @forwards = nil
+      @cancelled = false
 
       if block
         @call = SyncCall.new(self, :call, args)
