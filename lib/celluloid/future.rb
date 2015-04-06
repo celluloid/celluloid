@@ -27,6 +27,30 @@ module Celluloid
       @ready = false
       @result = nil
       @forwards = nil
+      @cancelled = false
+
+      if block
+        @call = SyncCall.new(self, :call, args)
+        Celluloid.internal_pool.get do
+          begin
+            @call.dispatch(block)
+          rescue
+            # Exceptions in blocks will get raised when the value is retrieved
+          end
+        end
+      else
+        @call = nil
+      end
+    end
+
+    # Execute the given method in future context
+    def execute(receiver, method, args, block)
+      @mutex.synchronize do
+        raise "already calling" if @call
+        @call = SyncCall.new(self, method, args, block)
+      end
+
+      receiver << @call
     end
 
     # Check if this future has a value yet
@@ -74,6 +98,7 @@ module Celluloid
 
     # Signal this future with the given result value
     def signal(value)
+      return if @cancelled
       result = Result.new(value, self)
 
       @mutex.synchronize do
@@ -88,6 +113,14 @@ module Celluloid
       end
     end
     alias_method :<<, :signal
+
+    def cancel(error)
+      response = ErrorResponse.new(@call, error)
+      signal response
+      @mutex.synchronize do
+        @cancelled = true
+      end
+    end
 
     # Inspect this Celluloid::Future
     alias_method :inspect, :to_s
