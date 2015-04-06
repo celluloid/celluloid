@@ -12,7 +12,8 @@ module Celluloid
         begin
           call = SyncCall.new(future, :call, args)
           call.dispatch(block)
-        rescue
+        rescue => ex
+          puts "error? #{ex}"
           # Exceptions in blocks will get raised when the value is retrieved
         end
       end
