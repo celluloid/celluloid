@@ -1,3 +1,5 @@
+require 'celluloid/probe'
+
 class DummyActor; include Celluloid; end
 
 class TestProbeClient

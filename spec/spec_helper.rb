@@ -35,7 +35,6 @@ end
 $CELLULOID_DEBUG = true
 $CELLULOID_BYPASS_FLAKY = ENV['CLLLD_BYPASS_FLAKY'] != "false" # defaults to bypass
 
-require 'celluloid/probe'
 require 'rspec/log_split'
 
 Celluloid.shutdown_timeout = 1
