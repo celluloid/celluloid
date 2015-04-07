@@ -46,7 +46,34 @@ module Celluloid
       end
 
       def prepare_options(args, options = {})
-        ( ( args.length == 1 and args[0].is_a? Hash and args[0][:args] ) ? args[0] : { :args => args } ).merge( options )
+        po = if args.is_a? Hash
+          args
+        elsif args.is_a? Array and args.length == 1 and args[0].is_a? Hash
+          args[0]
+        end
+
+        if po.is_a? Hash
+          o = [ :block, :args, :size, :as ].inject({}) { |a,k|
+            if po[k]
+              a[k] = po.delete(k)
+            end
+            a
+          }
+          if po.any?
+            if o[:args].is_a? Array
+              o[:args] += [po]
+            else
+              o[:args] = [po]
+            end
+          end
+          o
+        elsif !args or ( args.is_a? Array and args.empty? )
+          { args: [] }
+        elsif args.is_a? Array
+          { args: args }
+        else
+          { args: [ args ] }
+        end.merge( options )
       end
     end
 
