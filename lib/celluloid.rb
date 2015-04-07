@@ -423,7 +423,7 @@ module Celluloid
   end
 
   # Perform a blocking or computationally intensive action inside an
-  # asynchronous thread pool, allowing the sender to continue processing other
+  # asynchronous group of threads, allowing the sender to continue processing other
   # messages in its mailbox in the meantime
   def defer(&block)
     # This implementation relies on the present implementation of
