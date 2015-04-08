@@ -1,3 +1,18 @@
+module Specs
+  def self.sleep_and_wait_until(timeout=10)
+    t1 = Time.now.to_f
+    ::Timeout.timeout(timeout) do
+      loop until yield
+    end
+
+    diff = Time.now.to_f - t1
+    STDERR.puts "wait took a bit long: #{diff} seconds" if diff > 0.4
+  rescue Timeout::Error
+    t2 = Time.now.to_f
+    fail "Timeout after: #{t2 - t1} seconds"
+  end
+end
+
 require 'coveralls'
 Coveralls.wear!
 
@@ -18,9 +33,8 @@ module CelluloidSpecs
 end
 
 $CELLULOID_DEBUG = true
-$CELLULOID_BYPASS_FLAKY = ENV['CLLLD_BYPASS_FLAKY'] != "false" # defaults to bypass
+$CELLULOID_BYPASS_FLAKY = ENV['CELLULOID_BYPASS_FLAKY'] != "false" # defaults to bypass
 
-require 'celluloid/probe'
 require 'rspec/log_split'
 
 Celluloid.shutdown_timeout = 1
@@ -31,6 +45,7 @@ RSpec.configure do |config|
   config.filter_run :focus => true
   config.run_all_when_everything_filtered = true
   config.disable_monkey_patching!
+  config.profile_examples = 3
 
   config.log_split_dir = File.expand_path("../../log/#{Time.now.iso8601}", __FILE__)
   config.log_split_module = Celluloid
@@ -62,7 +77,7 @@ RSpec.configure do |config|
     end
   end
 
-  config.filter_gems_from_backtrace(*%w(rspec-expectations rspec-core rspec-mocks))
+  config.filter_gems_from_backtrace(*%w(rspec-expectations rspec-core rspec-mocks rspec-retry rspec-log_split))
 
   config.mock_with :rspec do |mocks|
     mocks.verify_doubled_constant_names = true

@@ -22,5 +22,4 @@ Gem::Specification.new do |gem|
   gem.add_runtime_dependency 'timers', '~> 4.0.0'
 
   gem.add_development_dependency 'bundler'
-  gem.add_development_dependency 'coveralls'
 end

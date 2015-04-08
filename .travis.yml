@@ -1,7 +1,6 @@
 script: rake ci
 language: ruby
 rvm:
-  - 1.9.3
   - 2.2.0
   - jruby
   - ruby-head
@@ -13,14 +12,15 @@ matrix:
     - rvm: rbx-2
     - rvm: ruby-head
     - rvm: jruby-head
-    - env: CLLLD_TASK_CLASS=Fibered CLLLD_BYPASS_FLAKY=false
-    - env: CLLLD_TASK_CLASS=Threaded CLLLD_BYPASS_FLAKY=false
-    - env: CLLLD_TASK_CLASS=Threaded CLLLD_GROUP_CLASS=Pool CLLLD_BYPASS_FLAKY=false
+    - env: CELLULOID_TASK_CLASS=Threaded
+    - env: CELLULOID_TASK_CLASS=Threaded CELLULOID_GROUP_CLASS=Pool
 env:
-  - CLLLD_TASK_CLASS=Fibered
-  - CLLLD_TASK_CLASS=Fibered CLLLD_BYPASS_FLAKY=false
-  - CLLLD_TASK_CLASS=Threaded CLLLD_BYPASS_FLAKY=false
-  - CLLLD_TASK_CLASS=Threaded CLLLD_GROUP_CLASS=Pool CLLLD_BYPASS_FLAKY=false
+  global:
+    - NUMBER_OF_PROCESSORS=2 CELLULOID_BYPASS_FLAKY=false
+  matrix:
+    - CELLULOID_TASK_CLASS=Fibered
+    - CELLULOID_TASK_CLASS=Threaded
+    - CELLULOID_TASK_CLASS=Threaded CELLULOID_GROUP_CLASS=Pool
 
 notifications:
   irc: "irc.freenode.org#celluloid"
