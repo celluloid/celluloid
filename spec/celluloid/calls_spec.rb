@@ -30,7 +30,6 @@ RSpec.describe Celluloid::SyncCall, actor_system: :global do
 
     context "when obj raises during inspect" do
       it "should emulate obj.inspect" do
-        expect(actor).to_not receive(:inspect)
         expect { actor.no_such_method }.to raise_exception(
           NoMethodError,
           /undefined method `no_such_method' for #\<CallExampleActor:0x[a-f0-9]+ @next=nil>/
