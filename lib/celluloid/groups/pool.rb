@@ -10,6 +10,7 @@ module Celluloid
       attr_accessor :max_idle
 
       def initialize
+        super
         @mutex = Mutex.new
         @idle_threads = []
         @group  = []
@@ -18,7 +19,6 @@ module Celluloid
 
         # TODO: should really adjust this based on usage
         @max_idle = 16
-        @running = true
       end
 
       def busy_size
@@ -27,10 +27,6 @@ module Celluloid
 
       def idle_size
         @idle_size
-      end
-
-      def active?
-        busy_size + idle_size > 0
       end
 
       def each
@@ -80,6 +76,7 @@ module Celluloid
       end
 
       def shutdown
+        @running = false
         @mutex.synchronize do
           finalize
           @group.each do |thread|
@@ -101,7 +98,7 @@ module Celluloid
           while proc = queue.pop
             begin
               proc.call
-            rescue => ex
+            rescue Exception => ex
               Logger.crash("thread crashed", ex)
             ensure
               put thread
