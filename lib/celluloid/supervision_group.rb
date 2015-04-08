@@ -146,25 +146,21 @@ module Celluloid
         @method = @options['method'] || 'new_link'
 
         # TODO: rename to ":after_initialize"?
-        invoke_injection(:initialize)
+        invoke_injection(:after_initialize)
 
         start
       end
       attr_reader :name, :actor
 
       def start
-        # TODO: rename to ":before_start"?
-        # TODO: not tested
-        invoke_injection(:start)
+        invoke_injection(:before_start)
 
         @actor = @klass.send(@method, *@args, &@block)
         @registry[@name] = @actor if @name
       end
 
       def restart
-        # TODO: rename to ":before_restart"?
-        # TODO: not tested
-        invoke_injection(:restart)
+        invoke_injection(:before_restart)
 
         @actor = nil
         cleanup
