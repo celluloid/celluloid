@@ -31,12 +31,7 @@ module Celluloid
       begin
         meth = obj.method(@method)
       rescue NameError
-        inspect_dump = begin
-                         obj.inspect
-                       rescue RuntimeError, NameError
-                         simulated_inspect_dump(obj)
-                       end
-        raise NoMethodError, "undefined method `#{@method}' for #{inspect_dump}"
+        raise NoMethodError, "undefined method `#{@method}' for #{safe_inspect(obj)}"
       end
 
       arity = meth.arity
@@ -51,11 +46,16 @@ module Celluloid
       raise AbortError.new(ex)
     end
 
-    def simulated_inspect_dump(obj)
-      vars = obj.instance_variables.map do |var|
+    # Do anything possible to avoid crashes, since we're preparing info
+    # for a crash to begin with...
+    def safe_inspect(obj)
+      obj.inspect
+    rescue RuntimeError, NameError
+      vars = obj.instance_variables.sort.map do |var|
         begin
           "#{var}=#{obj.instance_variable_get(var).inspect}"
-        rescue RuntimeError
+        rescue RuntimeError => e
+          "#{var}=(crashed: #{e})"
         end
       end.compact.join(" ")
       "#<#{obj.class}:0x#{obj.object_id.to_s(16)} #{vars}>"

@@ -9,7 +9,7 @@ RSpec.describe Celluloid::SyncCall, actor_system: :global do
     def actual_method; end
 
     def inspect
-      fail "Please don't call me! I'm not ready yet!"
+      fail "Don't call!"
     end
 
     def chained_call_ids
@@ -32,7 +32,7 @@ RSpec.describe Celluloid::SyncCall, actor_system: :global do
       it "should emulate obj.inspect" do
         expect { actor.no_such_method }.to raise_exception(
           NoMethodError,
-          /undefined method `no_such_method' for #\<CallExampleActor:0x[a-f0-9]+ @next=nil>/
+          /undefined method `no_such_method' for #\<CallExampleActor:0x[a-f0-9]+ @celluloid_owner=\(crashed: Don't call!\) @next=nil>/
         )
       end
     end
