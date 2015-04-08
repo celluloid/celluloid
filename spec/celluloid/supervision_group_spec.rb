@@ -4,7 +4,11 @@ RSpec.describe Celluloid::SupervisionGroup, actor_system: :global do
       include Celluloid
 
       attr_reader :args
-      def initialize(*args) @args = args end
+      def initialize(*args)
+        @args = args
+        @my_var = :wrong
+      end
+
       def running?; :yep; end
     end
 
@@ -57,6 +61,20 @@ RSpec.describe Celluloid::SupervisionGroup, actor_system: :global do
       supervisor = MyGroup.run!
 
       expect(supervisor[:example]).to be_a MyActor
+    end
+
+    it "supports injections" do
+      group_klass = Class.new(Celluloid::SupervisionGroup) do
+        def foo
+          add(MyActor, as: :bar, injections: {
+            initialize: Proc.new { @name = :foo }
+          })
+        end
+      end
+      group = group_klass.run!
+      group.foo
+      sleep 0.01
+      expect(Celluloid::Actor[:foo]).to be_a MyActor
     end
   end
 end
