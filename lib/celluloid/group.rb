@@ -54,10 +54,6 @@ module Celluloid
       raise NotImplemented
     end
 
-    def each
-      raise NotImplemented
-    end
-
     def shutdown
       raise NotImplemented
     end
