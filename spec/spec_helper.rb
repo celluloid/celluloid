@@ -33,7 +33,7 @@ module CelluloidSpecs
 end
 
 $CELLULOID_DEBUG = true
-$CELLULOID_BYPASS_FLAKY = ENV['CLLLD_BYPASS_FLAKY'] != "false" # defaults to bypass
+$CELLULOID_BYPASS_FLAKY = ENV['CELLULOID_BYPASS_FLAKY'] != "false" # defaults to bypass
 
 require 'rspec/log_split'
 

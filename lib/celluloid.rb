@@ -508,13 +508,13 @@ $CELLULOID_MONITORING = false
 
 
 Celluloid.task_class = begin
-  Celluloid.const_get(ENV['CLLLD_TASK_CLASS'] || fail(TypeError))
+  Celluloid.const_get(ENV['CELLULOID_TASK_CLASS'] || fail(TypeError))
 rescue
   Celluloid::Task::Fibered
 end
 
 Celluloid.group_class = begin
-  Celluloid::Group.const_get(ENV['CLLLD_GROUP_CLASS'] || fail(TypeError))
+  Celluloid::Group.const_get(ENV['CELLULOID_GROUP_CLASS'] || fail(TypeError))
 rescue
   Celluloid::Group::Spawner
 end
