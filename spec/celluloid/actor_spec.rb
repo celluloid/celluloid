@@ -287,7 +287,7 @@ RSpec.describe Celluloid, actor_system: :global do
     expect(actor.send('foo')).to eq('oof')
   end
 
-  if RUBY_PLATFORM == "java" and Celluloid.task_class != Celluloid::Task::Fiber
+  if RUBY_PLATFORM == "java" and Celluloid.task_class != Celluloid::Task::Fibered
     context "when executing under JRuby", flaky: true do
       let(:actor) do
         Class.new do
