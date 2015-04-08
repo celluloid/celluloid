@@ -18,15 +18,6 @@ module Celluloid
         instantiate block
       end
 
-      def each
-        to_a.each { |thread| yield thread }
-      end
-
-      # For temp compatiblity with specs
-      def to_a
-        @mutex.synchronize { @group.dup }
-      end
-
       def shutdown
         @running = false
         @mutex.synchronize {
@@ -50,9 +41,9 @@ module Celluloid
             Logger.crash("thread crashed", ex)
           ensure
             Thread.current.keys.each { |key| thread[key] = nil }
+            purge(Thread.current)
           end
         }
-
         @mutex.synchronize { @group << thread }
         thread
       end

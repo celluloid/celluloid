@@ -26,6 +26,22 @@ module Celluloid
       end
     end
 
+    def each
+      to_a.each {|thread| yield thread }
+    end
+
+    def to_a
+      @mutex.synchronize { return @group.dup }
+    end
+
+    def purge(thread)
+      @mutex.synchronize { @group.delete(thread) }
+    end
+
+    def each_actor(&block)
+      to_a.lazy.select { |t| t[:celluloid_role] == :actor }.each(&block)
+    end
+
     def active?
       @running
     end

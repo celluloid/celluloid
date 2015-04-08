@@ -29,14 +29,6 @@ module Celluloid
         @idle_size
       end
 
-      def each
-        to_a.each {|thread| yield thread }
-      end
-
-      def to_a
-        @mutex.synchronize { @group.dup }
-      end
-
       # Get a thread from the pool, running the given block
       def get(&block)
         @mutex.synchronize do
