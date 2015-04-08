@@ -19,9 +19,12 @@ module Celluloid
       end
 
       def each
-        threads = []
-        @mutex.synchronize { threads = @group.dup }
-        threads.each { |thread| yield thread }
+        to_a.each { |thread| yield thread }
+      end
+
+      # For temp compatiblity with specs
+      def to_a
+        @mutex.synchronize { @group.dup }
       end
 
       def shutdown
@@ -31,13 +34,19 @@ module Celluloid
         }
       end
 
+      # Temporarily for backward compatibility for specs
+      # (should be replaced with busy?() or something)
+      def busy_size
+        @mutex.synchronize { @group.count(&:status)}
+      end
+
       private
 
       def instantiate proc
         thread = Thread.new {
           begin
             proc.call
-          rescue => ex
+          rescue Exception => ex
             Logger.crash("thread crashed", ex)
           ensure
             Thread.current.keys.each { |key| thread[key] = nil }
