@@ -45,6 +45,7 @@ RSpec.configure do |config|
   config.filter_run :focus => true
   config.run_all_when_everything_filtered = true
   config.disable_monkey_patching!
+  config.profile_examples = 3
 
   config.log_split_dir = File.expand_path("../../log/#{Time.now.iso8601}", __FILE__)
   config.log_split_module = Celluloid
