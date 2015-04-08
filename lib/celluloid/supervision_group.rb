@@ -145,20 +145,27 @@ module Celluloid
         @args = prepare_args(@options['args'])
         @method = @options['method'] || 'new_link'
 
-        @injections[:initialize].call if @injections[:initialize].is_a? Proc
+        # TODO: rename to ":after_initialize"?
+        invoke_injection(:initialize)
 
         start
       end
       attr_reader :name, :actor
 
       def start
-        @injections[:start].call if @injections[:start].is_a? Proc
+        # TODO: rename to ":before_start"?
+        # TODO: not tested
+        invoke_injection(:start)
+
         @actor = @klass.send(@method, *@args, &@block)
         @registry[@name] = @actor if @name
       end
 
       def restart
-        @injections[:restart].call if @injections[:restart].is_a? Proc
+        # TODO: rename to ":before_restart"?
+        # TODO: not tested
+        invoke_injection(:restart)
+
         @actor = nil
         cleanup
         start
@@ -175,6 +182,11 @@ module Celluloid
       end
 
       private
+
+      def invoke_injection(name)
+        block = @injections[name]
+        instance_eval(&block) if block.is_a? Proc
+      end
 
       # Executes args if it has the method #call, and converts the return
       # value to an Array. Otherwise, it just converts it to an Array.
