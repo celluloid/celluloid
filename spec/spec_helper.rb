@@ -15,6 +15,16 @@ module Specs
   def self.ci?
     ENV['CI']
   end
+
+  def self.logger
+    logfile = File.open(File.expand_path("../../log/test.log", __FILE__), 'a')
+    logfile.sync = true
+    @logger ||= Logger.new(self.ci? ? STDERR : logfile)
+  end
+
+  def self.logger=(logger)
+    @logger = logger
+  end
 end
 
 if Specs.ci?
@@ -54,7 +64,7 @@ RSpec.configure do |config|
   config.profile_examples = 3
 
   config.log_split_dir = File.expand_path("../../log/#{Time.now.iso8601}", __FILE__)
-  config.log_split_module = Celluloid
+  config.log_split_module = Specs
 
   config.around do |ex|
     Celluloid.actor_system = nil
@@ -72,6 +82,9 @@ RSpec.configure do |config|
   end
 
   config.around actor_system: :global do |ex|
+    # Needed because some specs mock/stub/expect on the logger
+    Celluloid.logger = Specs.logger
+
     Celluloid.boot
     ex.run
     Celluloid.shutdown
@@ -91,6 +104,9 @@ RSpec.configure do |config|
   end
 
   config.around(:each) do |example|
+    # Needed because some specs mock/stub/expect on the logger
+    Celluloid.logger = Specs.logger
+
     config.default_retry_count = example.metadata[:flaky] ? 3 : 1
     if example.metadata[:flaky] and $CELLULOID_BYPASS_FLAKY
       example.run broken: true
