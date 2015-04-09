@@ -14,6 +14,8 @@ group :development do
 end
 
 group :test do
+  gem 'dotenv', '~> 2.0'
+  gem 'nenv'
   gem 'benchmark_suite'
   gem 'rspec', '~> 3.2'
   gem 'rspec-retry'

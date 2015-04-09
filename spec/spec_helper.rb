@@ -1,3 +1,8 @@
+require 'nenv'
+
+require 'dotenv'
+Dotenv.load!(Nenv('celluloid').config_file || (Nenv.ci? ? '.env-ci' : '.env-dev'))
+
 module Specs
   def self.sleep_and_wait_until(timeout=10)
     t1 = Time.now.to_f
@@ -11,10 +16,67 @@ module Specs
     t2 = Time.now.to_f
     fail "Timeout after: #{t2 - t1} seconds"
   end
+
+  def self.env
+    @env ||= Nenv('celluloid_specs')
+  end
+
+  class << self
+    def log
+      # Setup ENV variable handling with sane defaults
+      @log ||= Nenv('celluloid_specs_log') do |env|
+        env.create_method(:file) { |f| f || '../../log/default.log' }
+        env.create_method(:sync?) { |s| s || !Nenv.ci? }
+
+        env.create_method(:strategy) do |strategy|
+          strategy || (Nenv.ci? ? 'stderr' : 'split')
+        end
+
+        env.create_method(:level) do |level|
+          begin
+            Integer(level)
+          rescue
+            env.strategy == 'stderr' ? Logger::WARN : Logger::DEBUG
+          end
+        end
+      end
+    end
+
+    def split_logs?
+      log.strategy == 'split'
+    end
+
+    def logger
+      @logger ||= default_logger.tap { |logger| logger.level = log.level }
+    end
+
+    def logger=(logger)
+      @logger = logger
+    end
+
+    def default_logger
+      case log.strategy
+      when 'stderr'
+        Logger.new(STDERR)
+      when 'single'
+        logfile = File.open(File.expand_path(log.file, __FILE__), 'a')
+        logfile.sync if log.sync?
+        Logger.new(logfile)
+      when 'split'
+        # Use Celluloid in case there's logging in a before/after handle
+        # (is that a bug in rspec-log_split?)
+        Celluloid.logger
+      else
+        fail "Unknown logger strategy: #{strategy.inspect}. Expected 'split', 'single' or 'stderr'."
+      end
+    end
+  end
 end
 
-require 'coveralls'
-Coveralls.wear!
+if Nenv.ci?
+  require 'coveralls'
+  Coveralls.wear!
+end
 
 require 'rubygems'
 require 'bundler/setup'
@@ -33,9 +95,8 @@ module CelluloidSpecs
 end
 
 $CELLULOID_DEBUG = true
-$CELLULOID_BYPASS_FLAKY = ENV['CELLULOID_BYPASS_FLAKY'] != "false" # defaults to bypass
 
-require 'rspec/log_split'
+require 'rspec/log_split' if Specs.split_logs?
 
 Celluloid.shutdown_timeout = 1
 
@@ -47,8 +108,10 @@ RSpec.configure do |config|
   config.disable_monkey_patching!
   config.profile_examples = 3
 
-  config.log_split_dir = File.expand_path("../../log/#{Time.now.iso8601}", __FILE__)
-  config.log_split_module = Celluloid
+  if Specs.split_logs?
+    config.log_split_dir = File.expand_path("../../log/#{Time.now.iso8601}", __FILE__)
+    config.log_split_module = Specs
+  end
 
   config.around do |ex|
     Celluloid.actor_system = nil
@@ -66,6 +129,9 @@ RSpec.configure do |config|
   end
 
   config.around actor_system: :global do |ex|
+    # Needed because some specs mock/stub/expect on the logger
+    Celluloid.logger = Specs.logger
+
     Celluloid.boot
     ex.run
     Celluloid.shutdown
@@ -85,8 +151,11 @@ RSpec.configure do |config|
   end
 
   config.around(:each) do |example|
+    # Needed because some specs mock/stub/expect on the logger
+    Celluloid.logger = Specs.logger
+
     config.default_retry_count = example.metadata[:flaky] ? 3 : 1
-    if example.metadata[:flaky] and $CELLULOID_BYPASS_FLAKY
+    if example.metadata[:flaky] && Specs.env.bypass_flaky?
       example.run broken: true
     else
       example.run
