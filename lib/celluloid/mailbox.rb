@@ -64,7 +64,7 @@ module Celluloid
       ensure
         @mutex.unlock rescue nil
       end
-      
+
       return message
     end
 
@@ -76,7 +76,7 @@ module Celluloid
           return message
         end
       end
-      
+
       raise TimeoutError.new("receive timeout exceeded")
     end
 
