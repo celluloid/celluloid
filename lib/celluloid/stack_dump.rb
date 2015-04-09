@@ -117,7 +117,12 @@ module Celluloid
     end
 
     def snapshot_thread(thread)
-      ThreadState.new(thread.object_id, thread.backtrace, thread.role)
+      backtrace = begin
+                    thread.backtrace
+                  rescue NoMethodError # for Rubinius < 2.5.2.c145
+                    []
+                  end
+      ThreadState.new(thread.object_id, backtrace, thread.role)
     end
 
     def print(output = STDERR)
