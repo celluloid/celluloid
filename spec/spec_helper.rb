@@ -14,15 +14,51 @@ module Specs
     fail "Timeout after: #{t2 - t1} seconds"
   end
 
+  class << self
+    def log
+      # Setup ENV variable handling with sane defaults
+      @log ||= Nenv('celluloid_specs_log') do |env|
+        env.create_method(:file) { |f| f || '../../log/test.log' }
+        env.create_method(:sync?) { |s| s || !Nenv.ci? }
 
-  def self.logger
-    logfile = File.open(File.expand_path("../../log/test.log", __FILE__), 'a')
-    logfile.sync = true
-    @logger ||= Logger.new(self.ci? ? STDERR : logfile)
-  end
+        env.create_method(:strategy) do |strategy|
+          strategy || (Nenv.ci? ? 'stderr' : 'split')
+        end
 
-  def self.logger=(logger)
-    @logger = logger
+        env.create_method(:level) do |level|
+          level || (env.strategy == 'stderr' ? Logger::WARN : Logger::DEBUG )
+        end
+      end
+    end
+
+    def split_logs?
+      log.strategy == 'split'
+    end
+
+    def logger
+      @logger ||= default_logger.tap { |logger| log.level }
+    end
+
+    def logger=(logger)
+      @logger = logger
+    end
+
+    def default_logger
+      case log.strategy
+      when 'stderr'
+        Logger.new(STDERR)
+      when 'single'
+        logfile = File.open(File.expand_path(log.file, __FILE__), 'a')
+        logfile.sync if log.sync?
+        Logger.new(logfile)
+      when 'split'
+        # Use Celluloid in case there's logging in a before/after handle
+        # (is that a bug in rspec-log_split?)
+        Celluloid.logger
+      else
+        fail "Unknown logger strategy: #{strategy.inspect}. Expected 'split', 'single' or 'stderr'."
+      end
+    end
   end
 end
 
@@ -50,7 +86,7 @@ end
 $CELLULOID_DEBUG = true
 $CELLULOID_BYPASS_FLAKY = ENV['CELLULOID_BYPASS_FLAKY'] != "false" # defaults to bypass
 
-require 'rspec/log_split'
+require 'rspec/log_split' if Specs.split_logs?
 
 Celluloid.shutdown_timeout = 1
 
@@ -62,8 +98,10 @@ RSpec.configure do |config|
   config.disable_monkey_patching!
   config.profile_examples = 3
 
-  config.log_split_dir = File.expand_path("../../log/#{Time.now.iso8601}", __FILE__)
-  config.log_split_module = Specs
+  if Specs.split_logs?
+    config.log_split_dir = File.expand_path("../../log/#{Time.now.iso8601}", __FILE__)
+    config.log_split_module = Specs
+  end
 
   config.around do |ex|
     Celluloid.actor_system = nil
