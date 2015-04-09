@@ -1,2 +1,1 @@
-# celluloid-supervisors
-Supervisors and Supervision Groups for Celluloid.
+Supervisors, Supervision Groups, and Supervision Trees for Celluloid.
