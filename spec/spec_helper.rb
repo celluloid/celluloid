@@ -1,5 +1,8 @@
 require 'nenv'
 
+require 'dotenv'
+Dotenv.load!(Nenv('celluloid').config_file || (Nenv.ci? ? '.env-ci' : '.env-dev'))
+
 module Specs
   def self.sleep_and_wait_until(timeout=10)
     t1 = Time.now.to_f
@@ -22,7 +25,7 @@ module Specs
     def log
       # Setup ENV variable handling with sane defaults
       @log ||= Nenv('celluloid_specs_log') do |env|
-        env.create_method(:file) { |f| f || '../../log/test.log' }
+        env.create_method(:file) { |f| f || '../../log/default.log' }
         env.create_method(:sync?) { |s| s || !Nenv.ci? }
 
         env.create_method(:strategy) do |strategy|
@@ -30,7 +33,11 @@ module Specs
         end
 
         env.create_method(:level) do |level|
-          level || (env.strategy == 'stderr' ? Logger::WARN : Logger::DEBUG )
+          begin
+            Integer(level)
+          rescue
+            env.strategy == 'stderr' ? Logger::WARN : Logger::DEBUG
+          end
         end
       end
     end
@@ -40,7 +47,7 @@ module Specs
     end
 
     def logger
-      @logger ||= default_logger.tap { |logger| log.level }
+      @logger ||= default_logger.tap { |logger| logger.level = log.level }
     end
 
     def logger=(logger)
