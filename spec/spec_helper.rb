@@ -14,6 +14,10 @@ module Specs
     fail "Timeout after: #{t2 - t1} seconds"
   end
 
+  def self.env
+    @env ||= Nenv('celluloid_specs')
+  end
+
   class << self
     def log
       # Setup ENV variable handling with sane defaults
@@ -84,7 +88,6 @@ module CelluloidSpecs
 end
 
 $CELLULOID_DEBUG = true
-$CELLULOID_BYPASS_FLAKY = ENV['CELLULOID_BYPASS_FLAKY'] != "false" # defaults to bypass
 
 require 'rspec/log_split' if Specs.split_logs?
 
@@ -145,7 +148,7 @@ RSpec.configure do |config|
     Celluloid.logger = Specs.logger
 
     config.default_retry_count = example.metadata[:flaky] ? 3 : 1
-    if example.metadata[:flaky] and $CELLULOID_BYPASS_FLAKY
+    if example.metadata[:flaky] && Specs.env.bypass_flaky?
       example.run broken: true
     else
       example.run
