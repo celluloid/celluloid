@@ -100,8 +100,11 @@ RSpec.shared_examples "a Celluloid Group" do
       end
     end
 
-    it "cleans thread locals from old threads" do
-      expect(@thread[:foo]).to be_nil
+    # Cleaning not necessary for Spawner
+    unless Celluloid.group_class == Celluloid::Group::Spawner
+      it "cleans thread locals from old threads" do
+        expect(@thread[:foo]).to be_nil
+      end
     end
   end
 
