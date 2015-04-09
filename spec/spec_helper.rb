@@ -11,10 +11,16 @@ module Specs
     t2 = Time.now.to_f
     fail "Timeout after: #{t2 - t1} seconds"
   end
+
+  def self.ci?
+    ENV['CI']
+  end
 end
 
-require 'coveralls'
-Coveralls.wear!
+if Specs.ci?
+  require 'coveralls'
+  Coveralls.wear!
+end
 
 require 'rubygems'
 require 'bundler/setup'
