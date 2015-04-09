@@ -1,3 +1,5 @@
+require 'nenv'
+
 module Specs
   def self.sleep_and_wait_until(timeout=10)
     t1 = Time.now.to_f
@@ -12,9 +14,6 @@ module Specs
     fail "Timeout after: #{t2 - t1} seconds"
   end
 
-  def self.ci?
-    ENV['CI']
-  end
 
   def self.logger
     logfile = File.open(File.expand_path("../../log/test.log", __FILE__), 'a')
@@ -27,7 +26,7 @@ module Specs
   end
 end
 
-if Specs.ci?
+if Nenv.ci?
   require 'coveralls'
   Coveralls.wear!
 end
