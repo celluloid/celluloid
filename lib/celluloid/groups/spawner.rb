@@ -39,9 +39,6 @@ module Celluloid
             proc.call
           rescue Exception => ex
             Logger.crash("thread crashed", ex)
-          ensure
-            Thread.current.keys.each { |key| thread[key] = nil }
-            #de purge(Thread.current)
           end
         }
         @mutex.synchronize { @group << thread }
