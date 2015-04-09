@@ -45,15 +45,35 @@ module Celluloid
         end
       end
 
-      # Register a pool of actors to be launched on group startup
-      def pool(klass, *args, &block)
-        blocks << lambda do |group|
-          group.pool(klass, prepare_options(args, :block => block))
-        end
-      end
-
       def prepare_options(args, options = {})
-        ( ( args.length == 1 and args[0].is_a? Hash ) ? args[0] : { :args => args } ).merge( options )
+        po = if args.is_a? Hash
+          args
+        elsif args.is_a? Array and args.length == 1 and args[0].is_a? Hash
+          args[0]
+        end
+
+        if po.is_a? Hash
+          o = [ :block, :args, :size, :as ].inject({}) { |a,k|
+            if po[k]
+              a[k] = po.delete(k)
+            end
+            a
+          }
+          if po.any?
+            if o[:args].is_a? Array
+              o[:args] += [po]
+            else
+              o[:args] = [po]
+            end
+          end
+          o
+        elsif !args or ( args.is_a? Array and args.empty? )
+          { args: [] }
+        elsif args.is_a? Array
+          { args: args }
+        else
+          { args: [ args ] }
+        end.merge( options )
       end
     end
 
@@ -75,11 +95,6 @@ module Celluloid
 
     def supervise_as(name, klass, *args, &block)
       add(klass, self.class.prepare_options(args, :block => block, :as => name))
-    end
-
-    def pool(klass, options = {})
-      options[:method] = 'pool_link'
-      add(klass, options)
     end
 
     def add(klass, options)
@@ -119,36 +134,36 @@ module Celluloid
         @registry = registry
         @klass = klass
 
-        # Stringify keys :/
-        options = options.each_with_object({}) { |(k,v), h| h[k.to_s] = v }
+        # allows injections at initialize, start, and restart
+        @injections = options.delete(:injections) || {}
 
-        @name = options['as']
-        @block = options['block']
-        @args = prepare_args(options['args'])
-        @method = options['method'] || 'new_link'
-        @pool = @method == 'pool_link'
-        @pool_size = options['size'] if @pool
+        # Stringify keys :/
+        @options = options.each_with_object({}) { |(k,v), h| h[k.to_s] = v }
+
+        @name = @options['as']
+        @block = @options['block']
+        @args = prepare_args(@options['args'])
+        @method = @options['method'] || 'new_link'
+
+        # TODO: rename to ":after_initialize"?
+        invoke_injection(:after_initialize)
 
         start
       end
       attr_reader :name, :actor
 
       def start
-        # when it is a pool, then we don't splat the args
-        # and we need to extract the pool size if set
-        if @pool
-          options = {:args => @args}
-          options[:size] = @pool_size if @pool_size
-          @args = [options]
-        end
+        invoke_injection(:before_start)
+
         @actor = @klass.send(@method, *@args, &@block)
         @registry[@name] = @actor if @name
       end
 
       def restart
+        invoke_injection(:before_restart)
+
         @actor = nil
         cleanup
-
         start
       end
 
@@ -163,6 +178,11 @@ module Celluloid
       end
 
       private
+
+      def invoke_injection(name)
+        block = @injections[name]
+        instance_eval(&block) if block.is_a? Proc
+      end
 
       # Executes args if it has the method #call, and converts the return
       # value to an Array. Otherwise, it just converts it to an Array.
