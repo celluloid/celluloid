@@ -1,39 +1,48 @@
 RSpec.describe Celluloid::ThreadHandle do
-  let(:actor_system) do
-    Celluloid::ActorSystem.new
-  end
 
-  let(:queue) { Queue.new }
-  let(:thread_info_queue) { Queue.new }
+  let(:actor_system) { Celluloid::ActorSystem.new }
+  after { actor_system.shutdown }
 
   context "given a living thread" do
+    let(:queue) { Queue.new }
+    let(:thread_info_queue) { Queue.new }
+
     before do
+      @queue = Queue.new
+      wait_running = Queue.new
       @handle = Celluloid::ThreadHandle.new(actor_system) do
-        queue.pop
+        wait_running << :running
+        Timeout.timeout(2) { @queue.pop }
         thread_info_queue << Thread.current
       end
+      Timeout.timeout(2) { wait_running.pop }
     end
 
     after do
-      thread = thread_info_queue.pop
+      thread = Timeout.timeout(2) { thread_info_queue.pop }
       thread.kill
       thread.join
     end
 
     it "knows the thread is alive" do
-      expect(@handle).to be_alive
-      queue << :continue
+      alive = @handle.alive?
+      @queue << :continue
+      expect(alive).to be(true)
     end
   end
 
   context "given a finished thread" do
+    let(:thread_info_queue) { Queue.new }
+
     before do
-      @handle = Celluloid::ThreadHandle.new(actor_system) do
-        queue.pop
+      @queue = Queue.new
+      handle = Celluloid::ThreadHandle.new(actor_system) do
+        @queue.pop
         thread_info_queue << Thread.current
       end
 
-      queue << :continue
+      @queue << :continue
+      @handle = handle
 
       thread = thread_info_queue.pop
       thread.kill
@@ -47,22 +56,27 @@ RSpec.describe Celluloid::ThreadHandle do
 
   describe "role" do
     context "when provided" do
+      let(:thread_info_queue) { Queue.new }
+
       before do
-        @handle = Celluloid::ThreadHandle.new(actor_system, :useful) do
+        @queue = Queue.new
+        handle = Celluloid::ThreadHandle.new(actor_system, :useful) do
           thread_info_queue << Thread.current
-          queue.pop
+          @queue.pop
         end
+        @handle = handle
         @thread = thread_info_queue.pop
       end
 
       after do
-        queue << nil
+        @queue << nil
         @thread.kill
         @thread.join
       end
 
       it "can be retrieved from thread" do
-        expect(@thread.role).to eq(:useful)
+        role = @thread.role
+        expect(role).to eq(:useful)
       end
     end
   end
