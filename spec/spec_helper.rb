@@ -106,6 +106,14 @@ module Specs
       end
       fail "Aborted due to runaway threads (#{location})\nList: (#{loose.map(&:inspect)})\n:#{backtraces.join("\n")}" unless loose.empty?
     end
+
+    def reset_probe(value)
+      return unless Celluloid.const_defined?(:Probe)
+      probe = Celluloid::Probe
+      const = :INITIAL_EVENTS
+      probe.send(:remove_const, const) if probe.const_defined?(const)
+      probe.const_set(const, value)
+    end
   end
 end
 
@@ -166,9 +174,11 @@ RSpec.configure do |config|
     # Needed because some specs mock/stub/expect on the logger
     Celluloid.logger = Specs.logger
 
+    Specs.reset_probe(Queue.new)
     Celluloid.boot
     ex.run
     Celluloid.shutdown
+    Specs.reset_probe(Queue.new)
   end
 
   config.around actor_system: :within do |ex|
