@@ -138,7 +138,17 @@ RSpec.shared_examples "a Celluloid Group" do
 
   it "shuts down" do
     subject
-    expect(subject.get { ::Thread.new { sleep 0.5 } }).to be_a(Celluloid::Thread)
+    thread = Queue.new
+
+    expect(
+      subject.get do
+        thread << Thread.current
+        sleep
+      end
+    ).to be_a(Celluloid::Thread)
+
+    thread.pop # wait for 3rd-party thread to get strated
+
     expect(subject.active?).to eq true
     subject.shutdown
     expect(subject.active?).to eq false

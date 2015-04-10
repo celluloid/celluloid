@@ -78,6 +78,34 @@ module Specs
         fail "Unknown logger strategy: #{strategy.inspect}. Expected 'split', 'single' or 'stderr'."
       end
     end
+
+    def loose_threads
+      Thread.list.map do |thread|
+        next if thread == Thread.current
+        if defined?(JRUBY_VERSION)
+          # Avoid disrupting jRuby's "fiber" threads.
+          next if /Fiber/ =~ thread.to_java.getNativeThread.get_name
+          backtrace = thread.backtrace # avoid race maybe
+          next unless backtrace
+          next if backtrace.empty? # possibly a timer thread
+        end
+        if RUBY_ENGINE == "rbx"
+          # Avoid disrupting Rubinious thread
+          next if thread.backtrace.empty?
+          next if thread.backtrace.first =~ /rubysl\/timeout\/timeout.rb/
+        end
+        thread
+      end.compact
+    end
+
+    def assert_no_loose_threads!(location)
+      loose = Specs.loose_threads
+      backtraces = loose.map do |th|
+        "Runaway thread: ================ #{th.inspect}\n" +
+        "Backtrace: \n ** #{th.backtrace * "\n ** "}\n"
+      end
+      fail "Aborted due to runaway threads (#{location})\nList: (#{loose.map(&:inspect)})\n:#{backtraces.join("\n")}" unless loose.empty?
+    end
   end
 end
 
@@ -127,16 +155,11 @@ RSpec.configure do |config|
   config.around do |ex|
     Celluloid.actor_system = nil
 
-    Thread.list.each do |thread|
-      next if thread == Thread.current
-      if defined?(JRUBY_VERSION)
-        # Avoid disrupting jRuby's "fiber" threads.
-        next if /Fiber/ =~ thread.to_java.getNativeThread.get_name
-      end
-      thread.kill
-    end
+    Specs.assert_no_loose_threads!("before example: #{ex.description}")
 
     ex.run
+
+    Specs.assert_no_loose_threads!("after example: #{ex.description}")
   end
 
   config.around actor_system: :global do |ex|
