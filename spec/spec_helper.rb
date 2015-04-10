@@ -177,7 +177,7 @@ RSpec.configure do |config|
     end
   end
 
-  config.filter_gems_from_backtrace(*%w(rspec-expectations rspec-core rspec-mocks rspec-retry rspec-log_split))
+  config.filter_gems_from_backtrace(*%w(rspec-expectations rspec-core rspec-mocks rspec-retry rspec-log_split rubysl-thread rubysl-timeout))
 
   config.mock_with :rspec do |mocks|
     mocks.verify_doubled_constant_names = true
