@@ -21,44 +21,8 @@ module Celluloid
     end
 
     def dispatch(obj)
-      check(obj)
       _block = @block && @block.to_proc
       obj.public_send(@method, *@arguments, &_block)
-    end
-
-    def check(obj)
-      # NOTE: don't use respond_to? here
-      begin
-        meth = obj.method(@method)
-      rescue NameError
-        raise NoMethodError, "undefined method `#{@method}' for #{safe_inspect(obj)}"
-      end
-
-      arity = meth.arity
-
-      if arity >= 0
-        raise ArgumentError, "wrong number of arguments (#{@arguments.size} for #{arity})" if @arguments.size != arity
-      elsif arity < -1
-        mandatory_args = -arity - 1
-        raise ArgumentError, "wrong number of arguments (#{@arguments.size} for #{mandatory_args}+)" if arguments.size < mandatory_args
-      end
-    rescue => ex
-      raise AbortError.new(ex)
-    end
-
-    # Do anything possible to avoid crashes, since we're preparing info
-    # for a crash to begin with...
-    def safe_inspect(obj)
-      obj.inspect
-    rescue RuntimeError, NameError
-      vars = obj.instance_variables.sort.map do |var|
-        begin
-          "#{var}=#{obj.instance_variable_get(var).inspect}"
-        rescue RuntimeError => e
-          "#{var}=(crashed: #{e})"
-        end
-      end.compact.join(" ")
-      "#<#{obj.class}:0x#{obj.object_id.to_s(16)} #{vars}>"
     end
   end
 
