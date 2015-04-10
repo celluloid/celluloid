@@ -21,6 +21,14 @@ module Specs
     @env ||= Nenv('celluloid_specs')
   end
 
+  def self.retry_count_for(metadata)
+    Integer(ENV['CELLULOID_SPECS_RETRY_COUNT'])
+  rescue
+    # TODO: remove the bypass_flaky altogether at some point
+    from_env = Specs.env.bypass_flaky? ? 0 : 1
+    metadata[:flaky] ? ( Nenv.ci? ? 5 : from_env) : 1
+  end
+
   class << self
     def log
       # Setup ENV variable handling with sane defaults
@@ -154,12 +162,8 @@ RSpec.configure do |config|
     # Needed because some specs mock/stub/expect on the logger
     Celluloid.logger = Specs.logger
 
-    config.default_retry_count = example.metadata[:flaky] ? 3 : 1
-    if example.metadata[:flaky] && Specs.env.bypass_flaky?
-      example.run broken: true
-    else
-      example.run
-    end
+    config.default_retry_count = Specs.retry_count_for(example.metadata)
+    example.run
   end
 
   # Must be *after* the around hook above
