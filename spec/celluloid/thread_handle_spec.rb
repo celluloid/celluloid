@@ -56,16 +56,16 @@ RSpec.describe Celluloid::ThreadHandle do
 
   describe "role" do
     context "when provided" do
-      let(:thread_info_queue) { Queue.new }
 
       before do
+        thread_info_queue = Queue.new
         @queue = Queue.new
         handle = Celluloid::ThreadHandle.new(actor_system, :useful) do
           thread_info_queue << Thread.current
-          @queue.pop
+          Timeout.timeout(2) { @queue.pop }
         end
         @handle = handle
-        @thread = thread_info_queue.pop
+        Timeout.timeout(2) { @thread = thread_info_queue.pop }
       end
 
       after do
