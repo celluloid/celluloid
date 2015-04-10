@@ -998,6 +998,109 @@ RSpec.describe Celluloid, actor_system: :global do
       subclass = Class.new(subject)
       expect(subclass.new.subclass_proxy?).to be(true)
     end
+
+    context "when overriding a actor's method" do
+      subject do
+        Class.new do
+          include CelluloidSpecs.included_module
+
+          klass = Class.new(Celluloid::CellProxy) do
+            def dividing_3_by(number)
+              fail ArgumentError, "<facepalm>" if number.zero?
+              super
+            end
+          end
+
+          def dividing_3_by(number)
+            3 / number
+          end
+
+          proxy_class klass
+        end.new
+      end
+
+      context "when invoked with an invalid parameter for that method" do
+        it "calls the overloaded method" do
+          expect { subject.dividing_3_by(0) }.to raise_error(ArgumentError, "<facepalm>")
+        end
+
+        it "does not crash the actor" do
+          subject.dividing_3_by(0) rescue ArgumentError
+          expect(subject.dividing_3_by(3)).to eq(1)
+        end
+      end
+    end
+
+    context "when it includes method checking" do
+      module MethodChecking
+        def method_missing(meth, *args)
+          return super if [:__send__, :respond_to?, :method, :class, :__class__].include? meth
+
+          unmet_requirement = nil
+
+          arity = method(meth).arity
+          if arity >= 0
+            unmet_requirement = arity.to_s if args.size != arity
+          elsif arity < -1
+            mandatory_args = -arity - 1
+            unmet_requirement = "#{mandatory_args}+" if args.size < mandatory_args
+          end
+          raise ArgumentError, "wrong number of arguments (#{args.size} for #{unmet_requirement})" if unmet_requirement
+
+          super
+        end
+      end
+
+      subject do
+        Class.new do
+          include CelluloidSpecs.included_module
+
+          klass = Class.new(Celluloid::CellProxy) do
+            include MethodChecking
+          end
+
+          def madness
+            "This is madness!"
+          end
+
+          def this_is_not_madness(word1, word2, word3, *args)
+            fail "This is madness!" unless [word1, word2, word3] == [:this, :is, :Sparta]
+          end
+
+          proxy_class klass
+        end.new
+      end
+
+      context "when invoking a non-existing method" do
+        it "raises a NoMethodError" do
+          expect { subject.method_to_madness }.to raise_error(NoMethodError)
+        end
+
+        it "does not crash the actor" do
+          subject.method_to_madness rescue NoMethodError
+          expect(subject.madness).to eq('This is madness!')
+        end
+      end
+
+      context "when invoking a existing method with incorrect args" do
+        context "with too many arguments" do
+          it "raises an ArgumentError" do
+            expect { subject.madness(:Sparta) }.to raise_error(ArgumentError, 'wrong number of arguments (1 for 0)')
+          end
+
+          it "does not crash the actor" do
+            subject.madness(:Sparta) rescue ArgumentError
+            expect(subject.madness).to eq('This is madness!')
+          end
+        end
+
+        context "with not enough mandatory arguments" do
+          it "raises an ArgumentError" do
+            expect { subject.this_is_not_madness(:this, :is) }.to raise_error(ArgumentError, 'wrong number of arguments (2 for 3+)')
+          end
+        end
+      end
+    end
   end
 
   context :task_class do
