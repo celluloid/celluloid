@@ -2,7 +2,7 @@ module Celluloid
   # Method handles that route through an actor proxy
   class Method
     def initialize(proxy, name)
-      raise NoMethodError, "undefined method `#{name}'" unless proxy.respond_to? name
+      raise NameError, "undefined method `#{name}'" unless proxy.respond_to? name
 
       @proxy, @name = proxy, name
       @klass = @proxy.class

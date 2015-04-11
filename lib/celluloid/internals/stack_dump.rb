@@ -69,8 +69,8 @@ module Celluloid
 
     attr_accessor :actors, :threads
 
-    def initialize(threads)
-      @group = threads
+    def initialize(internal_pool)
+      @internal_pool = internal_pool
 
       @actors  = []
       @threads = []
@@ -79,7 +79,7 @@ module Celluloid
     end
 
     def snapshot
-      @group.each do |thread|
+      @internal_pool.each do |thread|
         if thread.role == :actor
           @actors << snapshot_actor(thread.actor) if thread.actor
         else
@@ -117,12 +117,7 @@ module Celluloid
     end
 
     def snapshot_thread(thread)
-      backtrace = begin
-                    thread.backtrace
-                  rescue NoMethodError # for Rubinius < 2.5.2.c145
-                    []
-                  end
-      ThreadState.new(thread.object_id, backtrace, thread.role)
+      ThreadState.new(thread.object_id, thread.backtrace, thread.role)
     end
 
     def print(output = STDERR)

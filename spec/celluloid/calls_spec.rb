@@ -1,4 +1,5 @@
 RSpec.describe Celluloid::SyncCall, actor_system: :global do
+  # TODO: these should be SyncCall unit tests (without working on actual actors)
   class CallExampleActor
     include Celluloid
 
@@ -25,15 +26,19 @@ RSpec.describe Celluloid::SyncCall, actor_system: :global do
         actor.the_method_that_wasnt_there
       end.to raise_exception(NoMethodError)
 
-      expect(actor).to be_alive
+      # NOTE: this timed out on JRuby once
+      Specs.sleep_and_wait_until { actor.dead? }
+      expect(actor).to be_dead
     end
 
     context "when obj raises during inspect" do
       it "should emulate obj.inspect" do
-        expect { actor.no_such_method }.to raise_exception(
-          NoMethodError,
-          /undefined method `no_such_method' for #\<CallExampleActor:0x[a-f0-9]+ @celluloid_owner=\(crashed: Don't call!\) @next=nil>/
-        )
+        if RUBY_ENGINE == "rbx"
+          expected = /undefined method `no_such_method' on an instance of CallExampleActor/
+        else
+          expected = /undefined method `no_such_method' for #\<CallExampleActor:0x[a-f0-9]+\>/
+        end
+        expect { actor.no_such_method }.to raise_exception(NoMethodError, expected)
       end
     end
   end
@@ -43,7 +48,8 @@ RSpec.describe Celluloid::SyncCall, actor_system: :global do
       actor.actual_method("with too many arguments")
     end.to raise_exception(ArgumentError)
 
-    expect(actor).to be_alive
+    Specs.sleep_and_wait_until { actor.dead? }
+    expect(actor).to be_dead
   end
 
   it "preserves call chains across synchronous calls" do
