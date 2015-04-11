@@ -452,6 +452,7 @@ require 'celluloid/calls'
 require 'celluloid/call_chain'
 require 'celluloid/condition'
 require 'celluloid/thread'
+require 'celluloid/core_ext'
 
 require 'celluloid/internals'
 
