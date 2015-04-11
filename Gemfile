@@ -4,7 +4,11 @@ gemspec development_group: :gem_build_tools
 gem 'coveralls', require: false
 
 gem 'timers', github: 'celluloid/timers'
-gem 'celluloid-supervision', github: 'celluloid/celluloid-supervision'
+
+# keep these gems in the bundle for now, until the world realizes they are gems ( outside core )
+gem 'celluloid-supervision', github: 'celluloid/celluloid-supervision', branch: "master"
+gem 'celluloid-pool', github: 'celluloid/celluloid-pool', branch: "master"
+gem 'celluloid-fsm', github: 'celluloid/celluloid-fsm', branch: "master"
 
 group :development do
   gem 'pry'
