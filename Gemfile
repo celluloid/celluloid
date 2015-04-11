@@ -4,6 +4,7 @@ gemspec development_group: :gem_build_tools
 gem 'coveralls', require: false
 
 gem 'timers', github: 'celluloid/timers'
+gem 'celluloid-supervision', github: 'celluloid/celluloid-supervision'
 
 group :development do
   gem 'pry'

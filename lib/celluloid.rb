@@ -511,6 +511,7 @@ require 'celluloid/actor'
 require 'celluloid/cell'
 require 'celluloid/future'
 require 'celluloid/actor_system'
+require 'celluloid/supervision'
 require 'celluloid/notifications'
 
 require 'celluloid/logging'
