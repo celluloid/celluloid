@@ -108,37 +108,19 @@ RSpec.shared_examples "a Celluloid Group" do
     end
   end
 
-  context "with a third-party thread" do
-    let(:queue2) { Queue.new }
-
-    before do
-      wait_queue = Queue.new
-      @thread = nil
-      subject.get do
-        @thread = ::Thread.new { queue2.pop }
-        busy_queue << nil
-        wait_queue.pop
-      end
-
-      wait_until_busy(busy_queue)
-      wait_queue << nil # let our thread finish
-      wait_until_idle
-    end
-
-    after do
-      queue2 << nil # let 3rd party thread finish
-      @thread.join
-    end
-
-    # TODO: no longer needed because ThreadGroup doesn't exist anymore
-    it "doesn't count a third-party thread as idle" do
-      expect(subject.busy_size).to be_zero
-    end
-  end
-
   it "shuts down" do
     subject
-    expect(subject.get { ::Thread.new { sleep 0.5 } }).to be_a(Celluloid::Thread)
+    thread = Queue.new
+
+    expect(
+      subject.get do
+        thread << Thread.current
+        sleep
+      end
+    ).to be_a(Celluloid::Thread)
+
+    thread.pop # wait for 3rd-party thread to get strated
+
     expect(subject.active?).to eq true
     subject.shutdown
     expect(subject.active?).to eq false

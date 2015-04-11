@@ -458,8 +458,8 @@ require 'celluloid/fiber'
 require 'celluloid/fsm'
 
 require 'celluloid/group'
-require 'celluloid/groups/pool'
-require 'celluloid/groups/spawner'
+require 'celluloid/group/pool'
+require 'celluloid/group/spawner'
 
 require 'celluloid/links'
 require 'celluloid/logger'
@@ -475,9 +475,9 @@ require 'celluloid/signals'
 require 'celluloid/stack_dump'
 require 'celluloid/system_events'
 
-require 'celluloid/tasks'
-require 'celluloid/tasks/fibered'
-require 'celluloid/tasks/threaded'
+require 'celluloid/task'
+require 'celluloid/task/fibered'
+require 'celluloid/task/threaded'
 
 require 'celluloid/task_set'
 require 'celluloid/thread_handle'

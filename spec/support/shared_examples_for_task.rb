@@ -22,6 +22,7 @@ RSpec.shared_examples "a Celluloid Task" do
   end
 
   after :each do
+    Thread.current[:celluloid_actor_system].shutdown
     Thread.current[:celluloid_actor] = nil
     Thread.current[:celluloid_actor_system] = nil
   end
