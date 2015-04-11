@@ -127,6 +127,7 @@ require 'bundler/setup'
 
 # Require in order, so both CELLULOID_TEST and CELLULOID_DEBUG are true
 require 'celluloid/test'
+require 'celluloid/supervision'
 
 module CelluloidSpecs
   def self.included_module
