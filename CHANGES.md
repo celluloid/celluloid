@@ -1,9 +1,18 @@
 HEAD
 ----
-* Make "Terminating task" log messages debug-level events
 * Fix $CELLULOID_TEST warnings
+* Massive overhaul of test suite, end-to-end.
+* Make "Terminating task" log messages debug-level events
 * Added `.dead?` method on actors, as opposite of `.alive?`
 * Added class/module method to access `publish` outside actors.
+* BREAKING CHANGE: Moved Celluloid::TaskFiber to Celluloid::Task::Fibered
+* BREAKING CHANGE: Moved Celluloid::TaskThread to Celluloid::Task::Threaded
+* Radical Refactor: Celluloid::InternalPool moved to Celluloid::Group::Pool
+* Radical Refactor: *::Group::Pool replaced as default with *::Group::Spawner
+* Added `rspec-log_split` as replacement logger for itemized testing logs.
+* *::Task::PooledFibers has been found and made available, and compatible ( sometimes 4x faster than even Task::Fibered )
+* BREAKING CHANGE: PoolManager taken out, and implemented in the `celluloid-pool` gem, separately.
+
 
 0.16.0 (2014-09-04)
 -------------------

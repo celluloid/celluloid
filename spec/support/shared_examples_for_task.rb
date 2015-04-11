@@ -9,12 +9,12 @@ class MockActor
   end
 end
 
-RSpec.shared_context "a Celluloid Task" do |task_class|
+RSpec.shared_examples "a Celluloid Task" do
   let(:task_type)     { :foobar }
   let(:suspend_state) { :doing_something }
   let(:actor)         { MockActor.new }
 
-  subject { task_class.new(task_type, {}) { Celluloid::Task.suspend(suspend_state) } }
+  subject { Celluloid.task_class.new(task_type, {}) { Celluloid::Task.suspend(suspend_state) } }
 
   before :each do
     Thread.current[:celluloid_actor_system] = Celluloid.actor_system
@@ -22,6 +22,7 @@ RSpec.shared_context "a Celluloid Task" do |task_class|
   end
 
   after :each do
+    Thread.current[:celluloid_actor_system].shutdown
     Thread.current[:celluloid_actor] = nil
     Thread.current[:celluloid_actor_system] = nil
   end
@@ -39,7 +40,7 @@ RSpec.shared_context "a Celluloid Task" do |task_class|
   end
 
   it "raises exceptions outside" do
-    task = task_class.new(task_type, {}) do
+    task = Celluloid.task_class.new(task_type, {}) do
       raise "failure"
     end
     expect do

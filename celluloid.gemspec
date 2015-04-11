@@ -1,7 +1,9 @@
 # -*- encoding: utf-8 -*-
+require File.expand_path('../lib/celluloid/version', __FILE__)
+
 Gem::Specification.new do |gem|
   gem.name        = 'celluloid'
-  gem.version     = '0.16.0'
+  gem.version     = Celluloid::VERSION
   gem.platform    = Gem::Platform::RUBY
   gem.summary     = 'Actor-based concurrent object framework for Ruby'
   gem.description = 'Celluloid enables people to build concurrent programs out of concurrent objects just as easily as they build sequential programs out of sequential objects'

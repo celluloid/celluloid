@@ -1,24 +1,62 @@
 RSpec.describe Celluloid::ThreadHandle do
-  let(:actor_system) do
-    Celluloid::ActorSystem.new
+
+  let(:actor_system) { Celluloid::ActorSystem.new }
+  after { actor_system.shutdown }
+
+  context "given a living thread" do
+    let(:args) { [actor_system] }
+
+    before do
+      @thread = nil
+      @thread_info_queue = Queue.new
+      @handle = Celluloid::ThreadHandle.new(*args) do
+        @thread_info_queue << Thread.current
+        sleep
+      end
+      @thread = Timeout.timeout(2) { @thread_info_queue.pop }
+    end
+
+    it "knows the thread is alive" do
+      alive = @handle.alive?
+      if @thread
+        @thread.kill
+        @thread.join
+      else
+        STDERR.puts "NOTE: something failed - thread missing"
+      end
+      expect(alive).to be(true)
+    end
+
+    context "when a role is provided" do
+      let(:args) { [actor_system, :useful] }
+
+      it "can be retrieved from thread directly" do
+        role = @thread.role
+        if @thread
+          @thread.kill
+          @thread.join
+        else
+          STDERR.puts "NOTE: something failed - thread missing"
+        end
+        expect(role).to eq(:useful)
+      end
+    end
   end
 
-  it "knows thread liveliness" do
-    queue = Queue.new
-    handle = Celluloid::ThreadHandle.new(actor_system) { queue.pop }
-    expect(handle).to be_alive
+  context "given a finished thread" do
 
-    queue << :die
+    before do
+      thread_info_queue = Queue.new
+      @handle = Celluloid::ThreadHandle.new(actor_system) do
+        thread_info_queue << Thread.current
+      end
+      thread = thread_info_queue.pop
+      thread.kill
+      Specs.sleep_and_wait_until { !thread.alive? }
+    end
 
-    sleep 0.01 # hax
-    expect(handle).not_to be_alive
-  end
-
-  it "joins to thread handles" do
-    Celluloid::ThreadHandle.new(actor_system) { sleep 0.01 }.join
-  end
-
-  it "supports passing a role" do
-    Celluloid::ThreadHandle.new(actor_system, :useful) { expect(Thread.current.role).to eq(:useful) }.join
+    it "knows the thread is no longer alive" do
+      expect(@handle).not_to be_alive
+    end
   end
 end
