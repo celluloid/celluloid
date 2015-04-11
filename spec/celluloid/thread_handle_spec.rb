@@ -1,40 +1,55 @@
 RSpec.describe Celluloid::ThreadHandle do
-  let(:actor_system) do
-    Celluloid::ActorSystem.new
-  end
 
-  let(:queue) { Queue.new }
-  let(:thread_info_queue) { Queue.new }
+  let(:actor_system) { Celluloid::ActorSystem.new }
+  after { actor_system.shutdown }
 
   context "given a living thread" do
-    before do
-      @handle = Celluloid::ThreadHandle.new(actor_system) do
-        queue.pop
-        thread_info_queue << Thread.current
-      end
-    end
+    let(:args) { [actor_system] }
 
-    after do
-      thread = thread_info_queue.pop
-      thread.kill
-      thread.join
+    before do
+      @thread = nil
+      @thread_info_queue = Queue.new
+      @handle = Celluloid::ThreadHandle.new(*args) do
+        @thread_info_queue << Thread.current
+        sleep
+      end
+      @thread = Timeout.timeout(2) { @thread_info_queue.pop }
     end
 
     it "knows the thread is alive" do
-      expect(@handle).to be_alive
-      queue << :continue
+      alive = @handle.alive?
+      if @thread
+        @thread.kill
+        @thread.join
+      else
+        STDERR.puts "NOTE: something failed - thread missing"
+      end
+      expect(alive).to be(true)
+    end
+
+    context "when a role is provided" do
+      let(:args) { [actor_system, :useful] }
+
+      it "can be retrieved from thread directly" do
+        role = @thread.role
+        if @thread
+          @thread.kill
+          @thread.join
+        else
+          STDERR.puts "NOTE: something failed - thread missing"
+        end
+        expect(role).to eq(:useful)
+      end
     end
   end
 
   context "given a finished thread" do
+
     before do
+      thread_info_queue = Queue.new
       @handle = Celluloid::ThreadHandle.new(actor_system) do
-        queue.pop
         thread_info_queue << Thread.current
       end
-
-      queue << :continue
-
       thread = thread_info_queue.pop
       thread.kill
       Specs.sleep_and_wait_until { !thread.alive? }
@@ -42,28 +57,6 @@ RSpec.describe Celluloid::ThreadHandle do
 
     it "knows the thread is no longer alive" do
       expect(@handle).not_to be_alive
-    end
-  end
-
-  describe "role" do
-    context "when provided" do
-      before do
-        @handle = Celluloid::ThreadHandle.new(actor_system, :useful) do
-          thread_info_queue << Thread.current
-          queue.pop
-        end
-        @thread = thread_info_queue.pop
-      end
-
-      after do
-        queue << nil
-        @thread.kill
-        @thread.join
-      end
-
-      it "can be retrieved from thread" do
-        expect(@thread.role).to eq(:useful)
-      end
     end
   end
 end

@@ -26,6 +26,7 @@ RSpec.describe Celluloid::SyncCall, actor_system: :global do
         actor.the_method_that_wasnt_there
       end.to raise_exception(NoMethodError)
 
+      # NOTE: this timed out on JRuby once
       Specs.sleep_and_wait_until { actor.dead? }
       expect(actor).to be_dead
     end
