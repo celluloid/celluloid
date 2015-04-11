@@ -802,9 +802,13 @@ RSpec.describe Celluloid, actor_system: :global do
       let(:interval) { 0.1 }
 
       it "times out", flaky: true do
+        # Barely didn't make it once on MRI, so attempting to "unrefactor"
         started_at = Time.now
-        expect(receiver.receive(interval) { false }).to_not be
-        expect(Time.now - started_at).to be_within(CelluloidSpecs::TIMER_QUANTUM).of interval
+        result = receiver.receive(interval) { false }
+        ended_at = Time.now - started_at
+
+        expect(result).to_not be
+        expect(ended_at).to be_within(CelluloidSpecs::TIMER_QUANTUM).of interval
       end
     end
   end

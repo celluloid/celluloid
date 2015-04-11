@@ -3,6 +3,10 @@ RSpec.describe Celluloid::ActorSystem do
     include Celluloid
   end
 
+  after do
+    subject.shutdown
+  end
+
   it "supports non-global ActorSystem" do
     subject.within do
       expect(Celluloid.actor_system).to eq(subject)

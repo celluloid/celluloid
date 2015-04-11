@@ -21,7 +21,18 @@ module Celluloid
       def shutdown
         @running = false
         @mutex.synchronize {
-          @group.shift.kill until @group.empty?
+          queue = Queue.new
+          loop do
+            break if @group.empty?
+            th = @group.shift
+            th.kill
+            queue << th
+          end
+
+          loop do
+            break if queue.empty?
+            queue.pop.join
+          end
         }
       end
 
