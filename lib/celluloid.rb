@@ -453,6 +453,19 @@ require 'celluloid/call_chain'
 require 'celluloid/condition'
 require 'celluloid/thread'
 require 'celluloid/core_ext'
+
+require 'celluloid/internals'
+
+require 'celluloid/group'
+require 'celluloid/group/pool'
+require 'celluloid/group/spawner'
+
+require 'celluloid/task'
+require 'celluloid/task/fibered'
+require 'celluloid/task/threaded'
+
+=begin
+require 'celluloid/core_ext'
 require 'celluloid/cpu_counter'
 require 'celluloid/fiber'
 require 'celluloid/fsm'
@@ -463,10 +476,12 @@ require 'celluloid/group/spawner'
 
 require 'celluloid/links'
 require 'celluloid/logger'
+
 require 'celluloid/mailbox'
 require 'celluloid/evented_mailbox'
 require 'celluloid/method'
 require 'celluloid/properties'
+
 require 'celluloid/handlers'
 require 'celluloid/receivers'
 require 'celluloid/registry'
@@ -482,6 +497,7 @@ require 'celluloid/task/threaded'
 require 'celluloid/task_set'
 require 'celluloid/thread_handle'
 require 'celluloid/uuid'
+=end
 
 require 'celluloid/proxies/abstract_proxy'
 require 'celluloid/proxies/sync_proxy'
@@ -495,9 +511,9 @@ require 'celluloid/actor'
 require 'celluloid/cell'
 require 'celluloid/future'
 require 'celluloid/actor_system'
-require 'celluloid/supervision_group'
-require 'celluloid/supervisor'
+require 'celluloid/supervision'
 require 'celluloid/notifications'
+
 require 'celluloid/logging'
 
 require 'celluloid/legacy' unless defined?(CELLULOID_FUTURE)
@@ -505,7 +521,6 @@ require 'celluloid/legacy' unless defined?(CELLULOID_FUTURE)
 $CELLULOID_MONITORING = false
 
 # Configure default systemwide settings
-
 
 Celluloid.task_class = begin
   Celluloid.const_get(ENV['CELLULOID_TASK_CLASS'] || fail(TypeError))
