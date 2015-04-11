@@ -1,2 +1,2 @@
-require 'celluloid/supervision_groups'
-require 'celluloid/supervisors'
+require 'celluloid/supervision_group'
+require 'celluloid/supervisor'
