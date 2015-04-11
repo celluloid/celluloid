@@ -38,6 +38,7 @@ module Specs
 
         env.create_method(:strategy) do |strategy|
           strategy || (Nenv.ci? ? 'stderr' : 'split')
+          strategy = 'single' if strategy == 'split' and RUBY_VERSION >= '2.3.0'
         end
 
         env.create_method(:level) do |level|
@@ -156,7 +157,7 @@ RSpec.configure do |config|
   config.profile_examples = 3
 
   if Specs.split_logs?
-    config.log_split_dir = File.expand_path("../../log/#{Time.now.iso8601}", __FILE__)
+    config.log_split_dir = File.expand_path("../../log/#{DateTime.now.iso8601}", __FILE__)
     config.log_split_module = Specs
   end
 
