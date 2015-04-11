@@ -26,7 +26,6 @@ group :test do
   gem 'benchmark_suite'
   gem 'rspec', '~> 3.2'
   gem 'rspec-retry'
-  gem 'rspec-log_split', github: 'abstractive/rspec-log_split', branch: 'master'
 end
 
 group :gem_build_tools do
