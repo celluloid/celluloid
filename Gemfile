@@ -3,7 +3,7 @@ gemspec development_group: :gem_build_tools
 
 gem 'coveralls', require: false
 
-gem 'celluloid', github: 'abstractive/celluloid', branch: 'refactor-logging'
+gem 'celluloid', github: 'celluloid/celluloid', branch: '0.17.0-prerelease'
 
 group :development do
   gem 'pry'
