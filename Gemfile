@@ -12,7 +12,7 @@ group :development do
   gem 'guard-rspec'
   gem 'rubocop'
   gem 'rspec', '~> 3.2'
-  gem 'rspec-log_split', github: 'abstractive/rspec-log_split', branch: 'master' unless RUBY_VERSION >= '2.3.0'
+  gem 'rspec-log_split', github: 'abstractive/rspec-log_split', branch: 'master'
 end
 
 group :test do
@@ -21,7 +21,7 @@ group :test do
   gem 'benchmark_suite'
   gem 'rspec', '~> 3.2'
   gem 'rspec-retry'
-  gem 'rspec-log_split', github: 'abstractive/rspec-log_split', branch: 'master' unless RUBY_VERSION >= '2.3.0'
+  gem 'rspec-log_split', github: 'abstractive/rspec-log_split', branch: 'master'
 end
 
 group :gem_build_tools do
