@@ -40,8 +40,6 @@ module Specs
           strategy || (Nenv.ci? ? 'stderr' : 'split')
         end
 
-        strategy = 'single' if strategy == 'split' and RUBY_VERSION >= '2.3.0'
-
         env.create_method(:level) do |level|
           begin
             Integer(level)
