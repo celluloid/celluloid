@@ -1,3 +1,5 @@
+require 'celluloid/supervision_helper'
+
 module Celluloid
   # Supervise collections of actors as a group
   class SupervisionGroup
@@ -32,28 +34,20 @@ module Celluloid
         end
       end
 
-      # Register an actor class or a sub-group to be launched and supervised
-      def supervise(klass, *args, &block)
-        blocks << lambda do |group|
-          group.add(klass, prepare_options(args, :block => block))
-        end
-      end
-
-      def supervise_as(name, klass, *args, &block)
-        blocks << lambda do |group|
-          group.add(klass, prepare_options(args, :block => block, :as => name))
-        end
-      end
-
       # Register a pool of actors to be launched on group startup
       def pool(klass, *args, &block)
         blocks << lambda do |group|
+          # TODO: pool() is very similar to add()
           group.pool(klass, prepare_options(args, :block => block))
         end
       end
 
-      def prepare_options(args, options = {})
-        ( ( args.length == 1 and args[0].is_a? Hash ) ? args[0] : { :args => args } ).merge( options )
+      include SupervisionHelper
+
+      private
+
+      def supervise_with_options(klass, options)
+        blocks << lambda { |group| group.add(klass, options) }
       end
     end
 
@@ -69,17 +63,14 @@ module Celluloid
 
     execute_block_on_receiver :initialize, :supervise, :supervise_as
 
-    def supervise(klass, *args, &block)
-      add(klass, self.class.prepare_options(args, :block => block))
-    end
+    include SupervisionHelper
 
-    def supervise_as(name, klass, *args, &block)
-      add(klass, self.class.prepare_options(args, :block => block, :as => name))
+    def supervise_with_options(klass, options)
+      add(klass, options)
     end
 
     def pool(klass, options = {})
-      options[:method] = 'pool_link'
-      add(klass, options)
+      add(klass, options.merge(method: 'pool_link'))
     end
 
     def add(klass, options)

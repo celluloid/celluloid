@@ -1,3 +1,5 @@
+require 'celluloid/supervision_helper'
+
 module Celluloid
   # Supervisors are actors that watch over other actors and restart them if
   # they crash
@@ -6,16 +8,12 @@ module Celluloid
       # Define the root of the supervision tree
       attr_accessor :root
 
-      def supervise(klass, *args, &block)
-        SupervisionGroup.new do |group|
-          group.supervise klass, *args, &block
-        end
-      end
+      include SupervisionHelper
 
-      def supervise_as(name, klass, *args, &block)
-        SupervisionGroup.new do |group|
-          group.supervise_as name, klass, *args, &block
-        end
+      private
+
+      def supervise_with_options(klass, options)
+        SupervisionGroup.new { |group| group.add(klass, options) }
       end
     end
   end

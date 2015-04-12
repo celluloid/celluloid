@@ -5,8 +5,9 @@ RSpec.describe Celluloid::Supervisor, actor_system: :global do
     include Celluloid
     attr_reader :state
 
-    def initialize(state)
+    def initialize(state, &block)
       @state = state
+      block.call if block_given?
     end
 
     def crack_the_whip
@@ -97,5 +98,25 @@ RSpec.describe Celluloid::Supervisor, actor_system: :global do
     subordinate.terminate
 
     expect(supervisor.actors).to be_empty
+  end
+
+  describe ".supervise" do
+    it "calls the given block" do
+      value = 1
+      Celluloid::Supervisor.supervise(Subordinate, :idle) do
+        value += 1
+      end
+      expect(value).to eq(2)
+    end
+  end
+
+  describe ".supervise_as" do
+    it "calls the given block" do
+      value = 1
+      Celluloid::Supervisor.supervise_as(:subordinate, Subordinate, :idle) do
+        value += 1
+      end
+      expect(value).to eq(2)
+    end
   end
 end
