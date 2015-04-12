@@ -34,6 +34,27 @@ RSpec.describe Celluloid, actor_system: :global do
     expect(actor.greet).to eq("Hi, I'm Troy McClure")
   end
 
+  context "with a method accepting a block" do
+    let(:actor) { james_bond_role.new }
+    let(:james_bond_role) do
+      Class.new do
+        include CelluloidSpecs.included_module
+        def act
+          "My name is #{yield("James", "Bond")}"
+        end
+
+        def give_role_to(actor, &block)
+          actor.act(&block)
+        end
+      end
+    end
+
+    it "supports synchronously passing a block to itself through a reference" do
+      result = actor.give_role_to(actor) { |name, surname| "#{surname}. #{name} #{surname}." }
+      expect(result).to eq("My name is Bond. James Bond.")
+    end
+  end
+
   it "supports synchronous calls via #method" do
     method = actor.method(:greet)
     expect(method.call).to eq("Hi, I'm Troy McClure")
