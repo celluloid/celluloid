@@ -1,5 +1,5 @@
-RSpec.describe Celluloid::Links do
-  subject { Celluloid::Links.new }
+RSpec.describe Celluloid::Internals::Links do
+  subject { Celluloid::Internals::Links.new }
 
   let(:mailbox_mock) do
     Class.new(Array) do

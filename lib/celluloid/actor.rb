@@ -110,7 +110,7 @@ module Celluloid
       @exclusive    = options.fetch(:exclusive, false)
 
       @tasks     = TaskSet.new
-      @links     = Links.new
+      @links     = Internals::Links.new
       @signals   = Signals.new
       @timers    = Timers::Group.new
       @receivers = Receivers.new(@timers)
