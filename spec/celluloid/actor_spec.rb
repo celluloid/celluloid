@@ -188,7 +188,7 @@ RSpec.describe Celluloid, actor_system: :global do
       expect(Celluloid.logger).to receive(:warn).with(/Dangerously suspending task: type=:call, meta={:method_name=>:initialize}, status=:sleeping/)
 
       actor.terminate
-      Celluloid::Actor.join(actor) unless defined?(JRUBY_VERSION)
+      Specs.sleep_and_wait_until { !actor.alive? }
     end
   end
 
@@ -196,7 +196,7 @@ RSpec.describe Celluloid, actor_system: :global do
     it "calls the user defined finalizer" do
       expect(actor.wrapped_object).to receive(:my_finalizer)
       actor.terminate
-      Celluloid::Actor.join(actor)
+      Specs.sleep_and_wait_until { !actor.alive? }
     end
   end
 
@@ -216,7 +216,7 @@ RSpec.describe Celluloid, actor_system: :global do
     it "warns about suspending the finalizer" do
       expect(Celluloid.logger).to receive(:warn).with(/Dangerously suspending task: type=:finalizer, meta={:method_name=>:cleanup}, status=:sleeping/)
       actor.terminate
-      Celluloid::Actor.join(actor)
+      Specs.sleep_and_wait_until { !actor.alive? }
     end
   end
 
@@ -438,7 +438,7 @@ RSpec.describe Celluloid, actor_system: :global do
         actor.crash_with_abort_raw 10
       end.to raise_exception(TypeError, "Exception object/String expected, but Fixnum received")
 
-      Celluloid::Actor.join(actor)
+      Specs.sleep_and_wait_until { !actor.alive? }
       expect(actor).not_to be_alive
     end
   end
@@ -454,7 +454,7 @@ RSpec.describe Celluloid, actor_system: :global do
     context "when terminated" do
       before do
         actor.terminate
-        Celluloid::Actor.join(actor)
+        Specs.sleep_and_wait_until { !actor.alive? }
       end
 
       specify { expect(actor).not_to be_alive }
@@ -470,7 +470,7 @@ RSpec.describe Celluloid, actor_system: :global do
     context "when terminated by a Call::Sync" do
       before do
         actor.shutdown
-        Celluloid::Actor.join(actor)
+        Specs.sleep_and_wait_until { !actor.alive? }
       end
 
       specify { expect(actor).not_to be_alive }
@@ -479,7 +479,7 @@ RSpec.describe Celluloid, actor_system: :global do
     context "when killed" do
       before do
         Celluloid::Actor.kill(actor)
-        Celluloid::Actor.join(actor)
+        Specs.sleep_and_wait_until { !actor.alive? }
       end
 
       specify { expect(actor).not_to be_alive }
@@ -515,6 +515,7 @@ RSpec.describe Celluloid, actor_system: :global do
           expect(Celluloid.logger).to receive(:debug).with(/^Terminating task: type=:call, meta={:method_name=>:sleepy}, status=:sleeping\n/)
 
           actor.terminate
+          Specs.sleep_and_wait_until { !actor.alive? }
         end
       end
     end
