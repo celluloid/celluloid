@@ -7,6 +7,7 @@ class TestProbeClient
   include Celluloid::Notifications
 
   attr_reader :buffer
+  finalizer :do_unsubscribe
 
   def initialize(queue)
     @events = queue
@@ -15,6 +16,15 @@ class TestProbeClient
 
   def event_received(topic, args)
     @events << [topic, args[0], args[1]]
+  end
+
+  def do_unsubscribe
+    # TODO: shouldn't be necessary
+    return unless Actor[:notifications_fanout]
+
+    unsubscribe
+  rescue Celluloid::DeadActorError
+    # Something is wrong with the shutdown seq. Whatever...
   end
 end
 
