@@ -445,12 +445,12 @@ require 'celluloid/core_ext'
 require 'celluloid/internals'
 
 require 'celluloid/group'
-require 'celluloid/group/pool'
-require 'celluloid/group/spawner'
+require 'celluloid/group/spawner'   
+require 'celluloid/group/pool'      # TODO: Find way to only load this if being used.
 
 require 'celluloid/task'
 require 'celluloid/task/fibered'
-require 'celluloid/task/threaded'
+require 'celluloid/task/threaded'   # TODO: Find way to only load this if being used.
 
 =begin
 require 'celluloid/core_ext'
