@@ -84,7 +84,7 @@ module Celluloid
 
     # Obtain the number of CPUs in the system
     def cores
-     CPUCounter.cores
+     Internals::CPUCounter.cores
     end
     alias_method :cpus, :cores
     alias_method :ncpus, :cores
