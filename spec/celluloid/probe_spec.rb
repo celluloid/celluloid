@@ -56,7 +56,7 @@ RSpec.describe "Probe", actor_system: :global do
   let(:queue) { Queue.new }
 
   describe 'on boot' do
-    it 'should capture system actor spawn', flaky: true do
+    it 'should capture system actor spawn' do
       TestProbeClient.new(queue)
       create_events = []
       received_named_events = {
@@ -93,7 +93,7 @@ RSpec.describe "Probe", actor_system: :global do
   end
 
   describe 'after boot' do
-    it 'should send a notification when an actor is spawned', flaky: true do
+    it 'should send a notification when an actor is spawned' do
       TestProbeClient.new(queue)
       a = DummyActor.new
 

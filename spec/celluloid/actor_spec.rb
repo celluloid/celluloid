@@ -310,7 +310,7 @@ RSpec.describe Celluloid, actor_system: :global do
   end
 
   if RUBY_PLATFORM == "java" and Celluloid.task_class != Celluloid::Task::Fibered
-    context "when executing under JRuby", flaky: true do
+    context "when executing under JRuby" do
       let(:actor) do
         Class.new do
           include CelluloidSpecs.included_module
@@ -833,7 +833,7 @@ RSpec.describe Celluloid, actor_system: :global do
     context "when exceeding a given time out" do
       let(:interval) { 0.1 }
 
-      it "times out", flaky: true do
+      it "times out" do
         # Barely didn't make it once on MRI, so attempting to "unrefactor"
         started_at = Time.now
         result = receiver.receive(interval) { false }
@@ -880,7 +880,7 @@ RSpec.describe Celluloid, actor_system: :global do
     let(:interval) { CelluloidSpecs::TIMER_QUANTUM * 10 }
     let(:sleep_interval) { interval + CelluloidSpecs::TIMER_QUANTUM } # wonky! #/
 
-    it "suspends execution of a method (but not the actor) for a given time", flaky: true do
+    it "suspends execution of a method (but not the actor) for a given time" do
       # Sleep long enough to ensure we're actually seeing behavior when asleep
       # but not so long as to delay the test suite unnecessarily
       started_at = Time.now
