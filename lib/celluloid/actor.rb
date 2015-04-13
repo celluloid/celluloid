@@ -109,7 +109,7 @@ module Celluloid
       @exit_handler = method(:default_exit_handler)
       @exclusive    = options.fetch(:exclusive, false)
 
-      @tasks     = TaskSet.new
+      @tasks     = Internals::TaskSet.new
       @links     = Internals::Links.new
       @signals   = Signals.new
       @timers    = Timers::Group.new
