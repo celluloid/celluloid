@@ -407,8 +407,9 @@ RSpec.describe Celluloid, actor_system: :global do
       end
 
       it "raises DeadActorError if methods are synchronously called on a dead actor" do
-        actor.crash rescue nil
+        actor.crash rescue ExampleCrash
 
+        # TODO: avoid this somehow
         sleep 0.1 # hax to prevent a race between exit handling and the next call
 
         expect { actor.greet }.to raise_exception(Celluloid::DeadActorError)
