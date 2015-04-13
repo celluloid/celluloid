@@ -76,7 +76,9 @@ module Specs
         next if thread == Thread.current
         if defined?(JRUBY_VERSION)
           # Avoid disrupting jRuby's "fiber" threads.
-          next if /Fiber/ =~ thread.to_java.getNativeThread.get_name
+          name = thread.to_java.getNativeThread.get_name
+          next if /Fiber/ =~ name
+          next unless /^Ruby-/ =~ name
           backtrace = thread.backtrace # avoid race maybe
           next unless backtrace
           next if backtrace.empty? # possibly a timer thread
@@ -99,10 +101,20 @@ module Specs
     def assert_no_loose_threads!(location)
       loose = Specs.loose_threads
       backtraces = loose.map do |th|
-        "Runaway thread: ================ #{th.inspect}\n" +
+        name = defined?(JRUBY_VERSION) ? "(#{thread.to_java.getNativeThread.get_name})" : ""
+        "Runaway thread: ================ #{th.inspect}#{name}\n" +
         "Backtrace: \n ** #{th.backtrace * "\n ** "}\n"
       end
-      fail "Aborted due to runaway threads (#{location})\nList: (#{loose.map(&:inspect)})\n:#{backtraces.join("\n")}" unless loose.empty?
+
+      unless loose.empty?
+        if defined?(JRUBY_VERSION) && !Nenv.ci?
+          STDERR.puts "Aborted due to runaway threads (#{location})\nList: (#{loose.map(&:inspect)})\n:#{backtraces.join("\n")}"
+          STDERR.puts "Sleeping so you can investigate on the Java side...."
+          sleep
+        end
+
+        fail "Aborted due to runaway threads (#{location})\nList: (#{loose.map(&:inspect)})\n:#{backtraces.join("\n")}"
+      end
     end
 
     def reset_probe(value)
