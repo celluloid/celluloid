@@ -442,6 +442,7 @@ require 'celluloid/condition'
 require 'celluloid/thread'
 require 'celluloid/core_ext'
 
+require 'celluloid/fiber'
 require 'celluloid/internals'
 
 require 'celluloid/group'
@@ -451,41 +452,6 @@ require 'celluloid/group/pool'      # TODO: Find way to only load this if being 
 require 'celluloid/task'
 require 'celluloid/task/fibered'
 require 'celluloid/task/threaded'   # TODO: Find way to only load this if being used.
-
-=begin
-require 'celluloid/core_ext'
-require 'celluloid/cpu_counter'
-require 'celluloid/fiber'
-require 'celluloid/fsm'
-
-require 'celluloid/group'
-require 'celluloid/group/pool'
-require 'celluloid/group/spawner'
-
-require 'celluloid/links'
-require 'celluloid/logger'
-
-require 'celluloid/mailbox'
-require 'celluloid/evented_mailbox'
-require 'celluloid/method'
-require 'celluloid/properties'
-
-require 'celluloid/handlers'
-require 'celluloid/receivers'
-require 'celluloid/registry'
-require 'celluloid/responses'
-require 'celluloid/signals'
-require 'celluloid/stack_dump'
-require 'celluloid/system_events'
-
-require 'celluloid/task'
-require 'celluloid/task/fibered'
-require 'celluloid/task/threaded'
-
-require 'celluloid/task_set'
-require 'celluloid/thread_handle'
-require 'celluloid/uuid'
-=end
 
 require 'celluloid/proxies/abstract_proxy'
 require 'celluloid/proxies/sync_proxy'
@@ -499,9 +465,13 @@ require 'celluloid/actor'
 require 'celluloid/cell'
 require 'celluloid/future'
 require 'celluloid/actor_system'
-require 'celluloid/supervision'
-require 'celluloid/notifications'
 
+# TODO: Remove unneeded gem references once the gems are well known.
+require 'celluloid/supervision'
+require 'celluloid/pool'
+require 'celluloid/fsm'
+
+require 'celluloid/notifications'
 require 'celluloid/logging'
 
 require 'celluloid/legacy' unless defined?(CELLULOID_FUTURE)
