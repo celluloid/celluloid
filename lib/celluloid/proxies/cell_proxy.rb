@@ -24,7 +24,7 @@ module Celluloid
     end
 
     def method(name)
-      Method.new(self, name)
+      Internals::Method.new(self, name)
     end
 
     alias_method :sync, :method_missing

@@ -6,8 +6,6 @@ end
 require 'celluloid/internals/cpu_counter'
 require 'celluloid/internals/links'
 require 'celluloid/internals/logger'
-require 'celluloid/internals/mailbox'
-require 'celluloid/internals/evented_mailbox'
 require 'celluloid/internals/method'
 require 'celluloid/internals/properties'
 require 'celluloid/internals/handlers'
