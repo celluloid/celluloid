@@ -146,7 +146,7 @@ module Celluloid
     end
 
     def dead_letter(message)
-      Logger.debug "Discarded message (mailbox is dead): #{message}" if $CELLULOID_DEBUG
+      Internals::Logger.debug "Discarded message (mailbox is dead): #{message}" if $CELLULOID_DEBUG
     end
 
     def mailbox_full

@@ -16,7 +16,7 @@ end
 class Subscriber
   include Celluloid
   include Celluloid::Notifications
-  include Celluloid::Logger
+  include Celluloid::Internals::Logger
 
   def initialize
     info "Subscribing to topics."

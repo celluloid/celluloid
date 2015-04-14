@@ -91,7 +91,7 @@ module Celluloid
             begin
               proc.call
             rescue Exception => ex
-              Logger.crash("thread crashed", ex)
+              Internals::Logger.crash("thread crashed", ex)
             ensure
               put thread
             end

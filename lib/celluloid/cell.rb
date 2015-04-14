@@ -81,7 +81,7 @@ module Celluloid
         begin
           @subject.__send__(@finalizer)
         rescue => ex
-          Logger.crash("#{@subject.class} finalizer crashed!", ex)
+          Internals::Logger.crash("#{@subject.class} finalizer crashed!", ex)
         end
       end
     end

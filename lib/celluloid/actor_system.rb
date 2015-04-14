@@ -64,7 +64,7 @@ module Celluloid
     def shutdown
       actors = running
       Timeout.timeout(shutdown_timeout) do
-        Logger.debug "Terminating #{actors.size} #{(actors.size > 1) ? 'actors' : 'actor'}..." if actors.size > 0
+        Internals::Logger.debug "Terminating #{actors.size} #{(actors.size > 1) ? 'actors' : 'actor'}..." if actors.size > 0
 
         # Actors cannot self-terminate, you must do it for them
         actors.each do |actor|
@@ -82,7 +82,7 @@ module Celluloid
         end
       end
     rescue Timeout::Error
-      Logger.error("Couldn't cleanly terminate all actors in #{shutdown_timeout} seconds!")
+      Internals::Logger.error("Couldn't cleanly terminate all actors in #{shutdown_timeout} seconds!")
       actors.each do |actor|
         begin
           Actor.kill(actor)

@@ -77,7 +77,7 @@ module Celluloid
       @status = status
 
       if $CELLULOID_DEBUG && @dangerous_suspend
-        Logger.with_backtrace(caller[2...8]) do |logger|
+        Internals::Logger.with_backtrace(caller[2...8]) do |logger|
           logger.warn "Dangerously suspending task: type=#{@type.inspect}, meta=#{@meta.inspect}, status=#{@status.inspect}"
         end
       end
@@ -116,7 +116,7 @@ module Celluloid
       raise "Cannot terminate an exclusive task" if exclusive?
 
       if running?
-        Logger.with_backtrace(backtrace) do |logger|
+        Internals::Logger.with_backtrace(backtrace) do |logger|
           logger.debug "Terminating task: type=#{@type.inspect}, meta=#{@meta.inspect}, status=#{@status.inspect}"
         end
         exception = Task::TerminatedError.new("task was terminated")
@@ -145,7 +145,7 @@ module Celluloid
 
     def guard(message)
       if @guard_warnings
-        Logger.warn message if $CELLULOID_DEBUG
+        Internals::Logger.warn message if $CELLULOID_DEBUG
       else
         raise message if $CELLULOID_DEBUG
       end

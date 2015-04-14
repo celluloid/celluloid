@@ -279,7 +279,7 @@ module Celluloid
     def handle_message(message)
       unless @handlers.handle_message(message)
         unless @receivers.handle_message(message)
-          Logger.debug "Discarded message (unhandled): #{message}" if $CELLULOID_DEBUG
+          Internals::Logger.debug "Discarded message (unhandled): #{message}" if $CELLULOID_DEBUG
         end
       end
       message
@@ -299,7 +299,7 @@ module Celluloid
       elsif event.instance_of? SignalConditionRequest
         event.call
       else
-        Logger.debug "Discarded message (unhandled): #{message}" if $CELLULOID_DEBUG
+        Internals::Logger.debug "Discarded message (unhandled): #{message}" if $CELLULOID_DEBUG
       end
     end
 
@@ -317,10 +317,10 @@ module Celluloid
     # Handle any exceptions that occur within a running actor
     def handle_crash(exception)
       # TODO: add meta info
-      Logger.crash("Actor crashed!", exception)
+      Internals::Logger.crash("Actor crashed!", exception)
       shutdown ExitEvent.new(behavior_proxy, exception)
     rescue => ex
-      Logger.crash("ERROR HANDLER CRASHED!", ex)
+      Internals::Logger.crash("ERROR HANDLER CRASHED!", ex)
     end
 
     # Handle cleaning up this actor after it exits
@@ -345,7 +345,7 @@ module Celluloid
       tasks.to_a.each(&:terminate)
     rescue => ex
       # TODO: metadata
-      Logger.crash("CLEANUP CRASHED!", ex)
+      Internals::Logger.crash("CLEANUP CRASHED!", ex)
     end
 
     # Run a method inside a task unless it's exclusive

@@ -109,7 +109,7 @@ module Celluloid
 
     # Define an exception handler for actor crashes
     def exception_handler(&block)
-      Logger.exception_handler(&block)
+      Internals::Logger.exception_handler(&block)
     end
 
     def suspend(status, waiter)

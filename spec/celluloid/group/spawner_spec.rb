@@ -1,5 +1,5 @@
 # set logger early on
-require 'celluloid/logger'
+require 'celluloid/internals/logger'
 
 if Celluloid.group_class == Celluloid::Group::Spawner
   RSpec.describe Celluloid::Group::Spawner do

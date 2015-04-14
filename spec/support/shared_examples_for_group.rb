@@ -14,12 +14,12 @@ RSpec.shared_examples "a Celluloid Group" do
   end
 
   before do
-    stub_const('Celluloid::Logger', logger)
+    stub_const('Celluloid::Internals::Logger', logger)
 
     # Show crashes and errors, since we've replaced the logger
     [:error, :crash].each do |type|
       allow(logger).to receive(type) do |*args|
-        STDERR.puts "(InternalPool #{type}: #{args.inspect}"
+        STDERR.puts "(InternalPool #{type}: #{args.inspect}"  # this can't be right. InternalPool is gone
       end
     end
     subject

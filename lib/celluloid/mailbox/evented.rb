@@ -32,7 +32,7 @@ module Celluloid
           current_actor = Thread.current[:celluloid_actor]
           @reactor.wakeup unless current_actor && current_actor.mailbox == self
         rescue IOError
-          Logger.crash "reactor crashed", $!
+          Internals::Logger.crash "reactor crashed", $!
           dead_letter(message)
         end
         nil
