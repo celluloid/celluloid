@@ -260,6 +260,7 @@ RSpec.describe Celluloid, actor_system: :global do
 
   it "inspects properly when dead" do
     actor.terminate
+    Specs.sleep_and_wait_until { !actor.alive? }
     expect(actor.inspect).to match(/Celluloid::Proxy::Cell\(/)
     expect(actor.inspect).to match(/#{actor_class}/)
     expect(actor.inspect).to include('dead')
