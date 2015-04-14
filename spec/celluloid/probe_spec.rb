@@ -34,6 +34,8 @@ RSpec.describe "Probe", actor_system: :global do
     return nil unless actor.mailbox
     return nil unless actor.mailbox.address
     actor.mailbox.address
+  rescue Celluloid::DeadActorError
+    "(dead actor)"
   end
 
   def wait_for_match(queue, topic, actor1 = nil, actor2 = nil)
@@ -48,7 +50,7 @@ RSpec.describe "Probe", actor_system: :global do
       end
     end
   rescue Timeout::Error => e
-    fail "wait_for_match: no matching event received! (#{e.inspect})"
+    fail "wait_for_match: no matching event received for #{topic.inspect}! (#{e.inspect})"
   end
 
   let(:queue) { Queue.new }
@@ -56,7 +58,7 @@ RSpec.describe "Probe", actor_system: :global do
   describe 'on boot' do
     it 'should capture system actor spawn', flaky: true do
       TestProbeClient.new(queue)
-      Celluloid::Probe.run
+      Celluloid::Actor[:probe] = Celluloid::Probe.new
       create_events = []
       received_named_events = {
         :default_incident_reporter => nil,
@@ -84,17 +86,21 @@ RSpec.describe "Probe", actor_system: :global do
     end
   end
 
+  describe '.run' do
+    pending "cannot unsupervise the Probe yet (#573)"
+  end
+
   describe 'after boot' do
     it 'should send a notification when an actor is spawned', flaky: true do
       TestProbeClient.new(queue)
-      Celluloid::Probe.run
+      Celluloid::Actor[:probe] = Celluloid::Probe.new
       a = DummyActor.new
       expect(wait_for_match(queue, 'celluloid.events.actor_created', a)).to be
     end
 
-    it 'should send a notification when an actor is named', flaky: true  do
+    it 'should send a notification when an actor is named' do
       TestProbeClient.new(queue)
-      Celluloid::Probe.run
+      Celluloid::Actor[:probe] = Celluloid::Probe.new
       a = DummyActor.new
       Celluloid::Actor['a name'] = a
       expect(wait_for_match(queue, 'celluloid.events.actor_named', a)).to be
@@ -102,15 +108,15 @@ RSpec.describe "Probe", actor_system: :global do
 
     it 'should send a notification when actor dies'  do
       TestProbeClient.new(queue)
-      Celluloid::Probe.run
+      Celluloid::Actor[:probe] = Celluloid::Probe.new
       a = DummyActor.new
       a.terminate
       expect(wait_for_match(queue, 'celluloid.events.actor_died', a)).to be
     end
 
-    it 'should send a notification when actors are linked'  do
+    it 'should send a notification when actors are linked' do
       TestProbeClient.new(queue)
-      Celluloid::Probe.run
+      Celluloid::Actor[:probe] = Celluloid::Probe.new
       a = DummyActor.new
       b = DummyActor.new
       a.link(b)
