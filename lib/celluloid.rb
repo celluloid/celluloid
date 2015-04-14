@@ -37,7 +37,7 @@ module Celluloid
       klass.send :extend,  ClassMethods
       klass.send :include, InstanceMethods
 
-      klass.send :extend, Properties
+      klass.send :extend, Internals::Properties
 
       klass.property :mailbox_class, :default => Celluloid::Mailbox
       klass.property :proxy_class,   :default => Celluloid::CellProxy

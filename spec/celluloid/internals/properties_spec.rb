@@ -1,10 +1,10 @@
-RSpec.describe Celluloid::Properties do
+RSpec.describe Celluloid::Internals::Properties do
   let(:default_value) { 42 }
   let(:changed_value) { 43 }
 
   let(:example_class) do
     Class.new do
-      extend Celluloid::Properties
+      extend Celluloid::Internals::Properties
       property :baz, :default => 42
     end
   end
