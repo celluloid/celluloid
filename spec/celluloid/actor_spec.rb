@@ -185,7 +185,7 @@ RSpec.describe Celluloid, actor_system: :global do
     end
 
     it "warns about suspending the initialize" do
-      expect(Celluloid.logger).to receive(:warn).with(/Dangerously suspending task: type=:call, meta={:method_name=>:initialize}, status=:sleeping/)
+      expect(Celluloid.logger).to receive(:warn).with(/Dangerously suspending task: type=:call, meta={:dangerous_suspend=>true, :method_name=>:initialize}, status=:sleeping/)
 
       actor.terminate
       Specs.sleep_and_wait_until { !actor.alive? }
@@ -214,7 +214,7 @@ RSpec.describe Celluloid, actor_system: :global do
     end
 
     it "warns about suspending the finalizer" do
-      expect(Celluloid.logger).to receive(:warn).with(/Dangerously suspending task: type=:finalizer, meta={:method_name=>:cleanup}, status=:sleeping/)
+      expect(Celluloid.logger).to receive(:warn).with(/Dangerously suspending task: type=:finalizer, meta={:dangerous_suspend=>true, :method_name=>:cleanup}, status=:sleeping/)
       actor.terminate
       Specs.sleep_and_wait_until { !actor.alive? }
     end
@@ -521,9 +521,8 @@ RSpec.describe Celluloid, actor_system: :global do
       end
 
       context "when terminated" do
-        it "logs a warning" do
-          expect(Celluloid.logger).to receive(:debug).with(/^Terminating task: type=:call, meta={:method_name=>:sleepy}, status=:sleeping\n/)
-
+        it "logs a debug" do
+          expect(Celluloid.logger).to receive(:debug).with(/^Terminating task: type=:call, meta={:dangerous_suspend=>false, :method_name=>:sleepy}, status=:sleeping\n/)
           actor.terminate
           Specs.sleep_and_wait_until { !actor.alive? }
         end

@@ -34,7 +34,7 @@ module Celluloid
       @status   = :new
 
       @exclusive         = false
-      @dangerous_suspend = @meta ? @meta.delete(:dangerous_suspend) : false
+      @dangerous_suspend = @meta ? @meta.dup.delete(:dangerous_suspend) : false
       @guard_warnings    = false
 
       actor     = Thread.current[:celluloid_actor]
@@ -117,7 +117,8 @@ module Celluloid
 
       if running?
         Internals::Logger.with_backtrace(backtrace) do |logger|
-          logger.debug "Terminating task: type=#{@type.inspect}, meta=#{@meta.inspect}, status=#{@status.inspect}"
+          type = @dangerous_suspend ? :warn : :debug
+          logger.send(type, "Terminating task: type=#{@type.inspect}, meta=#{@meta.inspect}, status=#{@status.inspect}")
         end
         exception = Task::TerminatedError.new("task was terminated")
         exception.set_backtrace(caller)
