@@ -4,7 +4,7 @@ module Celluloid
 
     def initialize
       @group = Celluloid.group_class.new
-      @registry = Registry.new
+      @registry = Internals::Registry.new
     end
     attr_reader :registry
 

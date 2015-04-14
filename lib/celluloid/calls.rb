@@ -41,11 +41,11 @@ module Celluloid
     def dispatch(obj)
       CallChain.current_id = @chain_id
       result = super(obj)
-      respond SuccessResponse.new(self, result)
+      respond Internals::Response::Success.new(self, result)
     rescue Exception => ex
       # Exceptions that occur during synchronous calls are reraised in the
       # context of the sender
-      respond ErrorResponse.new(self, ex)
+      respond Internals::Response::Error.new(self, ex)
 
       # Aborting indicates a protocol error on the part of the sender
       # It should crash the sender, but the exception isn't reraised
@@ -57,7 +57,7 @@ module Celluloid
 
     def cleanup
       exception = DeadActorError.new("attempted to call a dead actor")
-      respond ErrorResponse.new(self, exception)
+      respond Internals::Response::Error.new(self, exception)
     end
 
     def respond(message)
@@ -122,7 +122,7 @@ module Celluloid
 
     def dispatch
       response = @block_proxy.block.call(*@arguments)
-      @sender << BlockResponse.new(self, response)
+      @sender << Internals::Response::Block.new(self, response)
     end
   end
 end

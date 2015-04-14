@@ -36,7 +36,7 @@ module Celluloid
       @actor.handle(BlockCall) do |message|
         task(:invoke_block) { message.dispatch }
       end
-      @actor.handle(BlockResponse, Response) do |message|
+      @actor.handle(Internals::Response::Block, Internals::Response) do |message|
         message.dispatch
       end
 

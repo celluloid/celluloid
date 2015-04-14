@@ -1,4 +1,4 @@
-RSpec.describe Celluloid::Registry, actor_system: :global do
+RSpec.describe Celluloid::Internals::Registry, actor_system: :global do
   class Marilyn
     include Celluloid
 
