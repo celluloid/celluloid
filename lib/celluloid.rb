@@ -444,6 +444,7 @@ require 'celluloid/core_ext'
 
 require 'celluloid/fiber'
 require 'celluloid/internals'
+require 'celluloid/system_events'
 
 require 'celluloid/mailbox'
 require 'celluloid/mailbox/evented'
