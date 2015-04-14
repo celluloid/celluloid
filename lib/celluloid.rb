@@ -103,7 +103,7 @@ module Celluloid
       task = Thread.current[:celluloid_task]
       return unless task
 
-      chain_id = CallChain.current_id
+      chain_id = Internals::CallChain.current_id
       actor.tasks.to_a.any? { |t| t != task && t.chain_id == chain_id }
     end
 
@@ -318,7 +318,7 @@ module Celluloid
 
   # Obtain the UUID of the current call chain
   def call_chain_id
-    CallChain.current_id
+    Internals::CallChain.current_id
   end
 
   # Obtain the running tasks for this actor
@@ -437,12 +437,10 @@ end
 require 'celluloid/exceptions'
 
 require 'celluloid/calls'
-require 'celluloid/call_chain'
 require 'celluloid/condition'
 require 'celluloid/thread'
 require 'celluloid/core_ext'
 
-require 'celluloid/fiber'
 require 'celluloid/internals'
 require 'celluloid/system_events'
 
