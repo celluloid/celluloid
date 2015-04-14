@@ -12,6 +12,8 @@ HEAD
 * Added `rspec-log_split` as replacement logger for itemized testing logs.
 * *::Task::PooledFibers has been found and made available, and compatible ( sometimes 4x faster than even Task::Fibered )
 * BREAKING CHANGE: PoolManager taken out, and implemented in the `celluloid-pool` gem, separately.
+* Added Celluloid::Internals and moved several "private" classes into that namespace.
+* BREAKING CHANGE: Moved Celluloid::EventedMailbox to Celluloid::Mailbox::Evented, per convention.
 
 
 0.16.0 (2014-09-04)

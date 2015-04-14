@@ -1,4 +1,4 @@
-class TestEventedMailbox < Celluloid::EventedMailbox
+class TestEventedMailbox < Celluloid::Mailbox::Evented
   class Reactor
     def initialize
       @condition = ConditionVariable.new
@@ -26,7 +26,7 @@ class TestEventedMailbox < Celluloid::EventedMailbox
   end
 end
 
-RSpec.describe Celluloid::EventedMailbox do
+RSpec.describe Celluloid::Mailbox::Evented do
   subject { TestEventedMailbox.new }
   it_behaves_like "a Celluloid Mailbox"
 
