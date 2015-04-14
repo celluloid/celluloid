@@ -38,7 +38,7 @@ module Celluloid
       @guard_warnings    = false
 
       actor     = Thread.current[:celluloid_actor]
-      @chain_id = CallChain.current_id
+      @chain_id = Internals::CallChain.current_id
 
       raise NotActorError, "can't create tasks outside of actors" unless actor
       guard "can't create tasks inside of tasks" if Thread.current[:celluloid_task]
@@ -51,7 +51,7 @@ module Celluloid
           name_current_thread thread_metadata
 
           Thread.current[:celluloid_task] = self
-          CallChain.current_id = @chain_id
+          Internals::CallChain.current_id = @chain_id
 
           actor.tasks << self
           yield

@@ -1,8 +1,6 @@
-module Celluloid
-  module Internals
-  end
-end
+module Celluloid::Internals; end
 
+require 'celluloid/internals/call_chain'
 require 'celluloid/internals/cpu_counter'
 require 'celluloid/internals/links'
 require 'celluloid/internals/logger'
