@@ -3,6 +3,7 @@ require_relative 'support/logging'
 require_relative 'support/split_logs'
 require_relative 'support/sleep_and_wait'
 require_relative 'support/reset_class_variables'
+require_relative 'support/crash_checking'
 require_relative 'support/coverage'
 
 require 'rubygems'
@@ -37,6 +38,25 @@ RSpec.configure do |config|
   config.profile_examples = 3
 
   Specs.configure(config)
+
+  config.before(:each) do |example|
+    @fake_logger = Specs::FakeLogger.new(Celluloid.logger, example.description)
+    stub_const('Celluloid::Internals::Logger', @fake_logger)
+  end
+
+  config.around do |ex|
+    ex.run
+    if @fake_logger.crashes?
+      crashes = @fake_logger.crashes.map do |args, call_stack|
+        msg, ex = *args
+        "\n** Crash: #{msg.inspect}(#{ex.inspect})\n  Backtrace:\n    (crash) #{call_stack * "\n    (crash) " }"\
+          "\n  Exception Backtrace (#{ex.inspect}):\n    (ex) #{ex.backtrace * "\n    (ex) "}"
+      end.join("\n")
+
+      fail "Actor crashes occured (please stub/mock if these are expected): #{crashes}"
+    end
+    @fake_logger = nil
+  end
 
   config.around do |ex|
     Celluloid.actor_system = nil

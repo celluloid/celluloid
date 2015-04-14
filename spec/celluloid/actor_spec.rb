@@ -6,6 +6,8 @@ RSpec.describe Celluloid, actor_system: :global do
   let(:actor_class) { ExampleActorClass.create(CelluloidSpecs.included_module, task_klass) }
   let(:actor) { actor_class.new "Troy McClure" }
 
+  let(:logger) { Specs::FakeLogger.current }
+
   it "returns the actor's class, not the proxy's" do
     expect(actor.class).to eq(actor_class)
   end
@@ -185,7 +187,7 @@ RSpec.describe Celluloid, actor_system: :global do
     end
 
     it "warns about suspending the initialize" do
-      expect(Celluloid.logger).to receive(:warn).with(/Dangerously suspending task: type=:call, meta={:dangerous_suspend=>true, :method_name=>:initialize}, status=:sleeping/)
+      expect(logger).to receive(:warn).with(/Dangerously suspending task: type=:call, meta={:dangerous_suspend=>true, :method_name=>:initialize}, status=:sleeping/)
 
       actor.terminate
       Specs.sleep_and_wait_until { !actor.alive? }
@@ -214,7 +216,9 @@ RSpec.describe Celluloid, actor_system: :global do
     end
 
     it "warns about suspending the finalizer" do
-      expect(Celluloid.logger).to receive(:warn).with(/Dangerously suspending task: type=:finalizer, meta={:dangerous_suspend=>true, :method_name=>:cleanup}, status=:sleeping/)
+      allow(logger).to receive(:warn)
+      allow(logger).to receive(:crash).with(/finalizer crashed!/, Celluloid::Task::TerminatedError)
+      expect(logger).to receive(:warn).with(/Dangerously suspending task: type=:finalizer, meta={:dangerous_suspend=>true, :method_name=>:cleanup}, status=:sleeping/)
       actor.terminate
       Specs.sleep_and_wait_until { !actor.alive? }
     end
@@ -388,10 +392,13 @@ RSpec.describe Celluloid, actor_system: :global do
       let(:actor) { actor_class.new "James Dean" } # is this in bad taste?
 
       it "reraises exceptions which occur during synchronous calls in the sender" do
+        allow(logger).to receive(:crash).with('Actor crashed!', ExampleCrash)
         expect { actor.crash }.to raise_exception(ExampleCrash)
       end
 
       it "includes both sender and receiver in exception traces" do
+        allow(logger).to receive(:crash).with('Actor crashed!', ExampleCrash)
+
         example_receiver = Class.new do
           include CelluloidSpecs.included_module
 
@@ -416,6 +423,7 @@ RSpec.describe Celluloid, actor_system: :global do
       end
 
       it "raises DeadActorError if methods are synchronously called on a dead actor" do
+        allow(logger).to receive(:crash).with('Actor crashed!', ExampleCrash)
         actor.crash rescue ExampleCrash
 
         # TODO: avoid this somehow
@@ -444,6 +452,7 @@ RSpec.describe Celluloid, actor_system: :global do
     end
 
     it "crashes the sender if we pass neither String nor Exception" do
+      allow(logger).to receive(:crash).with('Actor crashed!', TypeError)
       expect do
         actor.crash_with_abort_raw 10
       end.to raise_exception(TypeError, "Exception object/String expected, but Fixnum received")
@@ -522,7 +531,7 @@ RSpec.describe Celluloid, actor_system: :global do
 
       context "when terminated" do
         it "logs a debug" do
-          expect(Celluloid.logger).to receive(:debug).with(/^Terminating task: type=:call, meta={:dangerous_suspend=>false, :method_name=>:sleepy}, status=:sleeping\n/)
+          expect(logger).to receive(:debug).with(/^Terminating task: type=:call, meta={:dangerous_suspend=>false, :method_name=>:sleepy}, status=:sleeping/)
           actor.terminate
           Specs.sleep_and_wait_until { !actor.alive? }
         end
@@ -606,6 +615,7 @@ RSpec.describe Celluloid, actor_system: :global do
     end
 
     it "traps exit messages from other actors" do
+      allow(logger).to receive(:crash).with('Actor crashed!', ExampleCrash)
       chuck = supervisor_class.new "Chuck Lorre"
       chuck.link @charlie
 
@@ -618,6 +628,8 @@ RSpec.describe Celluloid, actor_system: :global do
     end
 
     it "traps exit messages from other actors in subclasses" do
+      allow(logger).to receive(:crash).with('Actor crashed!', ExampleCrash)
+
       supervisor_subclass = Class.new(supervisor_class)
       chuck = supervisor_subclass.new "Chuck Lorre"
       chuck.link @charlie
@@ -631,6 +643,7 @@ RSpec.describe Celluloid, actor_system: :global do
     end
 
     it "unlinks from a dead linked actor" do
+      allow(logger).to receive(:crash).with('Actor crashed!', ExampleCrash)
       chuck = supervisor_class.new "Chuck Lorre"
       chuck.link @charlie
 
@@ -1179,6 +1192,7 @@ RSpec.describe Celluloid, actor_system: :global do
     let(:a2) { actor_class.new }
 
     it "allows timing out tasks, raising Celluloid::Task::TimeoutError" do
+      allow(logger).to receive(:crash).with('Actor crashed!', Celluloid::Task::TimeoutError)
       expect { a1.ask_name_with_timeout a2, 0.3 }.to raise_error(Celluloid::Task::TimeoutError)
     end
 
@@ -1189,7 +1203,7 @@ RSpec.describe Celluloid, actor_system: :global do
 
   context "raw message sends" do
     it "logs on unhandled messages" do
-      expect(Celluloid.logger).to receive(:debug).with("Discarded message (unhandled): first")
+      expect(logger).to receive(:debug).with("Discarded message (unhandled): first")
       actor.mailbox << :first
       sleep CelluloidSpecs::TIMER_QUANTUM
     end
