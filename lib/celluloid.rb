@@ -445,6 +445,9 @@ require 'celluloid/core_ext'
 require 'celluloid/fiber'
 require 'celluloid/internals'
 
+require 'celluloid/mailbox'
+require 'celluloid/mailbox/evented'
+
 require 'celluloid/group'
 require 'celluloid/group/spawner'   
 require 'celluloid/group/pool'      # TODO: Find way to only load this if being used.
@@ -466,7 +469,7 @@ require 'celluloid/cell'
 require 'celluloid/future'
 require 'celluloid/actor_system'
 
-# TODO: Remove unneeded gem references once the gems are well known.
+# TODO: Remove unneeded gem requirements once the gems are well known.
 require 'celluloid/supervision'
 require 'celluloid/pool'
 require 'celluloid/fsm'
