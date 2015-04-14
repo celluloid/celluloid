@@ -1,5 +1,5 @@
-RSpec.describe Celluloid::UUID do
-  U = Celluloid::UUID
+RSpec.describe Celluloid::Internals::UUID do
+  U = Celluloid::Internals::UUID
 
   it "generates unique IDs across the BLOCK_SIZE boundary" do
     upper_bound = U::BLOCK_SIZE * 2 + 10

@@ -79,7 +79,7 @@ module Celluloid
 
     # Generate a Universally Unique Identifier
     def uuid
-      UUID.generate
+      Internals::UUID.generate
     end
 
     # Obtain the number of CPUs in the system
