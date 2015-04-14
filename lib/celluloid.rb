@@ -481,7 +481,7 @@ $CELLULOID_MONITORING = false
 
 Celluloid.task_class =
   begin
-    str = ENV['CELLULOID_TASK_CLASS'] || 'Celluloid::Task::Fibered'
+    str = ENV['CELLULOID_TASK_CLASS'] || 'Fibered'
     Kernel.const_get(str)
   rescue NameError
     begin
