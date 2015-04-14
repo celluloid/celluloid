@@ -86,6 +86,12 @@ module Specs
           next if thread.backtrace.empty?
           next if thread.backtrace.first =~ /rubysl\/timeout\/timeout.rb/
         end
+
+        if RUBY_ENGINE == "ruby"
+          # Sometimes stays
+          next if thread.backtrace.first =~ /\/timeout\.rb/
+        end
+
         thread
       end.compact
     end
