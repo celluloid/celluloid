@@ -66,7 +66,7 @@ RSpec.describe Celluloid::SupervisionGroup, actor_system: :global do
     end
 
     context "with a private registry" do
-      let(:registry) { Celluloid::Registry.new }
+      let(:registry) { Celluloid::Internals::Registry.new }
 
       it "accepts a private actor registry" do
         expect(registry[:example]).to be_running
