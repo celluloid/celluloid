@@ -1,4 +1,4 @@
-RSpec.describe Celluloid::ThreadHandle do
+RSpec.describe Celluloid::Internals::ThreadHandle do
 
   let(:actor_system) { Celluloid::ActorSystem.new }
   after { actor_system.shutdown }
@@ -9,7 +9,7 @@ RSpec.describe Celluloid::ThreadHandle do
     before do
       @thread = nil
       @thread_info_queue = Queue.new
-      @handle = Celluloid::ThreadHandle.new(*args) do
+      @handle = Celluloid::Internals::ThreadHandle.new(*args) do
         @thread_info_queue << Thread.current
         sleep
       end
@@ -47,7 +47,7 @@ RSpec.describe Celluloid::ThreadHandle do
 
     before do
       thread_info_queue = Queue.new
-      @handle = Celluloid::ThreadHandle.new(actor_system) do
+      @handle = Celluloid::Internals::ThreadHandle.new(actor_system) do
         thread_info_queue << Thread.current
       end
       thread = thread_info_queue.pop

@@ -125,7 +125,7 @@ module Celluloid
 
     def start
       @running = true
-      @thread = ThreadHandle.new(@actor_system, :actor) do
+      @thread = Internals::ThreadHandle.new(@actor_system, :actor) do
         setup_thread
         run
       end
