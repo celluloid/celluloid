@@ -44,7 +44,7 @@ module Celluloid
       end
     else
       # Assume we're on MRI, where we have the GIL. But what about IronRuby?
-      # Or MacRuby. Do people care? This will break Celluloid::StackDumps
+      # Or MacRuby. Do people care? This will break Celluloid::Internals::StackDumps
       TaskSet = Set
     end
   end

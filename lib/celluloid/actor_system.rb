@@ -34,7 +34,7 @@ module Celluloid
     end
 
     def stack_dump
-      Celluloid::StackDump.new(@group)
+      Internals::StackDump.new(@group)
     end
 
     def_delegators "@registry", :[], :get, :[]=, :set, :delete

@@ -29,7 +29,7 @@ RSpec.describe Celluloid::ActorSystem do
   end
 
   it "allows a stack dump" do
-    expect(subject.stack_dump).to be_a(Celluloid::StackDump)
+    expect(subject.stack_dump).to be_a(Celluloid::Internals::StackDump)
   end
 
   it "returns named actors" do
