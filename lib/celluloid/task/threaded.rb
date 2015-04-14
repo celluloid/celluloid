@@ -8,13 +8,14 @@ module Celluloid
         @exception_queue = Queue.new
         @yield_mutex  = Mutex.new
         @yield_cond   = ConditionVariable.new
+        @thread = nil
 
         super
       end
 
       def create
         # TODO: move this to ActorSystem#get_thread (ThreadHandle inside Group::Pool)
-        @thread = Internals::ThreadHandle.new(Thread.current[:celluloid_actor_system], :task) do
+        thread = Internals::ThreadHandle.new(Thread.current[:celluloid_actor_system], :task) do
           begin
             ex = @resume_queue.pop
             raise ex if ex.is_a?(Task::TerminatedError)
@@ -23,13 +24,18 @@ module Celluloid
           rescue Exception => ex
             @exception_queue << ex
           ensure
-            @yield_cond.signal
+            @yield_mutex.synchronize do
+              @yield_cond.signal
+            end
           end
         end
+        @thread = thread
       end
 
       def signal
-        @yield_cond.signal
+        @yield_mutex.synchronize do
+          @yield_cond.signal
+        end
         @resume_queue.pop
       end
 
