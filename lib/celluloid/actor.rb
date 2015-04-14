@@ -111,10 +111,10 @@ module Celluloid
 
       @tasks     = Internals::TaskSet.new
       @links     = Internals::Links.new
+      @handlers  = Internals::Handlers.new
       @signals   = Signals.new
       @timers    = Timers::Group.new
       @receivers = Receivers.new(@timers)
-      @handlers  = Handlers.new
       @running   = false
       @name      = nil
 
