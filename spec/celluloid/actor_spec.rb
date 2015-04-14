@@ -880,7 +880,8 @@ RSpec.describe Celluloid, actor_system: :global do
       expect(actor).to be_sleeping
 
       future.value
-      expect(Time.now - started_at).to be_within(CelluloidSpecs::TIMER_QUANTUM).of interval
+      # I got 0.558 (in a slighly busy MRI) which is outside 0.05 of 0.5, so let's use (0.05 * 2)
+      expect(Time.now - started_at).to be_within(CelluloidSpecs::TIMER_QUANTUM * 2).of interval
     end
 
     it "schedules timers which fire in the future" do
