@@ -228,9 +228,9 @@ module Celluloid
 
     # Receive an asynchronous message
     def receive(timeout = nil, &block)
-      loop do
+      while true
         message = @receivers.receive(timeout, &block)
-        break message unless message.is_a?(SystemEvent)
+        return message unless message.is_a?(SystemEvent)
 
         handle_system_event(message)
       end
