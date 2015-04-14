@@ -114,7 +114,7 @@ module Celluloid
       @links     = Internals::Links.new
       @handlers  = Internals::Handlers.new
       @receivers = Internals::Receivers.new(@timers)
-      @signals   = Signals.new
+      @signals   = Internals::Signals.new
       @running   = false
       @name      = nil
 
