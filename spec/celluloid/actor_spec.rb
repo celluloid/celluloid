@@ -78,7 +78,7 @@ RSpec.describe Celluloid, actor_system: :global do
     expect(method.parameters).to eq([])
 
     method = actor.method(:change_name)
-    expect(method.parameters).to eq([[:req, :new_name]])
+    expect(method.parameters.first.last).to eq(:new_name)
   end
 
   it "supports future(:method) syntax for synchronous future calls" do
@@ -314,22 +314,30 @@ RSpec.describe Celluloid, actor_system: :global do
         Class.new do
           include CelluloidSpecs.included_module
 
-          def current_thread_name
-            java_thread.get_name
+          def current_java_thread
+            Thread.current.to_java.getNativeThread
           end
 
-          def java_thread
-            Thread.current.to_java.getNativeThread
+          def name_inside_task
+            Thread.current.to_java.getNativeThread.get_name
           end
         end.new
       end
 
       it "sets execution info" do
-        expect(actor.current_thread_name).to eq("Class#current_thread_name")
+        expect(actor.name_inside_task).to match(/\[Celluloid\] #<Class:0x[0-9a-f]+>#name_inside_task/)
       end
 
-      it "unsets execution info after task completion" do
-        expect(actor.java_thread.get_name).to eq("<unused>")
+      context "when the task if finished" do
+        let(:jthread) { actor.current_java_thread }
+
+        before do
+          Specs.sleep_and_wait_until { jthread.get_name !~ /^\[Celluloid\] #<Class:0x[0-9a-f]+>#current_java_thread$/ }
+        end
+
+        it "unsets execution info after task completion" do
+          expect(jthread.get_name).to match(/^Ruby-/)
+        end
       end
     end
   end
