@@ -85,10 +85,12 @@ module Celluloid
         monitoring?(actor) && Thread.current[:celluloid_actor].links.include?(actor)
       end
 
-      # Forcibly kill a given actor
-      def kill(actor)
-        actor.thread.kill
-        actor.mailbox.shutdown if actor.mailbox.alive?
+      unless defined?(JRUBY) or RUBY_ENGINE == "rbx"
+        # Forcibly kill a given actor
+        def kill(actor)
+          actor.thread.kill
+          actor.mailbox.shutdown if actor.mailbox.alive?
+        end
       end
 
       # Wait for an actor to terminate

@@ -498,31 +498,33 @@ RSpec.describe Celluloid, actor_system: :global do
       specify { expect(actor).not_to be_alive }
     end
 
-    context "when killed" do
-      before do
-        Celluloid::Actor.kill(actor)
-        Specs.sleep_and_wait_until { !actor.alive? }
-      end
+    unless defined?(JRUBY) or RUBY_ENGINE == "rbx"
+      context "when killed" do
+        before do
+          Celluloid::Actor.kill(actor)
+          Specs.sleep_and_wait_until { !actor.alive? }
+        end
 
-      specify { expect(actor).not_to be_alive }
-      specify { expect(actor).to be_dead }
+        specify { expect(actor).not_to be_alive }
+        specify { expect(actor).to be_dead }
 
-      context "when called" do
-        specify do
-          expect { actor.greet }.to raise_exception(Celluloid::DeadActorError)
+        context "when called" do
+          specify do
+            expect { actor.greet }.to raise_exception(Celluloid::DeadActorError)
+          end
         end
       end
-    end
 
-    context "when celluloid is shutdown" do
-      before do
-        allow(Celluloid::Actor).to receive(:kill).and_call_original
-        actor
-        Celluloid.shutdown
-      end
+      context "when celluloid is shutdown" do
+        before do
+          allow(Celluloid::Actor).to receive(:kill).and_call_original
+          actor
+          Celluloid.shutdown
+        end
 
-      it "terminates cleanly on Celluloid shutdown" do
-        expect(Celluloid::Actor).not_to have_received(:kill)
+        it "terminates cleanly on Celluloid shutdown" do
+          expect(Celluloid::Actor).not_to have_received(:kill)
+        end
       end
     end
 
