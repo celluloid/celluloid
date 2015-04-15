@@ -25,10 +25,16 @@ class TestProbeClient
     unsubscribe
   rescue Celluloid::DeadActorError
     # Something is wrong with the shutdown seq. Whatever...
+  rescue => ex
+    STDERR.puts "Exception while finalizing TestProbeClient: #{ex.inspect}"
+    STDERR.puts "BACKTRACE: #{ex.backtrace * "\n (ex) "}"
+    sleep 5
   end
 end
 
 RSpec.describe "Probe", actor_system: :global do
+  let(:logger) { Specs::FakeLogger.current }
+
   def addr(actor)
     return nil unless actor
     return nil unless actor.mailbox
@@ -42,7 +48,9 @@ RSpec.describe "Probe", actor_system: :global do
     actors = [actor1, actor2]
     expected = ([topic] + actors.map { |a| addr(a)  }).dup
 
-    Timeout.timeout(5) do
+    timeout = 5
+    start = Time.now.to_f
+    Timeout.timeout(timeout) do
       loop do
         event = queue.pop
         actual = ([event[0]] + event[1..-1].map {|a| addr(a)}).dup
@@ -57,6 +65,8 @@ RSpec.describe "Probe", actor_system: :global do
 
   describe 'on boot' do
     it 'should capture system actor spawn' do
+      Specs.sleep_and_wait_until { Celluloid::Actor[:notifications_fanout].alive? }
+
       TestProbeClient.new(queue)
       create_events = []
       received_named_events = {
@@ -65,6 +75,8 @@ RSpec.describe "Probe", actor_system: :global do
       }
 
       Celluloid::Probe.run_without_supervision
+      Specs.sleep_and_wait_until { Celluloid::Actor[:probe_actor].alive? }
+
       Timeout.timeout(5) do
         loop do
           ev = queue.pop
@@ -94,34 +106,48 @@ RSpec.describe "Probe", actor_system: :global do
 
   describe 'after boot' do
     it 'should send a notification when an actor is spawned' do
+      Specs.sleep_and_wait_until { Celluloid::Actor[:notifications_fanout].alive? }
+
       TestProbeClient.new(queue)
       a = DummyActor.new
 
       Celluloid::Probe.run_without_supervision
+      Specs.sleep_and_wait_until { Celluloid::Actor[:probe_actor].alive? }
+
       expect(wait_for_match(queue, 'celluloid.events.actor_created', a)).to be
     end
 
     it 'should send a notification when an actor is named' do
+      Specs.sleep_and_wait_until { Celluloid::Actor[:notifications_fanout].alive? }
+
       TestProbeClient.new(queue)
       a = DummyActor.new
       Celluloid::Actor['a name'] = a
       Specs.sleep_and_wait_until { Celluloid::Actor['a name'] == a }
 
       Celluloid::Probe.run_without_supervision
+      Specs.sleep_and_wait_until { Celluloid::Actor[:probe_actor].alive? }
+
       expect(wait_for_match(queue, 'celluloid.events.actor_named', a)).to be
     end
 
     it 'should send a notification when actor dies'  do
+      Specs.sleep_and_wait_until { Celluloid::Actor[:notifications_fanout].alive? }
+
       TestProbeClient.new(queue)
       a = DummyActor.new
       a.terminate
       Specs.sleep_and_wait_until { !a.alive? }
 
       Celluloid::Probe.run_without_supervision
+      Specs.sleep_and_wait_until { Celluloid::Actor[:probe_actor].alive? }
+
       expect(wait_for_match(queue, 'celluloid.events.actor_died', a)).to be
     end
 
     it 'should send a notification when actors are linked' do
+      Specs.sleep_and_wait_until { Celluloid::Actor[:notifications_fanout].alive? }
+
       TestProbeClient.new(queue)
       a = DummyActor.new
       b = DummyActor.new
@@ -130,6 +156,8 @@ RSpec.describe "Probe", actor_system: :global do
       Specs.sleep_and_wait_until { a.linked_to?(b) }
 
       Celluloid::Probe.run_without_supervision
+      Specs.sleep_and_wait_until { Celluloid::Actor[:probe_actor].alive? }
+
       expect(wait_for_match(queue, 'celluloid.events.actors_linked', a, b)).to be
     end
   end
