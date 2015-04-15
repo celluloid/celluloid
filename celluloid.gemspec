@@ -20,6 +20,10 @@ Gem::Specification.new do |gem|
   gem.require_path = 'lib'
 
   gem.add_runtime_dependency 'timers', '~> 4.0.0'
-  gem.add_dependency 'celluloid-supervision', '~> 0.13.0'
+
+  gem.add_dependency 'celluloid-supervision'
+  gem.add_dependency 'celluloid-pool'
+  gem.add_dependency 'celluloid-fsm'
+
   gem.add_development_dependency 'bundler'
 end
