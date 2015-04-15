@@ -85,6 +85,15 @@ RSpec.describe "Probe", actor_system: :global do
       "Unprocessed probe events: #{unprocessed.map(&:inspect) * "\n  "}\n"\
   end
 
+  def flush_probe_queue
+    # Probe doesn't process the queue periodically, so some events can get in
+    # while previous events are being processed.
+    #
+    # So, we generate another event, so Probe processed the queue (containing
+    # the previously unprocessed event).
+    Celluloid::Actor['an_extra_event'] = Class.new { include Celluloid }.new
+  end
+
   let(:queue) { Queue.new }
 
   describe 'on boot' do
@@ -100,6 +109,8 @@ RSpec.describe "Probe", actor_system: :global do
 
       Celluloid::Probe.run_without_supervision
       Specs.sleep_and_wait_until { Celluloid::Actor[:probe_actor].alive? }
+
+      flush_probe_queue
 
       Timeout.timeout(5) do
         loop do
@@ -138,6 +149,8 @@ RSpec.describe "Probe", actor_system: :global do
       Celluloid::Probe.run_without_supervision
       Specs.sleep_and_wait_until { Celluloid::Actor[:probe_actor].alive? }
 
+      flush_probe_queue
+
       expect(wait_for_match(queue, 'celluloid.events.actor_created', a)).to be
     end
 
@@ -152,6 +165,8 @@ RSpec.describe "Probe", actor_system: :global do
       Celluloid::Probe.run_without_supervision
       Specs.sleep_and_wait_until { Celluloid::Actor[:probe_actor].alive? }
 
+      flush_probe_queue
+
       expect(wait_for_match(queue, 'celluloid.events.actor_named', a)).to be
     end
 
@@ -165,6 +180,8 @@ RSpec.describe "Probe", actor_system: :global do
 
       Celluloid::Probe.run_without_supervision
       Specs.sleep_and_wait_until { Celluloid::Actor[:probe_actor].alive? }
+
+      flush_probe_queue
 
       expect(wait_for_match(queue, 'celluloid.events.actor_died', a)).to be
     end
@@ -181,6 +198,8 @@ RSpec.describe "Probe", actor_system: :global do
 
       Celluloid::Probe.run_without_supervision
       Specs.sleep_and_wait_until { Celluloid::Actor[:probe_actor].alive? }
+
+      flush_probe_queue
 
       expect(wait_for_match(queue, 'celluloid.events.actors_linked', a, b)).to be
     end
