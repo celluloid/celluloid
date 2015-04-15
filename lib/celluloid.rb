@@ -439,9 +439,10 @@ require 'celluloid/exceptions'
 require 'celluloid/calls'
 require 'celluloid/condition'
 require 'celluloid/thread'
-require 'celluloid/core_ext'
 
+require 'celluloid/core_ext'
 require 'celluloid/internals'
+
 require 'celluloid/system_events'
 
 require 'celluloid/mailbox'
@@ -456,9 +457,11 @@ require 'celluloid/task/fibered'
 require 'celluloid/task/threaded'   # TODO: Find way to only load this if being used.
 
 require 'celluloid/proxies'
+
 require 'celluloid/actor'
 require 'celluloid/cell'
 require 'celluloid/future'
+
 require 'celluloid/actor_system'
 
 # TODO: Remove unneeded gem requirements once the gems are well known.
