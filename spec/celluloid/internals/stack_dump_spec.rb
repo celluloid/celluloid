@@ -24,9 +24,9 @@ RSpec.describe Celluloid::Internals::StackDump do
 
       status = th.status
       case status
-      when nil
-      when false
-      when "dead"
+      when nil, false, "dead"
+      when "aborting"
+        th.join(2) || STDERR.puts("Thread join timed out...")
       when "sleep", "run"
         th.kill
         th.join(2) || STDERR.puts("Thread join timed out...")
@@ -36,7 +36,8 @@ RSpec.describe Celluloid::Internals::StackDump do
     end
 
     def self.jruby_fiber?(th)
-      defined?(JRUBY_VERSION) && /Fiber/ =~ th.to_java.getNativeThread.get_name
+      return false unless defined?(JRUBY_VERSION) && (java_th = th.to_java.getNativeThread)
+      /Fiber/ =~ java_th.get_name
     end
   end
 
@@ -102,7 +103,7 @@ RSpec.describe Celluloid::Internals::StackDump do
     # Wait for each thread to add itself to the queue
     tmp = Queue.new
     items.times do
-      th = threads.pop
+      th = Timeout.timeout(4) { threads.pop }
       tmp << th
     end
 

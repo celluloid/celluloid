@@ -85,10 +85,12 @@ module Celluloid
         monitoring?(actor) && Thread.current[:celluloid_actor].links.include?(actor)
       end
 
-      # Forcibly kill a given actor
-      def kill(actor)
-        actor.thread.kill
-        actor.mailbox.shutdown if actor.mailbox.alive?
+      unless defined?(JRUBY) or RUBY_ENGINE == "rbx"
+        # Forcibly kill a given actor
+        def kill(actor)
+          actor.thread.kill
+          actor.mailbox.shutdown if actor.mailbox.alive?
+        end
       end
 
       # Wait for an actor to terminate
@@ -157,6 +159,9 @@ module Celluloid
             end
           end
         rescue MailboxShutdown
+          @running = false
+        rescue MailboxDead
+          # TODO: not tests (but fails occasionally in tests)
           @running = false
         end
       end
@@ -320,7 +325,7 @@ module Celluloid
       Internals::Logger.crash("Actor crashed!", exception)
       shutdown ExitEvent.new(behavior_proxy, exception)
     rescue => ex
-      Internals::Logger.crash("ERROR HANDLER CRASHED!", ex)
+      Internals::Logger.crash("Actor#handle_crash CRASHED!", ex)
     end
 
     # Handle cleaning up this actor after it exits
@@ -342,7 +347,13 @@ module Celluloid
         end
       end
 
-      tasks.to_a.each(&:terminate)
+      tasks.to_a.each do |task|
+        begin
+          task.terminate
+        rescue DeadTaskError
+          # TODO: not tested (failed on Travis)
+        end
+      end
     rescue => ex
       # TODO: metadata
       Internals::Logger.crash("CLEANUP CRASHED!", ex)

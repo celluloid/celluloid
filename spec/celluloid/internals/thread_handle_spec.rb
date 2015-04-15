@@ -44,7 +44,6 @@ RSpec.describe Celluloid::Internals::ThreadHandle do
   end
 
   context "given a finished thread" do
-
     before do
       thread_info_queue = Queue.new
       @handle = Celluloid::Internals::ThreadHandle.new(actor_system) do

@@ -478,17 +478,30 @@ $CELLULOID_MONITORING = false
 
 # Configure default systemwide settings
 
-Celluloid.task_class = begin
-  Celluloid.const_get(ENV['CELLULOID_TASK_CLASS'] || fail(TypeError))
-rescue
-  Celluloid::Task::Fibered
-end
 
-Celluloid.group_class = begin
-  Celluloid::Group.const_get(ENV['CELLULOID_GROUP_CLASS'] || fail(TypeError))
-rescue
-  Celluloid::Group::Spawner
-end
+Celluloid.task_class =
+  begin
+    str = ENV['CELLULOID_TASK_CLASS'] || 'Fibered'
+    Kernel.const_get(str)
+  rescue NameError
+    begin
+      Celluloid.const_get(str)
+    rescue NameError
+      Celluloid::Task.const_get(str)
+    end
+  end
+
+Celluloid.group_class =
+  begin
+    str = ENV['CELLULOID_GROUP_CLASS'] || 'Spawner'
+    Kernel.const_get(str)
+  rescue NameError
+    begin
+      Celluloid.const_get(str)
+    rescue NameError
+      Celluloid::Group.const_get(str)
+    end
+  end
 
 Celluloid.logger = Logger.new(STDERR)
 Celluloid.shutdown_timeout = 10

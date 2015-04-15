@@ -2,7 +2,7 @@ RSpec.shared_examples "a Celluloid Group" do
   let!(:queue) { Queue.new }
   let!(:busy_queue) { Queue.new }
 
-  let(:logger) { double(:fake_logger) }
+  let(:logger) { Specs::FakeLogger.current }
 
   def wait_until_busy(busy_queue = nil)
     return busy_queue.pop if busy_queue
@@ -13,24 +13,13 @@ RSpec.shared_examples "a Celluloid Group" do
     Specs.sleep_and_wait_until { subject.busy_size.zero? }
   end
 
-  before do
-    stub_const('Celluloid::Internals::Logger', logger)
-
-    # Show crashes and errors, since we've replaced the logger
-    [:error, :crash].each do |type|
-      allow(logger).to receive(type) do |*args|
-        STDERR.puts "(InternalPool #{type}: #{args.inspect}"  # this can't be right. InternalPool is gone
-      end
-    end
-    subject
-  end
+  before { subject }
 
   after do
     subject.shutdown
   end
 
   it "gets threads from the pool" do
-    subject
     expect(subject.get { queue.pop }).to be_a Thread
     queue << nil
     wait_until_idle
@@ -38,7 +27,11 @@ RSpec.shared_examples "a Celluloid Group" do
 
   context "when a thread is finished" do
     before do
-      subject.get { busy_queue << nil; queue.pop }
+      subject.get do
+        busy_queue << nil
+        queue.pop
+      end
+
       wait_until_busy(busy_queue)
       queue << nil
       wait_until_idle
@@ -51,32 +44,29 @@ RSpec.shared_examples "a Celluloid Group" do
 
   [StandardError, Exception].each do |exception_class|
     context "with an #{exception_class} in the thread" do
-      let(:crashes) { Queue.new }
-
       before do
-        wait_queue = Queue.new # doesn't work if in a let()
+        @wait_queue = Queue.new # doesn't work if in a let()
 
-        allow(logger).to receive(:crash) { |*args| crashes << args }
+        allow(logger).to receive(:crash)
 
         subject.get do
           busy_queue << nil
-          wait_queue.pop
-          raise exception_class.new("Error")
+          @wait_queue.pop
+          fail exception_class, "Error"
         end
 
         wait_until_busy(busy_queue)
-
-        wait_queue << nil # let the thread fail
-        wait_until_idle
       end
 
       it "logs the crash" do
-        message, exception = crashes.pop
-        expect(message).to eq('thread crashed')
-        expect(exception.message).to eq('Error')
+        expect(logger).to receive(:crash).with("thread crashed", exception_class)
+        @wait_queue << nil # let the thread fail
+        wait_until_idle
       end
 
       it "puts error'd threads back into the pool" do
+        @wait_queue << nil # let the thread fail
+        wait_until_idle
         expect(subject.busy_size).to be_zero
       end
     end
@@ -85,7 +75,7 @@ RSpec.shared_examples "a Celluloid Group" do
   context "when a thread has local variables" do
     before do
       @thread = subject.get do
-        Thread.current[:foo] = :bar;
+        Thread.current[:foo] = :bar
         queue.pop
       end
 
@@ -129,19 +119,16 @@ RSpec.shared_examples "a Celluloid Group" do
 
   context "with a dead thread" do
     before do
-
       if Celluloid.group_class == Celluloid::Group::Pool
         subject.max_idle = 0 # Instruct the pool to immediately shut down the thread.
       end
 
-      subject.get {queue.pop;  true }
+      subject.get { queue.pop }
       wait_until_busy
       queue << nil
       wait_until_idle
 
-      if Celluloid.group_class == Celluloid::Group::Spawner
-        subject.shutdown and subject.kill
-      end
+      subject.shutdown if Celluloid.group_class == Celluloid::Group::Spawner
     end
 
     it "doesn't leak dead threads" do

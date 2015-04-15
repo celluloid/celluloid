@@ -19,9 +19,12 @@ RSpec.describe Celluloid::Call::Sync, actor_system: :global do
   end
 
   let(:actor) { CallExampleActor.new }
+  let(:logger) { Specs::FakeLogger.current }
 
   context "when obj does not respond to a method" do
     it "raises a NoMethodError" do
+      allow(logger).to receive(:crash).with('Actor crashed!', NoMethodError)
+
       expect do
         actor.the_method_that_wasnt_there
       end.to raise_exception(NoMethodError)
@@ -33,17 +36,22 @@ RSpec.describe Celluloid::Call::Sync, actor_system: :global do
 
     context "when obj raises during inspect" do
       it "should emulate obj.inspect" do
+        allow(logger).to receive(:crash).with('Actor crashed!', NoMethodError)
+
         if RUBY_ENGINE == "rbx"
           expected = /undefined method `no_such_method' on an instance of CallExampleActor/
         else
           expected = /undefined method `no_such_method' for #\<CallExampleActor:0x[a-f0-9]+\>/
         end
         expect { actor.no_such_method }.to raise_exception(NoMethodError, expected)
+        Specs.sleep_and_wait_until { actor.dead? }
       end
     end
   end
 
   it "aborts with ArgumentError when a method is called with too many arguments" do
+    allow(logger).to receive(:crash).with('Actor crashed!', ArgumentError)
+
     expect do
       actor.actual_method("with too many arguments")
     end.to raise_exception(ArgumentError)

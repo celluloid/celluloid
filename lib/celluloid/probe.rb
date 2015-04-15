@@ -8,12 +8,16 @@ module Celluloid
     include Celluloid::Notifications
 
     NOTIFICATIONS_TOPIC_BASE = 'celluloid.events.%s'
-    INITIAL_EVENTS = Queue.new
+    EVENTS_BUFFER = Queue.new
 
     class << self
       def run
         # spawn the actor if not found
         supervise_as(:probe_actor) unless Actor[:probe_actor] && Actor[:probe_actor].alive?
+      end
+
+      def run_without_supervision
+        Actor[:probe_actor] = Celluloid::Probe.new
       end
 
       def actor_created(actor)
@@ -38,12 +42,10 @@ module Celluloid
 
       def trigger_event(name, *args)
         return unless $CELLULOID_MONITORING
+
+        EVENTS_BUFFER << [name, args]
         probe_actor = Actor[:probe_actor]
-        if probe_actor
-          probe_actor.async.dispatch_event(name, args)
-        else
-          INITIAL_EVENTS << [name, args]
-        end
+        probe_actor.async.process_queue if probe_actor
       end
 
       def find_actor(obj)
@@ -56,12 +58,12 @@ module Celluloid
     end
 
     def initialize
-      async.first_run
+      async.process_queue
     end
 
-    def first_run
-      until INITIAL_EVENTS.size == 0
-        event = INITIAL_EVENTS.pop
+    def process_queue
+      until EVENTS_BUFFER.empty?
+        event = EVENTS_BUFFER.pop
         dispatch_event(*event)
       end
     end

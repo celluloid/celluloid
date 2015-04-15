@@ -51,7 +51,14 @@ module Celluloid
       actors = []
       @group.each do |t|
         next unless t.role == :actor
-        actors << t.actor.behavior_proxy if t.actor && t.actor.respond_to?(:behavior_proxy)
+        actor = t.actor
+
+        # NOTE - these are in separate statements, since on JRuby t.actor may
+        # become nil befor .behavior_proxy() is called
+        next unless actor
+        next unless actor.respond_to?(:behavior_proxy)
+        proxy = actor.behavior_proxy
+        actors << proxy
       end
       actors
     end

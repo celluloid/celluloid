@@ -1,4 +1,6 @@
 RSpec.describe Celluloid::Condition, actor_system: :global do
+  let(:logger) { Specs::FakeLogger.current }
+
   class ConditionExample
     include Celluloid
 
@@ -68,6 +70,7 @@ RSpec.describe Celluloid::Condition, actor_system: :global do
   end
 
   it "times out inside Tasks" do
+    allow(logger).to receive(:crash).with('Actor crashed!', Celluloid::ConditionError)
     expect { actor.wait_for_condition(1) }.
       to raise_error(Celluloid::ConditionError)
   end
