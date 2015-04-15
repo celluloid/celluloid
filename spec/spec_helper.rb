@@ -43,7 +43,7 @@ RSpec.configure do |config|
   config.before(:suite) do
     Specs.stub_out_class_method(Celluloid::Internals::Logger, :crash) do |*args|
       _name, ex = *args
-      fail "Unstubbed crash happened: crash(#{args.map(&:inspect).join(",")})"\
+      fail "Unstubbed Logger.crash() was called:\n  crash(\n    #{args.map(&:inspect).join(",\n    ")})"\
         "\nException backtrace: \n  (#{ex.class}) #{ex.backtrace * "\n  (#{ex.class}) "}"
     end
   end

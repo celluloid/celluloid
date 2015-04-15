@@ -320,7 +320,7 @@ module Celluloid
       Internals::Logger.crash("Actor crashed!", exception)
       shutdown ExitEvent.new(behavior_proxy, exception)
     rescue => ex
-      Internals::Logger.crash("ERROR HANDLER CRASHED!", ex)
+      Internals::Logger.crash("Actor#handle_crash CRASHED!", ex)
     end
 
     # Handle cleaning up this actor after it exits
