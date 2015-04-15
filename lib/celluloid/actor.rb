@@ -158,6 +158,9 @@ module Celluloid
           end
         rescue MailboxShutdown
           @running = false
+        rescue MailboxDead
+          # TODO: not tests (but fails occasionally in tests)
+          @running = false
         end
       end
 
