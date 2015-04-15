@@ -10,6 +10,13 @@ require_relative 'support/coverage'
 require 'rubygems'
 require 'bundler/setup'
 
+# To help produce better bug reports in Rubinius
+if RUBY_ENGINE == "rbx"
+  # $DEBUG = true # would be nice if this didn't fail ... :(
+  require 'rspec/matchers'
+  require 'rspec/matchers/built_in/be'
+end
+
 # Require in order, so both CELLULOID_TEST and CELLULOID_DEBUG are true
 require 'celluloid/test'
 
