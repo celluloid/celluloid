@@ -15,7 +15,7 @@ group :development do
   gem 'guard'
   gem 'rb-fsevent', '~> 0.9.1' if RUBY_PLATFORM =~ /darwin/
   gem 'guard-rspec'
-  gem 'rubocop'
+  gem 'rubocop', '~> 0.30.0'
   gem 'rspec-log_split', github: 'abstractive/rspec-log_split', branch: 'master'
 end
 
