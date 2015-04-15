@@ -22,7 +22,7 @@ module Celluloid
 
     def dispatch(obj)
       _block = @block && @block.to_proc
-      obj.public_send(@method, *@arguments, &_block)
+      obj.public_send(@method, *@arguments, &block)
     end
   end
 end
