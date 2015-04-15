@@ -24,9 +24,9 @@ RSpec.describe Celluloid::Internals::StackDump do
 
       status = th.status
       case status
-      when nil
-      when false
-      when "dead"
+      when nil, false, "dead"
+      when "aborting"
+        th.join(2) || STDERR.puts("Thread join timed out...")
       when "sleep", "run"
         th.kill
         th.join(2) || STDERR.puts("Thread join timed out...")
