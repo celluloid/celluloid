@@ -347,7 +347,13 @@ module Celluloid
         end
       end
 
-      tasks.to_a.each(&:terminate)
+      tasks.to_a.each do |task|
+        begin
+          task.terminate
+        rescue DeadTaskError
+          # TODO: not tested (failed on Travis)
+        end
+      end
     rescue => ex
       # TODO: metadata
       Internals::Logger.crash("CLEANUP CRASHED!", ex)
