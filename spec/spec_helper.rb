@@ -4,6 +4,7 @@ require_relative 'support/split_logs'
 require_relative 'support/sleep_and_wait'
 require_relative 'support/reset_class_variables'
 require_relative 'support/crash_checking'
+require_relative 'support/stubbing'
 require_relative 'support/coverage'
 
 require 'rubygems'
@@ -38,6 +39,14 @@ RSpec.configure do |config|
   config.profile_examples = 3
 
   Specs.configure(config)
+
+  config.before(:suite) do
+    Specs.stub_out_class_method(Celluloid::Internals::Logger, :crash) do |*args|
+      _name, ex = *args
+      fail "Unstubbed crash happened: crash(#{args.map(&:inspect).join(",")})"\
+        "\nException backtrace: \n  (#{ex.class}) #{ex.backtrace * "\n  (#{ex.class}) "}"
+    end
+  end
 
   config.before(:each) do |example|
     @fake_logger = Specs::FakeLogger.new(Celluloid.logger, example.description)
