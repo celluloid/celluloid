@@ -65,16 +65,23 @@ RSpec.describe "Probe", actor_system: :global do
     q = Celluloid::Probe::EVENTS_BUFFER
     unprocessed = []
     loop do
-      event = q.pop
-      actual = ([event[0]] + event[1..-1].map {|a| addr(a)}).dup
+      break if q.empty?
+      name, args = q.pop
+      actual = ([name] + args.map {|a| addr(a)}).dup
       unprocessed << actual
-    end until q.empty?
+    end
+
+    last_event_offset = if last_event_timestamp
+                          last_event_timestamp - started
+                        else
+                          "(no events ever received)"
+                        end
 
     fail "wait_for_match: no matching event received for #{topic.inspect}! (#{e.inspect})"\
       "Expected: #{expected.inspect}\n"\
       "Events received: \n  #{received.map(&:inspect) * "\n  "}\n"\
       "Current time offset: #{(Time.now.to_f - started).inspect}\n"\
-      "Last event offset: #{(last_event_timestamp - started).inspect}\n"\
+      "Last event offset: #{last_event_offset.inspect}\n"\
       "Unprocessed probe events: #{unprocessed.map(&:inspect) * "\n  "}\n"\
   end
 
