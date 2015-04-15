@@ -394,6 +394,7 @@ RSpec.describe Celluloid, actor_system: :global do
       it "reraises exceptions which occur during synchronous calls in the sender" do
         allow(logger).to receive(:crash).with('Actor crashed!', ExampleCrash)
         expect { actor.crash }.to raise_exception(ExampleCrash)
+        Specs.sleep_and_wait_until { !actor.alive? }
       end
 
       it "includes both sender and receiver in exception traces" do
@@ -413,9 +414,10 @@ RSpec.describe Celluloid, actor_system: :global do
           define_method(:sender_method) do
             example_receiver.new.receiver_method
           end
-        end
+        end.new
 
-        ex = example_caller.new.sender_method rescue $!
+        ex = example_caller.sender_method rescue $!
+        Specs.sleep_and_wait_until { !example_caller.alive? }
 
         expect(ex).to be_a ExampleCrash
         expect(ex.backtrace.grep(/`sender_method'/)).to be_truthy
@@ -1194,6 +1196,7 @@ RSpec.describe Celluloid, actor_system: :global do
     it "allows timing out tasks, raising Celluloid::Task::TimeoutError" do
       allow(logger).to receive(:crash).with('Actor crashed!', Celluloid::Task::TimeoutError)
       expect { a1.ask_name_with_timeout a2, 0.3 }.to raise_error(Celluloid::Task::TimeoutError)
+      Specs.sleep_and_wait_until { !a1.alive? }
     end
 
     it "does not raise when it completes in time" do

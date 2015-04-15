@@ -6,7 +6,11 @@ module Celluloid
 
     def publish(pattern, *args)
       Celluloid::Notifications.notifier.publish(pattern, *args)
+    rescue DeadActorError
+      # Bad shutdown logic. Oh well....
+      # TODO: needs a tests
     end
+
     module_function :publish
 
     def subscribe(pattern, method)
@@ -69,6 +73,9 @@ module Celluloid
 
       def publish(pattern, *args)
         actor.async method, pattern, *args
+      rescue DeadActorError
+        # TODO: needs a tests
+        # Bad shutdown logic. Oh well....
       end
 
       def subscribed_to?(pattern)

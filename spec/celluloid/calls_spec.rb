@@ -44,6 +44,7 @@ RSpec.describe Celluloid::Call::Sync, actor_system: :global do
           expected = /undefined method `no_such_method' for #\<CallExampleActor:0x[a-f0-9]+\>/
         end
         expect { actor.no_such_method }.to raise_exception(NoMethodError, expected)
+        Specs.sleep_and_wait_until { actor.dead? }
       end
     end
   end
