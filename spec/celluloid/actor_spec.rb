@@ -406,18 +406,19 @@ RSpec.describe Celluloid, actor_system: :global do
           define_method(:receiver_method) do
             raise ExampleCrash, "the spec purposely crashed me :("
           end
-        end
+        end.new
 
         example_caller = Class.new do
           include CelluloidSpecs.included_module
 
           define_method(:sender_method) do
-            example_receiver.new.receiver_method
+            example_receiver.receiver_method
           end
         end.new
 
         ex = example_caller.sender_method rescue $!
         Specs.sleep_and_wait_until { !example_caller.alive? }
+        Specs.sleep_and_wait_until { !example_receiver.alive? }
 
         expect(ex).to be_a ExampleCrash
         expect(ex.backtrace.grep(/`sender_method'/)).to be_truthy
