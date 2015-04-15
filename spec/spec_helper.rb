@@ -32,6 +32,11 @@ end
 
 $CELLULOID_DEBUG = true
 
+# Require but disable, so it has to be explicitly enabled in tests
+require 'celluloid/probe'
+$CELLULOID_MONITORING = false
+Specs.reset_probe(nil)
+
 Celluloid.shutdown_timeout = 1
 
 Dir['./spec/support/*.rb'].map {|f| require f }
@@ -78,7 +83,7 @@ RSpec.configure do |config|
     Celluloid.actor_system = nil
 
     Specs.assert_no_loose_threads(ex.description) do
-      Specs.reset_class_variables do
+      Specs.reset_class_variables(ex.description) do
         ex.run
       end
     end

@@ -77,7 +77,7 @@ RSpec.describe "Probe", actor_system: :global do
                           "(no events ever received)"
                         end
 
-    fail "wait_for_match: no matching event received for #{topic.inspect}! (#{e.inspect})"\
+    fail "wait_for_match: no matching event received for #{topic.inspect}! (#{e.inspect})\n"\
       "Expected: #{expected.inspect}\n"\
       "Events received: \n  #{received.map(&:inspect) * "\n  "}\n"\
       "Current time offset: #{(Time.now.to_f - started).inspect}\n"\
