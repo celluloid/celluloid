@@ -45,20 +45,37 @@ RSpec.describe "Probe", actor_system: :global do
   end
 
   def wait_for_match(queue, topic, actor1 = nil, actor2 = nil)
+    started = Time.now.to_f
     actors = [actor1, actor2]
     expected = ([topic] + actors.map { |a| addr(a)  }).dup
 
-    timeout = 5
-    start = Time.now.to_f
-    Timeout.timeout(timeout) do
+    received = []
+    last_event_timestamp = nil
+
+    Timeout.timeout(5) do
       loop do
         event = queue.pop
         actual = ([event[0]] + event[1..-1].map {|a| addr(a)}).dup
+        received << actual
+        last_event_timestamp = Time.now.to_f
         return event if actual == expected
       end
     end
   rescue Timeout::Error => e
-    fail "wait_for_match: no matching event received for #{topic.inspect}! (#{e.inspect})"
+    q = Celluloid::Probe::EVENTS_BUFFER
+    unprocessed = []
+    loop do
+      event = q.pop
+      actual = ([event[0]] + event[1..-1].map {|a| addr(a)}).dup
+      unprocessed << actual
+    end until q.empty?
+
+    fail "wait_for_match: no matching event received for #{topic.inspect}! (#{e.inspect})"\
+      "Expected: #{expected.inspect}\n"\
+      "Events received: \n  #{received.map(&:inspect) * "\n  "}\n"\
+      "Current time offset: #{(Time.now.to_f - started).inspect}\n"\
+      "Last event offset: #{(last_event_timestamp - started).inspect}\n"\
+      "Unprocessed probe events: #{unprocessed.map(&:inspect) * "\n  "}\n"\
   end
 
   let(:queue) { Queue.new }
