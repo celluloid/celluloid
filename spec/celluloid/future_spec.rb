@@ -17,9 +17,14 @@ RSpec.describe Celluloid::Future, actor_system: :global do
   end
 
   it "knows if it's got a value yet" do
-    future = Celluloid::Future.new { sleep CelluloidSpecs::TIMER_QUANTUM * 5 }
+    queue = Queue.new
+    future = Celluloid::Future.new { queue.pop }
+
     expect(future).not_to be_ready
-    sleep CelluloidSpecs::TIMER_QUANTUM * 6
+    queue << nil # let it continue
+
+    Specs.sleep_and_wait_until { future.ready? }
+
     expect(future).to be_ready
   end
 
