@@ -1,23 +1,34 @@
-HEAD
+0.17.0 (2015)
 ----
 * Fix $CELLULOID_TEST warnings
 * Massive overhaul of test suite, end-to-end.
 * Make "Terminating task" log messages debug-level events
 * Added `.dead?` method on actors, as opposite of `.alive?`
 * Added class/module method to access `publish` outside actors.
-* BREAKING CHANGE: Moved Celluloid::TaskFiber to Celluloid::Task::Fibered
-* BREAKING CHANGE: Moved Celluloid::TaskThread to Celluloid::Task::Threaded
-* Radical Refactor: Celluloid::InternalPool moved to Celluloid::Group::Pool
+* Radical Refactor of Celluloid::InternalPool, and moved it to Celluloid::Group::Pool
 * Radical Refactor: *::Group::Pool replaced as default with *::Group::Spawner
 * Added `rspec-log_split` as replacement logger for itemized testing logs.
 * *::Task::PooledFibers has been found and made available, and compatible ( sometimes 4x faster than even Task::Fibered )
-* BREAKING CHANGE: PoolManager taken out, and implemented in the `celluloid-pool` gem, separately.
-* Added Celluloid::Internals and moved several "private" classes into that namespace.
-* BREAKING CHANGE: Moved Celluloid::EventedMailbox to Celluloid::Mailbox::Evented, per convention.
+* GEM EXTRACTION: PoolManager taken out, and implemented in the `celluloid-pool` gem, separately.
+* GEM EXTRACTION: FSM taken out, and implemented in the `celluloid-fsm` gem, separately.
+* GEM EXTRACTION: SupervisionGroup, Supervisor, and related methods taken out, and implemented in the `celluloid-supervision` gem, separately.
+* BREAKING CHANGE: Added Celluloid::Internals and moved several "private" classes into that namespace:
+  * CallChain, CPUCounter, Handlers ( and Handle ), Links, Logger, Method, Properties, Registry, Responses, Signals, StackDump, TaskSet, ThreadHandle, UUID.
+* BREAKING CHANGE: Changed class names, per convention:
+  * Moved Celluloid::TaskFiber to Celluloid::Task::Fibered
+  * Moved Celluloid::TaskThread to Celluloid::Task::Threaded
+  * Moved Celluloid::EventedMailbox to Celluloid::Mailbox::Evented
+  * Moved Celluloid::AbstractProxy to Celluloid::Proxy::Abstract
+  * Moved Celluloid::ActorProxy to Celluloid::Proxy::Actor
+  * Moved Celluloid::AsyncProxy to Celluloid::Proxy::Async
+  * Moved Celluloid::BlockProxy to Celluloid::Proxy::Block
+  * Moved Celluloid::CellProxy to Celluloid::Proxy::Cell
+  * Moved Celluloid::FutureProxy to Celluloid::Proxy::Future
+  * Moved Celluloid::SyncProxy to Celluloid::Proxy::Sync
 
 
 0.16.0 (2014-09-04)
--------------------
+-----
 * Factor apart Celluloid::Cell (concurrent objects) from Celluloid::Actor
 * Introduce Celluloid::ActorSystem as an abstraction around the backend
   actor implementation (idea borrowed from Akka)
@@ -36,15 +47,15 @@ HEAD
 * Thread safety fixes to internal thread pool
 
 0.15.2 (2013-10-06)
--------------------
+-----
 * require 'celluloid/test' for at_exit-free testing
 
 0.15.1 (2013-09-06)
--------------------
+-----
 * Only raise on nested tasks if $CELLULOID_DEBUG is set
 
 0.15.0 (2013-09-04)
--------------------
+-----
 * Remove legacy support for "bang"-method based async invocation
 * Generic timeout support with Celluloid#timeout
 * Implement recursion detection for #inspect, avoiding infinite loop bugs
@@ -60,7 +71,7 @@ HEAD
 * Add metadata like the current method to Celluloid::StackDumps
 
 0.14.0 (2013-05-07)
--------------------
+-----
 * Use a Thread-subclass for Celluloid
   * Implement actor-local variables
   * Add helper methods to the class
@@ -75,7 +86,7 @@ HEAD
 * Fix CPU counter on windows
 
 0.13.0
-------
+-----
 * API change: Require Celluloid with: require 'celluloid/autostart' to
   automatically start support actors and configure at_exit handler which
   automatically terminates all actors.
@@ -90,7 +101,7 @@ HEAD
 * Give all thread locals a :celluloid_* prefix
 
 0.12.4
-------
+-----
 * Bugfix: Clear dead/crashed actors out of links
 * Bugfix: Exclusive mode was broken
 * Bugfix: Celluloid::SupervisionGroup#run was broken
@@ -101,16 +112,16 @@ HEAD
 * #idle_size and #busy_size for Celluloid::PoolManager
 
 0.12.3
-------
+-----
 * Bugfix: Ensure exclusive mode works correctly for per-method case
 * Bugfix: Exit handlers were not being inherited correctly
 
 0.12.2
-------
+-----
 * Disable IncidentReporter by default
 
 0.12.1
-------
+-----
 * Fix bug in unsetting of exclusive mode
 * New incident report system for providing better debugging reports
 * Revert BasicObject proxies for now... they are causing problems
@@ -121,7 +132,7 @@ HEAD
   return anything but true, rendering it useless
 
 0.12.0
-------
+-----
 * Alternative async syntax: actor.async.method in lieu of actor.method!
   Original syntax still available but will be removed in Celluloid 1.0
 * Alternative future syntax: actor.future.method in lieu of future(:method)
@@ -145,7 +156,7 @@ HEAD
 * `exclusive` class method without arguments makes the whole actor exclusive
 
 0.11.1
-------
+-----
 * 'exclusive' class method marks methods as always exclusive and runs them
   outside of a Fiber (useful if you need more stack than Fibers provide)
 * Celluloid::PoolManager returns its own class when #class is called, instead
@@ -155,7 +166,7 @@ HEAD
   uses for its own timers
 
 0.11.0
-------
+-----
 * Celluloid::Application constant permanently removed
 * Celluloid::Pool removed in favor of Celluloid.pool
 * Celluloid::Group renamed to Celluloid::SupervisionGroup, old name is
@@ -170,7 +181,7 @@ HEAD
   RuntimeError in the caller's context
 
 0.10.0
-------
+-----
 * Celluloid::Actor.current is now the de facto way to obtain the current actor
 * #terminate now uses system messages, making termination take priority over
   other pending methods
