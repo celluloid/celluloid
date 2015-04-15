@@ -30,19 +30,19 @@ module Celluloid
 
       # Invoke a method on the given actor via its mailbox
       def call(mailbox, meth, *args, &block)
-        proxy = SyncProxy.new(mailbox, "UnknownClass")
+        proxy = Proxy::Sync.new(mailbox, "UnknownClass")
         proxy.method_missing(meth, *args, &block)
       end
 
       # Invoke a method asynchronously on an actor via its mailbox
       def async(mailbox, meth, *args, &block)
-        proxy = AsyncProxy.new(mailbox, "UnknownClass")
+        proxy = Proxy::Async.new(mailbox, "UnknownClass")
         proxy.method_missing(meth, *args, &block)
       end
 
       # Call a method asynchronously and retrieve its value later
       def future(mailbox, meth, *args, &block)
-        proxy = FutureProxy.new(mailbox, "UnknownClass")
+        proxy = Proxy::Future.new(mailbox, "UnknownClass")
         proxy.method_missing(meth, *args, &block)
       end
 
@@ -130,7 +130,7 @@ module Celluloid
         run
       end
 
-      @proxy = ActorProxy.new(@thread, @mailbox)
+      @proxy = Proxy::Actor.new(@thread, @mailbox)
       Celluloid::Probe.actor_created(self) if $CELLULOID_MONITORING
     end
 

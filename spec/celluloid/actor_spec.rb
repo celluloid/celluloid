@@ -252,7 +252,7 @@ RSpec.describe Celluloid, actor_system: :global do
   end
 
   it "inspects properly" do
-    expect(actor.inspect).to match(/Celluloid::CellProxy\(/)
+    expect(actor.inspect).to match(/Celluloid::Proxy::Cell\(/)
     expect(actor.inspect).to match(/#{actor_class}/)
     expect(actor.inspect).to include('@name="Troy McClure"')
     expect(actor.inspect).not_to include("@celluloid")
@@ -260,7 +260,7 @@ RSpec.describe Celluloid, actor_system: :global do
 
   it "inspects properly when dead" do
     actor.terminate
-    expect(actor.inspect).to match(/Celluloid::CellProxy\(/)
+    expect(actor.inspect).to match(/Celluloid::Proxy::Cell\(/)
     expect(actor.inspect).to match(/#{actor_class}/)
     expect(actor.inspect).to include('dead')
   end
@@ -289,7 +289,7 @@ RSpec.describe Celluloid, actor_system: :global do
       itchy.other = scratchy
 
       inspection = itchy.inspect
-      expect(inspection).to match(/Celluloid::CellProxy\(/)
+      expect(inspection).to match(/Celluloid::Proxy::Cell\(/)
       expect(inspection).to include("...")
     end
   end
@@ -1005,7 +1005,7 @@ RSpec.describe Celluloid, actor_system: :global do
       Class.new do
         include CelluloidSpecs.included_module
 
-        klass = Class.new(Celluloid::CellProxy) do
+        klass = Class.new(Celluloid::Proxy::Cell) do
           def subclass_proxy?
             true
           end
@@ -1029,7 +1029,7 @@ RSpec.describe Celluloid, actor_system: :global do
         Class.new do
           include CelluloidSpecs.included_module
 
-          klass = Class.new(Celluloid::CellProxy) do
+          klass = Class.new(Celluloid::Proxy::Cell) do
             def dividing_3_by(number)
               fail ArgumentError, "<facepalm>" if number.zero?
               super
@@ -1080,7 +1080,7 @@ RSpec.describe Celluloid, actor_system: :global do
         Class.new do
           include CelluloidSpecs.included_module
 
-          klass = Class.new(Celluloid::CellProxy) do
+          klass = Class.new(Celluloid::Proxy::Cell) do
             include MethodChecking
           end
 

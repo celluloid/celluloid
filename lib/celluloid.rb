@@ -40,7 +40,7 @@ module Celluloid
       klass.send :extend, Internals::Properties
 
       klass.property :mailbox_class, :default => Celluloid::Mailbox
-      klass.property :proxy_class,   :default => Celluloid::CellProxy
+      klass.property :proxy_class,   :default => Celluloid::Proxy::Cell
       klass.property :task_class,    :default => Celluloid.task_class
       klass.property :group_class,   :default => Celluloid.group_class
       klass.property :mailbox_size
@@ -266,7 +266,7 @@ module Celluloid
       if leaked?
         str << Celluloid::BARE_OBJECT_WARNING_MESSAGE
       else
-        str << "Celluloid::CellProxy"
+        str << "Celluloid::Proxy::Cell"
       end
 
       str << "(#{self.class}:0x#{object_id.to_s(16)})"
@@ -455,13 +455,13 @@ require 'celluloid/task'
 require 'celluloid/task/fibered'
 require 'celluloid/task/threaded'   # TODO: Find way to only load this if being used.
 
-require 'celluloid/proxies/abstract_proxy'
-require 'celluloid/proxies/sync_proxy'
-require 'celluloid/proxies/cell_proxy'
-require 'celluloid/proxies/actor_proxy'
-require 'celluloid/proxies/async_proxy'
-require 'celluloid/proxies/future_proxy'
-require 'celluloid/proxies/block_proxy'
+require 'celluloid/proxy/abstract'
+require 'celluloid/proxy/sync'
+require 'celluloid/proxy/cell'
+require 'celluloid/proxy/actor'
+require 'celluloid/proxy/async'
+require 'celluloid/proxy/future'
+require 'celluloid/proxy/block'
 
 require 'celluloid/actor'
 require 'celluloid/cell'
