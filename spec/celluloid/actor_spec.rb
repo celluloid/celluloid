@@ -467,7 +467,7 @@ RSpec.describe Celluloid, actor_system: :global do
       end
     end
 
-    context "when terminated by a SyncCall" do
+    context "when terminated by a Call::Sync" do
       before do
         actor.shutdown
         Celluloid::Actor.join(actor)

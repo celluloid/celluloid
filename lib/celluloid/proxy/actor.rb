@@ -30,7 +30,7 @@ module Celluloid
       # Terminate the associated actor
       def terminate
         terminate!
-        Actor.join(self)
+        ::Celluloid::Actor.join(self)
         nil
       end
 

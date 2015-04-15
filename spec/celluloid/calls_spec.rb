@@ -1,5 +1,5 @@
-RSpec.describe Celluloid::SyncCall, actor_system: :global do
-  # TODO: these should be SyncCall unit tests (without working on actual actors)
+RSpec.describe Celluloid::Call::Sync, actor_system: :global do
+  # TODO: these should be Call::Sync unit tests (without working on actual actors)
   class CallExampleActor
     include Celluloid
 

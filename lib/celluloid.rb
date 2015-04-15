@@ -455,14 +455,7 @@ require 'celluloid/task'
 require 'celluloid/task/fibered'
 require 'celluloid/task/threaded'   # TODO: Find way to only load this if being used.
 
-require 'celluloid/proxy/abstract'
-require 'celluloid/proxy/sync'
-require 'celluloid/proxy/cell'
-require 'celluloid/proxy/actor'
-require 'celluloid/proxy/async'
-require 'celluloid/proxy/future'
-require 'celluloid/proxy/block'
-
+require 'celluloid/proxies'
 require 'celluloid/actor'
 require 'celluloid/cell'
 require 'celluloid/future'

@@ -14,7 +14,7 @@ module Celluloid
         if @execution == :sender
           lambda do |*values|
             if task = Thread.current[:celluloid_task]
-              @mailbox << Call::Block.new(self, Actor.current.mailbox, values)
+              @mailbox << Call::Block.new(self, Celluloid::Actor.current.mailbox, values)
               # TODO: if respond fails, the Task will never be resumed
               task.suspend(:invokeblock)
             else

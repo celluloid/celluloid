@@ -25,7 +25,7 @@ module Celluloid
           raise "Cannot use blocks with futures yet"
         end
 
-        future = Future.new
+        future = ::Celluloid::Future.new
         call = Call::Sync.new(future, meth, args, block)
 
         @mailbox << call
