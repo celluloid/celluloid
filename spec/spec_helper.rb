@@ -74,14 +74,13 @@ module Specs
     def loose_threads
       Thread.list.map do |thread|
         next if thread == Thread.current
-        if defined?(JRUBY_VERSION)
+        if RUBY_PLATFORM == 'java'
           # Avoid disrupting jRuby's "fiber" threads.
           next if /Fiber/ =~ thread.to_java.getNativeThread.get_name
           backtrace = thread.backtrace # avoid race maybe
           next unless backtrace
           next if backtrace.empty? # possibly a timer thread
-        end
-        if RUBY_ENGINE == "rbx"
+        elsif RUBY_ENGINE == "rbx"
           # Avoid disrupting Rubinious thread
           next if thread.backtrace.empty?
           next if thread.backtrace.first =~ /rubysl\/timeout\/timeout.rb/
