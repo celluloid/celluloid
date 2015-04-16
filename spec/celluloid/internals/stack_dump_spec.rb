@@ -36,7 +36,7 @@ RSpec.describe Celluloid::Internals::StackDump do
     end
 
     def self.jruby_fiber?(th)
-      return false unless defined?(JRUBY_VERSION) && (java_th = th.to_java.getNativeThread)
+      return false unless RUBY_PLATFORM == 'java' && (java_th = th.to_java.getNativeThread)
       /Fiber/ =~ java_th.get_name
     end
   end

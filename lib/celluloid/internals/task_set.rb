@@ -3,7 +3,7 @@ require 'forwardable'
 
 module Celluloid
   module Internals
-    if defined? JRUBY_VERSION
+    if RUBY_PLATFORM == 'java'
       require 'jruby/synchronized'
 
       class TaskSet
@@ -16,7 +16,7 @@ module Celluloid
           @tasks = Set.new
         end
       end
-    elsif defined? Rubinius
+    elsif RUBY_ENGINE == 'rbx'
       class TaskSet
         def initialize
           @tasks = Set.new

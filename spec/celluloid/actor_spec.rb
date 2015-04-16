@@ -498,7 +498,7 @@ RSpec.describe Celluloid, actor_system: :global do
       specify { expect(actor).not_to be_alive }
     end
 
-    unless defined?(JRUBY_VERSION) or RUBY_ENGINE == "rbx"
+    unless RUBY_PLATFORM == "java" or RUBY_ENGINE == "rbx"
       context "when killed" do
         before do
           Celluloid::Actor.kill(actor)
