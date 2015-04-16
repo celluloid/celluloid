@@ -3,10 +3,11 @@
 require 'rubygems'
 require 'bundler/setup'
 require 'celluloid'
+require 'celluloid/pool'
+require 'celluloid/extras/rehasher'
 require 'benchmark/ips'
-require File.expand_path("../../examples/pool", __FILE__)
 
-pool = Rehasher.new
+pool = Celluloid::Extras::Rehasher.new
 
 Benchmark.ips do |ips|
   ips.report("parallel hash") do
