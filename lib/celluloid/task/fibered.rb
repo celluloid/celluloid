@@ -13,6 +13,7 @@ module Celluloid
           Thread.current[:celluloid_queue] = queue
           Thread.current[:celluloid_actor_system] = actor_system
           yield
+          Fiber.yield
         end
       end
 

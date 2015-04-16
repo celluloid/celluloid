@@ -14,6 +14,7 @@ matrix:
     - rvm: jruby-head
     - env: CELLULOID_TASK_CLASS=Threaded
     # - env: CELLULOID_TASK_CLASS=Threaded CELLULOID_GROUP_CLASS=Pool
+    - env: CELLULOID_LEAKTEST=1
 env:
   global:
     - NUMBER_OF_PROCESSORS=2 CELLULOID_CONFIG_FILE=.env-ci
@@ -21,6 +22,7 @@ env:
     - CELLULOID_TASK_CLASS=Fibered
     - CELLULOID_TASK_CLASS=Threaded
     # - CELLULOID_TASK_CLASS=Threaded CELLULOID_GROUP_CLASS=Pool
+    - CELLULOID_LEAKTEST=1
 
 notifications:
   irc: "irc.freenode.org#celluloid"

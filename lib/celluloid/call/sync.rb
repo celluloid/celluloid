@@ -46,7 +46,7 @@ module Celluloid
       end
 
       def wait
-        loop do
+        while true
           message = Celluloid.mailbox.receive do |msg|
             msg.respond_to?(:call) and msg.call == self
           end
@@ -58,7 +58,7 @@ module Celluloid
             if message.respond_to?(:value)
               # FIXME: disable block execution if on :sender and (exclusive or outside of task)
               # probably now in Call
-              break message
+              return message
             else
               message.dispatch
             end

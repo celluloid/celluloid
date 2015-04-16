@@ -54,10 +54,11 @@ module Celluloid
       begin
         raise MailboxDead, "attempted to receive from a dead mailbox" if @dead
 
+        message = nil
         Timers::Wait.for(timeout) do |remaining|
           message = next_message(&block)
 
-          break message if message
+          break if message
 
           @condition.wait(@mutex, remaining)
         end
@@ -71,12 +72,12 @@ module Celluloid
     # Receive a letter from the mailbox. Guaranteed to return a message. If
     # timeout is exceeded, raise a TimeoutError.
     def receive(timeout = nil, &block)
+      message = nil
       Timers::Wait.for(timeout) do |remaining|
-        if message = check(timeout, &block)
-          return message
-        end
+        message = check(timeout, &block)
+        break if message
       end
-
+      return message if message
       raise TimeoutError.new("receive timeout exceeded")
     end
 
