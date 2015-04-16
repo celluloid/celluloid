@@ -31,7 +31,9 @@ module Celluloid
     end
 
     def to_a
-      @mutex.synchronize { return @group.dup }
+      res = nil
+      @mutex.synchronize { res = @group.dup }
+      res
     end
 
     def purge(thread)

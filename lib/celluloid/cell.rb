@@ -45,6 +45,14 @@ module Celluloid
     end
     attr_reader :proxy, :subject
 
+    def self.dispatch
+      Proc.new do |subject|
+        subject[:call].dispatch(subject[:subject])
+        subject[:call] = nil
+        subject[:subject] = nil
+      end
+    end
+
     def invoke(call)
       meth = call.method
       if meth == :__send__
@@ -56,20 +64,31 @@ module Celluloid
         end
       end
 
-      task(:call, meth, :dangerous_suspend => meth == :initialize) {
-        call.dispatch(@subject)
-      }
+      task(:call, meth, {:call => call, :subject => @subject},
+           :dangerous_suspend => meth == :initialize, &Cell.dispatch)
     end
 
-    def task(task_type, method_name = nil, meta = nil, &block)
+    def task(task_type, method_name = nil, subject = nil, meta = nil, &block)
       meta ||= {}
       meta.merge!(:method_name => method_name)
       @actor.task(task_type, meta) do
         if @exclusive_methods && method_name && @exclusive_methods.include?(method_name.to_sym)
-          Celluloid.exclusive { yield }
+          Celluloid.exclusive { yield subject }
         else
-          yield
+          yield subject
         end
+      end
+    end
+
+    def self.shutdown
+      Proc.new do |subject|
+        begin
+          subject[:subject].__send__(subject[:call])
+        rescue => ex
+          Internals::Logger.crash("#{subject[:subject].class} finalizer crashed!", ex)
+        end
+        subject[:call] = nil
+        subject[:subject] = nil
       end
     end
 
@@ -77,13 +96,8 @@ module Celluloid
     def shutdown
       return unless @finalizer && @subject.respond_to?(@finalizer, true)
 
-      task(:finalizer, @finalizer, :dangerous_suspend => true) do
-        begin
-          @subject.__send__(@finalizer)
-        rescue => ex
-          Internals::Logger.crash("#{@subject.class} finalizer crashed!", ex)
-        end
-      end
+      task(:finalizer, @finalizer, {:call => @finalizer, :subject => @subject},
+           :dangerous_suspend => true, &Cell.shutdown)
     end
   end
 end
