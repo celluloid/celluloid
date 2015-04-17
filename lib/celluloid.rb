@@ -464,9 +464,6 @@ require 'celluloid/future'
 
 require 'celluloid/actor_system'
 
-require 'celluloid/pool'
-require 'celluloid/fsm'
-
 require 'celluloid/notifications'
 require 'celluloid/logging'
 
