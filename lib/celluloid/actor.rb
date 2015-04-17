@@ -85,7 +85,7 @@ module Celluloid
         monitoring?(actor) && Thread.current[:celluloid_actor].links.include?(actor)
       end
 
-      unless defined?(JRUBY) or RUBY_ENGINE == "rbx"
+      unless RUBY_PLATFORM == "java" or RUBY_ENGINE == "rbx"
         # Forcibly kill a given actor
         def kill(actor)
           actor.thread.kill
