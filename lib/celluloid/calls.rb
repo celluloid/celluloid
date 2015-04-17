@@ -21,8 +21,8 @@ module Celluloid
     end
 
     def dispatch(obj)
-      _block = @block && @block.to_proc
-      obj.public_send(@method, *@arguments, &block)
+      _b = @block && @block.to_proc
+      obj.public_send(@method, *@arguments, &_b)
     end
   end
 end
