@@ -12,6 +12,15 @@ module Celluloid
       end
     end
 
+    def self.start_as_service(name)
+      klass = self
+      if klass.respond_to?(:supervise_as)
+        klass.supervise_as(name, STDERR)
+      else
+        Actor[name] = klass.new(STDERR)
+      end
+    end
+
     def initialize(*args)
       subscribe(/log\.incident/, :report)
       @logger = ::Logger.new(*args)

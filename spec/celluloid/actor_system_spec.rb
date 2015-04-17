@@ -36,7 +36,7 @@ RSpec.describe Celluloid::ActorSystem do
     expect(subject.registered).to be_empty
 
     subject.within do
-      TestActor.supervise_as :test
+      subject.registry[:test] = TestActor.new
     end
 
     expect(subject.registered).to eq([:test])
