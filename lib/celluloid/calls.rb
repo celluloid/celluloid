@@ -50,6 +50,17 @@ module Celluloid
     rescue => ex
       raise AbortError.new(ex)
     end
+
+    def simulated_inspect_dump(obj)
+      vars = obj.instance_variables.map do |var|
+        begin
+          "#{var}=#{obj.instance_variable_get(var).inspect}"
+        rescue RuntimeError
+        end
+      end.compact.join(" ")
+      "#<#{obj.class}:0x#{obj.object_id.to_s(16)} #{vars}>"
+    end
+    
   end
 end
 
