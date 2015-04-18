@@ -95,6 +95,12 @@ module Celluloid
     end
     alias_method :dump, :stack_dump
 
+    # Perform a stack dump of all actors to the given output object
+    def stack_summary(output = STDERR)
+      actor_system.stack_summary.print(output)
+    end
+    alias_method :summarize, :stack_summary
+
     # Detect if a particular call is recursing through multiple actors
     def detect_recursion
       actor = Thread.current[:celluloid_actor]
