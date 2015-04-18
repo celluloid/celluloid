@@ -28,10 +28,6 @@ RSpec.describe Celluloid::Call::Sync, actor_system: :global do
       expect do
         actor.the_method_that_wasnt_there
       end.to raise_exception(NoMethodError)
-
-      # NOTE: this timed out on JRuby once
-      Specs.sleep_and_wait_until { actor.dead? }
-      expect(actor).to be_dead
     end
 
     context "when obj raises during inspect" do
@@ -43,21 +39,16 @@ RSpec.describe Celluloid::Call::Sync, actor_system: :global do
         else
           expected = /undefined method `no_such_method' for #\<CallExampleActor:0x[a-f0-9]+\>/
         end
-        expect { actor.no_such_method }.to raise_exception(NoMethodError, expected)
-        Specs.sleep_and_wait_until { actor.dead? }
       end
     end
   end
-
+`
   it "aborts with ArgumentError when a method is called with too many arguments" do
     allow(logger).to receive(:crash).with('Actor crashed!', ArgumentError)
 
     expect do
       actor.actual_method("with too many arguments")
     end.to raise_exception(ArgumentError)
-
-    Specs.sleep_and_wait_until { actor.dead? }
-    expect(actor).to be_dead
   end
 
   it "preserves call chains across synchronous calls" do
