@@ -95,7 +95,7 @@ module Celluloid
     end
     alias_method :dump, :stack_dump
 
-    # Perform a stack dump of all actors to the given output object
+    # Perform a stack summary of all actors to the given output object
     def stack_summary(output = STDERR)
       actor_system.stack_summary.print(output)
     end
