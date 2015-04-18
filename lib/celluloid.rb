@@ -464,10 +464,7 @@ require 'celluloid/future'
 
 require 'celluloid/actor_system'
 
-# TODO: Remove unneeded gem requirements once the gems are well known.
-require 'celluloid/supervision'
-require 'celluloid/pool'
-require 'celluloid/fsm'
+require 'celluloid/depreciate'
 
 require 'celluloid/notifications'
 require 'celluloid/logging'

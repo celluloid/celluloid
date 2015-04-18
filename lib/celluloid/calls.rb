@@ -58,9 +58,9 @@ module Celluloid
         rescue RuntimeError
         end
       end.compact.join(" ")
-      "#<#{obj.class}:0x#{obj.object_id.to_s(16)} #{vars}>"
+      "#<#{obj.class}:0x#{obj.object_id.to_s(16)}>"
     end
-    
+
   end
 end
 
