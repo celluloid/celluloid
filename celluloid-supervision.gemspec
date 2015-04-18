@@ -4,7 +4,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |gem|
   gem.name         = 'celluloid-supervision'
-  gem.version      = '0.13.2'
+  gem.version      = '0.13.9'
   gem.platform     = Gem::Platform::RUBY
   gem.summary      = 'Celluloid Supervision'
   gem.description  = 'Supervisors, Supervision Groups, and Supervision Trees for Celluloid.'
