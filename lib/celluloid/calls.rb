@@ -21,8 +21,34 @@ module Celluloid
     end
 
     def dispatch(obj)
+      check(obj)
       _b = @block && @block.to_proc
       obj.public_send(@method, *@arguments, &_b)
+    end
+
+    def check(obj)
+      # NOTE: don't use respond_to? here
+      begin
+        meth = obj.method(@method)
+      rescue NameError
+        inspect_dump = begin
+                         obj.inspect
+                       rescue RuntimeError, NameError
+                         simulated_inspect_dump(obj)
+                       end
+        raise NoMethodError, "undefined method `#{@method}' for #{inspect_dump}"
+      end
+
+      arity = meth.arity
+
+      if arity >= 0
+        raise ArgumentError, "wrong number of arguments (#{@arguments.size} for #{arity})" if @arguments.size != arity
+      elsif arity < -1
+        mandatory_args = -arity - 1
+        raise ArgumentError, "wrong number of arguments (#{@arguments.size} for #{mandatory_args}+)" if arguments.size < mandatory_args
+      end
+    rescue => ex
+      raise AbortError.new(ex)
     end
   end
 end
