@@ -42,7 +42,7 @@ RSpec.describe Celluloid::Call::Sync, actor_system: :global do
       end
     end
   end
-`
+
   it "aborts with ArgumentError when a method is called with too many arguments" do
     allow(logger).to receive(:crash).with('Actor crashed!', ArgumentError)
 
