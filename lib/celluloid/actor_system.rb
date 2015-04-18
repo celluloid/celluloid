@@ -1,19 +1,30 @@
+require 'celluloid/notifications'
+require 'celluloid/logging/incident_reporter'
+
 module Celluloid
   class ActorSystem
     extend Forwardable
 
-    def initialize
+    DEFAULT_SERVICES = {
+      notifications_fanout: Celluloid::Notifications::Fanout,
+      default_incident_reporter: Celluloid::IncidentReporter
+    }
+
+    def initialize(default_services = DEFAULT_SERVICES)
       @group = Celluloid.group_class.new
       @registry = Internals::Registry.new
+      @default_services = default_services
     end
+
     attr_reader :registry
 
     # Launch default services
     # FIXME: We should set up the supervision hierarchy here
     def start
       within do
-        Celluloid::Notifications::Fanout.supervise_as :notifications_fanout
-        Celluloid::IncidentReporter.supervise_as :default_incident_reporter, STDERR
+        @default_services.each do |name, service|
+          service.start_as_service(name)
+        end
       end
       true
     end

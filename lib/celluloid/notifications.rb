@@ -25,6 +25,15 @@ module Celluloid
       include Celluloid
       trap_exit :prune
 
+      def self.start_as_service(name)
+        klass = self
+        if klass.respond_to?(:supervise_as)
+          klass.supervise_as(name)
+        else
+          Actor[name] = klass.new
+        end
+      end
+
       def initialize
         @subscribers = []
         @listeners_for = {}
