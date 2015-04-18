@@ -3,6 +3,7 @@ module Celluloid
   class Call
     attr_reader :method, :arguments, :block
 
+    # TODO: Do not hard-code. Allow configurable values.
     RETRY_CALL = 3
     RETRY_LIMIT = 5
 
