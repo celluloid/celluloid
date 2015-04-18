@@ -6,9 +6,6 @@ gem 'timers', github: 'celluloid/timers'
 
 gem 'celluloid-essentials', github: 'celluloid/celluloid-essentials', branch: "master"
 
-# keep these gems in the bundle for now, until the world realizes they are gems ( outside core )
-gem 'celluloid-pool', github: 'celluloid/celluloid-pool', branch: "master"
-gem 'celluloid-fsm', github: 'celluloid/celluloid-fsm', branch: "master"
 gem 'celluloid-extras', github: 'celluloid/celluloid-extras', branch: "master"
 
 gemspec development_group: :gem_build_tools

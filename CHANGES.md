@@ -25,7 +25,7 @@
   * Moved Celluloid::CellProxy to Celluloid::Proxy::Cell
   * Moved Celluloid::FutureProxy to Celluloid::Proxy::Future
   * Moved Celluloid::SyncProxy to Celluloid::Proxy::Sync
-
+* GEM EXTRACTION: `Internals`, `Notifications`, `Probe`, and the contents of `logging/*` have become a `celluloid-essentials` gem.
 
 0.16.0 (2014-09-04)
 -----
