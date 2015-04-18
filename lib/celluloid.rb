@@ -447,7 +447,7 @@ require 'celluloid/condition'
 require 'celluloid/thread'
 
 require 'celluloid/core_ext'
-require 'celluloid/internals'
+require 'celluloid/essentials'
 
 require 'celluloid/system_events'
 
@@ -471,9 +471,6 @@ require 'celluloid/future'
 require 'celluloid/actor_system'
 
 require 'celluloid/depreciate'
-
-require 'celluloid/notifications'
-require 'celluloid/logging'
 
 require 'celluloid/legacy' unless defined?(CELLULOID_FUTURE)
 
