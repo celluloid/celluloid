@@ -447,12 +447,15 @@ require 'celluloid/condition'
 require 'celluloid/thread'
 
 require 'celluloid/core_ext'
-require 'celluloid/essentials'
 
 require 'celluloid/system_events'
 
+require 'celluloid/proxies'
+
 require 'celluloid/mailbox'
 require 'celluloid/mailbox/evented'
+
+require 'celluloid/essentials'
 
 require 'celluloid/group'
 require 'celluloid/group/spawner'   
@@ -461,8 +464,6 @@ require 'celluloid/group/pool'      # TODO: Find way to only load this if being 
 require 'celluloid/task'
 require 'celluloid/task/fibered'
 require 'celluloid/task/threaded'   # TODO: Find way to only load this if being used.
-
-require 'celluloid/proxies'
 
 require 'celluloid/actor'
 require 'celluloid/cell'

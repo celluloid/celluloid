@@ -19,6 +19,7 @@ end
 
 # Require in order, so both CELLULOID_TEST and CELLULOID_DEBUG are true
 require 'celluloid/test'
+require 'celluloid/essentials'
 
 module CelluloidSpecs
   def self.included_module
