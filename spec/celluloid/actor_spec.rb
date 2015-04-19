@@ -369,14 +369,14 @@ RSpec.describe Celluloid, actor_system: :global do
     end
 
     it "allows mocking raises" do
-      pending "not implemented?"
+      skip "not implemented?"
       expect(actor).to receive(:foo).and_raise ArgumentError
       expect { actor.foo }.to raise_error(ArgumentError)
       expect(actor).to be_alive
     end
 
     it "allows mocking async calls via the async proxy" do
-      pending "not implemented?"
+      skip "not implemented?"
       expect(actor.async).to receive(:foo).once
       actor.async.foo
     end
