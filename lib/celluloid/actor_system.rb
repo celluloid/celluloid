@@ -96,12 +96,13 @@ module Celluloid
       end
     rescue Timeout::Error
       Internals::Logger.error("Couldn't cleanly terminate all actors in #{shutdown_timeout} seconds!")
-      actors.each do |actor|
-        begin
-          Actor.kill(actor) unless RUBY_PLATFORM == "java" or RUBY_ENGINE == "rbx"
-        rescue DeadActorError, MailboxDead
+      unless RUBY_PLATFORM == "java" or RUBY_ENGINE == "rbx"
+        actors.each do |actor|
+          begin
+            Actor.kill(actor)
+          rescue DeadActorError, MailboxDead
+          end
         end
-        sleep 0.1 if RUBY_PLATFORM == "java" or RUBY_ENGINE == "rbx"
       end
     ensure
       @group.shutdown
