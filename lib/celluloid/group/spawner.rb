@@ -58,8 +58,8 @@ module Celluloid
           begin
             proc.call
           rescue Exception => ex
-            Thread.current[:celluloid_meta][:state] = :error
             Internals::Logger.crash("thread crashed", ex)
+            Thread.current[:celluloid_meta][:state] = :error
           ensure
             unless Thread.current[:celluloid_meta][:state] == :error
               Thread.current[:celluloid_meta][:state] = :finished
