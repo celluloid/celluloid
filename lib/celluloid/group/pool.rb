@@ -21,6 +21,14 @@ module Celluloid
         @max_idle = 16
       end
 
+      def idle?
+        busy_size.count == 0
+      end
+
+      def busy?
+        busy_size.count > 0
+      end
+
       def busy_size
         @busy_size
       end

@@ -37,7 +37,10 @@ module Celluloid
     end
 
     def purge(thread)
-      @mutex.synchronize { @group.delete(thread) }
+      @mutex.synchronize {
+        @group.delete(thread)
+        thread.kill rescue nil
+      }
     end
 
     def each_actor(&block)

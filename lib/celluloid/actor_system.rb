@@ -6,7 +6,8 @@ module Celluloid
       @group = Celluloid.group_class.new
       @registry = Internals::Registry.new
     end
-    attr_reader :registry
+
+    attr_reader :registry, :group, :manager
 
     # Launch default services
     # FIXME: We should set up the supervision hierarchy here
@@ -14,6 +15,7 @@ module Celluloid
       within do
         Celluloid::Notifications::Fanout.supervise_as :notifications_fanout
         Celluloid::IncidentReporter.supervise_as :default_incident_reporter, STDERR
+        @manager = Group::Manager.supervise_as :group_manager, @group
       end
       true
     end
