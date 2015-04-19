@@ -16,7 +16,7 @@ RSpec.describe Celluloid::ActorSystem do
   it "starts default actors" do
     subject.start
 
-    expect(subject.registered).to eq([:notifications_fanout, :default_incident_reporter])
+    expect(subject.registered).to eq([:notifications_fanout, :default_incident_reporter, :group_manager])
   end
 
   it "support getting threads" do

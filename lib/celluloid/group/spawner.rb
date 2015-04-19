@@ -36,22 +36,38 @@ module Celluloid
         }
       end
 
-      # Temporarily for backward compatibility for specs
-      # (should be replaced with busy?() or something)
-      def busy_size
-        @mutex.synchronize { @group.count(&:status)}
+      def idle?
+        to_a.select{ |t| t[:celluloid_meta] and t[:celluloid_meta][:state] == :running }.empty?
+      end
+
+      def busy?
+        to_a.select{ |t| t[:celluloid_meta] and t[:celluloid_meta][:state] == :running }.any?
       end
 
       private
 
       def instantiate proc
+
         thread = Thread.new {
+
+          Thread.current[:celluloid_meta] = {
+            :started => Time.now,
+            :state => :running
+          }
+
           begin
             proc.call
           rescue Exception => ex
+            Thread.current[:celluloid_meta][:state] = :error
             Internals::Logger.crash("thread crashed", ex)
+          ensure
+            unless Thread.current[:celluloid_meta][:state] == :error
+              Thread.current[:celluloid_meta][:state] = :finished
+            end
+            Thread.current[:celluloid_meta][:finished] = Time.now
           end
         }
+
         @mutex.synchronize { @group << thread }
         thread
       end

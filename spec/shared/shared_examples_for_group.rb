@@ -6,11 +6,11 @@ RSpec.shared_examples "a Celluloid Group" do
 
   def wait_until_busy(busy_queue = nil)
     return busy_queue.pop if busy_queue
-    Specs.sleep_and_wait_until { subject.busy_size > 0 }
+    Specs.sleep_and_wait_until { subject.busy? }
   end
 
   def wait_until_idle
-    Specs.sleep_and_wait_until { subject.busy_size.zero? }
+    Specs.sleep_and_wait_until { subject.idle? }
   end
 
   before { subject }
@@ -19,27 +19,10 @@ RSpec.shared_examples "a Celluloid Group" do
     subject.shutdown
   end
 
-  it "gets threads from the pool" do
+  it "gets threads" do
     expect(subject.get { queue.pop }).to be_a Thread
     queue << nil
     wait_until_idle
-  end
-
-  context "when a thread is finished" do
-    before do
-      subject.get do
-        busy_queue << nil
-        queue.pop
-      end
-
-      wait_until_busy(busy_queue)
-      queue << nil
-      wait_until_idle
-    end
-
-    it "puts threads back into the pool" do
-      expect(subject.busy_size).to eq 0
-    end
   end
 
   [StandardError, Exception].each do |exception_class|
@@ -64,10 +47,10 @@ RSpec.shared_examples "a Celluloid Group" do
         wait_until_idle
       end
 
-      it "puts error'd threads back into the pool" do
+      it "puts error'd threads back" do
         @wait_queue << nil # let the thread fail
         wait_until_idle
-        expect(subject.busy_size).to be_zero
+        expect(subject.idle?).to be_truthy
       end
     end
   end
