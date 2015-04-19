@@ -40,7 +40,7 @@ Specs.reset_probe(nil)
 
 Celluloid.shutdown_timeout = 1
 
-Dir['./spec/support/*.rb'].map {|f| require f }
+Dir['./spec/support/*.rb','./spec/shared/*.rb'].map {|f| require f }
 
 RSpec.configure do |config|
   unless Nenv.ci?
