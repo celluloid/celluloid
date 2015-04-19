@@ -4,7 +4,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |gem|
   gem.name         = 'celluloid-supervision'
-  gem.version      = '0.13.9.pre1'
+  gem.version      = '0.13.9.pre2'
   gem.platform     = Gem::Platform::RUBY
   gem.summary      = 'Celluloid Supervision'
   gem.description  = 'Supervisors, Supervision Groups, and Supervision Trees for Celluloid.'
@@ -22,4 +22,8 @@ Gem::Specification.new do |gem|
 
   gem.add_development_dependency 'bundler'
   gem.add_development_dependency 'celluloid-essentials', '>= 0.20.0.pre0'
+
+  gem.add_development_dependency 'celluloid-supervision', '>= 0.13.9.pre0'
+  gem.add_development_dependency 'celluloid-pool', '>= 0.10.0.pre0'
+  gem.add_development_dependency 'celluloid-fsm', '>= 0.8.7.pre0'
 end
