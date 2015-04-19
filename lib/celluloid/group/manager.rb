@@ -6,21 +6,21 @@ module Celluloid
 
       def initialize group
         @group = group
-        every( 1.26 ) { garbage_collector }
+        # every( 1.26 ) { garbage_collector }
       end
 
       def garbage_collector
         @group.each { |t|
           case t[:celluloid_meta][:state]
           when :finished
-            puts "thread finished: #{t.inspect}"
+            # puts "thread finished: #{t.inspect}"
           else
-            puts "thread state: #{t[:celluloid_meta]}"
+            # puts "thread state: #{t[:celluloid_meta]}"
           end
-          puts "thread: #{t[:celluloid_actor].name}" 
+          # puts "thread: #{t[:celluloid_actor].name}" 
         }
       rescue => ex
-        puts "#{ex.backtrace.first}"
+        # puts "#{ex.backtrace.first}"
       end
 
     end
