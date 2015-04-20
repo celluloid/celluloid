@@ -7,13 +7,13 @@ module Celluloid
       attr_accessor :root
 
       def supervise(klass, *args, &block)
-        SupervisionGroup.new do |group|
+        Supervision::Group.new do |group|
           group.supervise klass, *args, &block
         end
       end
 
       def supervise_as(name, klass, *args, &block)
-        SupervisionGroup.new do |group|
+        Supervision::Group.new do |group|
           group.supervise_as name, klass, *args, &block
         end
       end

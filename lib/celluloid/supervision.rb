@@ -1,7 +1,9 @@
 require 'celluloid' unless defined? Celluloid
 
-require 'celluloid/supervision_group'
-require 'celluloid/supervisor'
+require 'celluloid/supervision/group'
+require 'celluloid/supervision/supervisor'
+require 'celluloid/supervision/configuration'
+require 'celluloid/supervision/depreciate'
 
 module Celluloid
   module ClassMethods

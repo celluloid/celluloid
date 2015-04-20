@@ -1,4 +1,4 @@
-RSpec.describe Celluloid::SupervisionGroup, actor_system: :global do
+RSpec.describe Celluloid::Supervision::Group, actor_system: :global do
   let(:queue_count) { 1 }
 
   class SupervisionGroupHelper
@@ -54,7 +54,7 @@ RSpec.describe Celluloid::SupervisionGroup, actor_system: :global do
 
   context "when supervising a single actor" do
     subject do
-      Class.new(Celluloid::SupervisionGroup) do
+      Class.new(Celluloid::Supervision::Group) do
         supervise MyActor, :as => :example
       end.run!(*registry)
     end
@@ -85,7 +85,7 @@ RSpec.describe Celluloid::SupervisionGroup, actor_system: :global do
 
   context "with multiple args" do
     subject do
-      Class.new(Celluloid::SupervisionGroup) do
+      Class.new(Celluloid::Supervision::Group) do
         supervise MyActor, as: :example, args: [:foo, :bar]
       end.run!
     end
@@ -97,7 +97,7 @@ RSpec.describe Celluloid::SupervisionGroup, actor_system: :global do
 
   context "with lazy evaluation" do
     subject do
-      Class.new(Celluloid::SupervisionGroup) do
+      Class.new(Celluloid::Supervision::Group) do
         supervise MyActor, as: :example, args: ->{ :lazy }
       end.run!
     end
