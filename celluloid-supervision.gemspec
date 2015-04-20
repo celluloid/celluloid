@@ -1,10 +1,9 @@
 # -*- encoding: utf-8 -*-
-lib = File.expand_path('../lib', __FILE__)
-$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
+require File.expand_path('../lib/celluloid/supervision/version', __FILE__)
 
 Gem::Specification.new do |gem|
   gem.name         = 'celluloid-supervision'
-  gem.version      = '0.13.9.pre2'
+  gem.version      = Celluloid::Supervision::VERSION
   gem.platform     = Gem::Platform::RUBY
   gem.summary      = 'Celluloid Supervision'
   gem.description  = 'Supervisors, Supervision Groups, and Supervision Trees for Celluloid.'
