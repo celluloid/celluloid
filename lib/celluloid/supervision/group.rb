@@ -86,7 +86,6 @@ module Celluloid
       def initialize(registry = nil)
         @members = []
         @registry = registry || Celluloid.actor_system.registry
-
         yield current_actor if block_given?
       end
 
@@ -122,7 +121,7 @@ module Celluloid
         raise "a group member went missing. This shouldn't be!" unless member
 
         if reason
-          member.restart
+          exclusive { member.restart }
         else
           member.cleanup
           @members.delete(member)
@@ -131,6 +130,9 @@ module Celluloid
 
       # A member of the group
       class Member
+
+        attr_reader :name, :actor
+
         # @option options [#call, Object] :args ([]) arguments array for the
         #   actor's constructor (lazy evaluation if it responds to #call)
         def initialize(registry, klass, options = {})
@@ -148,16 +150,12 @@ module Celluloid
           @args = prepare_args(@options['args'])
           @method = @options['method'] || 'new_link'
 
-          # TODO: rename to ":after_initialize"?
           invoke_injection(:after_initialize)
-
           start
         end
-        attr_reader :name, :actor
 
         def start
           invoke_injection(:before_start)
-
           @actor = @klass.send(@method, *@args, &@block)
           @registry[@name] = @actor if @name
 =begin
@@ -171,16 +169,16 @@ module Celluloid
         end
 
         def restart
+          @actor = :restarting # makes finding race conditions easier to find
+          # and simultaneously changes contents of @registry[@name]; ultimately 
+          # this doesn't matter: #restart is called from within exclusive {} now.
           invoke_injection(:before_restart)
-
-          @actor = nil
-          cleanup
           start
         end
 
         def terminate
-          cleanup
           @actor.terminate if @actor
+          cleanup
         rescue DeadActorError
         end
 
