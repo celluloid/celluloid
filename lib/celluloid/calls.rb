@@ -40,12 +40,7 @@ module Celluloid
       begin
         meth = obj.method(@method)
       rescue NameError
-        inspect_dump = begin
-                         obj.inspect
-                       rescue RuntimeError, NameError
-                         "#<#{obj.class}:0x#{obj.object_id.to_s(16)}>" # do not enumerate variables here
-                       end
-        raise NoMethodError, "undefined method `#{@method}' for #{inspect_dump}"
+        raise NoMethodError, "undefined method `#{@method}' for #<#{obj.class}:0x#{obj.object_id.to_s(16)}>"
       end
 
       arity = meth.arity
