@@ -21,6 +21,7 @@ module Celluloid
         @base_services.supervise_as :notifications_fanout, Celluloid::Notifications::Fanout
         @base_services.supervise_as :default_incident_reporter, Celluloid::IncidentReporter, STDERR
         @base_services.supervise_as :group_manager, Celluloid::Group::Manager, @group
+        @group_manager = @base_services[:group_manager]
       end
       true
     end
