@@ -2,26 +2,41 @@ module Celluloid
   class ActorSystem
     extend Forwardable
 
-    class BaseServices < Celluloid::SupervisionGroup; end
-
     def initialize
       @group = Celluloid.group_class.new
       @registry = Internals::Registry.new
-      @base_services = nil
+      @essential_services = nil
+      @public_services = nil
       @manager = nil
     end
 
-    attr_reader :registry, :group, :manager, :base_services
+    attr_reader :registry, :group, :manager
+
+    def public_services
+      @public_services ||= Supervision::Services::Public.run!
+    end
 
     # Launch default services
     # FIXME: We should set up the supervision hierarchy here
     def start
       within do
-        @base_services = BaseServices.run! # reduced down to one supervisor
-        @base_services.supervise_as :notifications_fanout, Celluloid::Notifications::Fanout
-        @base_services.supervise_as :default_incident_reporter, Celluloid::IncidentReporter, STDERR
-        @base_services.supervise_as :group_manager, Celluloid::Group::Manager, @group
-        @group_manager = @base_services[:group_manager]
+        @essential_services = Supervision::Services::Essential.deploy([
+          {
+            :as => :notifications_fanout,
+            :type => Celluloid::Notifications::Fanout
+          },
+          {
+            :as => :default_incident_reporter,
+            :type => Celluloid::IncidentReporter,
+            :args => [ STDERR ]
+          },
+          {
+            :as => :group_manager,
+            :type => Celluloid::Group::Manager,
+            :args => [ @group ]
+          }
+        ])
+        @group_manager = @essential_services[:group_manager]
       end
       true
     end

@@ -19,7 +19,7 @@ module Celluloid
           end
           # puts "thread: #{t[:celluloid_actor].name}" 
         }
-      rescue => ex
+      rescue #de => ex
         # puts "#{ex.backtrace.first}"
       end
 

@@ -28,7 +28,6 @@ module Celluloid
     attr_accessor :group_class          # Default internal thread group to use
     attr_accessor :task_class           # Default task type to use
     attr_accessor :shutdown_timeout     # How long actors have to terminate
-    attr_reader   :group_manager
 
     def actor_system
       if Thread.current.celluloid?
@@ -39,7 +38,11 @@ module Celluloid
     end
 
     def group_manager
-      actor_system.manager
+      actor_system.group_manager
+    end
+
+    def public_services
+      actor_system.public_services
     end
 
     def included(klass)
