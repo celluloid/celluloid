@@ -7,14 +7,10 @@ module Celluloid
       @registry = Internals::Registry.new
       @essential_services = nil
       @public_services = nil
-      @manager = nil
+      @group_manager = nil
     end
 
-    attr_reader :registry, :group, :manager
-
-    def public_services
-      @public_services ||= Supervision::Services::Public.run!
-    end
+    attr_reader :registry, :group, :group_manager, :public_services
 
     # Launch default services
     # FIXME: We should set up the supervision hierarchy here
@@ -34,9 +30,15 @@ module Celluloid
             :as => :group_manager,
             :type => Celluloid::Group::Manager,
             :args => [ @group ]
-          }
+          },
+          {
+            :as => :public_services,
+            :type => Celluloid::Supervision::Services::Public
+          },
+
         ])
         @group_manager = @essential_services[:group_manager]
+        @public_services = @essential_services[:public_services]
       end
       true
     end
