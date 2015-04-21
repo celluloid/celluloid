@@ -2,15 +2,21 @@
 module Celluloid
   SupervisionGroup = Supervision::Group
 
+  module ClassMethods
+    def supervise_as(*args,&block)
+      supervise(*args,&block)
+    end
+  end
+
   module Supervision
     class Group
       class << self
-        def supervise_as *args
-          puts "supervise_as class method: #{args}"
+        def supervise_as(*args,&block)
+          supervise(*args,&block)
         end
       end
-      def supervise_as *args
-        puts "supervise_as instance method: #{args}"
+      def supervise_as(*args,&block)
+        supervise(*args,&block)
       end
     end
     class Configuration
@@ -30,7 +36,8 @@ module Celluloid
             return args
           elsif args.is_a? Array
             if args.length == 1
-              return { :type => args.first }.merge( options ) if args.first.is_a? Class
+              return { :type => args.first } if args.first.is_a? Class
+              return { :as => args.first } if args.first.is_a? Symbol
               if args.first.is_a? Hash and args = args.pop
                 Configuration.valid? args, true
                 return args

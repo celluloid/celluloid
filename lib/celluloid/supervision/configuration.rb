@@ -107,7 +107,6 @@ module Celluloid
         def options(args, options={})
           valid?(configuration=args.merge(options))
           configuration
-          configuration
         end
 
       end
