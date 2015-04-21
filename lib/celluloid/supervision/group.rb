@@ -8,6 +8,11 @@ module Celluloid
       trap_exit :restart_actor
 
       class << self
+
+        def deploy options
+          Configuration.deploy(options,self)
+        end
+
         # Actors or sub-applications to be supervised
         def blocks
           @blocks ||= []
@@ -15,9 +20,9 @@ module Celluloid
 
         # Start this application (and watch it with a supervisor)
         def run!(registry = nil)
-          group = new(registry) do |_group|
+          group = new(registry) do |g|
             blocks.each do |block|
-              block.call(_group)
+              block.call(g)
             end
           end
           group
@@ -36,47 +41,10 @@ module Celluloid
         end
 
         # Register an actor class or a sub-group to be launched and supervised
-        def supervise(klass, *args, &block)
+        def supervise(*args, &block)
           blocks << lambda do |group|
-            group.add(klass, prepare_options(args, :block => block))
+            group.add(Configuration.options(args, :block => block))
           end
-        end
-
-        def supervise_as(name, klass, *args, &block)
-          blocks << lambda do |group|
-            group.add(klass, prepare_options(args, :block => block, :as => name))
-          end
-        end
-
-        def prepare_options(args, options = {})
-          po = if args.is_a? Hash
-            args
-          elsif args.is_a? Array and args.length == 1 and args[0].is_a? Hash
-            args[0]
-          end
-
-          if po.is_a? Hash
-            o = [ :block, :args, :size, :as ].inject({}) { |a,k|
-              if po[k]
-                a[k] = po.delete(k)
-              end
-              a
-            }
-            if po.any?
-              if o[:args].is_a? Array
-                o[:args] += [po]
-              else
-                o[:args] = [po]
-              end
-            end
-            o
-          elsif !args or ( args.is_a? Array and args.empty? )
-            { args: [] }
-          elsif args.is_a? Array
-            { args: args }
-          else
-            { args: [ args ] }
-          end.merge( options )
         end
       end
 
@@ -84,6 +52,7 @@ module Celluloid
 
       # Start the group
       def initialize(registry = nil)
+        @state = :initializing
         @members = []
         @registry = registry || Celluloid.actor_system.registry
         yield current_actor if block_given?
@@ -91,18 +60,16 @@ module Celluloid
 
       execute_block_on_receiver :initialize, :supervise, :supervise_as
 
-      def supervise(klass, *args, &block)
-        add(klass, self.class.prepare_options(args, :block => block))
+      def supervise(*args, &block)
+        add(Configuration.options(args, :block => block))
       end
 
-      def supervise_as(name, klass, *args, &block)
-        add(klass, self.class.prepare_options(args, :block => block, :as => name))
-      end
-
-      def add(klass, options)
-        member = Member.new(@registry, klass, options)
+      def add(configuration)
+        Configuration.valid? configuration, true
+        member = Supervision::Member.new(configuration.merge(registry: @registry))
         @members << member
-        member.actor
+        @state = :running
+        Actor.current
       end
 
       def actors
@@ -115,6 +82,7 @@ module Celluloid
 
       # Restart a crashed actor
       def restart_actor(actor, reason)
+        return if @state == :shutdown
         member = @members.find do |_member|
           _member.actor == actor
         end
@@ -128,79 +96,11 @@ module Celluloid
         end
       end
 
-      # A member of the group
-      class Member
-
-        attr_reader :name, :actor
-
-        # @option options [#call, Object] :args ([]) arguments array for the
-        #   actor's constructor (lazy evaluation if it responds to #call)
-        def initialize(registry, klass, options = {})
-          @registry = registry
-          @klass = klass
-
-          # allows injections at initialize, start, and restart
-          @injections = options.delete(:injections) || {}
-
-          # Stringify keys :/
-          @options = options.each_with_object({}) { |(k,v), h| h[k.to_s] = v }
-
-          @name = @options['as']
-          @block = @options['block']
-          @args = prepare_args(@options['args'])
-          @method = @options['method'] || 'new_link'
-
-          invoke_injection(:after_initialize)
-          start
-        end
-
-        def start
-          invoke_injection(:before_start)
-          @actor = @klass.send(@method, *@args, &@block)
-          @registry[@name] = @actor if @name
-=begin
-      rescue Celluloid::TimeoutError => ex
-        puts "retry"
-        raise ex unless ( @retry += 1 ) <= RETRY_CALL_LIMIT
-        Internals::Logger.warn("TimeoutError at Call dispatch. Retrying in #{RETRY_CALL_WAIT} seconds. ( Attempt #{@retry} of #{RETRY_CALL_LIMIT} )")
-        sleep RETRY_CALL_WAIT
-        retry
-=end
-        end
-
-        def restart
-          @actor = :restarting # makes finding race conditions easier to find
-          # and simultaneously changes contents of @registry[@name]; ultimately 
-          # this doesn't matter: #restart is called from within exclusive {} now.
-          invoke_injection(:before_restart)
-          start
-        end
-
-        def terminate
-          @actor.terminate if @actor
-          cleanup
-        rescue DeadActorError
-        end
-
-        def cleanup
-          @registry.delete(@name) if @name
-        end
-
-        private
-
-        def invoke_injection(name)
-          block = @injections[name]
-          instance_eval(&block) if block.is_a? Proc
-        end
-
-        # Executes args if it has the method #call, and converts the return
-        # value to an Array. Otherwise, it just converts it to an Array.
-        def prepare_args(args)
-          args = args.call if args.respond_to?(:call)
-          Array(args)
-        end
+      def shutdown
+        @state = :shutdown
+        finalize
       end
-
+      
       private
 
       def finalize
