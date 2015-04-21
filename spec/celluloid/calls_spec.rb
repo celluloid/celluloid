@@ -31,11 +31,15 @@ RSpec.describe Celluloid::Call::Sync, actor_system: :global do
         expect do
           actor.the_method_that_wasnt_there
         end.to raise_exception(NoMethodError)
+        Specs.sleep_and_wait_until { ! actor.alive? } # so logger records crash
       end
     end
 
     context "when obj raises during inspect" do
       it "should emulate obj.inspect" do
+        pending "TODO: the second half of this test was lost (recover?)"
+        fail "TODO"
+
         allow(logger).to receive(:crash).with('Actor crashed!', NoMethodError)
 
         if RUBY_ENGINE == "rbx"
@@ -53,6 +57,7 @@ RSpec.describe Celluloid::Call::Sync, actor_system: :global do
     expect do
       actor.actual_method("with too many arguments")
     end.to raise_exception(ArgumentError)
+    Specs.sleep_and_wait_until { ! actor.alive? } # so logger records crash
   end
 
   it "preserves call chains across synchronous calls" do
