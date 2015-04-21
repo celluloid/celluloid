@@ -4,41 +4,46 @@ module Celluloid
 
     def initialize
       @group = Celluloid.group_class.new
+      @public_registry = Internals::Registry.new
       @registry = Internals::Registry.new
-      @essential_services = nil
       @public_services = nil
       @group_manager = nil
+      @root = nil
+
+      # TODO: rename and/or move this
+      @services = [
+        {
+          :as => :notifications_fanout,
+          :type => Celluloid::Notifications::Fanout
+        },
+        {
+          :as => :default_incident_reporter,
+          :type => Celluloid::IncidentReporter,
+          :args => [ STDERR ]
+        },
+        {
+          :as => :group_manager,
+          :type => Celluloid::Group::Manager,
+          :args => [ @group ]
+        },
+        {
+          :as => :public_services,
+          :type => Celluloid::Supervision::Services::Public,
+          :args => [ @public_registry ]
+        },
+      ]
     end
 
-    attr_reader :registry, :group, :group_manager, :public_services
+    attr_reader :root, :services, :registry, :group
+    attr_reader :public_registry, :group_manager, :public_services
 
     # Launch default services
     # FIXME: We should set up the supervision hierarchy here
     def start
       within do
-        @essential_services = Supervision::Services::Essential.deploy([
-          {
-            :as => :notifications_fanout,
-            :type => Celluloid::Notifications::Fanout
-          },
-          {
-            :as => :default_incident_reporter,
-            :type => Celluloid::IncidentReporter,
-            :args => [ STDERR ]
-          },
-          {
-            :as => :group_manager,
-            :type => Celluloid::Group::Manager,
-            :args => [ @group ]
-          },
-          {
-            :as => :public_services,
-            :type => Celluloid::Supervision::Services::Public
-          },
-
-        ])
-        @group_manager = @essential_services[:group_manager]
-        @public_services = @essential_services[:public_services]
+        @root = Supervision::Services::Essential.deploy(@services)
+        @group_manager = @root[:group_manager]
+        @public_services = @root[:public_services]
       end
       true
     end
@@ -70,6 +75,10 @@ module Celluloid
 
     def registered
       @registry.names
+    end
+
+    def published
+      @public_registry.names
     end
 
     def clear_registry

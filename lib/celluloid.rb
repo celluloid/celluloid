@@ -116,6 +116,10 @@ module Celluloid
     end
     alias_method :summarize, :stack_summary
 
+    def public_registry
+      actor_system.public_registry
+    end
+
     # Detect if a particular call is recursing through multiple actors
     def detect_recursion
       actor = Thread.current[:celluloid_actor]

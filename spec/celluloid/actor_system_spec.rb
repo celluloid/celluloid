@@ -16,7 +16,7 @@ RSpec.describe Celluloid::ActorSystem do
   it "starts default actors" do
     subject.start
 
-    expect(subject.registered).to eq([:notifications_fanout, :default_incident_reporter, :group_manager])
+    expect(subject.registered).to eq(subject.services.map { |s| s[:as] })
   end
 
   it "support getting threads" do
@@ -37,12 +37,13 @@ RSpec.describe Celluloid::ActorSystem do
   end
 
   it "returns named actors" do
-    expect(subject.registered).to be_empty
+    subject.start
+    expect(subject.published).to be_empty
     subject.within do
       TestActor.supervise as: :test
     end
 
-    expect(subject.registered).to eq([:test])
+    expect(subject.published).to eq([:test])
   end
 
   it "returns running actors" do
