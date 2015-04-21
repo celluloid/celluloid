@@ -4,6 +4,9 @@ require 'timeout'
 require 'set'
 
 $CELLULOID_DEBUG = false
+$CELLULOID_BACKPORTED = ENV['CELLULOID_BACKPORTED']
+$CELLULOID_BACKPORTED = false if $CELLULOID_BACKPORTED == 'false'
+$CELLULOID_BACKPORTED ||= true unless defined? $CELLULOID_BACKPORTED
 
 require 'celluloid/version'
 
@@ -454,6 +457,10 @@ end
 
 require 'celluloid/exceptions'
 
+Celluloid.logger = Logger.new(STDERR)
+Celluloid.shutdown_timeout = 10
+Celluloid.log_actor_crashes = true
+
 require 'celluloid/calls'
 require 'celluloid/condition'
 require 'celluloid/thread'
@@ -469,6 +476,8 @@ require 'celluloid/mailbox/evented'
 
 require 'celluloid/essentials'
 
+require 'celluloid/depreciate' unless $CELLULOID_BACKPORTED == false
+
 require 'celluloid/group'
 require 'celluloid/group/manager'
 require 'celluloid/group/spawner'
@@ -483,8 +492,6 @@ require 'celluloid/cell'
 require 'celluloid/future'
 
 require 'celluloid/actor_system'
-
-require 'celluloid/depreciate'
 
 require 'celluloid/legacy' unless defined?(CELLULOID_FUTURE)
 
@@ -516,10 +523,6 @@ Celluloid.group_class =
       Celluloid::Group.const_get(str)
     end
   end
-
-Celluloid.logger = Logger.new(STDERR)
-Celluloid.shutdown_timeout = 10
-Celluloid.log_actor_crashes = true
 
 unless defined?($CELLULOID_TEST) && $CELLULOID_TEST
   Celluloid.register_shutdown
