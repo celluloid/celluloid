@@ -41,11 +41,11 @@ module Specs
 
     def assert_no_loose_threads!(location)
       loose = Specs.loose_threads
-      backtraces = loose.map do |th|
+      backtraces = loose.map do |thread|
         name = thread_name(thread)
-        description = "#{th.inspect}#{name.empty? ? '' : "(#{name})"}"
+        description = "#{thread.inspect}#{name.empty? ? '' : "(#{name})"}"
         "Runaway thread: ================ #{description}\n" \
-          "Backtrace: \n ** #{th.backtrace * "\n ** "}\n"
+          "Backtrace: \n ** #{thread.backtrace * "\n ** "}\n"
       end
 
       return if loose.empty?

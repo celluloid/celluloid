@@ -22,7 +22,6 @@ module Celluloid
     end
 
     def dispatch(obj)
-      check(obj)
       _b = @block && @block.to_proc
       obj.public_send(@method, *@arguments, &_b)
 =begin
@@ -33,26 +32,6 @@ module Celluloid
       sleep RETRY_CALL_WAIT
       retry
 =end
-    end
-
-    def check(obj)
-      # NOTE: don't use respond_to? here
-      begin
-        meth = obj.method(@method)
-      rescue NameError
-        raise NoMethodError, "undefined method `#{@method}' for #<#{obj.class}:0x#{obj.object_id.to_s(16)}>"
-      end
-
-      arity = meth.arity
-
-      if arity >= 0
-        raise ArgumentError, "wrong number of arguments (#{@arguments.size} for #{arity})" if @arguments.size != arity
-      elsif arity < -1
-        mandatory_args = -arity - 1
-        raise ArgumentError, "wrong number of arguments (#{@arguments.size} for #{mandatory_args}+)" if arguments.size < mandatory_args
-      end
-    rescue => ex
-      raise AbortError.new(ex)
     end
   end
 end
