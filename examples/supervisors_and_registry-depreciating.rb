@@ -1,4 +1,4 @@
-$CELLULOID_BACKPORTED = false
+$CELLULOID_BACKPORTED = true
 
 require 'celluloid/autostart'
 
@@ -27,6 +27,7 @@ supervisor = MyActor.supervise
 
 # We can get to the current version of an actor by calling
 # Celluloid::Supervisor#actors. This prints ':clean'
+
 puts "We should be in a clean state now: #{supervisor.actors.first.state}"
 puts "Brace yourself for a crash message..."
 
@@ -56,7 +57,7 @@ end
 puts "*** Demonstrating using the actor registry"
 
 # We can give our actor a name and thus avoid interacting with the supervisor
-MyActor.supervise as: :my_actor
+MyActor.supervise_as :my_actor
 
 # Same as above, just getting the actor from a different place
 puts "We should be in a clean state now: #{Celluloid::Actor[:my_actor].state}"
