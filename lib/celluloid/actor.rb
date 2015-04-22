@@ -196,10 +196,7 @@ module Celluloid
 
           if message.instance_of? LinkingResponse
             Celluloid::Probe.actors_linked(self, receiver) if $CELLULOID_MONITORING
-
-            # We're done!
             system_events.each { |ev| @mailbox << ev }
-
             return
           elsif message.is_a? SystemEvent
             # Queue up pending system events to be processed after we've successfully linked
