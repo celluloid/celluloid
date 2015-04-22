@@ -40,18 +40,12 @@ module Celluloid
           end
         end
 
-        # Register an actor class or a sub-group to be launched and supervised
-        def supervise(*args, &block)
-          blocks << lambda do |group|
-            group.add(Configuration.options(args, :block => block))
-          end
-        end
       end
 
       finalizer :finalize
 
       # Start the group
-      def initialize(registry = nil)
+      def initialize registry=nil
         @state = :initializing
         @members = []
         @registry = registry || Celluloid.actor_system.registry
@@ -60,11 +54,8 @@ module Celluloid
 
       execute_block_on_receiver :initialize, :supervise, :supervise_as
 
-      def supervise(*args, &block)
-        add(Configuration.options(args, :block => block))
-      end
-
       def add(configuration)
+        raise Configuration::Error::Invalid unless configuration.is_a? Configuration
         Configuration.valid? configuration, true
         member = Supervision::Member.new(configuration.merge(registry: @registry))
         @members << member
@@ -72,8 +63,20 @@ module Celluloid
         Actor.current
       end
 
+      def remove(actor)
+        actor = Celluloid::Actor[actor] if actor.is_a? Symbol
+        member = find(actor)
+        member.terminate
+      end
+
       def actors
         @members.map(&:actor)
+      end
+
+      def find(actor)
+        @members.find do |member|
+          member.actor == actor
+        end
       end
 
       def [](actor_name)
@@ -83,9 +86,7 @@ module Celluloid
       # Restart a crashed actor
       def restart_actor(actor, reason)
         return if @state == :shutdown
-        member = @members.find do |_member|
-          _member.actor == actor
-        end
+        member = find(actor)
         raise "a group member went missing. This shouldn't be!" unless member
 
         if reason
