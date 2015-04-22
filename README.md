@@ -142,7 +142,7 @@ require 'celluloid/autostart'
 Supported Platforms
 -------------------
 
-Celluloid works on Ruby 1.9.3, 2.0.0, JRuby 1.6+, and Rubinius 2.0.
+Celluloid works on Ruby 2.0+, JRuby 1.7+, and Rubinius 2.0.
 
 JRuby or Rubinius are the preferred platforms as they support true thread-level
 parallelism when executing Ruby code, whereas MRI/YARV is constrained by a global
