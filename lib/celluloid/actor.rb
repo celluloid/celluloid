@@ -12,7 +12,7 @@ module Celluloid
     class << self
       extend Forwardable
 
-      def_delegators "Celluloid.actor_system", :[], :[]=, :delete, :registered, :clear_registry
+      def_delegators :"Celluloid.actor_system", :[], :[]=, :delete, :registered, :clear_registry
 
       # Obtain the current actor
       def current

@@ -1,6 +1,9 @@
 RSpec.describe Celluloid::ActorSystem do
   class TestActor
     include Celluloid
+    def identity
+      :testing
+    end
   end
 
   after do
@@ -13,10 +16,18 @@ RSpec.describe Celluloid::ActorSystem do
     end
   end
 
+  it "is makes actors accessible by Celluloid[:actor]" do
+    Celluloid.init
+    subject.within do
+      Celluloid[:testing] = TestActor.new
+    end
+    expect(subject.services.registered).to include(:testing)
+    expect(Celluloid[:testing].identity).to eq(:testing)
+  end
+
   it "starts default actors" do
     subject.start
-
-    expect(subject.registered).to eq(subject.services.map { |s| s[:as] })
+    expect(subject.registered).to eq(Celluloid::ActorSystem.root.map { |r| r[:as] })
   end
 
   it "support getting threads" do
@@ -37,13 +48,12 @@ RSpec.describe Celluloid::ActorSystem do
   end
 
   it "returns named actors" do
-    subject.start
-    expect(subject.published).to be_empty
+    expect(subject.services.registered).to be_empty
     subject.within do
       TestActor.supervise as: :test
     end
 
-    expect(subject.published).to eq([:test])
+    expect(subject.services.registered).to include(:test)
   end
 
   it "returns running actors" do

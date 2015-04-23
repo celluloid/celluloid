@@ -1,49 +1,42 @@
+require 'celluloid/supervision/root'
+
 module Celluloid
+
+  extend Forwardable
+  def_delegators :actor_system, :[], :[]=
+
   class ActorSystem
-    extend Forwardable
+
+    # root of supervision tree added by supervision/root
+    include Supervision::Root
 
     def initialize
       @group = Celluloid.group_class.new
-      @public_registry = Internals::Registry.new
       @registry = Internals::Registry.new
-      @public_services = nil
-      @group_manager = nil
+      @services = nil
       @root = nil
+      @manager = nil
+    end
 
-      # TODO: rename and/or move this
-      @services = [
-        {
-          :as => :notifications_fanout,
-          :type => Celluloid::Notifications::Fanout
-        },
-        {
-          :as => :default_incident_reporter,
-          :type => Celluloid::IncidentReporter,
-          :args => [ STDERR ]
-        },
-        {
+    attr_reader :root, :services, :registry, :group
+    attr_reader :services, :manager
+
+    # Launch default services
+    def start
+      self.class << [{
           :as => :group_manager,
           :type => Celluloid::Group::Manager,
           :args => [ @group ]
         },
         {
           :as => :public_services,
-          :type => Celluloid::Supervision::Services::Public,
-          :args => [ @public_registry ]
-        },
+          :type => Celluloid::Supervision::Services::Public
+        }
       ]
-    end
-
-    attr_reader :root, :services, :registry, :group
-    attr_reader :public_registry, :group_manager, :public_services
-
-    # Launch default services
-    # FIXME: We should set up the supervision hierarchy here
-    def start
       within do
-        @root = Supervision::Services::Essential.deploy(@services)
-        @group_manager = @root[:group_manager]
-        @public_services = @root[:public_services]
+        @root = Supervision::Services::Root.deploy(@@root)
+        @manager = @root[:group_manager]
+        @services = @root[:public_services]
       end
       true
     end
@@ -71,14 +64,8 @@ module Celluloid
       Internals::Stack::Summary.new(@group)
     end
 
-    def_delegators "@registry", :[], :get, :[]=, :set, :delete
-
     def registered
       @registry.names
-    end
-
-    def published
-      @public_registry.names
     end
 
     def clear_registry

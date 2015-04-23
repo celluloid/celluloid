@@ -4,11 +4,17 @@ require 'timeout'
 require 'set'
 
 $CELLULOID_DEBUG = false
-$CELLULOID_BACKPORTED = ENV['CELLULOID_BACKPORTED']
-$CELLULOID_BACKPORTED = false if $CELLULOID_BACKPORTED == 'false'
-$CELLULOID_BACKPORTED ||= true unless defined? $CELLULOID_BACKPORTED
 
 require 'celluloid/version'
+require 'celluloid/notices'
+
+if ENV['CELLULOID_BACKPORTED'] == 'silently' or ( defined? $CELLULOID_BACKPORTED and $CELLULOID_BACKPORTED == :silently )
+  $CELLULOID_BACKPORTED = true
+else
+  $CELLULOID_BACKPORTED = false if defined? CELLULOID_FUTURE and CELLULOID_FUTURE == true
+  $CELLULOID_BACKPORTED = ( ENV['CELLULOID_BACKPORTED'] != 'false' ) unless defined? $CELLULOID_BACKPORTED
+  Celluloid::Notices.backported if $CELLULOID_BACKPORTED 
+end
 
 module Celluloid
   # Expose all instance methods as singleton methods
@@ -40,12 +46,12 @@ module Celluloid
       end
     end
 
-    def group_manager
-      actor_system.group_manager
+    def manager
+      actor_system.manager
     end
 
-    def public_services
-      actor_system.public_services
+    def services
+      actor_system.services
     end
 
     def included(klass)
@@ -480,8 +486,6 @@ require 'celluloid/mailbox/evented'
 
 require 'celluloid/essentials'
 
-require 'celluloid/depreciate' unless $CELLULOID_BACKPORTED == false
-
 require 'celluloid/group'
 require 'celluloid/group/manager'
 require 'celluloid/group/spawner'
@@ -497,12 +501,12 @@ require 'celluloid/future'
 
 require 'celluloid/actor_system'
 
-require 'celluloid/legacy' unless defined?(CELLULOID_FUTURE)
+require 'celluloid/depreciate' unless $CELLULOID_BACKPORTED == false or defined? CELLULOID_FUTURE
 
 $CELLULOID_MONITORING = false
+Celluloid::Notices.output
 
 # Configure default systemwide settings
-
 
 Celluloid.task_class =
   begin
