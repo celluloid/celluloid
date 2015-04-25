@@ -8,6 +8,8 @@ $CELLULOID_DEBUG = false
 require 'celluloid/version'
 require 'celluloid/notices'
 
+$CELLULOID_BACKPORTED = false
+
 if ENV['CELLULOID_BACKPORTED'] == 'silently' or ( defined? $CELLULOID_BACKPORTED and $CELLULOID_BACKPORTED == :silently )
   $CELLULOID_BACKPORTED = true
 else
@@ -22,10 +24,6 @@ module Celluloid
 
   # Linking times out after 5 seconds
   LINKING_TIMEOUT = 5
-
-  # TODO: Do not hard-code. Allow configurable values.
-  RETRY_CALL_WAIT = 3
-  RETRY_CALL_LIMIT = 5
 
   # Warning message added to Celluloid objects accessed outside their actors
   BARE_OBJECT_WARNING_MESSAGE = "WARNING: BARE CELLULOID OBJECT "
@@ -46,15 +44,8 @@ module Celluloid
       end
     end
 
-    def manager
-      actor_system.manager
-    end
-
-    def services
-      actor_system.services
-    end
-
     def included(klass)
+
       klass.send :extend,  ClassMethods
       klass.send :include, InstanceMethods
 
@@ -75,11 +66,15 @@ module Celluloid
       klass.property :finalizer
       klass.property :exit_handler_name
 
-      klass.send(:define_singleton_method, :trap_exit) do |*args|
+      singleton = class << klass; self; end
+      singleton.send(:remove_method, :trap_exit) rescue nil
+      singleton.send(:remove_method, :exclusive) rescue nil
+      
+      singleton.send(:define_method, :trap_exit) do |*args|
         exit_handler_name(*args)
       end
 
-      klass.send(:define_singleton_method, :exclusive) do |*args|
+      singleton.send(:define_method, :exclusive) do |*args|
         if args.any?
           exclusive_methods(*exclusive_methods, *args)
         else
@@ -200,7 +195,7 @@ module Celluloid
 
   # Class methods added to classes which include Celluloid
   module ClassMethods
-    # Create a new actor
+
     def new(*args, &block)
       proxy = Cell.new(allocate, behavior_options, actor_options).proxy
       proxy._send_(:initialize, *args, &block)
@@ -309,6 +304,10 @@ module Celluloid
       end
 
       str.sub!(/\s$/, '>')
+    end
+
+    def __arity
+      method(:initialize).arity
     end
   end
 

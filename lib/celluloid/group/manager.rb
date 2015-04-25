@@ -4,13 +4,15 @@ module Celluloid
 
       include Celluloid
 
-      def initialize group
+      def manage! group
         @group = group
-        # every( 1.26 ) { garbage_collector }
+        every( 1.26 ) { garbage_collector }
       end
 
       def garbage_collector
         @group.each { |t|
+          puts "running Group::Manager garbage_collector"
+=begin
           case t[:celluloid_meta][:state]
           when :finished
             # puts "thread finished: #{t.inspect}"
@@ -18,9 +20,10 @@ module Celluloid
             # puts "thread state: #{t[:celluloid_meta]}"
           end
           # puts "thread: #{t[:celluloid_actor].name}" 
+=end
         }
-      rescue #de => ex
-        # puts "#{ex.backtrace.first}"
+      rescue => ex
+        puts "#{ex.backtrace.first}"
       end
 
     end

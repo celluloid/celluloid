@@ -1,42 +1,65 @@
-require 'celluloid/supervision/root'
-
 module Celluloid
 
   extend Forwardable
-  def_delegators :actor_system, :[], :[]=
+  def_delegators :"actor_system", :[], :[]=
 
   class ActorSystem
 
-    # root of supervision tree added by supervision/root
-    include Supervision::Root
+    extend Forwardable
+    def_delegators :@registry, :[], :get, :[]=, :set, :delete
 
-    def initialize
-      @group = Celluloid.group_class.new
-      @registry = Internals::Registry.new
-      @services = nil
-      @root = nil
-      @manager = nil
+    ROOT_SERVICES = [
+      {
+        :as => :notifications_fanout,
+        :type => Celluloid::Notifications::Fanout
+      },
+      {
+        :as => :default_incident_reporter,
+        :type => Celluloid::IncidentReporter,
+        :args => [ STDERR ]
+      },
+      {
+        :as => :group_manager,
+        :type => Celluloid::Group::Manager,
+        :accessors => [ :manager ]
+      },
+      {
+        :as => :public_services,
+        :type => Celluloid::Supervision::Services::Public,
+        :accessors => [ :services ],
+        :supervise => []
+      }
+    ]
+
+    attr_reader :registry, :group
+
+    module Error
+      class Uninitialized < StandardError; end
     end
 
-    attr_reader :root, :services, :registry, :group
-    attr_reader :services, :manager
+    # the root of the supervisor tree is established at supervision/root
+
+    def root_services
+      @tree
+    end
+
+    def root_configuration
+      @root
+    end
+
+    def initialize
+      @tree = nil
+      @group = Celluloid.group_class.new
+      @registry = Internals::Registry.new
+      @root = ROOT_SERVICES
+    end
 
     # Launch default services
     def start
-      self.class << [{
-          :as => :group_manager,
-          :type => Celluloid::Group::Manager,
-          :args => [ @group ]
-        },
-        {
-          :as => :public_services,
-          :type => Celluloid::Supervision::Services::Public
-        }
-      ]
       within do
-        @root = Supervision::Services::Root.deploy(@@root)
-        @manager = @root[:group_manager]
-        @services = @root[:public_services]
+        @root = Supervision::Services::Root.define
+        @tree = root_configuration.deploy
+        #de root_services[:group_manager].manage! @group
       end
       true
     end
