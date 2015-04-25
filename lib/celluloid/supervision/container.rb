@@ -1,9 +1,7 @@
 module Celluloid
   # Supervise collections of actors as a group
   module Supervision
-    class Group
-
-      @@branch = nil
+    class Container
 
       include Celluloid
       
@@ -51,7 +49,7 @@ module Celluloid
             # Take five, toplevel supervisor
             sleep 5 while supervisor.alive?
 
-            Internals::Logger.error "!!! Celluloid::Supervision::Group #{self} crashed. Restarting..."
+            Internals::Logger.error "!!! Celluloid::Supervision::Container #{self} crashed. Restarting..."
           end
         end
 

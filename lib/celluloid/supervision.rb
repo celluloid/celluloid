@@ -1,10 +1,10 @@
 require 'celluloid' unless defined? Celluloid
 require 'celluloid/supervision/configuration/constants'
 
-require 'celluloid/supervision/group'
-require 'celluloid/supervision/member'
+require 'celluloid/supervision/container'
+require 'celluloid/supervision/container/instance'
 
-require 'celluloid/supervision/configuration/coordinator'
+require 'celluloid/supervision/configuration/container'
 require 'celluloid/supervision/configuration'
 require 'celluloid/supervision/configuration/instance'
 
@@ -12,8 +12,6 @@ module Celluloid
   module Supervision
     module Services
       class Root < Group
-        @branch = :root
-
         class << self
           def define instances
             super( supervise: instances, as: :root, :branch => :root, :type => self )
@@ -26,7 +24,6 @@ module Celluloid
       end
       class Public < Group
         class << self
-
           def define instances
             super( supervise: instances, as: :services, :branch => :services, :type => self )
           end
@@ -55,7 +52,6 @@ module Celluloid
   # Supervisors are actors that watch over other actors and restart them if they crash
   class Supervisor
     class << self
-
       # Collection of non-essential one-off supervisors
       def services
         Celluloid.actor_system.services
@@ -64,18 +60,15 @@ module Celluloid
       def supervise(config={}, &block)
         Celluloid.services.supervise(Supervision::Configuration.options(config, :block => block))
       end
-
     end
   end
 
   module ClassMethods
-
     # Create a supervisor which ensures an instance of an actor will restart
     # an actor if it fails
     def supervise(config={}, &block)
       Celluloid.services.supervise(Supervision::Configuration.options(config, :type => self, :block => block))
     end
-
   end
 end
 
