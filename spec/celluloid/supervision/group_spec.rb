@@ -61,24 +61,24 @@ RSpec.describe Celluloid::Supervision::Group, actor_system: :global do
 
     let(:registry) { [] }
 
-    it "runs applications" do
+    xit "runs applications" do
       expect(Celluloid::Actor[:example]).to be_running
     end
 
     context "with a private registry" do
       let(:registry) { Celluloid::Internals::Registry.new }
 
-      it "accepts a private actor registry" do
+      xit "accepts a private actor registry" do
         expect(registry[:example]).to be_running
       end
     end
 
-    it "removes actors from the registry when terminating" do
+    xit "removes actors from the registry when terminating" do
       subject.terminate
       expect(Celluloid::Actor[:example]).to be_nil
     end
 
-    it "allows external access to the internal registry" do
+    xit "allows external access to the internal registry" do
       expect(subject[:example]).to be_a MyActor
     end
   end
@@ -90,7 +90,7 @@ RSpec.describe Celluloid::Supervision::Group, actor_system: :global do
       end.run!
     end
 
-    it "passes them" do
+    xit "passes them" do
       expect(Celluloid::Actor[:example].args).to eq([:foo, :bar])
     end
   end
@@ -102,8 +102,13 @@ RSpec.describe Celluloid::Supervision::Group, actor_system: :global do
       end.run!
     end
 
-    it "evaluates correctly" do
+    xit "evaluates correctly" do
       expect(Celluloid::Actor[:example].args).to eq([:lazy])
     end
   end
+
+  xit("can remove members") {
+
+  }
+
 end

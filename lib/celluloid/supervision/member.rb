@@ -8,8 +8,9 @@ module Celluloid
       # @option options [#call, Object] :args ([]) arguments array for the
       #   actor's constructor (lazy evaluation if it responds to #call)
       def initialize(configuration = {})
-        @registry = configuration.delete(:registry)
         @klass = configuration.delete(:type)
+        @registry = configuration.delete(:registry)
+        @branch = configuration.delete(:branch) || :services
 
         # allows injections at initialize, start, and restart
         @injections = configuration.delete(:injections) || {}
@@ -29,7 +30,7 @@ module Celluloid
       def start
         invoke_injection(:before_start)
         @actor = @klass.send(@method, *@args, &@block)
-        @registry[@name] = @actor if @name
+        @registry.add(@name,@actor,@branch) if @name
 =begin
     rescue Celluloid::TimeoutError => ex
       puts "retry"
@@ -41,9 +42,7 @@ module Celluloid
       end
 
       def restart
-        @actor = :restarting # makes finding race conditions easier to find
-        # and simultaneously changes contents of @registry[@name]; ultimately 
-        # this doesn't matter: #restart is called from within exclusive {} now.
+        # no need to reset @actor, as this is called in an `exclusive {}` block
         invoke_injection(:before_restart)
         start
       end

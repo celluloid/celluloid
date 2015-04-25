@@ -2,98 +2,33 @@ module Celluloid
   module Supervision
     class Configuration
 
-      # Configuration keys, required/expected:
-      MANDATORY = [ :type ]
-      ADDITIONAL = [ :as, :size, :args, :block, :registry ]
-
       module Error
+        class InvalidSupervisor < StandardError; end
+        class InvalidActorArity < StandardError; end
         class InvalidValues < StandardError; end
         class Incomplete < StandardError; end
-      end
-
-      # used to configure individual supervisors, and groups ( and pools? )
-
-      attr_accessor :actors
-
-      def initialize(options={},klass=Services::Public)
-        @level = 0
-        @klass = klass
-        @actors = if options.is_a? Array
-          @level = options.count
-          options
-        else
-          [ options ]
-        end
-      end
-
-      def provider
-        @provider ||= @klass.run!
-      end
-
-      def injection! key, proc
-        @actors[@level][:injections] ||= {}
-        @actors[@level][:injections][key] = proc
-      end
-
-      # methods for setting and getting the usual defaults
-      ( MANDATORY + ADDITIONAL ).each { |key|
-        define_method("#{key}!") { |value| @actors[@level][key] = value }
-        define_method("#{key}=") { |value| @actors[@level][key] = value }
-        define_method("#{key}?") { !@actors[@level][key].nil? }
-        define_method(key) { @actors[@level][key] }
-      }
-
-      def merge! values
-        if values.is_a? Configuration
-
-        elsif values.is_a? Hash
-
-        else
-          raise Error::InvalidValues
-        end
-      end
-
-      def export
-        if @level == 0
-          return @actors[@level]
-        end
-        @actors
-      end
-
-      def set(options)
-        @actors[@level] = options
-        @level+=1
-      end
-
-      def add(options)
-        set(options)
-        if Configuration.valid? options
-          provider.supervise options
-        end
-      end
-
-      def deploy
-        @actors.each { |options| provider.supervise options }
-        provider
-      end
-
-      def shutdown
-        @provider.shutdown
+        class Invalid < StandardError; end
       end
 
       class << self
+        def deploy(options={})
+          provision(options).deploy.provider
+        end
 
-        def deploy(options,klass=Services::Public)
-          config = new(options,klass)
-          config.deploy
-          config.provider
+        def define(options={})
+          provision(options)
+        end
+
+        def provision(options={})
+          new(options)
         end
 
         def valid? configuration, fail=false
+          #de puts "configuration: #{configuration}"
           MANDATORY.each { |k|
             unless configuration.key? k
               if fail
-                raise Configuration::Error::Incomplete, "Missing `:#{k}` in supervision configuration."
+                raise Error::Incomplete, "Missing `:#{k}` in supervision configuration."
               else
                 return false
               end
@@ -105,11 +40,57 @@ module Celluloid
         # see depreciated Configuration.parse
         # see depreciated overriding Configuration.options
         def options(args, options={})
-          valid?(configuration=args.merge(options))
+          configuration=args.merge(options)
+          return configuration if configuration.is_a? Configuration
+          valid?(configuration)
           configuration
         end
-
       end
+
+      # used to configure individual supervisors, and groups ( and pools? )
+
+      attr_accessor :instances
+
+      include Container
+
+      def provider
+        puts "supervisor: #{@supervisor}"
+        @provider ||= if @supervisor.is_a? Hash
+          @supervisor[:type].run!( as: @supervisor[:as] )
+        elsif @supervisor.is_a? Symbol
+          @supervisor = Object.module_eval(@supervisor.to_s)
+          provider
+        elsif @supervisor.is_a? Class
+          @supervisor.run!
+        else
+          raise Error::InvalidSupervisor
+        end
+      end
+
+      # TODO: Decide which level to keep, and only keep that.
+      #       Do we provide access by Celluloid.accessor
+      #       Do we provide access by Celluloid.actor_system.accessor
+      def deploy(options={})
+        define(options) if options.any?
+        @instances.each { |instance|
+          puts ">>>>>> ----------------------------\nDEPLOY: #{instance.configuration}\n>>>>>> ----------------------------\n"
+          provider.supervise instance.merge( branch: @branch )
+          if instance[:accessors].is_a? Array
+            instance[:accessors].each { |name|
+              puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ACCESSOR\n\t>>>> #{name}"
+              accessor = Proc.new { Celluloid[instance[:as]] }
+              Celluloid.class.send :define_method, name, accessor
+              Celluloid::ActorSystem.send :define_method, name, accessor
+            }
+          end
+        }
+        provider
+      end
+
+      def shutdown
+        @provider.shutdown
+      end
+      
     end
   end
 end

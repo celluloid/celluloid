@@ -1,4 +1,7 @@
+$CELLULOID_BACKPORTED = false
+
 require 'celluloid/autostart'
+
 puts "Use Supervision::Configuration objects!"
 
 class Hello
@@ -55,8 +58,8 @@ config.shutdown
 puts "\nInstantiated two actors individually, using a local configuration object"
 
 config = Celluloid::Supervision::Configuration.new
-config.set type: FooBar, as: :foobar11, :args => [ 11 ]
-config.set type: FooBar, as: :foobar33, :args => [ 33 ]
+config.define type: FooBar, as: :foobar11, :args => [ 11 ]
+config.define type: FooBar, as: :foobar33, :args => [ 33 ]
 config.deploy
 
 puts "Instantiated another, which starts automatically."

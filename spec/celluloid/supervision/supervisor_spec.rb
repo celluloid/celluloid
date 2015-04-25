@@ -38,7 +38,7 @@ RSpec.describe Celluloid::Supervisor, actor_system: :global do
   end
 
   it "registers actors and reregisters them when they die" do
-    Celluloid::Supervisor.supervise(:subordinate, Subordinate, :idle)
+    Celluloid::Supervisor.supervise_as(:subordinate, Subordinate, :idle)
     subordinate = Celluloid::Actor[:subordinate]
     expect(subordinate.state).to be(:idle)
 

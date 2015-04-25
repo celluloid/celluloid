@@ -2,6 +2,7 @@ script: rake ci
 language: ruby
 rvm:
   - 2.2.0
+  - 2.2.2
   - jruby
   - ruby-head
   - jruby-head

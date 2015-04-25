@@ -3,14 +3,29 @@ module Celluloid
   module Supervision
     class Group
 
+      @@branch = nil
+
       include Celluloid
       
       trap_exit :restart_actor
 
       class << self
 
+        def define options
+          Configuration.define(top(options))
+        end
+
         def deploy options
-          Configuration.deploy(options,self)
+          Configuration.deploy(top(options))
+        end
+
+        def top(options)
+          {
+            :as => (options.delete(:as) || :services),
+            :branch => (options.delete(:branch) || :services),
+            :type => (options.delete(:type) || self),
+            :supervise => options
+          }
         end
 
         # Actors or sub-applications to be supervised
@@ -19,8 +34,8 @@ module Celluloid
         end
 
         # Start this application (and watch it with a supervisor)
-        def run!(registry = nil)
-          group = new(registry) do |g|
+        def run!(options)
+          group = new(options) do |g|
             blocks.each do |block|
               block.call(g)
             end
@@ -29,9 +44,9 @@ module Celluloid
         end
 
         # Run the application in the foreground with a simple watchdog
-        def run(registry = nil)
+        def run(options)
           loop do
-            supervisor = run!(registry)
+            supervisor = run!(options)
 
             # Take five, toplevel supervisor
             sleep 5 while supervisor.alive?
@@ -45,19 +60,26 @@ module Celluloid
       finalizer :finalize
 
       # Start the group
-      def initialize registry=nil
+      def initialize options={}
+        options ||= {}
+        options = { :registry => options } if options.is_a? Internals::Registry
         @state = :initializing
         @members = []
-        @registry = registry || Celluloid.actor_system.registry
+        @registry = options.delete(:registry) || Celluloid.actor_system.registry
+        @branch = options.fetch(:branch, @@branch ) || :services
+        @registry.add(options[:as], Actor.current) if options[:as].is_a? Symbol
         yield current_actor if block_given?
       end
 
       execute_block_on_receiver :initialize, :supervise, :supervise_as
 
       def add(configuration)
-        raise Configuration::Error::Invalid unless configuration.is_a? Configuration
+        puts "WHAT IS IT? #{configuration.class.name} -- #{configuration}"
+        unless configuration.is_a? Configuration
+          configuration = Configuration.options(configuration)
+        end
         Configuration.valid? configuration, true
-        member = Supervision::Member.new(configuration.merge(registry: @registry))
+        member = Supervision::Member.new(configuration.merge(registry: @registry, branch: @branch))
         @members << member
         @state = :running
         Actor.current
@@ -105,7 +127,12 @@ module Celluloid
       private
 
       def finalize
-        @members.reverse_each(&:terminate) if @members
+        if @members
+          @members.reverse_each { |member|
+            member.terminate
+            @members.delete(member)
+          }
+        end
       end
     end
   end
