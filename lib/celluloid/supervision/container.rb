@@ -1,5 +1,5 @@
 module Celluloid
-  # Supervise collections of actors as a group
+  # Supervise actor instances in a container.
   module Supervision
     class Container
 
@@ -19,10 +19,10 @@ module Celluloid
 
         def top(options)
           {
-            :as => (options.delete(:as) || :services),
+            :as => (options.delete(:as)),
             :branch => (options.delete(:branch) || :services),
             :type => (options.delete(:type) || self),
-            :supervise => options
+            :supervise => options.delete(:supervise) || []
           }
         end
 
@@ -32,70 +32,97 @@ module Celluloid
         end
 
         # Start this application (and watch it with a supervisor)
-        def run!(options)
-          group = new(options) do |g|
+        def run!(options={})
+          container = new(options) do |g|
             blocks.each do |block|
               block.call(g)
             end
           end
-          group
+          container
         end
 
         # Run the application in the foreground with a simple watchdog
         def run(options)
           loop do
-            supervisor = run!(options)
+            supervisor = run!(options={})
 
             # Take five, toplevel supervisor
-            sleep 5 while supervisor.alive?
+            sleep 5 while supervisor.alive? # Why 5?
 
             Internals::Logger.error "!!! Celluloid::Supervision::Container #{self} crashed. Restarting..."
           end
         end
 
+        # Register one or more actors to be launched and supervised
+        def supervise(config, &block)
+          blocks << lambda do |container|
+            container.add(Configuration.options(config, :block => block))
+          end
+        end
+      end
+
+      def supervise(config, &block)
+        add(Configuration.options(config, :block => block))
       end
 
       finalizer :finalize
 
-      # Start the group
+      attr_accessor :registry
+
+      # Start the container.
       def initialize options={}
         options ||= {}
         options = { :registry => options } if options.is_a? Internals::Registry
         @state = :initializing
-        @members = []
+        @actors = [] # instances in the container
         @registry = options.delete(:registry) || Celluloid.actor_system.registry
-        @branch = options.fetch(:branch, @@branch ) || :services
-        @registry.add(options[:as], Actor.current) if options[:as].is_a? Symbol
+        @branch = options.delete(:branch) || :services
+        #de REMOVE @registry.add(options[:as], Actor.current) if options[:as].is_a? Symbol
         yield current_actor if block_given?
       end
 
-      execute_block_on_receiver :initialize, :supervise, :supervise_as
+      execute_block_on_receiver :initialize, :supervise # DEPRECIATED: , :supervise_as
 
       def add(configuration)
-        puts "WHAT IS IT? #{configuration.class.name} -- #{configuration}"
-        unless configuration.is_a? Configuration
+        unless configuration.is_a? Configuration::Instance
           configuration = Configuration.options(configuration)
         end
         Configuration.valid? configuration, true
-        member = Supervision::Member.new(configuration.merge(registry: @registry, branch: @branch))
-        @members << member
+        @actors << Instance.new(configuration.merge(registry: @registry, branch: @branch))
         @state = :running
+        add_accessors configuration
         Actor.current
+      end
+
+      def add_accessors configuration
+        if configuration[:as]
+          unless methods.include? configuration[:as]
+            self.class.instance_eval {
+              define_method( configuration[:as] ) {
+                @registry[configuration[:as]]
+              }
+            }
+          end
+        end
+      end
+
+      def remove_accessors
+
       end
 
       def remove(actor)
         actor = Celluloid::Actor[actor] if actor.is_a? Symbol
-        member = find(actor)
-        member.terminate
+        instance = find(actor)
+        instance.terminate
       end
 
       def actors
-        @members.map(&:actor)
+        @actors.map(&:actor)
       end
 
       def find(actor)
-        @members.find do |member|
-          member.actor == actor
+        @actors.find do |instance|
+          instance.actor == actor
         end
       end
 
@@ -106,14 +133,14 @@ module Celluloid
       # Restart a crashed actor
       def restart_actor(actor, reason)
         return if @state == :shutdown
-        member = find(actor)
-        raise "a group member went missing. This shouldn't be!" unless member
+        instance = find(actor)
+        raise "a container instance went missing. This shouldn't be!" unless instance
 
         if reason
-          exclusive { member.restart }
+          exclusive { instance.restart }
         else
-          member.cleanup
-          @members.delete(member)
+          instance.cleanup
+          @actors.delete(instance)
         end
       end
 
@@ -125,10 +152,10 @@ module Celluloid
       private
 
       def finalize
-        if @members
-          @members.reverse_each { |member|
-            member.terminate
-            @members.delete(member)
+        if @actors
+          @actors.reverse_each { |instance|
+            instance.terminate
+            @actors.delete(instance)
           }
         end
       end

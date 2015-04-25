@@ -136,7 +136,7 @@ require 'rspec/log_split' if Specs.split_logs?
 
 Celluloid.shutdown_timeout = 1
 
-Dir['./spec/support/*.rb'].map {|f| require f }
+Dir['./spec/support/*/*.rb'].map {|f| require f }
 
 RSpec.configure do |config|
   unless Nenv.ci?
@@ -193,7 +193,9 @@ RSpec.configure do |config|
   end
 
   # Must be *after* the around hook above
+=begin
   require 'rspec/retry'
   config.verbose_retry = true
-  config.default_sleep_interval = 3
+  config.default_sleep_interval = 1
+=end
 end

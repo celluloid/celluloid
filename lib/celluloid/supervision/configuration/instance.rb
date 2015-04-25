@@ -5,23 +5,25 @@ module Celluloid
 
         attr_accessor :configuration
 
-        def initialize(configuration=nil)
-          @configuration = {}
+        def initialize(configuration={})
           @state = :initializing # :ready
-          define configuration if configuration
+          sync_parameters
+          @configuration = configuration
+          define configuration if configuration.any?
         end
 
-        def ready?
+        def ready? fail=false
           unless @state == :ready
-            @state = :ready if Configuration.valid? @configuration
+            @state = :ready if Configuration.valid? @configuration, fail
           end
           @state == :ready
         end
 
-        def define(instance)
-          puts "instance? @define: #{instance}"
+        def define(instance,fail=false)
+          raise Configuration::Error::AlreadyDefined if ready? fail
+          invoke_injection(:before_configuration)
           @configuration = Configuration.options(instance)
-          @state = :ready
+          ready?
         end
 
         def injection! key, proc
@@ -33,27 +35,46 @@ module Celluloid
           @configuration[:injections] = proces
         end
 
+        def sync_parameters
+          # methods for setting and getting the usual defaults
+          Configuration.parameters( :mandatory, :optional, :plugins, :meta ).each { |key|
+            self.class.instance_eval {
+              remove_method :"#{key}!" rescue nil # avoid warnings in tests
+              define_method(:"#{key}!") { |value| @configuration[key] = value }
+            }
+            self.class.instance_eval { 
+              remove_method :"#{key}=" rescue nil # avoid warnings in tests
+              define_method(:"#{key}=") { |value| @configuration[key] = value }
+            }
+            self.class.instance_eval { 
+              remove_method :"#{key}?" rescue nil # avoid warnings in tests
+              define_method(:"#{key}?") { !@configuration[key].nil? }
+            }
+            self.class.instance_eval { 
+              remove_method :"#{key}" rescue nil # avoid warnings in tests
+              define_method(:"#{key}") { @configuration[key] }
+            }
+          }
 
-        # methods for setting and getting the usual defaults
-        ( MANDATORY + OPTIONAL + META ).each { |key|
-          define_method("#{key}!") { |value| @configuration[key] = value }
-          define_method("#{key}=") { |value| @configuration[key] = value }
-          define_method("#{key}?") { !@configuration[key].nil? }
-          define_method(key) { @configuration[key] }
-        }
-
-        ALIASES.each { |o,a| alias :"#{a}" :"#{o}" }
+          Configuration.aliases.each { |_alias,_original|
+            [ "!", :"=", :"?", :"" ]. each { |m|
+              self.class.instance_eval {
+                remove_method :"#{_alias}#{m}" rescue nil # avoid warnings in tests
+                alias_method :"#{_alias}#{m}", :"#{_original}#{m}"
+              }
+            }
+          }
+          true
+        end
 
         def merge! values
-          if values.is_a? Configuration or values.is_a? Hash
-            @configuration.merge!(values)
-          else
-            raise Error::Invalid
-          end
+          @configuration = @configuration.merge(values)
         end
 
         def merge values
-          if values.is_a? Configuration or values.is_a? Hash
+          if values.is_a? Configuration
+            @configuration.merge(values.configuration)
+          elsif values.is_a? Hash
             @configuration.merge(values)
           else
             raise Error::Invalid
@@ -70,13 +91,18 @@ module Celluloid
         alias :[]= :set
 
         def get(key)
-          puts "key: #{key}"
           @configuration[key]
         end
         alias :[] :get
 
         def delete(k)
           current_instance.delete(k)
+        end
+
+        private        
+
+        def invoke_injection(point)
+          #de puts "injection? #{point}"
         end
 
       end

@@ -1,3 +1,4 @@
+=begin
 RSpec.describe Celluloid::Supervision::Configuration do
   xit("can be instantiated without a name") {
   }
@@ -10,3 +11,4 @@ RSpec.describe Celluloid::Supervision::Configuration do
     }
   }
 end
+=end

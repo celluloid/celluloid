@@ -1,6 +1,5 @@
 # TODO: Remove at 0.19.0
 module Celluloid
-  SupervisionGroup = Supervision::Group
   module ClassMethods
     def supervise(*args, &block)
       Celluloid.services.supervise(*args, :type => self, :block => block)

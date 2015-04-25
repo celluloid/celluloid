@@ -2,30 +2,17 @@ module Celluloid
   module Supervision
     class Configuration
 
-      module Error
-        class InvalidSupervisor < StandardError; end
-        class InvalidActorArity < StandardError; end
-        class InvalidValues < StandardError; end
-        class Incomplete < StandardError; end
-        class Invalid < StandardError; end
-      end
-
       class << self
         def deploy(options={})
-          provision(options).deploy.provider
+          new(options).deploy
         end
 
         def define(options={})
-          provision(options)
-        end
-
-        def provision(options={})
           new(options)
         end
 
         def valid? configuration, fail=false
-          #de puts "configuration: #{configuration}"
-          MANDATORY.each { |k|
+          parameters( :mandatory ).each { |k|
             unless configuration.key? k
               if fail
                 raise Error::Incomplete, "Missing `:#{k}` in supervision configuration."
@@ -34,27 +21,72 @@ module Celluloid
               end
             end
           }
+          arity.each { |klass,args|
+            unless configuration[args].is_a? Proc
+              __a = configuration[args] && configuration[args].count || 0
+              __arity = configuration[klass].allocate.method(:initialize).arity
+              unless __arity == -1 or __a == __arity
+                if fail
+                  raise Error::InvalidActorArity.new("#{__a} vs. #{__arity}")
+                else
+                  return false
+                end
+              end
+            end
+          }
           true
         end
 
-        # see depreciated Configuration.parse
-        # see depreciated overriding Configuration.options
         def options(args, options={})
           configuration=args.merge(options)
           return configuration if configuration.is_a? Configuration
-          valid?(configuration)
+          valid?(configuration,true)
           configuration
         end
       end
 
-      # used to configure individual supervisors, and groups ( and pools? )
+      extend Forwardable
+
+      def_delegators :current_instance,
+                     :delete,
+                     :key?,
+                     :set,
+                     :get,
+                     :[],
+                     :[]=,
+                     :injection!,
+                     :injections!
 
       attr_accessor :instances
 
-      include Container
+      def initialize(options={})
+        @instances = [ Instance.new ]
+        @branch = :services
+        @i = 0 # incrementer of instances in this branch
+        sync_parameters
+        invoke_injection(:before_configuration)
+
+        configuration = if options[:supervise].is_a? Array
+                          #de puts "BRANCH STARTING: #{options[:as]}"
+                          @supervisor = options
+                          @branch = options.fetch(:branch,options[:as])
+                          options.delete :supervise
+                        else
+                          #de REMOVE puts "PULLING PUBLIC SERVICES: #{options[:as]}"
+                          @supervisor ||= options.fetch(:supervisor, :"Celluloid.services")
+                          options.dup
+                        end
+
+        #de REMOVE puts "\n\n\n\n\n\nconfiguration: #{configuration}"
+        define(configuration) if (configuration.is_a? Hash or configuration.is_a? Array) and configuration.any?
+      end
+
+      def configuration
+        raise WHAT
+        self
+      end
 
       def provider
-        puts "supervisor: #{@supervisor}"
         @provider ||= if @supervisor.is_a? Hash
           @supervisor[:type].run!( as: @supervisor[:as] )
         elsif @supervisor.is_a? Symbol
@@ -62,7 +94,10 @@ module Celluloid
           provider
         elsif @supervisor.is_a? Class
           @supervisor.run!
+        elsif @supervisor.respond_to? :supervise
+          @supervisor
         else
+          #de REMOVE puts "supervisor: #{@supervisor}"
           raise Error::InvalidSupervisor
         end
       end
@@ -73,22 +108,115 @@ module Celluloid
       def deploy(options={})
         define(options) if options.any?
         @instances.each { |instance|
-          puts ">>>>>> ----------------------------\nDEPLOY: #{instance.configuration}\n>>>>>> ----------------------------\n"
+          #de REMOVE puts ">>>>>> ----------------------------\nDEPLOY: #{instance.configuration}\n>>>>>> ----------------------------\n"
           provider.supervise instance.merge( branch: @branch )
-          if instance[:accessors].is_a? Array
-            instance[:accessors].each { |name|
-              puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ACCESSOR\n\t>>>> #{name}"
-              accessor = Proc.new { Celluloid[instance[:as]] }
-              Celluloid.class.send :define_method, name, accessor
-              Celluloid::ActorSystem.send :define_method, name, accessor
-            }
-          end
         }
         provider
       end
 
+      def count
+        @instances.count
+      end
+
+      def each(&block)
+        @instances.each(&block)
+      end
+
+      def sync_parameters
+        # methods for setting and getting the usual defaults
+        Configuration.parameters( :mandatory, :optional, :plugins, :meta ).each { |key|
+          [ :"#{key}!", :"#{key}=" ].each { |m|
+            self.class.instance_eval {
+              remove_method :"#{m}" rescue nil # avoid warnings in tests
+              define_method(m) { |p| current_instance.send(m,p) }
+            }
+          }
+          [ :"#{key}?", :"#{key}" ].each { |m|
+            self.class.instance_eval {
+              remove_method :"#{m}" rescue nil # avoid warnings in tests
+              define_method(m) { current_instance.send(m) }
+            }
+          }
+        }
+
+        Configuration.aliases.each { |_alias,_original|
+          [ "!", :"=", :"?", :"" ]. each { |m|
+            self.class.instance_eval {
+              remove_method :"#{_alias}#{m}" rescue nil # avoid warnings in tests
+              alias_method :"#{_alias}#{m}", :"#{_original}#{m}"
+            }
+          }
+        }
+      end
+
+      def merge! values
+        if values.is_a? Configuration or values.is_a? Hash
+          current_instance.merge!(values)
+        else
+          raise Error::Invalid
+        end
+      end
+
+      def merge values
+        if values.is_a? Configuration or values.is_a? Hash
+          current_instance.merge(values)
+        else
+          raise Error::Invalid
+        end
+      end
+
+      def export
+        if @i == 0
+          return current_instance.to_hash
+        end
+        @instances.map(&:configuration)
+      end
+
+      def include?(name)
+        @instances.map(&:name).include? name
+      end
+
+      def define(configuration,fail=false)
+        #de REMOVE puts "define? #{configuration}"
+        if configuration.is_a? Array
+          configuration.each { |c| define(c,fail) }
+        else
+          if !include? configuration[:as]
+            begin
+              current_instance.define(configuration,fail)
+            rescue Error::AlreadyDefined
+              increment
+              retry
+            end
+          end
+        end
+        self
+      end
+
+      def increment
+        @i += 1
+      end
+      alias :another :increment
+
+      def add(options)
+        define(options)
+        if Configuration.valid? options
+          provider.supervise options
+        end
+      end
+
       def shutdown
         @provider.shutdown
+      end
+
+      private
+
+      def current_instance
+        @instances[@i] ||= Instance.new
+      end
+
+      def invoke_injection(point)
+        #de puts "injection? #{point}"
       end
       
     end
