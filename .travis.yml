@@ -13,6 +13,13 @@ matrix:
     - rvm: rbx-2
     - rvm: ruby-head
     - rvm: jruby-head
+    - env: CELLULOID_TASK_CLASS=Threaded
+
+env:
+  matrix:
+    - CELLULOID_TASK_CLASS=Fibered
+    - CELLULOID_TASK_CLASS=Threaded
+    - CELLULOID_BACKPORTED=false
 
 notifications:
   irc: "irc.freenode.org#celluloid"

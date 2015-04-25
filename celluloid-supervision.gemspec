@@ -9,8 +9,8 @@ Gem::Specification.new do |gem|
   gem.description  = 'Supervisors, Supervision Groups, and Supervision Trees for Celluloid.'
   gem.licenses     = ['MIT']
 
-  gem.authors      = ["Tony Arcieri", "Tim Carey-Smith", "digitalextremist //"]
-  gem.email        = ['tony.arcieri@gmail.com', 'code@extremist.digital']
+  gem.authors      = ["digitalextremist //","Tony Arcieri", "Tim Carey-Smith", ]
+  gem.email        = ['code@extremist.digital','tony.arcieri@gmail.com', ]
   gem.homepage     = 'https://github.com/celluloid/'
 
   gem.required_ruby_version     = '>= 1.9.2'
