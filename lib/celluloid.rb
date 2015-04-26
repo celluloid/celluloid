@@ -10,12 +10,12 @@ require 'celluloid/notices'
 
 $CELLULOID_BACKPORTED = false
 
-if ENV['CELLULOID_BACKPORTED'] == 'silently' or ( defined? $CELLULOID_BACKPORTED and $CELLULOID_BACKPORTED == :silently )
+if ENV['CELLULOID_BACKPORTED'] == 'silently' || ( defined?($CELLULOID_BACKPORTED) && $CELLULOID_BACKPORTED == :silently )
   $CELLULOID_BACKPORTED = true
 else
-  $CELLULOID_BACKPORTED = false if defined? CELLULOID_FUTURE and CELLULOID_FUTURE == true
-  $CELLULOID_BACKPORTED = ( ENV['CELLULOID_BACKPORTED'] != 'false' ) unless defined? $CELLULOID_BACKPORTED
-  Celluloid::Notices.backported if $CELLULOID_BACKPORTED 
+  $CELLULOID_BACKPORTED = false if defined?(CELLULOID_FUTURE) && CELLULOID_FUTURE
+  $CELLULOID_BACKPORTED = ( ENV['CELLULOID_BACKPORTED'] != 'false' ) unless defined?($CELLULOID_BACKPORTED)
+  Celluloid::Notices.backported if $CELLULOID_BACKPORTED
 end
 
 module Celluloid
@@ -500,7 +500,7 @@ require 'celluloid/future'
 
 require 'celluloid/actor_system'
 
-require 'celluloid/depreciate' unless $CELLULOID_BACKPORTED == false or defined? CELLULOID_FUTURE
+require 'celluloid/depreciate' unless $CELLULOID_BACKPORTED == false || defined?(CELLULOID_FUTURE)
 
 $CELLULOID_MONITORING = false
 Celluloid::Notices.output
