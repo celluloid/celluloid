@@ -313,7 +313,7 @@ RSpec.describe Celluloid, actor_system: :global do
     expect(actor.send('foo')).to eq('oof')
   end
 
-  if RUBY_PLATFORM == "java" and Celluloid.task_class != Celluloid::Task::Fibered
+  if RUBY_PLATFORM == "java" && Celluloid.task_class != Celluloid::Task::Fibered
     context "when executing under JRuby" do
       let(:actor) do
         Class.new do
@@ -498,7 +498,7 @@ RSpec.describe Celluloid, actor_system: :global do
       specify { expect(actor).not_to be_alive }
     end
 
-    unless RUBY_PLATFORM == "java" or RUBY_ENGINE == "rbx"
+    unless RUBY_PLATFORM == "java" || RUBY_ENGINE == "rbx"
       context "when killed" do
         before do
           Celluloid::Actor.kill(actor)
