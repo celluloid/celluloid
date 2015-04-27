@@ -45,3 +45,20 @@ actor.timer.cancel
 # Wait until after the timer should've fired
 sleep 3.1
 puts "Timer shouldn't have fired because we cancelled it: #{actor.fired}"
+
+class RepeatingTimerExample
+  include Celluloid
+
+  def count_sheep
+    print "<#{self.class.name}> Counting sheep to go to sleep: "
+    sheep = 0
+    every(0.1) do
+      sheep += 1
+      print sheep, ' '
+    end
+  end
+end
+
+RepeatingTimerExample.new.count_sheep
+sleep 1
+puts
