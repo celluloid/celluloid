@@ -23,4 +23,4 @@ module Celluloid
   end
 end
 
-require 'celluloid/supervision/depreciate' unless $CELLULOID_BACKPORTED == false
+require 'celluloid/supervision/deprecate' unless $CELLULOID_BACKPORTED == false
