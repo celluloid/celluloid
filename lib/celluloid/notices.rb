@@ -7,7 +7,7 @@ module Celluloid
       def backported
         @@notices << [ :warn, "+--------------------------------------------------+" ]
         @@notices << [ :warn, "|     Celluloid is running in BACKPORTED mode.     |" ]
-        @@notices << [ :warn, "|   Time to update depreciated code before v1.0!   |" ]
+        @@notices << [ :warn, "|   Time to update deprecated code, before v1.0!   |" ]
         @@notices << [ :warn, "+--------------------------------------------------+" ]
         @@notices << [ :warn, "|  Prepare! As of v0.17.5 you can begin updating.  |" ]
         @@notices << [ :warn, "+--------------------------------------------------+" ]
