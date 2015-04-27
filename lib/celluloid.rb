@@ -500,7 +500,7 @@ require 'celluloid/future'
 
 require 'celluloid/actor_system'
 
-require 'celluloid/depreciate' unless $CELLULOID_BACKPORTED == false || defined?(CELLULOID_FUTURE)
+require 'celluloid/deprecate' unless $CELLULOID_BACKPORTED == false
 
 $CELLULOID_MONITORING = false
 Celluloid::Notices.output
