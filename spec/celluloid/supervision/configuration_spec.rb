@@ -167,7 +167,7 @@ RSpec.describe Celluloid::Supervision::Configuration, actor_system: :global do
   }
 
   it("verifies arity of intended actor's initialize method") {
-    expect { subject.define(failing) }.to raise_exception #(ArgumentError)
+    expect { subject.define(failing) }.to raise_exception(ArgumentError)
   }
 
 end
