@@ -34,6 +34,22 @@ RSpec.describe "Blocks", actor_system: :global do
       trace
     end
 
+    def exclusive_perform_on_sender(other, trace = [])
+      trace << [:outside, @name, Actor.current.name]
+      exclusive { other.yield_on_sender(trace, &make_block(trace)) }
+      trace
+    rescue => error
+      abort error
+    end
+
+    def exclusive_perform_on_receiver(other, trace = [])
+      trace << [:outside, @name, Actor.current.name]
+      exclusive { other.yield_on_receiver(trace, &make_block(trace)) }
+      trace
+    rescue => error
+      abort error
+    end
+
     def make_block(trace)
       sender_actor = Actor.current
       lambda do |value|
@@ -75,5 +91,19 @@ RSpec.describe "Blocks", actor_system: :global do
       [:sender, "one", "one"],
       "somevalue",
     ])
+  end
+
+  context "in exclusive mode" do
+    it "cannot be executed on the sender" do
+      expect {
+        actor_one.exclusive_perform_on_sender(actor_two)
+      }.to raise_error("Cannot execute blocks on sender in exclusive mode")
+    end
+
+    it "cannot be executed on the receiver" do
+      expect {
+        actor_one.exclusive_perform_on_sender(actor_two)
+      }.to raise_error("Cannot execute blocks on sender in exclusive mode")
+    end
   end
 end
