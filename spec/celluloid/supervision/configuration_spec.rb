@@ -27,12 +27,9 @@ RSpec.describe Celluloid::Supervision::Configuration, actor_system: :global do
     subject.sync_parameters
   }
 
-  context("remains reusable") {
+  context("remains reusable without being mutated") {
     it("properly") {
       expect(Celluloid.actor_system.root_configuration.export).to eq(Celluloid::ActorSystem::ROOT_SERVICES)
-    }
-    xit("without being mutated") {
-
     }
   }
 
@@ -151,16 +148,38 @@ RSpec.describe Celluloid::Supervision::Configuration, actor_system: :global do
 
   }
 
+  context("Configuration.deploy class method") {
+
+    xit("can take individual instance configuration") {
+
+    }
+
+    xit("can take array of instance configurations") {
+
+    }
+
+  }
+
+  context("Configuration#deploy instance method") {
+
+    xit("can take individual instance configuration") {
+
+    }
+
+    xit("can take array of instance configurations") {
+
+    }
+
+  }
+
   context("accessing information") {
 
-    xit("can get values out of current level of configuration by [:key]") {
-      subject.define(succeeding)
-      puts "subject: #{subject}"
+    before(:each) { subject.define(succeeding) }
+    it("can get values out of current level of configuration by [:key]") {
       expect(subject[:as]).to eq(:testing)
     }
 
-    xit("can get values out of current level of configuration by #key") {
-      subject.define(succeeding)
+    it("can get values out of current level of configuration by #key") {
       expect(subject.as).to eq(:testing)
     }
 
