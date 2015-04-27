@@ -4,8 +4,6 @@ module Celluloid
   class Group
     class Spawner < Group
 
-      class NoBlock < StandardError; end
-
       attr_accessor :finalizer
 
       def initialize
@@ -14,7 +12,7 @@ module Celluloid
 
       def get(&block)
         assert_active
-        raise NoBlock unless block_given?
+        raise ArgumentError.new("No block sent to Spawner.get()") unless block_given?
         instantiate block
       end
 
