@@ -27,7 +27,7 @@ module Celluloid
               __arity = configuration[klass].allocate.method(:initialize).arity
               unless __arity == -1 or __a == __arity
                 if fail
-                  raise Error::InvalidActorArity.new("#{__a} vs. #{__arity}")
+                  raise ArgumentError.new("#{__a} vs. #{__arity}")
                 else
                   return false
                 end

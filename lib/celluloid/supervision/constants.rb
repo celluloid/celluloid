@@ -13,7 +13,6 @@ module Celluloid
       module Error
         class AlreadyDefined < StandardError; end
         class InvalidSupervisor < StandardError; end
-        class InvalidActorArity < StandardError; end
         class InvalidValues < StandardError; end
         class Incomplete < StandardError; end
         class Invalid < StandardError; end
