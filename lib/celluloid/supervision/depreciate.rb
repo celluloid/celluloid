@@ -3,6 +3,6 @@ module Celluloid
   SupervisionGroup = Supervision::Container
 end
 
-require 'celluloid/supervision/depreciate/supervision'
-require 'celluloid/supervision/depreciate/supervisor'
-require 'celluloid/supervision/depreciate/configuration'
+require 'celluloid/supervision/deprecate/supervision'
+require 'celluloid/supervision/deprecate/supervisor'
+require 'celluloid/supervision/deprecate/configuration'
