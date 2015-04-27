@@ -20,9 +20,9 @@ Gem::Specification.new do |gem|
   gem.require_path = 'lib'
 
   gem.add_development_dependency 'bundler'
-  gem.add_development_dependency 'celluloid-essentials', '>= 0.20.0.pre0'
+  gem.add_development_dependency 'celluloid-essentials'
 
-  gem.add_development_dependency 'celluloid-supervision', '>= 0.13.9.pre0'
-  gem.add_development_dependency 'celluloid-pool', '>= 0.10.0.pre0'
-  gem.add_development_dependency 'celluloid-fsm', '>= 0.8.7.pre0'
+  gem.add_development_dependency 'celluloid-supervision'
+  gem.add_development_dependency 'celluloid-pool'
+  gem.add_development_dependency 'celluloid-fsm'
 end
