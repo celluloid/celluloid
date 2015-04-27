@@ -7,10 +7,19 @@ RSpec.describe "Blocks", actor_system: :global do
     end
     attr_reader :name
 
-    def ask_for_something(other, trace = [])
+    def yield_on_sender(trace)
+      trace << [:yielding_on_sender, @name, Actor.current.name]
+      trace << yield(:foo)
+    end
+
+    def receive_result(result)
+      [result, @name, Actor.current.name]
+    end
+
+    def perform(other, trace = [])
       sender_actor = Actor.current
       trace << [:outside, @name, Actor.current.name]
-      other.do_something_and_callback(trace) do |value|
+      other.yield_on_sender(trace) do |value|
         trace << [:yielded, @name, Actor.current.name]
         trace << self.receive_result(:self)
         trace << Actor.current.receive_result(:current_actor)
@@ -19,25 +28,17 @@ RSpec.describe "Blocks", actor_system: :global do
       end
       trace
     end
-
-    def do_something_and_callback(trace)
-      trace << [:something, @name, Actor.current.name]
-      trace << yield(:foo)
-    end
-
-    def receive_result(result)
-      [result, @name, Actor.current.name]
-    end
   end
 
-  it "executes blocks on sender" do
-    a1 = MyBlockActor.new("one")
-    a2 = MyBlockActor.new("two")
+  let(:actor_one) { MyBlockActor.new("one") }
+  let(:actor_two) { MyBlockActor.new("two") }
 
-    trace = a1.ask_for_something a2
+  it "executes blocks on sender by default" do
+    trace = actor_one.perform(actor_two)
+
     expect(trace).to eq([
       [:outside, "one", "one"],
-      [:something, "two", "two"],
+      [:yielding_on_sender, "two", "two"],
       [:yielded, "one", "one"],
       [:self, "one", "one"],
       [:current_actor, "one", "one"],
