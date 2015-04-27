@@ -8,12 +8,12 @@ RSpec.describe "Blocks", actor_system: :global do
     attr_reader :name
 
     def ask_for_something(other, trace = [])
-      sender_actor = current_actor
-      trace << [:outside, @name, current_actor.name]
+      sender_actor = Actor.current
+      trace << [:outside, @name, Actor.current.name]
       other.do_something_and_callback(trace) do |value|
-        trace << [:yielded, @name, current_actor.name]
+        trace << [:yielded, @name, Actor.current.name]
         trace << self.receive_result(:self)
-        trace << current_actor.receive_result(:current_actor)
+        trace << Actor.current.receive_result(:current_actor)
         trace << sender_actor.receive_result(:sender)
         "somevalue"
       end
@@ -21,12 +21,12 @@ RSpec.describe "Blocks", actor_system: :global do
     end
 
     def do_something_and_callback(trace)
-      trace << [:something, @name, current_actor.name]
+      trace << [:something, @name, Actor.current.name]
       trace << yield(:foo)
     end
 
     def receive_result(result)
-      [result, @name, current_actor.name]
+      [result, @name, Actor.current.name]
     end
   end
 
