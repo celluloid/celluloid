@@ -48,17 +48,27 @@ puts "Timer shouldn't have fired because we cancelled it: #{actor.fired}"
 
 class RepeatingTimerExample
   include Celluloid
-
+  
+  attr_accessor :sheep
+  def initialize
+    @sheep = 0
+  end
+  
   def count_sheep
     print "<#{self.class.name}> Counting sheep to go to sleep: "
-    sheep = 0
-    every(0.1) do
+    @timer = every(0.1) do
       sheep += 1
       print sheep, ' '
     end
   end
+  
+  def stop_counting
+    @timer.cancel
+  end
 end
 
-RepeatingTimerExample.new.count_sheep
+sleepy_actor = RepeatingTimerExample.new
+sleepy_actor.count_sheep
 sleep 1
-puts
+sleepy_actor.stop_counting
+
