@@ -2,13 +2,15 @@ module Celluloid
   module Supervision
     class Container
 
+=begin
       class << self
-        def tree(supervise=[]*args, &block)
+        def tree(actors=[], *args, &block)
           blocks << lambda do |container|
-            container.tree(Configuration.options(args, :supervise => supervise, :block => block ))
+            container.tree(Configuration.options(args, :supervise => actors, :block => block ))
           end
         end
       end
+=end
 
       class Tree
 
