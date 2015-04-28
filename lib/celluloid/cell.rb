@@ -46,7 +46,7 @@ module Celluloid
     attr_reader :proxy, :subject
 
     def self.dispatch
-      Proc.new do |subject|
+      proc do |subject|
         subject[:call].dispatch(subject[:subject])
         subject[:call] = nil
         subject[:subject] = nil
@@ -55,22 +55,20 @@ module Celluloid
 
     def invoke(call)
       meth = call.method
-      if meth == :__send__
-        meth = call.arguments.first
-      end
+      meth = call.arguments.first if meth == :__send__
       if @receiver_block_executions && meth
         if @receiver_block_executions.include?(meth.to_sym)
           call.execute_block_on_receiver
         end
       end
 
-      task(:call, meth, {:call => call, :subject => @subject},
-           :dangerous_suspend => meth == :initialize, &Cell.dispatch)
+      task(:call, meth, {call: call, subject: @subject},
+           dangerous_suspend: meth == :initialize, &Cell.dispatch)
     end
 
-    def task(task_type, method_name = nil, subject = nil, meta = nil, &block)
+    def task(task_type, method_name = nil, subject = nil, meta = nil, &_block)
       meta ||= {}
-      meta.merge!(:method_name => method_name)
+      meta.merge!(method_name: method_name)
       @actor.task(task_type, meta) do
         if @exclusive_methods && method_name && @exclusive_methods.include?(method_name.to_sym)
           Celluloid.exclusive { yield subject }
@@ -81,7 +79,7 @@ module Celluloid
     end
 
     def self.shutdown
-      Proc.new do |subject|
+      proc do |subject|
         begin
           subject[:subject].__send__(subject[:call])
         rescue => ex
@@ -96,8 +94,8 @@ module Celluloid
     def shutdown
       return unless @finalizer && @subject.respond_to?(@finalizer, true)
 
-      task(:finalizer, @finalizer, {:call => @finalizer, :subject => @subject},
-           :dangerous_suspend => true, &Cell.shutdown)
+      task(:finalizer, @finalizer, {call: @finalizer, subject: @subject},
+           dangerous_suspend: true, &Cell.shutdown)
     end
   end
 end

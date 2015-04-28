@@ -1,8 +1,8 @@
 #!/usr/bin/env ruby
 
-$:.push File.expand_path('../../lib', __FILE__)
-require 'celluloid/autostart'
-require 'digest/sha2'
+$LOAD_PATH.push File.expand_path("../../lib", __FILE__)
+require "celluloid/autostart"
+require "digest/sha2"
 
 class Hasher
   include Celluloid
@@ -15,7 +15,7 @@ class Hasher
   # of the same sort as, say, calculating Fibonacci numbers. Since Celluloid
   # uses several threads, doing something like this won't grind our entire
   # application to a halt
-  def add(data, n = 100000)
+  def add(data, n = 100_000)
     string = @hash + data
     n.times { string = Digest::SHA2.hexdigest(string) }
     @hash = string

@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
-$:.push File.expand_path('../../lib', __FILE__)
-require 'celluloid/autostart'
+$LOAD_PATH.push File.expand_path("../../lib", __FILE__)
+require "celluloid/autostart"
 
 class TimerExample
   include Celluloid

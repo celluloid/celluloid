@@ -4,7 +4,7 @@ module Specs
       Thread.list.map do |thread|
         next unless thread
         next if thread == Thread.current
-        if RUBY_PLATFORM == 'java'
+        if RUBY_PLATFORM == "java"
           # Avoid disrupting jRuby's "fiber" threads.
           name = thread.to_java.getNativeThread.get_name
           next if /Fiber/ =~ name
@@ -36,7 +36,7 @@ module Specs
     end
 
     def thread_name(thread)
-      (RUBY_PLATFORM == 'java') ? thread.to_java.getNativeThread.get_name : ""
+      (RUBY_PLATFORM == "java") ? thread.to_java.getNativeThread.get_name : ""
     end
 
     def assert_no_loose_threads!(location)
@@ -50,7 +50,7 @@ module Specs
 
       return if loose.empty?
 
-      if RUBY_PLATFORM == 'java' && !Nenv.ci?
+      if RUBY_PLATFORM == "java" && !Nenv.ci?
         STDERR.puts "Aborted due to runaway threads (#{location})\n"\
           "List: (#{loose.map(&:inspect)})\n:#{backtraces.join("\n")}"
 

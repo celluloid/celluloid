@@ -26,7 +26,7 @@ RSpec.describe Celluloid::Call::Sync, actor_system: :global do
     # under Rubinius, `method` calls `inspect` on an object when a method is not found
     unless RUBY_ENGINE == "rbx"
       it "raises a NoMethodError" do
-        allow(logger).to receive(:crash).with('Actor crashed!', NoMethodError)
+        allow(logger).to receive(:crash).with("Actor crashed!", NoMethodError)
 
         expect do
           actor.the_method_that_wasnt_there
@@ -36,7 +36,7 @@ RSpec.describe Celluloid::Call::Sync, actor_system: :global do
 
     context "when obj raises during inspect" do
       it "should emulate obj.inspect" do
-        allow(logger).to receive(:crash).with('Actor crashed!', NoMethodError)
+        allow(logger).to receive(:crash).with("Actor crashed!", NoMethodError)
 
         if RUBY_ENGINE == "rbx"
           expected = /undefined method `no_such_method' on an instance of CallExampleActor/
@@ -48,7 +48,7 @@ RSpec.describe Celluloid::Call::Sync, actor_system: :global do
   end
 
   it "aborts with ArgumentError when a method is called with too many arguments" do
-    allow(logger).to receive(:crash).with('Actor crashed!', ArgumentError)
+    allow(logger).to receive(:crash).with("Actor crashed!", ArgumentError)
 
     expect do
       actor.actual_method("with too many arguments")

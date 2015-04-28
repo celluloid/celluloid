@@ -1,17 +1,13 @@
 module Celluloid
   # High-priority internal system events
   class SystemEvent
-
     class LinkingEvent < SystemEvent
-
       # Shared initializer for LinkingRequest and LinkingResponse
       def initialize(actor, type)
         @actor, @type = actor, type.to_sym
-        raise ArgumentError, "type must be link or unlink" unless [:link, :unlink].include?(@type)
+        fail ArgumentError, "type must be link or unlink" unless [:link, :unlink].include?(@type)
       end
-
     end
-
   end
 
   # Request to link with another actor

@@ -1,3 +1,3 @@
-require 'celluloid/test'
+require "celluloid/test"
 
 $CELLULOID_DEBUG = true

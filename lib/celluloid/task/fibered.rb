@@ -2,7 +2,6 @@ module Celluloid
   class Task
     # Tasks with a Fiber backend
     class Fibered < Task
-      
       class StackError < Celluloid::Error; end
       def create
         queue = Thread.current[:celluloid_queue]

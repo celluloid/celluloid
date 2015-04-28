@@ -5,7 +5,9 @@ module Celluloid
       attr_reader :mailbox
 
       # Used for reflecting on proxy objects themselves
-      def __class__; Proxy::Async; end
+      def __class__
+        Proxy::Async
+      end
 
       def initialize(mailbox, klass)
         @mailbox, @klass = mailbox, klass
@@ -23,7 +25,7 @@ module Celluloid
 
         if block_given?
           # FIXME: nicer exception
-          raise "Cannot use blocks with async yet"
+          fail "Cannot use blocks with async yet"
         end
 
         @mailbox << Call::Async.new(meth, args, block)

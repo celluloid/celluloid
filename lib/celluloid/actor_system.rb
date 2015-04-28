@@ -1,34 +1,32 @@
 module Celluloid
-
   extend Forwardable
-  def_delegators :"actor_system", :[], :[]=
+  def_delegators :actor_system, :[], :[]=
 
   class ActorSystem
-
     extend Forwardable
     def_delegators :@registry, :[], :get, :[]=, :set, :delete
 
     ROOT_SERVICES = [
       {
-        :as => :notifications_fanout,
-        :type => Celluloid::Notifications::Fanout
+        as: :notifications_fanout,
+        type: Celluloid::Notifications::Fanout,
       },
       {
-        :as => :incident_reporter,
-        :type => Celluloid::IncidentReporter,
-        :args => [ STDERR ]
+        as: :incident_reporter,
+        type: Celluloid::IncidentReporter,
+        args: [STDERR],
       },
       {
-        :as => :group_manager,
-        :type => Celluloid::Group::Manager,
-        :accessors => [ :manager ]
+        as: :group_manager,
+        type: Celluloid::Group::Manager,
+        accessors: [:manager],
       },
       {
-        :as => :public_services,
-        :type => Celluloid::Supervision::Service::Public,
-        :accessors => [ :services ],
-        :supervise => []
-      }
+        as: :public_services,
+        type: Celluloid::Supervision::Service::Public,
+        accessors: [:services],
+        supervise: [],
+      },
     ]
 
     attr_reader :registry, :group
@@ -59,7 +57,7 @@ module Celluloid
       within do
         @root = Supervision::Service::Root.define
         @tree = root_configuration.deploy
-        #de root_services[:group_manager].manage! @group
+        # de root_services[:group_manager].manage! @group
       end
       true
     end
@@ -73,10 +71,10 @@ module Celluloid
     end
 
     def get_thread
-      @group.get {
+      @group.get do
         Thread.current[:celluloid_actor_system] = self
         yield
-      }
+      end
     end
 
     def stack_dump

@@ -5,7 +5,9 @@ module Celluloid
       attr_reader :mailbox
 
       # Used for reflecting on proxy objects themselves
-      def __class__; Proxy::Sync; end
+      def __class__
+        Proxy::Sync
+      end
 
       def initialize(mailbox, klass)
         @mailbox, @klass = mailbox, klass
@@ -21,7 +23,7 @@ module Celluloid
 
       def method_missing(meth, *args, &block)
         unless @mailbox.alive?
-          raise DeadActorError, "attempted to call a dead actor"
+          fail DeadActorError, "attempted to call a dead actor"
         end
 
         if @mailbox == ::Thread.current[:celluloid_mailbox]

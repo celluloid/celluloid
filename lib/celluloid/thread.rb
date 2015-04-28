@@ -1,4 +1,4 @@
-require 'celluloid/fiber'
+require "celluloid/fiber"
 
 module Celluloid
   class Thread < ::Thread
@@ -41,6 +41,5 @@ module Celluloid
       self[:celluloid_queue] << proc
       self
     end
-
   end
 end

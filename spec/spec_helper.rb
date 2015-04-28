@@ -1,25 +1,25 @@
-require_relative 'support/env'
-require_relative 'support/logging'
-require_relative 'support/split_logs'
-require_relative 'support/sleep_and_wait'
-require_relative 'support/reset_class_variables'
-require_relative 'support/crash_checking'
-require_relative 'support/stubbing'
-require_relative 'support/coverage'
+require_relative "support/env"
+require_relative "support/logging"
+require_relative "support/split_logs"
+require_relative "support/sleep_and_wait"
+require_relative "support/reset_class_variables"
+require_relative "support/crash_checking"
+require_relative "support/stubbing"
+require_relative "support/coverage"
 
-require 'rubygems'
-require 'bundler/setup'
+require "rubygems"
+require "bundler/setup"
 
 # To help produce better bug reports in Rubinius
 if RUBY_ENGINE == "rbx"
   # $DEBUG = true # would be nice if this didn't fail ... :(
-  require 'rspec/matchers'
-  require 'rspec/matchers/built_in/be'
+  require "rspec/matchers"
+  require "rspec/matchers/built_in/be"
 end
 
 # Require in order, so both CELLULOID_TEST and CELLULOID_DEBUG are true
-require 'celluloid/test'
-require 'celluloid/essentials'
+require "celluloid/test"
+require "celluloid/essentials"
 
 module CelluloidSpecs
   def self.included_module
@@ -34,18 +34,16 @@ end
 $CELLULOID_DEBUG = true
 
 # Require but disable, so it has to be explicitly enabled in tests
-require 'celluloid/probe'
+require "celluloid/probe"
 $CELLULOID_MONITORING = false
 Specs.reset_probe(nil)
 
 Celluloid.shutdown_timeout = 1
 
-Dir['./spec/support/*.rb','./spec/shared/*.rb'].map {|f| require f }
+Dir["./spec/support/*.rb", "./spec/shared/*.rb"].map { |f| require f }
 
 RSpec.configure do |config|
-  unless Nenv.ci?
-    config.filter_run :focus => true
-  end
+  config.filter_run focus: true unless Nenv.ci?
 
   config.run_all_when_everything_filtered = true
   config.disable_monkey_patching!
@@ -63,7 +61,7 @@ RSpec.configure do |config|
 
   config.before(:each) do |example|
     @fake_logger = Specs::FakeLogger.new(Celluloid.logger, example.description)
-    stub_const('Celluloid::Internals::Logger', @fake_logger)
+    stub_const("Celluloid::Internals::Logger", @fake_logger)
   end
 
   config.around do |ex|

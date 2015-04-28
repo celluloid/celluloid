@@ -1,6 +1,6 @@
 # Fibers are hard... let's go shopping!
 begin
-  require 'fiber'
+  require "fiber"
 rescue LoadError => ex
   if defined? JRUBY_VERSION
     if RUBY_VERSION < "1.9.2"
@@ -9,9 +9,9 @@ rescue LoadError => ex
 
     # Fibers are broken on JRuby 1.6.5. This works around the issue
     if JRUBY_VERSION[/^1\.6\.5/]
-      require 'jruby'
+      require "jruby"
       org.jruby.ext.fiber.FiberExtLibrary.new.load(JRuby.runtime, false)
-      class org::jruby::ext::fiber::ThreadFiber
+      class org.jruby.ext.fiber::ThreadFiber
         field_accessor :state
       end
 

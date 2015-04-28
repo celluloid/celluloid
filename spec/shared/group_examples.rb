@@ -89,7 +89,7 @@ RSpec.shared_examples "a Celluloid Group" do
       subject.get do
         thread << Thread.current
         sleep
-      end
+      end,
     ).to be_a(Celluloid::Thread)
 
     thread.pop # wait for 3rd-party thread to get strated

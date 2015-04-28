@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
-$:.push File.expand_path('../../lib', __FILE__)
-require 'celluloid/autostart'
+$LOAD_PATH.push File.expand_path("../../lib", __FILE__)
+require "celluloid/autostart"
 
 class Ring
   include Celluloid
@@ -28,9 +28,7 @@ class Ring
 
   # Go around the ring the given number of times
   def run(n)
-    if n < 0
-      raise ArgumentError, "I can't go around a negative number of times"
-    end
+    fail ArgumentError, "I can't go around a negative number of times" if n < 0
 
     async.around n
     wait :done
@@ -46,8 +44,8 @@ class Ring
   end
 end
 
-if $0 == __FILE__
-  require 'benchmark'
+if $PROGRAM_NAME == __FILE__
+  require "benchmark"
   SIZE  = 512
   TIMES = 10
 
