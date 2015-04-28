@@ -2,7 +2,6 @@ module Celluloid
   module Supervision
     class Container
       module Behavior
-
         @@injections = {}  # Hash of Class => Hash of Injections
         @@behaviors = {}   # Hash of identifying symbol parameter => Class
 
@@ -11,7 +10,6 @@ module Celluloid
         end
 
         class << self
-
           def included(klass)
             klass.send :extend, ClassMethods
           end
@@ -24,21 +22,21 @@ module Celluloid
             @@behaviors[identifier]
           end
 
-          def []=(identifier,behavior)
+          def []=(identifier, behavior)
             @@behaviors[identifier] = behavior
           end
 
-          def parameter(identifier,options)
+          def parameter(identifier, options)
             found = nil
-            p = Configuration.aliases.inject([identifier]) { |invoke,(a,i)| invoke << a if i == identifier; invoke }
+            p = Configuration.aliases.inject([identifier]) { |invoke, (a, i)| invoke << a if i == identifier; invoke }
             case p.select { |parameter| found = parameter; options.key?(parameter) }.count
             when 1
               found
             when 0
 
             else
-              raise Error::Mutant.new("More than one kind of identifiable behavior parameter.")
-            end            
+              fail Error::Mutant.new("More than one kind of identifiable behavior parameter.")
+            end
           end
 
           # Beware of order. There may be multiple behavior injections, but their order is not determined ( yet )
@@ -47,10 +45,10 @@ module Celluloid
           def configure(options)
             behavior = nil
             injection = nil
-            @@behaviors.map { |identifier,injector|              
-              if identifier = parameter(identifier,options)
+            @@behaviors.map do |identifier, injector|
+              if identifier = parameter(identifier, options)
                 if behavior
-                  raise Error::Mutant.new("More than one type of behavior expected.")
+                  fail Error::Mutant.new("More than one type of behavior expected.")
                 else
                   if @@injections[injector].include?(:configuration)
                     injection = @@injections[behavior = injector][:configuration]
@@ -58,35 +56,33 @@ module Celluloid
                   end
                 end
               end
-            }
+            end
 
             options[:type] ||= behavior
-            injection || Proc.new { @configuration }
+            injection || proc { @configuration }
           end
 
           module ClassMethods
-
             def identifier!(identifier, *aliases)
               Behavior[identifier] = self
               Configuration.parameter! :plugins, identifier
-              aliases.each { |aliased|
+              aliases.each do |aliased|
                 Configuration.alias! aliased, identifier
-              }
+              end
               Configuration.save_defaults
             end
 
             def behavior_injections
               Behavior.injections[self] ||= {}
             end
-            
-            Configuration::INJECTIONS.each { |point|
-              define_method(point) { |&injector|
+
+            Configuration::INJECTIONS.each do |point|
+              define_method(point) do |&injector|
                 puts "behavioral injection #{point} for #{self}"
                 behavior_injections[point] = injector
-              }
-            }
+              end
+            end
           end
-        
         end
       end
     end

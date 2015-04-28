@@ -1,6 +1,6 @@
 $CELLULOID_BACKPORTED = false
 
-require 'celluloid/autostart'
+require "celluloid/autostart"
 
 class MyActor
   include Celluloid
@@ -82,4 +82,3 @@ rescue Celluloid::DeadActorError
   # catch Celluloid::DeadActorError and automatically restart this actor
   retry
 end
-

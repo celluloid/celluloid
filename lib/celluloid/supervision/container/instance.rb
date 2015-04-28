@@ -3,7 +3,6 @@ module Celluloid
   module Supervision
     class Container
       class Instance
-
         attr_reader :name, :actor
 
         # @option options [#call, Object] :args ([]) arguments array for the
@@ -19,12 +18,12 @@ module Celluloid
           invoke_injection(:before_initialize)
 
           # Stringify keys :/
-          #de @configuration = configuration.each_with_object({}) { |(k,v), h| h[k.to_s] = v }
+          # de @configuration = configuration.each_with_object({}) { |(k,v), h| h[k.to_s] = v }
 
           @name = @configuration[:as]
           @block = @configuration[:block]
           @args = prepare_args(@configuration[:args])
-          @method = @configuration[:method] || 'new_link'
+          @method = @configuration[:method] || "new_link"
           add_accessors
           invoke_injection(:after_initialize)
           start
@@ -33,20 +32,18 @@ module Celluloid
         def start
           invoke_injection(:before_start)
           @actor = @type.send(@method, *@args, &@block)
-          @registry.add(@name,@actor,@branch) if @name
+          @registry.add(@name, @actor, @branch) if @name
           invoke_injection(:after_start)
         rescue Celluloid::TimeoutError => ex
           Internals::Logger.error("TimeoutError at start of supervised actor.")
           raise ex
-=begin
-          TODO: Implement timeout/retry.
-          unless ( @retry += 1 ) <= INSTANCE_RETRY_LIMIT
-            raise ex
-          end
-          Internals::Logger.warn("TimeoutError at start of supervised actor. Retrying in #{INSTANCE_RETRY_WAIT} seconds. ( Attempt #{@retry} of #{INSTANCE_RETRY_LIMIT} )")
-          sleep INSTANCE_RETRY_WAIT
-          retry
-=end
+          #           TODO: Implement timeout/retry.
+          #           unless ( @retry += 1 ) <= INSTANCE_RETRY_LIMIT
+          #             raise ex
+          #           end
+          #           Internals::Logger.warn("TimeoutError at start of supervised actor. Retrying in #{INSTANCE_RETRY_WAIT} seconds. ( Attempt #{@retry} of #{INSTANCE_RETRY_LIMIT} )")
+          #           sleep INSTANCE_RETRY_WAIT
+          #           retry
         end
 
         def restart
@@ -76,33 +73,31 @@ module Celluloid
             # TODO: Decide which level to keep, and only keep that.
             #       Do we provide access by Celluloid.accessor
             #       Do we provide access by Celluloid.actor_system.accessor
-            @configuration[:accessors].each { |name|
-              Celluloid.instance_exec(@configuration[:as],name) { |actor,where|
-                define_method(name) {
+            @configuration[:accessors].each do |name|
+              Celluloid.instance_exec(@configuration[:as], name) do |actor, where|
+                define_method(name) do
                   Celluloid.actor_system[actor]
-                }
-              }
-              Celluloid::ActorSystem.instance_exec(@configuration[:as],name) { |actor,where|
-                define_method(name) { 
+                end
+              end
+              Celluloid::ActorSystem.instance_exec(@configuration[:as], name) do |actor, where|
+                define_method(name) do
                   Celluloid.actor_system[actor]
-                }
-              }
-
-            }
+                end
+              end
+            end
           end
-
         end
 
         def remove_accessors
           if @configuration[:accessors].is_a? Array
-            @configuration[:accessors].each { |name|
-              Celluloid.instance_eval {
+            @configuration[:accessors].each do |name|
+              Celluloid.instance_eval do
                 remove_method(name) rescue nil # avoid warnings in tests
-              }
-              Celluloid::ActorSystem.instance_eval {
+              end
+              Celluloid::ActorSystem.instance_eval do
                 remove_method(name) rescue nil # avoid warnings in tests
-              }
-            }
+              end
+            end
           end
         end
 

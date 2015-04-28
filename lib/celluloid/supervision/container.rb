@@ -2,27 +2,25 @@ module Celluloid
   # Supervise actor instances in a container.
   module Supervision
     class Container
-
       include Celluloid
-      
+
       trap_exit :restart_actor
 
       class << self
-
-        def define options
+        def define(options)
           Configuration.define(top(options))
         end
 
-        def deploy options
+        def deploy(options)
           Configuration.deploy(top(options))
         end
 
         def top(options)
           {
-            :as => (options.delete(:as)),
-            :branch => (options.delete(:branch) || :services),
-            :type => (options.delete(:type) || self),
-            :supervise => options.delete(:supervise) || []
+            as: (options.delete(:as)),
+            branch: (options.delete(:branch) || :services),
+            type: (options.delete(:type) || self),
+            supervise: options.delete(:supervise) || [],
           }
         end
 
@@ -42,9 +40,9 @@ module Celluloid
         end
 
         # Run the application in the foreground with a simple watchdog
-        def run(options)
+        def run(_options)
           loop do
-            supervisor = run!(options={})
+            supervisor = run!(options = {})
 
             # Take five, toplevel supervisor
             sleep 5 while supervisor.alive? # Why 5?
@@ -56,13 +54,13 @@ module Celluloid
         # Register one or more actors to be launched and supervised
         def supervise(config, &block)
           blocks << lambda do |container|
-            container.add(Configuration.options(config, :block => block))
+            container.add(Configuration.options(config, block: block))
           end
         end
       end
 
       def supervise(config, &block)
-        add(Configuration.options(config, :block => block))
+        add(Configuration.options(config, block: block))
       end
 
       finalizer :finalize
@@ -70,9 +68,9 @@ module Celluloid
       attr_accessor :registry
 
       # Start the container.
-      def initialize options={}
+      def initialize(options={})
         options ||= {}
-        options = { :registry => options } if options.is_a? Internals::Registry
+        options = {registry: options} if options.is_a? Internals::Registry
         @state = :initializing
         @actors = [] # instances in the container
         @registry = options.delete(:registry) || Celluloid.actor_system.registry
@@ -93,20 +91,19 @@ module Celluloid
         Actor.current
       end
 
-      def add_accessors configuration
+      def add_accessors(configuration)
         if configuration[:as]
           unless methods.include? configuration[:as]
-            self.class.instance_eval {
-              define_method( configuration[:as] ) {
+            self.class.instance_eval do
+              define_method(configuration[:as]) do
                 @registry[configuration[:as]]
-              }
-            }
+              end
+            end
           end
         end
       end
 
       def remove_accessors
-
       end
 
       def remove(actor)
@@ -133,7 +130,7 @@ module Celluloid
       def restart_actor(actor, reason)
         return if @state == :shutdown
         instance = find(actor)
-        raise "a container instance went missing. This shouldn't be!" unless instance
+        fail "a container instance went missing. This shouldn't be!" unless instance
 
         if reason
           exclusive { instance.restart }
@@ -147,15 +144,15 @@ module Celluloid
         @state = :shutdown
         finalize
       end
-      
+
       private
 
       def finalize
         if @actors
-          @actors.reverse_each { |instance|
+          @actors.reverse_each do |instance|
             instance.terminate
             @actors.delete(instance)
-          }
+          end
         end
       end
     end

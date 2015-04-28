@@ -1,44 +1,50 @@
 RSpec.describe Celluloid::Supervision::Container, actor_system: :global do
   let(:queue_count) { 1 }
 
-  class SupervisionContainerHelper
-    QUEUE = Queue.new
-  end
-
-  class MyActor
-    include Celluloid
-
-    attr_reader :args
-
-    def initialize(*args)
-      @args = args
-      ready
-    end
-
-    def running?
-      :yep
-    end
-
-    def ready
-      SupervisionContainerHelper::QUEUE << :done
+  unless defined? SupervisionContainerHelper
+    class SupervisionContainerHelper
+      QUEUE = Queue.new
     end
   end
 
-  class MyPoolActor
-    include Celluloid
+  unless defined? MyActor
+    class MyActor
+      include Celluloid
 
-    attr_reader :args
-    def initialize *args
-      @args = *args
-      ready
+      attr_reader :args
+
+      def initialize(*args)
+        @args = args
+        ready
+      end
+
+      def running?
+        :yep
+      end
+
+      def ready
+        SupervisionContainerHelper::QUEUE << :done
+      end
     end
+  end
 
-    def running?
-      :yep
-    end
+  unless defined? MyPoolActor
+    class MyPoolActor
+      include Celluloid
 
-    def ready
-      SupervisionContainerHelper::QUEUE << :done
+      attr_reader :args
+      def initialize(*args)
+        @args = *args
+        ready
+      end
+
+      def running?
+        :yep
+      end
+
+      def ready
+        SupervisionContainerHelper::QUEUE << :done
+      end
     end
   end
 
@@ -98,7 +104,7 @@ RSpec.describe Celluloid::Supervision::Container, actor_system: :global do
   context "with lazy evaluation" do
     subject do
       Class.new(Celluloid::Supervision::Container) do
-        supervise type: MyActor, as: :example, args: ->{ :lazy }
+        supervise type: MyActor, as: :example, args: -> { :lazy }
       end.run!
     end
 
@@ -107,8 +113,6 @@ RSpec.describe Celluloid::Supervision::Container, actor_system: :global do
     end
   end
 
-  xit("can remove members") {
-
-  }
-
+  xit("can remove members") do
+  end
 end

@@ -1,11 +1,2 @@
-# Pulled from celluloid/culture
-
-LineLength:
-  Max: 100
-
-Style/StringLiterals:
-  EnforcedStyle: double_quotes
-
-Metrics/MethodLength:
-  CountComments: false
-  Max: 15
+inherit_from:
+  - culture/rubocop/rubocop.yml

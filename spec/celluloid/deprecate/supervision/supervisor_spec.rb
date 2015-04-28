@@ -14,7 +14,7 @@ unless $CELLULOID_BACKPORTED == false
         case @state
         when :idle
           @state = :working
-        else raise SubordinateDead, "the spec purposely crashed me :("
+        else fail SubordinateDead, "the spec purposely crashed me :("
         end
       end
     end

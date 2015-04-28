@@ -1,5 +1,5 @@
 unless $CELLULOID_BACKPORTED == false
-  
+
   RSpec.describe Celluloid::SupervisionGroup, actor_system: :global do
     let(:queue_count) { 1 }
 
@@ -30,7 +30,7 @@ unless $CELLULOID_BACKPORTED == false
       include Celluloid
 
       attr_reader :args
-      def initialize *args
+      def initialize(*args)
         @args = *args
         ready
       end
@@ -44,8 +44,7 @@ unless $CELLULOID_BACKPORTED == false
       end
     end
 
-    context("deprecated syntax") {
-
+    context("deprecated syntax") do
       before do
         subject # init for easier debugging
         queue_count.times { SupervisionGroupHelper::QUEUE.pop }
@@ -59,7 +58,7 @@ unless $CELLULOID_BACKPORTED == false
       context "when supervising a single actor" do
         subject do
           Class.new(Celluloid::SupervisionGroup) do
-            supervise MyActor, :as => :example
+            supervise MyActor, as: :example
           end.run!(*registry)
         end
 
@@ -102,7 +101,7 @@ unless $CELLULOID_BACKPORTED == false
       context "with lazy evaluation" do
         subject do
           Class.new(Celluloid::SupervisionGroup) do
-            supervise MyActor, as: :example, args: ->{ :lazy }
+            supervise MyActor, as: :example, args: -> { :lazy }
           end.run!
         end
 
@@ -110,6 +109,6 @@ unless $CELLULOID_BACKPORTED == false
           expect(Celluloid::Actor[:example].args).to eq([:lazy])
         end
       end
-    }
+    end
   end
 end

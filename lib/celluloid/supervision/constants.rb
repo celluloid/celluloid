@@ -1,10 +1,9 @@
 module Celluloid
   module Supervision
-      
     # TODO: Do not hard-code. Allow configurable values.
     INSTANCE_RETRY_WAIT = 3
     INSTANCE_RETRY_LIMIT = 5
-    
+
     module Error
       class NoPublicServices < StandardError; end
     end
@@ -17,42 +16,42 @@ module Celluloid
         class Incomplete < StandardError; end
         class Invalid < StandardError; end
       end
-      
+
       # Using class variable so that parameters can be added by plugins.
 
       @@parameters = {
 
-        :mandatory => [ :type ],
+        mandatory: [:type],
 
-        :optional => [
+        optional: [
           :as,
           :args,
-          :block
+          :block,
         ],
 
         # TODO: Move these into Behaviors.
-        :plugins => [
-          #de :size,        # Supervision::Pool
-          #de :routers,     # Supervision::Coordinator
-          #de :supervises   # Supervision::Tree
+        plugins: [
+          # de :size,        # Supervision::Pool
+          # de :routers,     # Supervision::Coordinator
+          # de :supervises   # Supervision::Tree
         ],
 
-        :meta => [
+        meta: [
           :registry,
           :branch,
-          :method
-        ]
+          :method,
+        ],
       }
 
       @@arity = {
-        :type => :args
+        type: :args,
       }
 
       @@aliases = {
-        :name => :as,
-        :kind => :type,
-        #de :pool => :size,   # TODO: Move into Behaviors.
-        #de :supervise => :supervises
+        name: :as,
+        kind: :type,
+        # de :pool => :size,   # TODO: Move into Behaviors.
+        # de :supervise => :supervises
       }
 
       @@defaults = {}
@@ -60,33 +59,39 @@ module Celluloid
       class << self
         def save_defaults
           @@defaults = {
-            :parameters => @@parameters.inject({}) { |p,(k,v)| p[k] = v.dup; p },
-            :aliases => @@aliases.dup,
-            :arity => @@arity.dup
+            parameters: @@parameters.inject({}) { |p, (k, v)| p[k] = v.dup; p },
+            aliases: @@aliases.dup,
+            arity: @@arity.dup,
           }
         end
+
         def resync_parameters
-          @@parameters = @@defaults[:parameters].inject({}) { |p,(k,v)| p[k] = v.dup; p }
+          @@parameters = @@defaults[:parameters].inject({}) { |p, (k, v)| p[k] = v.dup; p }
           @@aliases = @@defaults[:aliases].dup
           @@arity = @@defaults[:arity].dup
         end
+
         def parameters(*args)
-          args.inject([]) { |parameters,p| parameters += @@parameters[p]; parameters }
+          args.inject([]) { |parameters, p| parameters += @@parameters[p]; parameters }
         end
-        def parameter!(key,value)
-          puts "parameter! #{[key,value]}"
+
+        def parameter!(key, value)
           @@parameters[key] << value unless @@parameters[key].include? value
         end
-        def arity(*args)
+
+        def arity(*_args)
           @@arity
         end
-        def arity!(key,value)
+
+        def arity!(key, value)
           @@arity[key] = value
         end
+
         def aliases
           @@aliases
         end
-        def alias!(aliased,original)
+
+        def alias!(aliased, original)
           @@aliases[aliased] = original
         end
       end
@@ -103,7 +108,7 @@ module Celluloid
 
       REMOVE_AT_EXPORT = [
         :initialize,
-        :behavior
+        :behavior,
       ]
 
       INJECTIONS = [
@@ -111,9 +116,8 @@ module Celluloid
         :before_initialization,
         :after_initialization,
         :before_start,
-        :before_restart
+        :before_restart,
       ]
-
     end
   end
 end

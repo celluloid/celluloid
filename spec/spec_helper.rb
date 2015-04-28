@@ -1,7 +1,7 @@
-require 'nenv'
+require "nenv"
 
-require 'dotenv'
-Dotenv.load!(Nenv('celluloid').config_file || (Nenv.ci? ? '.env-ci' : '.env-dev'))
+require "dotenv"
+Dotenv.load!(Nenv("celluloid").config_file || (Nenv.ci? ? ".env-ci" : ".env-dev"))
 
 module Specs
   def self.sleep_and_wait_until(timeout=10)
@@ -14,55 +14,53 @@ module Specs
     STDERR.puts "wait took a bit long: #{diff} seconds" if diff > 0.4
   rescue Timeout::Error
     t2 = Time.now.to_f
-    fail "Timeout after: #{t2 - t1} seconds"
+    raise "Timeout after: #{t2 - t1} seconds"
   end
 
   def self.env
-    @env ||= Nenv('celluloid_specs')
+    @env ||= Nenv("celluloid_specs")
   end
 
   class << self
     def log
       # Setup ENV variable handling with sane defaults
-      @log ||= Nenv('celluloid_specs_log') do |env|
-        env.create_method(:file) { |f| f || '../../log/default.log' }
+      @log ||= Nenv("celluloid_specs_log") do |env|
+        env.create_method(:file) { |f| f || "../../log/default.log" }
         env.create_method(:sync?) { |s| s || !Nenv.ci? }
 
         env.create_method(:strategy) do |strategy|
-          strategy || (Nenv.ci? ? 'stderr' : 'split')
+          strategy || (Nenv.ci? ? "stderr" : "split")
         end
 
         env.create_method(:level) do |level|
           begin
             Integer(level)
           rescue
-            env.strategy == 'stderr' ? Logger::WARN : Logger::DEBUG
+            env.strategy == "stderr" ? Logger::WARN : Logger::DEBUG
           end
         end
       end
     end
 
     def split_logs?
-      log.strategy == 'split'
+      log.strategy == "split"
     end
 
     def logger
       @logger ||= default_logger.tap { |logger| logger.level = log.level }
     end
 
-    def logger=(logger)
-      @logger = logger
-    end
+    attr_writer :logger
 
     def default_logger
       case log.strategy
-      when 'stderr'
+      when "stderr"
         Logger.new(STDERR)
-      when 'single'
-        logfile = File.open(File.expand_path(log.file, __FILE__), 'a')
+      when "single"
+        logfile = File.open(File.expand_path(log.file, __FILE__), "a")
         logfile.sync if log.sync?
         Logger.new(logfile)
-      when 'split'
+      when "split"
         # Use Celluloid in case there's logging in a before/after handle
         # (is that a bug in rspec-log_split?)
         Celluloid.logger
@@ -74,7 +72,7 @@ module Specs
     def loose_threads
       Thread.list.map do |thread|
         next if thread == Thread.current
-        if RUBY_PLATFORM == 'java'
+        if RUBY_PLATFORM == "java"
           # Avoid disrupting jRuby's "fiber" threads.
           next if /Fiber/ =~ thread.to_java.getNativeThread.get_name
           backtrace = thread.backtrace # avoid race maybe
@@ -92,7 +90,7 @@ module Specs
     def assert_no_loose_threads!(location)
       loose = Specs.loose_threads
       backtraces = loose.map do |th|
-        "Runaway thread: ================ #{th.inspect}\n" +
+        "Runaway thread: ================ #{th.inspect}\n" \
         "Backtrace: \n ** #{th.backtrace * "\n ** "}\n"
       end
       fail "Aborted due to runaway threads (#{location})\nList: (#{loose.map(&:inspect)})\n:#{backtraces.join("\n")}" unless loose.empty?
@@ -109,16 +107,16 @@ module Specs
 end
 
 if Nenv.ci?
-  require 'coveralls'
+  require "coveralls"
   Coveralls.wear!
 end
 
-require 'rubygems'
-require 'bundler/setup'
+require "rubygems"
+require "bundler/setup"
 
 # Require in order, so both CELLULOID_TEST and CELLULOID_DEBUG are true
-require 'celluloid/test'
-require 'celluloid/supervision'
+require "celluloid/test"
+require "celluloid/supervision"
 
 module CelluloidSpecs
   def self.included_module
@@ -132,16 +130,14 @@ end
 
 $CELLULOID_DEBUG = true
 
-require 'rspec/log_split' if Specs.split_logs?
+require "rspec/log_split" if Specs.split_logs?
 
 Celluloid.shutdown_timeout = 1
 
-Dir['./spec/support/*/*.rb'].map {|f| require f }
+Dir["./spec/support/*/*.rb"].map { |f| require f }
 
 RSpec.configure do |config|
-  unless Nenv.ci?
-    config.filter_run :focus => true
-  end
+  config.filter_run focus: true unless Nenv.ci?
 
   config.run_all_when_everything_filtered = true
   config.disable_monkey_patching!
@@ -193,10 +189,8 @@ RSpec.configure do |config|
   end
 
   # Must be *after* the around hook above
-=begin
-  #de We should not need retries.
-  require 'rspec/retry'
-  config.verbose_retry = true
-  config.default_sleep_interval = 1
-=end
+  #   #de We should not need retries.
+  #   require 'rspec/retry'
+  #   config.verbose_retry = true
+  #   config.default_sleep_interval = 1
 end
