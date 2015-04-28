@@ -20,12 +20,11 @@ Gem::Specification.new do |gem|
   gem.require_path = 'lib'
 
   gem.add_runtime_dependency 'timers', '~> 4.0.0'
-  gem.add_runtime_dependency 'celluloid-essentials', '>= 0.20.0.pre0'
-  
-  gem.add_development_dependency 'celluloid-extras'
-  gem.add_development_dependency 'celluloid-supervision', '>= 0.13.9.pre0'
-  gem.add_development_dependency 'celluloid-pool', '>= 0.10.0.pre0'
-  gem.add_development_dependency 'celluloid-fsm', '>= 0.8.7.pre0'
 
-  gem.add_development_dependency 'bundler'
+  gem.add_dependency 'celluloid-essentials'  
+  gem.add_dependency 'celluloid-extras'
+  gem.add_dependency 'celluloid-gems'
+  
+
+  gem.add_dependency 'bundler'
 end

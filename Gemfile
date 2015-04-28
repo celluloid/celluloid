@@ -5,8 +5,6 @@ gem 'coveralls', require: false
 
 gem 'timers', github: 'celluloid/timers'
 
-gem 'celluloid-essentials', github: 'celluloid/celluloid-essentials', branch: 'master'
-
 #de gemspec development_group: :gem_build_tools
 
 group :development do
@@ -29,3 +27,6 @@ end
 group :gem_build_tools do
   gem 'rake'
 end
+
+gem 'celluloid-essentials', github: 'celluloid/celluloid-essentials', branch: 'master'
+gem 'celluloid-gems', github: 'celluloid/celluloid-gems', branch: 'master'
