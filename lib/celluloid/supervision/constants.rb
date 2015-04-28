@@ -5,7 +5,7 @@ module Celluloid
     INSTANCE_RETRY_LIMIT = 5
 
     module Error
-      class NoPublicServices < StandardError; end
+      class NoPublicService < StandardError; end
     end
 
     class Configuration

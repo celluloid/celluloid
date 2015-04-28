@@ -1,4 +1,4 @@
-RSpec.describe Celluloid::Supervision::Services::Root, actor_system: :global do
+RSpec.describe Celluloid::Supervision::Service::Root, actor_system: :global do
   class RootTestingActor
     include Celluloid
     def identity

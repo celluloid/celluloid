@@ -1,6 +1,6 @@
 module Celluloid
   module Supervision
-    module Services
+    module Service
       class Root < Container
         class << self
           def define

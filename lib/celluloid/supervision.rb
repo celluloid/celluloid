@@ -12,14 +12,14 @@ require "celluloid/supervision/container/behavior/tree"
 require "celluloid/supervision/configuration"
 require "celluloid/supervision/configuration/instance"
 
-require "celluloid/supervision/services"
+require "celluloid/supervision/service"
 
 module Celluloid
   module ClassMethods
     def supervise(config={}, &block)
       Celluloid.services.supervise(config.merge(type: self, block: block))
     rescue NoMethodError
-      # de raise Supervision::Error::NoPublicServices
+      Internals::Logger.warn("No public supervision service was found. Supervising #{self} a la carte.")
       Supervision::Container.supervise(config.merge(type: self, block: block))
     end
   end
