@@ -1,4 +1,4 @@
-require "celluloid/silent"
+require "celluloid/current"
 
 puts "Use Supervision::Configuration objects!"
 
@@ -73,5 +73,6 @@ config.deploy
 puts "...shut it down"
 config.shutdown
 
+puts "Thinking for 4 seconds, and 4 seconds only."
 sleep 4
 puts "Use Supervision::Configuration objects. Really!"

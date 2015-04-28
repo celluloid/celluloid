@@ -65,7 +65,8 @@ module Celluloid
         @i = 0 # incrementer of instances in this branch
         resync_accessors
         @configuration = options
-        puts "OPTIONS: #{options}"
+        @supervisor ||= :"Celluloid.services"
+
         if options.is_a? Hash
           options[:initialize] ||= Container::Behavior.configure(options)
           @configuration = instance_eval(&options[:initialize])
@@ -79,7 +80,6 @@ module Celluloid
 
       def provider
         @provider ||= if @supervisor.is_a? Hash
-                        puts "PROVIDER HASH? #{@supervisor}"
                         @supervisor[:type].run!(as: @supervisor[:as])
                       elsif @supervisor.is_a? Symbol
                         @supervisor = Object.module_eval(@supervisor.to_s)
