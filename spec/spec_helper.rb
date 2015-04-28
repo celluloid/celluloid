@@ -75,7 +75,7 @@ RSpec.configure do |config|
           "\n  Exception Backtrace (#{ex.inspect}):\n    (ex) #{ex.backtrace * "\n    (ex) "}"
       end.join("\n")
 
-      fail "Actor crashes occured (please stub/mock if these are expected): #{crashes}"
+      fail "Actor crashes occurred (please stub/mock if these are expected): #{crashes}"
     end
     @fake_logger = nil
   end
