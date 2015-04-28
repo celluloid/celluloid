@@ -12,7 +12,7 @@ RSpec.describe "Blocks", actor_system: :global do
       $data << [:outside, @name, current_actor.name]
       other.do_something_and_callback do |value|
         $data << [:yielded, @name, current_actor.name]
-        $data << self.receive_result(:self)
+        $data << receive_result(:self)
         $data << current_actor.receive_result(:current_actor)
         $data << sender_actor.receive_result(:sender)
         "somevalue"

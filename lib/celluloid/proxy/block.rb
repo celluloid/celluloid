@@ -19,7 +19,7 @@ module Celluloid
               task.suspend(:invokeblock)
             else
               # FIXME: better exception
-              raise "No task to suspend"
+              fail "No task to suspend"
             end
           end
         else

@@ -1,9 +1,8 @@
-require 'thread'
+require "thread"
 
 module Celluloid
   class Group
     class Pool < Group
-
       # You do not want to use this. Truly, you do not. There is no scenario when you will.
       # But. If you somehow do.. `Celluloid.group_class = Celluloid::Group::Pool` and weep.
 
@@ -29,13 +28,9 @@ module Celluloid
         busy_size.count > 0
       end
 
-      def busy_size
-        @busy_size
-      end
+      attr_reader :busy_size
 
-      def idle_size
-        @idle_size
-      end
+      attr_reader :idle_size
 
       # Get a thread from the pool, running the given block
       def get(&block)

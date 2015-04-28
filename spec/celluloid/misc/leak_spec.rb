@@ -1,7 +1,7 @@
-require 'weakref'
+require "weakref"
 
 RSpec.describe "Leaks", actor_system: :global, leaktest: true,
-               skip: !ENV['CELLULOID_LEAKTEST'] && 'leak test disabled' do
+                        skip: !ENV["CELLULOID_LEAKTEST"] && "leak test disabled" do
   class LeakActor
     include Celluloid
 
@@ -9,7 +9,7 @@ RSpec.describe "Leaks", actor_system: :global, leaktest: true,
       @arg = arg
     end
 
-    def call(arg)
+    def call(_arg)
       []
     end
 
@@ -17,12 +17,12 @@ RSpec.describe "Leaks", actor_system: :global, leaktest: true,
     end
   end
 
-  def wait_for_release(weak, what, count=1000)
+  def wait_for_release(weak, _what, count=1000)
     trash = []
     count.times do |step|
       GC.start
       return true unless weak.weakref_alive?
-      trash << '*' * step
+      trash << "*" * step
     end
 
     false
@@ -42,17 +42,17 @@ RSpec.describe "Leaks", actor_system: :global, leaktest: true,
     expect(wait_for_release(weak, what)).to be true
   end
 
-  context 'celluloid actor' do
-    it 'is properly destroyed upon termination' do
-      actor_life('actor') do |actor|
+  context "celluloid actor" do
+    it "is properly destroyed upon termination" do
+      actor_life("actor") do |actor|
         WeakRef.new actor
       end
     end
   end
 
-  context 'celluloid actor call' do
-    it 'does not hold a reference its arguments on completion' do
-      actor_life('call-arg') do |actor|
+  context "celluloid actor call" do
+    it "does not hold a reference its arguments on completion" do
+      actor_life("call-arg") do |actor|
         arg = []
         actor.call arg
         weak = WeakRef.new arg
@@ -61,8 +61,8 @@ RSpec.describe "Leaks", actor_system: :global, leaktest: true,
       end
     end
 
-    it 'does not hold a reference to the return value' do
-      actor_life('call-result') do |actor|
+    it "does not hold a reference to the return value" do
+      actor_life("call-result") do |actor|
         result = actor.call nil
         weak = WeakRef.new result
         result = nil

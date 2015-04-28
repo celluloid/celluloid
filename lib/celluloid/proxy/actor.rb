@@ -5,7 +5,9 @@ module Celluloid
       attr_reader :thread, :mailbox
 
       # Used for reflecting on proxy objects themselves
-      def __class__; Proxy::Actor; end
+      def __class__
+        Proxy::Actor
+      end
 
       def initialize(thread, mailbox)
         @thread = thread

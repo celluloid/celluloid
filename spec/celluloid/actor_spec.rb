@@ -19,7 +19,7 @@ RSpec.describe Celluloid, actor_system: :global do
         true
       else
         false
-      end
+      end,
     ).to be_truthy
   end
 
@@ -42,7 +42,7 @@ RSpec.describe Celluloid, actor_system: :global do
       Class.new do
         include CelluloidSpecs.included_module
         def act
-          "My name is #{yield("James", "Bond")}"
+          "My name is #{yield('James', 'Bond')}"
         end
 
         def give_role_to(actor, &block)
@@ -267,12 +267,12 @@ RSpec.describe Celluloid, actor_system: :global do
     Specs.sleep_and_wait_until { !actor.alive? }
     expect(actor.inspect).to match(/Celluloid::Proxy::Cell\(/)
     expect(actor.inspect).to match(/#{actor_class}/)
-    expect(actor.inspect).to include('dead')
+    expect(actor.inspect).to include("dead")
   end
 
   it "reports private methods properly when dead" do
     actor.terminate
-    expect{ actor.private_methods }.not_to raise_error
+    expect { actor.private_methods }.not_to raise_error
   end
 
   context "with actors referencing each other" do
@@ -310,7 +310,7 @@ RSpec.describe Celluloid, actor_system: :global do
   end
 
   it "can override #send" do
-    expect(actor.send('foo')).to eq('oof')
+    expect(actor.send("foo")).to eq("oof")
   end
 
   if RUBY_PLATFORM == "java" && Celluloid.task_class != Celluloid::Task::Fibered
@@ -362,7 +362,6 @@ RSpec.describe Celluloid, actor_system: :global do
   end
 
   context "mocking out the proxy" do
-
     it "allows mocking return values" do
       expect(actor).to receive(:name).and_return "Spiderman"
       expect(actor.name).to eq "Spiderman"
@@ -392,19 +391,19 @@ RSpec.describe Celluloid, actor_system: :global do
       let(:actor) { actor_class.new "James Dean" } # is this in bad taste?
 
       it "reraises exceptions which occur during synchronous calls in the sender" do
-        allow(logger).to receive(:crash).with('Actor crashed!', ExampleCrash)
+        allow(logger).to receive(:crash).with("Actor crashed!", ExampleCrash)
         expect { actor.crash }.to raise_exception(ExampleCrash)
         Specs.sleep_and_wait_until { !actor.alive? }
       end
 
       it "includes both sender and receiver in exception traces" do
-        allow(logger).to receive(:crash).with('Actor crashed!', ExampleCrash)
+        allow(logger).to receive(:crash).with("Actor crashed!", ExampleCrash)
 
         example_receiver = Class.new do
           include CelluloidSpecs.included_module
 
           define_method(:receiver_method) do
-            raise ExampleCrash, "the spec purposely crashed me :("
+            fail ExampleCrash, "the spec purposely crashed me :("
           end
         end.new
 
@@ -416,7 +415,7 @@ RSpec.describe Celluloid, actor_system: :global do
           end
         end.new
 
-        ex = example_caller.sender_method rescue $!
+        ex = example_caller.sender_method rescue $ERROR_INFO
         Specs.sleep_and_wait_until { !example_caller.alive? }
         Specs.sleep_and_wait_until { !example_receiver.alive? }
 
@@ -426,7 +425,7 @@ RSpec.describe Celluloid, actor_system: :global do
       end
 
       it "raises DeadActorError if methods are synchronously called on a dead actor" do
-        allow(logger).to receive(:crash).with('Actor crashed!', ExampleCrash)
+        allow(logger).to receive(:crash).with("Actor crashed!", ExampleCrash)
         actor.crash rescue ExampleCrash
 
         # TODO: avoid this somehow
@@ -455,7 +454,7 @@ RSpec.describe Celluloid, actor_system: :global do
     end
 
     it "crashes the sender if we pass neither String nor Exception" do
-      allow(logger).to receive(:crash).with('Actor crashed!', TypeError)
+      allow(logger).to receive(:crash).with("Actor crashed!", TypeError)
       expect do
         actor.crash_with_abort_raw 10
       end.to raise_exception(TypeError, "Exception object/String expected, but Fixnum received")
@@ -544,7 +543,7 @@ RSpec.describe Celluloid, actor_system: :global do
     end
   end
 
-  describe '#current_actor' do
+  describe "#current_actor" do
     context "when called on an actor" do
       let(:actor) { actor_class.new "Roger Daltrey" }
 
@@ -574,9 +573,11 @@ RSpec.describe Celluloid, actor_system: :global do
           @subordinate_lambasted = false
         end
 
-        def subordinate_lambasted?; @subordinate_lambasted; end
+        def subordinate_lambasted?
+          @subordinate_lambasted
+        end
 
-        def lambaste_subordinate(actor, reason)
+        def lambaste_subordinate(_actor, _reason)
           @subordinate_lambasted = true
         end
       end
@@ -585,9 +586,9 @@ RSpec.describe Celluloid, actor_system: :global do
     it "links to other actors" do
       @kevin.link @charlie
       expect(@kevin.monitoring?(@charlie)).to be_truthy
-      expect(@kevin.linked_to?(@charlie)).to  be_truthy
+      expect(@kevin.linked_to?(@charlie)).to be_truthy
       expect(@charlie.monitoring?(@kevin)).to be_truthy
-      expect(@charlie.linked_to?(@kevin)).to  be_truthy
+      expect(@charlie.linked_to?(@kevin)).to be_truthy
     end
 
     it "unlinks from other actors" do
@@ -595,18 +596,18 @@ RSpec.describe Celluloid, actor_system: :global do
       @kevin.unlink @charlie
 
       expect(@kevin.monitoring?(@charlie)).to be_falsey
-      expect(@kevin.linked_to?(@charlie)).to  be_falsey
+      expect(@kevin.linked_to?(@charlie)).to be_falsey
       expect(@charlie.monitoring?(@kevin)).to be_falsey
-      expect(@charlie.linked_to?(@kevin)).to  be_falsey
+      expect(@charlie.linked_to?(@kevin)).to be_falsey
     end
 
     it "monitors other actors unidirectionally" do
       @kevin.monitor @charlie
 
       expect(@kevin.monitoring?(@charlie)).to be_truthy
-      expect(@kevin.linked_to?(@charlie)).to  be_falsey
+      expect(@kevin.linked_to?(@charlie)).to be_falsey
       expect(@charlie.monitoring?(@kevin)).to be_falsey
-      expect(@charlie.linked_to?(@kevin)).to  be_falsey
+      expect(@charlie.linked_to?(@kevin)).to be_falsey
     end
 
     it "unmonitors other actors" do
@@ -614,13 +615,13 @@ RSpec.describe Celluloid, actor_system: :global do
       @kevin.unmonitor @charlie
 
       expect(@kevin.monitoring?(@charlie)).to be_falsey
-      expect(@kevin.linked_to?(@charlie)).to  be_falsey
+      expect(@kevin.linked_to?(@charlie)).to be_falsey
       expect(@charlie.monitoring?(@kevin)).to be_falsey
-      expect(@charlie.linked_to?(@kevin)).to  be_falsey
+      expect(@charlie.linked_to?(@kevin)).to be_falsey
     end
 
     it "traps exit messages from other actors" do
-      allow(logger).to receive(:crash).with('Actor crashed!', ExampleCrash)
+      allow(logger).to receive(:crash).with("Actor crashed!", ExampleCrash)
       chuck = supervisor_class.new "Chuck Lorre"
       chuck.link @charlie
 
@@ -633,7 +634,7 @@ RSpec.describe Celluloid, actor_system: :global do
     end
 
     it "traps exit messages from other actors in subclasses" do
-      allow(logger).to receive(:crash).with('Actor crashed!', ExampleCrash)
+      allow(logger).to receive(:crash).with("Actor crashed!", ExampleCrash)
 
       supervisor_subclass = Class.new(supervisor_class)
       chuck = supervisor_subclass.new "Chuck Lorre"
@@ -648,7 +649,7 @@ RSpec.describe Celluloid, actor_system: :global do
     end
 
     it "unlinks from a dead linked actor" do
-      allow(logger).to receive(:crash).with('Actor crashed!', ExampleCrash)
+      allow(logger).to receive(:crash).with("Actor crashed!", ExampleCrash)
       chuck = supervisor_class.new "Chuck Lorre"
       chuck.link @charlie
 
@@ -672,7 +673,7 @@ RSpec.describe Celluloid, actor_system: :global do
         end
 
         def wait_for_signal
-          raise "already signaled" if @signaled
+          fail "already signaled" if @signaled
 
           @waiting = true
           value = wait :ponycopter
@@ -686,8 +687,13 @@ RSpec.describe Celluloid, actor_system: :global do
           signal :ponycopter, value
         end
 
-        def waiting?; @waiting end
-        def signaled?; @signaled end
+        def waiting?
+          @waiting
+        end
+
+        def signaled?
+          @signaled
+        end
       end
     end
 
@@ -798,11 +804,11 @@ RSpec.describe Celluloid, actor_system: :global do
 
         def eat_donuts
           sleep CelluloidSpecs::TIMER_QUANTUM
-          @tasks << 'donuts'
+          @tasks << "donuts"
         end
 
         def drink_coffee
-          @tasks << 'coffee'
+          @tasks << "coffee"
         end
       end
     end
@@ -817,7 +823,7 @@ RSpec.describe Celluloid, actor_system: :global do
       end
 
       it "executes in an exclusive order" do
-        expect(actor.tasks).to eq(['donuts', 'coffee'])
+        expect(actor.tasks).to eq(%w(donuts coffee))
       end
     end
   end
@@ -878,7 +884,9 @@ RSpec.describe Celluloid, actor_system: :global do
           @sleeping = false
         end
 
-        def sleeping?; @sleeping end
+        def sleeping?
+          @sleeping
+        end
 
         def fire_after(n)
           after(n) { @fired = true }
@@ -889,8 +897,11 @@ RSpec.describe Celluloid, actor_system: :global do
           every(n) { @fired += 1 }
         end
 
-        def fired?; !!@fired end
-        def fired; @fired end
+        def fired?
+          !!@fired
+        end
+
+        attr_reader :fired
       end.new
     end
 
@@ -1029,7 +1040,7 @@ RSpec.describe Celluloid, actor_system: :global do
     end
   end
 
-  context '#proxy_class' do
+  context "#proxy_class" do
     subject do
       Class.new do
         include CelluloidSpecs.included_module
@@ -1045,7 +1056,7 @@ RSpec.describe Celluloid, actor_system: :global do
     end
 
     it "uses user-specified proxy" do
-      expect{subject.new.subclass_proxy?}.to_not raise_error
+      expect { subject.new.subclass_proxy? }.to_not raise_error
     end
 
     it "retains custom proxy when subclassed" do
@@ -1099,7 +1110,7 @@ RSpec.describe Celluloid, actor_system: :global do
             mandatory_args = -arity - 1
             unmet_requirement = "#{mandatory_args}+" if args.size < mandatory_args
           end
-          raise ArgumentError, "wrong number of arguments (#{args.size} for #{unmet_requirement})" if unmet_requirement
+          fail ArgumentError, "wrong number of arguments (#{args.size} for #{unmet_requirement})" if unmet_requirement
 
           super
         end
@@ -1117,7 +1128,7 @@ RSpec.describe Celluloid, actor_system: :global do
             "This is madness!"
           end
 
-          def this_is_not_madness(word1, word2, word3, *args)
+          def this_is_not_madness(word1, word2, word3, *_args)
             fail "This is madness!" unless [word1, word2, word3] == [:this, :is, :Sparta]
           end
 
@@ -1132,25 +1143,25 @@ RSpec.describe Celluloid, actor_system: :global do
 
         it "does not crash the actor" do
           subject.method_to_madness rescue NoMethodError
-          expect(subject.madness).to eq('This is madness!')
+          expect(subject.madness).to eq("This is madness!")
         end
       end
 
       context "when invoking a existing method with incorrect args" do
         context "with too many arguments" do
           it "raises an ArgumentError" do
-            expect { subject.madness(:Sparta) }.to raise_error(ArgumentError, 'wrong number of arguments (1 for 0)')
+            expect { subject.madness(:Sparta) }.to raise_error(ArgumentError, "wrong number of arguments (1 for 0)")
           end
 
           it "does not crash the actor" do
             subject.madness(:Sparta) rescue ArgumentError
-            expect(subject.madness).to eq('This is madness!')
+            expect(subject.madness).to eq("This is madness!")
           end
         end
 
         context "with not enough mandatory arguments" do
           it "raises an ArgumentError" do
-            expect { subject.this_is_not_madness(:this, :is) }.to raise_error(ArgumentError, 'wrong number of arguments (2 for 3+)')
+            expect { subject.this_is_not_madness(:this, :is) }.to raise_error(ArgumentError, "wrong number of arguments (2 for 3+)")
           end
         end
       end
@@ -1197,7 +1208,7 @@ RSpec.describe Celluloid, actor_system: :global do
     let(:a2) { actor_class.new }
 
     it "allows timing out tasks, raising Celluloid::Task::TimeoutError" do
-      allow(logger).to receive(:crash).with('Actor crashed!', Celluloid::Task::TimeoutError)
+      allow(logger).to receive(:crash).with("Actor crashed!", Celluloid::Task::TimeoutError)
       expect { a1.ask_name_with_timeout a2, 0.3 }.to raise_error(Celluloid::Task::TimeoutError)
       Specs.sleep_and_wait_until { !a1.alive? }
     end

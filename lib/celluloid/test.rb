@@ -1,3 +1,3 @@
 $CELLULOID_TEST = true
 
-require 'celluloid'
+require "celluloid"

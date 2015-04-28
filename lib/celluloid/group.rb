@@ -1,6 +1,5 @@
 module Celluloid
   class Group
-
     class NotImplemented < StandardError; end
     class StillActive < StandardError; end
     class NotActive < StandardError; end
@@ -14,7 +13,7 @@ module Celluloid
     end
 
     def assert_active
-      raise NotActive unless active?
+      fail NotActive unless active?
     end
 
     def assert_inactive
@@ -22,12 +21,12 @@ module Celluloid
       if RUBY_PLATFORM == "java"
         Celluloid.logger.warn "Group is still active"
       else
-        raise StillActive
+        fail StillActive
       end
     end
 
     def each
-      to_a.each {|thread| yield thread }
+      to_a.each { |thread| yield thread }
     end
 
     def to_a
@@ -37,10 +36,10 @@ module Celluloid
     end
 
     def purge(thread)
-      @mutex.synchronize {
+      @mutex.synchronize do
         @group.delete(thread)
         thread.kill rescue nil
-      }
+      end
     end
 
     def each_actor(&block)
@@ -52,16 +51,15 @@ module Celluloid
     end
 
     def get
-      raise NotImplemented
+      fail NotImplemented
     end
 
     def create
-      raise NotImplemented
+      fail NotImplemented
     end
 
     def shutdown
-      raise NotImplemented
+      fail NotImplemented
     end
-
   end
 end

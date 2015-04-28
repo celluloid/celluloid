@@ -60,7 +60,7 @@ module Specs
       return if self.class.allowed_logger.first == self
 
       fail "Incorrect logger used:"\
-        " active/allowed: \n#{self.clas.allowed_logger.inspect},\n"\
+        " active/allowed: \n#{clas.allowed_logger.inspect},\n"\
         " actual/self: \n#{[self, @example].inspect}\n"\
         " (maybe an actor from another test is still running?)"
     end

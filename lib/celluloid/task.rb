@@ -16,7 +16,7 @@ module Celluloid
 
     # Obtain the current task
     def self.current
-      Thread.current[:celluloid_task] or raise NotTaskError, "not within a task context"
+      Thread.current[:celluloid_task] || fail(NotTaskError, "not within a task context")
     end
 
     # Suspend the running task, deferring to the scheduler
@@ -40,7 +40,7 @@ module Celluloid
       actor     = Thread.current[:celluloid_actor]
       @chain_id = Internals::CallChain.current_id
 
-      raise NotActorError, "can't create tasks outside of actors" unless actor
+      fail NotActorError, "can't create tasks outside of actors" unless actor
       guard "can't create tasks inside of tasks" if Thread.current[:celluloid_task]
 
       create do
@@ -65,14 +65,14 @@ module Celluloid
       end
     end
 
-    def create(&block)
-      raise "Implement #{self.class}#create"
+    def create(&_block)
+      fail "Implement #{self.class}#create"
     end
 
     # Suspend the current task, changing the status to the given argument
     def suspend(status)
-      raise "Cannot suspend while in exclusive mode" if exclusive?
-      raise "Cannot suspend a task from outside of itself" unless Task.current == self
+      fail "Cannot suspend while in exclusive mode" if exclusive?
+      fail "Cannot suspend a task from outside of itself" unless Task.current == self
 
       @status = status
 
@@ -85,7 +85,7 @@ module Celluloid
       value = signal
 
       @status = :running
-      raise value if value.is_a?(Celluloid::ResumableError)
+      fail value if value.is_a?(Celluloid::ResumableError)
 
       value
     end
@@ -113,7 +113,7 @@ module Celluloid
 
     # Terminate this task
     def terminate
-      raise "Cannot terminate an exclusive task" if exclusive?
+      fail "Cannot terminate an exclusive task" if exclusive?
 
       if running?
         Internals::Logger.with_backtrace(backtrace) do |logger|
@@ -124,7 +124,7 @@ module Celluloid
         exception.set_backtrace(caller)
         resume exception
       else
-        raise DeadTaskError, "task is already dead"
+        fail DeadTaskError, "task is already dead"
       end
     end
 
@@ -137,7 +137,9 @@ module Celluloid
     end
 
     # Is the current task still running?
-    def running?; @status != :dead; end
+    def running?
+      @status != :dead
+    end
 
     # Nicer string inspect for tasks
     def inspect
@@ -148,7 +150,7 @@ module Celluloid
       if @guard_warnings
         Internals::Logger.warn message if $CELLULOID_DEBUG
       else
-        raise message if $CELLULOID_DEBUG
+        fail message if $CELLULOID_DEBUG
       end
     end
 

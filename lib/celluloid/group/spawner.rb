@@ -1,9 +1,8 @@
-require 'thread'
+require "thread"
 
 module Celluloid
   class Group
     class Spawner < Group
-
       attr_accessor :finalizer
 
       def initialize
@@ -12,13 +11,13 @@ module Celluloid
 
       def get(&block)
         assert_active
-        raise ArgumentError.new("No block sent to Spawner.get()") unless block_given?
+        fail ArgumentError.new("No block sent to Spawner.get()") unless block_given?
         instantiate block
       end
 
       def shutdown
         @running = false
-        @mutex.synchronize {
+        @mutex.synchronize do
           queue = Queue.new
           loop do
             break if @group.empty?
@@ -31,26 +30,24 @@ module Celluloid
             break if queue.empty?
             queue.pop.join
           end
-        }
+        end
       end
 
       def idle?
-        to_a.select{ |t| t[:celluloid_meta] and t[:celluloid_meta][:state] == :running }.empty?
+        to_a.select { |t| t[:celluloid_meta] && t[:celluloid_meta][:state] == :running }.empty?
       end
 
       def busy?
-        to_a.select{ |t| t[:celluloid_meta] and t[:celluloid_meta][:state] == :running }.any?
+        to_a.select { |t| t[:celluloid_meta] && t[:celluloid_meta][:state] == :running }.any?
       end
 
       private
 
-      def instantiate proc
-
-        thread = Thread.new {
-
+      def instantiate(proc)
+        thread = Thread.new do
           Thread.current[:celluloid_meta] = {
-            :started => Time.now,
-            :state => :running
+            started: Time.now,
+            state: :running,
           }
 
           begin
@@ -64,12 +61,11 @@ module Celluloid
             end
             Thread.current[:celluloid_meta][:finished] = Time.now
           end
-        }
+        end
 
         @mutex.synchronize { @group << thread }
         thread
       end
-
     end
   end
 end

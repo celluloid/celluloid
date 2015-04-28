@@ -4,7 +4,9 @@ module Celluloid
     # the normal Ruby method protocol into an inter-actor message protocol
     class Cell < Sync
       # Used for reflecting on proxy objects themselves
-      def __class__; Proxy::Cell; end
+      def __class__
+        Proxy::Cell
+      end
 
       def initialize(actor_proxy, mailbox, klass)
         super(mailbox, klass)

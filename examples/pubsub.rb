@@ -1,15 +1,15 @@
-require 'celluloid/autostart'
+require "celluloid/autostart"
 
-class Publisher 
+class Publisher
   include Celluloid
   include Celluloid::Notifications
 
   def initialize
     now = Time.now.to_f
     sleep now.ceil - now + 0.001
-    9.times {
-      publish 'example_write_by_instance_method', Time.now
-    }
+    9.times do
+      publish "example_write_by_instance_method", Time.now
+    end
   end
 end
 
@@ -20,11 +20,11 @@ class Subscriber
 
   def initialize
     info "Subscribing to topics."
-    subscribe 'example_write_by_instance_method', :new_message
-    subscribe 'example_write_by_class_method', :new_message
+    subscribe "example_write_by_instance_method", :new_message
+    subscribe "example_write_by_class_method", :new_message
   end
 
-  def new_message(topic,data)
+  def new_message(topic, data)
     info "#{topic}: #{data}"
   end
 end

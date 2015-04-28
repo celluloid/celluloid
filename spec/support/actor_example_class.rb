@@ -45,7 +45,7 @@ module ExampleActorClass
       end
 
       def crash
-        raise ExampleCrash, "the spec purposely crashed me :("
+        fail ExampleCrash, "the spec purposely crashed me :("
       end
 
       def crash_with_abort(reason, foo = nil)

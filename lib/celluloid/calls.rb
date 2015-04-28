@@ -9,7 +9,7 @@ module Celluloid
       if block
         if Celluloid.exclusive?
           # FIXME: nicer exception
-          raise "Cannot execute blocks on sender in exclusive mode"
+          fail "Cannot execute blocks on sender in exclusive mode"
         end
         @block = Proxy::Block.new(self, Celluloid.mailbox, block)
       else
@@ -25,14 +25,12 @@ module Celluloid
       check(obj)
       _b = @block && @block.to_proc
       obj.public_send(@method, *@arguments, &_b)
-=begin
-    rescue Celluloid::TimeoutError => ex
-      raise ex unless ( @retry += 1 ) <= RETRY_CALL_LIMIT
-      puts "retrying"
-      Internals::Logger.warn("TimeoutError at Call dispatch. Retrying in #{RETRY_CALL_WAIT} seconds. ( Attempt #{@retry} of #{RETRY_CALL_LIMIT} )")
-      sleep RETRY_CALL_WAIT
-      retry
-=end
+      #     rescue Celluloid::TimeoutError => ex
+      #       raise ex unless ( @retry += 1 ) <= RETRY_CALL_LIMIT
+      #       puts "retrying"
+      #       Internals::Logger.warn("TimeoutError at Call dispatch. Retrying in #{RETRY_CALL_WAIT} seconds. ( Attempt #{@retry} of #{RETRY_CALL_LIMIT} )")
+      #       sleep RETRY_CALL_WAIT
+      #       retry
     end
 
     def check(obj)
@@ -46,10 +44,10 @@ module Celluloid
       arity = meth.arity
 
       if arity >= 0
-        raise ArgumentError, "wrong number of arguments (#{@arguments.size} for #{arity})" if @arguments.size != arity
+        fail ArgumentError, "wrong number of arguments (#{@arguments.size} for #{arity})" if @arguments.size != arity
       elsif arity < -1
         mandatory_args = -arity - 1
-        raise ArgumentError, "wrong number of arguments (#{@arguments.size} for #{mandatory_args}+)" if arguments.size < mandatory_args
+        fail ArgumentError, "wrong number of arguments (#{@arguments.size} for #{mandatory_args}+)" if arguments.size < mandatory_args
       end
     rescue => ex
       raise AbortError.new(ex)

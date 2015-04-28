@@ -17,7 +17,7 @@ module Celluloid
 
     def initialize(cause)
       @cause = cause
-      super "caused by #{cause.inspect}: #{cause.to_s}"
+      super "caused by #{cause.inspect}: #{cause}"
     end
   end
 end

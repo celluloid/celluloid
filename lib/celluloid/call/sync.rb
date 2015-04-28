@@ -48,7 +48,7 @@ module Celluloid
       def wait
         while true
           message = Celluloid.mailbox.receive do |msg|
-            msg.respond_to?(:call) and msg.call == self
+            msg.respond_to?(:call) && msg.call == self
           end
 
           if message.is_a?(SystemEvent)

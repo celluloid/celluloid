@@ -1,4 +1,4 @@
-require 'thread'
+require "thread"
 
 module Celluloid
   # Celluloid::Future objects allow methods and blocks to run in the
@@ -67,7 +67,7 @@ module Celluloid
       if result
         result.value
       else
-        raise TimeoutError, "Timed out"
+        fail TimeoutError, "Timed out"
       end
     end
     alias_method :call, :value
@@ -77,7 +77,7 @@ module Celluloid
       result = Result.new(value, self)
 
       @mutex.synchronize do
-        raise "the future has already happened!" if @ready
+        fail "the future has already happened!" if @ready
 
         if @forwards
           @forwards.is_a?(Array) ? @forwards.each { |f| f << result } : @forwards << result

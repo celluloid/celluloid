@@ -76,12 +76,12 @@ RSpec.describe Celluloid::ActorSystem do
   it "shuts down" do
     subject.shutdown
 
-    expect { subject.get_thread }.
-      to raise_error(Celluloid::Group::NotActive)
+    expect { subject.get_thread }
+      .to raise_error(Celluloid::Group::NotActive)
   end
 
   it "warns nicely when no actor system is started" do
-    expect { TestActor.new }.
-      to raise_error("Celluloid is not yet started; use Celluloid.boot")
+    expect { TestActor.new }
+      .to raise_error("Celluloid is not yet started; use Celluloid.boot")
   end
 end
