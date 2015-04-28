@@ -2,7 +2,7 @@ source "https://rubygems.org"
 
 gem "coveralls", require: false
 
-gemspec development_group: :gem_build_tools
+gemspec #de development_group: :gem_build_tools
 
 group :development do
   gem "pry"
@@ -25,7 +25,8 @@ group :gem_build_tools do
   gem "rake"
 end
 
-gem 'celluloid-essentials', github: 'celluloid/celluloid-essentials', branch: 'master'
-gem 'celluloid-gems', github: 'celluloid/celluloid-gems', branch: 'master'
-
 gem 'celluloid', github: 'celluloid/celluloid', branch: '0.17.0-prerelease'
+gem "celluloid-essentials", github: "celluloid/celluloid-essentials", branch: "master"
+gem "celluloid-pool", github: "celluloid/celluloid-pool", branch: "master"
+gem "celluloid-fsm", github: "celluloid/celluloid-fsm", branch: "master"
+gem "timers", github: "celluloid/timers"
