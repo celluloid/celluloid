@@ -1,10 +1,8 @@
 source "https://rubygems.org"
 
-gemspec
-
 gem "bundler"
 gem "coveralls", require: false
-gem "timers", github: "celluloid/timers"
+gemspec
 
 group :development do
   gem "pry"
@@ -28,3 +26,8 @@ group :gem_build_tools do
 end
 
 gem "celluloid-essentials", github: "celluloid/celluloid-essentials", branch: "master"
+gem 'celluloid-extras', github: 'celluloid/celluloid-extras', branch: 'master'
+gem 'celluloid-supervision', github: 'celluloid/celluloid-supervision', branch: 'master'
+gem 'celluloid-pool', github: 'celluloid/celluloid-pool', branch: 'master'
+gem 'celluloid-fsm', github: 'celluloid/celluloid-fsm', branch: 'master'
+gem "timers", github: "celluloid/timers"
