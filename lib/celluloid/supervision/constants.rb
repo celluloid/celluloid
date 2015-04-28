@@ -20,7 +20,7 @@ module Celluloid
       
       # Using class variable so that parameters can be added by plugins.
 
-      PARAMETERS = {
+      @@parameters = {
 
         :mandatory => [ :type ],
 
@@ -32,9 +32,9 @@ module Celluloid
 
         # TODO: Move these into Behaviors.
         :plugins => [
-          :size,        # Supervision::Pool
-          :routers,     # Supervision::Coordinator
-          :supervises   # Supervision::Tree
+          #de :size,        # Supervision::Pool
+          #de :routers,     # Supervision::Coordinator
+          #de :supervises   # Supervision::Tree
         ],
 
         :meta => [
@@ -44,27 +44,40 @@ module Celluloid
         ]
       }
 
-      ARITY = { :type => :args }
-
-      ALIASES = {
-        :name => :as,
-        :kind => :type,
-        :pool => :size   # TODO: Move into Behaviors.
+      @@arity = {
+        :type => :args
       }
 
+      @@aliases = {
+        :name => :as,
+        :kind => :type,
+        #de :pool => :size,   # TODO: Move into Behaviors.
+        #de :supervise => :supervises
+      }
+
+      @@defaults = {}
+
       class << self
-        def sync_parameters
-          @@parameters = PARAMETERS.inject({}) { |p,(k,v)| p[k] = v.dup; p }
-          @@aliases = ALIASES.dup
-          @@arity = ARITY.dup
+        def save_defaults
+          @@defaults = {
+            :parameters => @@parameters.inject({}) { |p,(k,v)| p[k] = v.dup; p },
+            :aliases => @@aliases.dup,
+            :arity => @@arity.dup
+          }
         end
-        def parameters *args
+        def resync_parameters
+          @@parameters = @@defaults[:parameters].inject({}) { |p,(k,v)| p[k] = v.dup; p }
+          @@aliases = @@defaults[:aliases].dup
+          @@arity = @@defaults[:arity].dup
+        end
+        def parameters(*args)
           args.inject([]) { |parameters,p| parameters += @@parameters[p]; parameters }
         end
         def parameter!(key,value)
+          puts "parameter! #{[key,value]}"
           @@parameters[key] << value unless @@parameters[key].include? value
         end
-        def arity *args
+        def arity(*args)
           @@arity
         end
         def arity!(key,value)
@@ -73,12 +86,13 @@ module Celluloid
         def aliases
           @@aliases
         end
-        def alias!(key,value)
-          @@aliases[key] = value
+        def alias!(aliased,original)
+          @@aliases[aliased] = original
         end
       end
 
-      sync_parameters
+      save_defaults
+      resync_parameters
 
       # This was originally added for `#pool` and `PoolManager
       # `:before_initialize` was added to allow detecting `:size => N`
@@ -87,11 +101,15 @@ module Celluloid
 
       ################ These are applied inside Supervision::Member ################
 
-      @@injections = [
-        :before_configuration,
-        :after_configuration,
-        :before_initialize,
-        :after_initialize,
+      REMOVE_AT_EXPORT = [
+        :initialize,
+        :behavior
+      ]
+
+      INJECTIONS = [
+        :configuration,
+        :before_initialization,
+        :after_initialization,
         :before_start,
         :before_restart
       ]

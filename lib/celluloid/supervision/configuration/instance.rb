@@ -7,11 +7,15 @@ module Celluloid
 
         def initialize(configuration={})
           @state = :initializing # :ready
-          sync_parameters
+          resync_accessors
           @configuration = configuration
           define configuration if configuration.any?
         end
 
+        def export
+          @configuration.select { |k,v| !REMOVE_AT_EXPORT.include? k }
+        end
+        
         def ready? fail=false
           unless @state == :ready
             @state = :ready if Configuration.valid? @configuration, fail
@@ -35,7 +39,7 @@ module Celluloid
           @configuration[:injections] = proces
         end
 
-        def sync_parameters
+        def resync_accessors
           # methods for setting and getting the usual defaults
           Configuration.parameters( :mandatory, :optional, :plugins, :meta ).each { |key|
             self.class.instance_eval {

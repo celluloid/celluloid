@@ -77,7 +77,6 @@ module Celluloid
         @actors = [] # instances in the container
         @registry = options.delete(:registry) || Celluloid.actor_system.registry
         @branch = options.delete(:branch) || :services
-        #de REMOVE @registry.add(options[:as], Actor.current) if options[:as].is_a? Symbol
         yield current_actor if block_given?
       end
 

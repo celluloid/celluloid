@@ -4,7 +4,7 @@ module Celluloid
 
       class << self
         def deploy(options={})
-          new(options).deploy
+          define(options).deploy
         end
 
         def define(options={})
@@ -40,6 +40,7 @@ module Celluloid
         def options(args, options={})
           configuration=args.merge(options)
           return configuration if configuration.is_a? Configuration
+          configuration[:initialize] = Container::Behavior.configure(configuration)
           valid?(configuration,true)
           configuration
         end
@@ -63,27 +64,16 @@ module Celluloid
         @instances = [ Instance.new ]
         @branch = :services
         @i = 0 # incrementer of instances in this branch
-        sync_parameters
-        invoke_injection(:before_configuration)
+        resync_accessors
+        @configuration = options
 
-        configuration = if options[:supervise].is_a? Array
-                          #de puts "BRANCH STARTING: #{options[:as]}"
-                          @supervisor = options
-                          @branch = options.fetch(:branch,options[:as])
-                          options.delete :supervise
-                        else
-                          #de REMOVE puts "PULLING PUBLIC SERVICES: #{options[:as]}"
-                          @supervisor ||= options.fetch(:supervisor, :"Celluloid.services")
-                          options.dup
-                        end
+        options[:initialize] ||= Container::Behavior.configure(options)
+        @configuration = instance_eval(&options[:initialize])
 
-        #de REMOVE puts "\n\n\n\n\n\nconfiguration: #{configuration}"
-        define(configuration) if (configuration.is_a? Hash or configuration.is_a? Array) and configuration.any?
-      end
-
-      def configuration
-        raise WHAT
-        self
+        @supervisor ||= options.fetch(:supervisor, :"Celluloid.services")
+        if (@configuration.is_a? Hash or @configuration.is_a? Array) and @configuration.any?
+          define(@configuration)
+        end
       end
 
       def provider
@@ -97,18 +87,13 @@ module Celluloid
         elsif @supervisor.respond_to? :supervise
           @supervisor
         else
-          #de REMOVE puts "supervisor: #{@supervisor}"
           raise Error::InvalidSupervisor
         end
       end
 
-      # TODO: Decide which level to keep, and only keep that.
-      #       Do we provide access by Celluloid.accessor
-      #       Do we provide access by Celluloid.actor_system.accessor
       def deploy(options={})
         define(options) if options.any?
         @instances.each { |instance|
-          #de REMOVE puts ">>>>>> ----------------------------\nDEPLOY: #{instance.configuration}\n>>>>>> ----------------------------\n"
           provider.supervise instance.merge( branch: @branch )
         }
         provider
@@ -122,7 +107,7 @@ module Celluloid
         @instances.each(&block)
       end
 
-      def sync_parameters
+      def resync_accessors
         # methods for setting and getting the usual defaults
         Configuration.parameters( :mandatory, :optional, :plugins, :meta ).each { |key|
           [ :"#{key}!", :"#{key}=" ].each { |m|
@@ -169,7 +154,7 @@ module Celluloid
         if @i == 0
           return current_instance.to_hash
         end
-        @instances.map(&:configuration)
+        @instances.map(&:export)
       end
 
       def include?(name)
@@ -177,7 +162,6 @@ module Celluloid
       end
 
       def define(configuration,fail=false)
-        #de REMOVE puts "define? #{configuration}"
         if configuration.is_a? Array
           configuration.each { |c| define(c,fail) }
         else

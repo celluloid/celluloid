@@ -6,6 +6,7 @@ gem 'coveralls', require: false
 gem 'celluloid-essentials', github: 'celluloid/celluloid-essentials', branch: 'master'
 gem 'celluloid', github: 'celluloid/celluloid', branch: '0.17.0-prerelease'
 =end
+gem 'celluloid', github: 'celluloid/celluloid', branch: '0.17.0-prerelease'
 
 gemspec development_group: :gem_build_tools
 

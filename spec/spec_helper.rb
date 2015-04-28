@@ -194,6 +194,7 @@ RSpec.configure do |config|
 
   # Must be *after* the around hook above
 =begin
+  #de We should not need retries.
   require 'rspec/retry'
   config.verbose_retry = true
   config.default_sleep_interval = 1

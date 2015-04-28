@@ -23,8 +23,8 @@ RSpec.describe Celluloid::Supervision::Configuration, actor_system: :global do
   }
 
   after(:each) {
-    Celluloid::Supervision::Configuration.sync_parameters
-    subject.sync_parameters
+    Celluloid::Supervision::Configuration.resync_parameters
+    subject.resync_accessors
   }
 
   context("remains reusable without being mutated") {
@@ -61,7 +61,7 @@ RSpec.describe Celluloid::Supervision::Configuration, actor_system: :global do
         
         before(:each){
           Celluloid::Supervision::Configuration.parameter! :mandatory, :special_requirement
-          subject.sync_parameters
+          subject.resync_accessors
         }
 
         it("programmatically") {
@@ -69,7 +69,7 @@ RSpec.describe Celluloid::Supervision::Configuration, actor_system: :global do
         }
 
         it("and respond appropriately") {
-          subject.sync_parameters
+          subject.resync_accessors
           expect(subject.methods).to include(:special_requirement)
           expect(subject.respond_to?(:special_requirement!)).to be_truthy
           expect(subject.respond_to?(:special_requirement?)).to be_truthy
@@ -79,13 +79,13 @@ RSpec.describe Celluloid::Supervision::Configuration, actor_system: :global do
         }
 
         it("and instances will respond appropriately") {
-          subject.instances.first.sync_parameters
+          subject.instances.first.resync_accessors
           subject.define( type: TestActor, special_requirement: :valid )
           expect(subject.respond_to?(:special_requirement)).to be_truthy
         }
 
         it("and be reset to defaults") {
-          Celluloid::Supervision::Configuration.sync_parameters
+          Celluloid::Supervision::Configuration.resync_parameters
           expect(Celluloid::Supervision::Configuration.parameters(:mandatory)).not_to include(:special_requirement)
         }
       }
@@ -93,16 +93,16 @@ RSpec.describe Celluloid::Supervision::Configuration, actor_system: :global do
       context("can be aliased") {
 
         before(:each) {
-          Celluloid::Supervision::Configuration.sync_parameters
+          Celluloid::Supervision::Configuration.resync_parameters
           Celluloid::Supervision::Configuration.alias! :nick, :as
-          subject.sync_parameters
+          subject.resync_accessors
         }
 
         it("programmatically") {
           expect(Celluloid::Supervision::Configuration.aliases.keys).to include(:nick)
         }
 
-        it("and respond appropriately") {
+        it("and respond appropriately by method") {
           subject.define( type: TestActor, as: :test_name )
           expect(subject.respond_to?(:nick!)).to be_truthy
           expect(subject.respond_to?(:nick?)).to be_truthy
@@ -111,13 +111,29 @@ RSpec.describe Celluloid::Supervision::Configuration, actor_system: :global do
           expect(subject.nick).to eq(:test_name)
         }
 
-        it("and instances will respond properly") {
+        xit("and respond properly by current_instance, by method") {
+          # subject.current_instance[:aliased] gets subject.current_instance[:original]
+        }
+
+        it("and instances will respond properly by method") {
           subject.define( as: :test_name, type: TestActor )
           expect(subject.instances.first.respond_to?(:nick!)).to be_truthy
           expect(subject.instances.first.respond_to?(:nick?)).to be_truthy
           expect(subject.instances.first.respond_to?(:nick=)).to be_truthy
           expect(subject.instances.first.respond_to?(:nick)).to be_truthy
           expect(subject.instances.first.nick).to eq(:test_name)
+        }
+
+        xit("and respond appropriately by key") {
+          # subject[:aliased] gets subject[:original]
+        }
+        
+        xit("and instances respond properly by current_instance, by key") {
+          # subject.instances.first[:aliased] gets subject.instances.first[:original]
+        }
+        
+        xit("and instances respond properly by key") {
+          # subject.instances.first[:aliased] gets subject.instances.first[:original]
         }
 
       }

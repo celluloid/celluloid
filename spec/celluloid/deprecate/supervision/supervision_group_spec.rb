@@ -44,69 +44,72 @@ unless $CELLULOID_BACKPORTED == false
       end
     end
 
-    before do
-      subject # init for easier debugging
-      queue_count.times { SupervisionGroupHelper::QUEUE.pop }
-    end
+    context("deprecated syntax") {
 
-    after do
-      # TODO: hangs without condition on JRuby?
-      subject.terminate if subject.alive?
-    end
-
-    context "when supervising a single actor" do
-      subject do
-        Class.new(Celluloid::SupervisionGroup) do
-          supervise MyActor, :as => :example
-        end.run!(*registry)
+      before do
+        subject # init for easier debugging
+        queue_count.times { SupervisionGroupHelper::QUEUE.pop }
       end
 
-      let(:registry) { [] }
-
-      it "runs applications" do
-        expect(Celluloid::Actor[:example]).to be_running
+      after do
+        # TODO: hangs without condition on JRuby?
+        subject.terminate if subject.alive?
       end
 
-      context "with a private registry" do
-        let(:registry) { Celluloid::Registry.new }
+      context "when supervising a single actor" do
+        subject do
+          Class.new(Celluloid::SupervisionGroup) do
+            supervise MyActor, :as => :example
+          end.run!(*registry)
+        end
 
-        it "accepts a private actor registry" do
-          expect(registry[:example]).to be_running
+        let(:registry) { [] }
+
+        it "runs applications" do
+          expect(Celluloid::Actor[:example]).to be_running
+        end
+
+        context "with a private registry" do
+          let(:registry) { Celluloid::Registry.new }
+
+          it "accepts a private actor registry" do
+            expect(registry[:example]).to be_running
+          end
+        end
+
+        it "removes actors from the registry when terminating" do
+          subject.terminate
+          expect(Celluloid::Actor[:example]).to be_nil
+        end
+
+        it "allows external access to the internal registry" do
+          expect(subject[:example]).to be_a MyActor
         end
       end
 
-      it "removes actors from the registry when terminating" do
-        subject.terminate
-        expect(Celluloid::Actor[:example]).to be_nil
+      context "with multiple args" do
+        subject do
+          Class.new(Celluloid::SupervisionGroup) do
+            supervise MyActor, as: :example, args: [:foo, :bar]
+          end.run!
+        end
+
+        it "passes them" do
+          expect(Celluloid::Actor[:example].args).to eq([:foo, :bar])
+        end
       end
 
-      it "allows external access to the internal registry" do
-        expect(subject[:example]).to be_a MyActor
-      end
-    end
+      context "with lazy evaluation" do
+        subject do
+          Class.new(Celluloid::SupervisionGroup) do
+            supervise MyActor, as: :example, args: ->{ :lazy }
+          end.run!
+        end
 
-    context "with multiple args" do
-      subject do
-        Class.new(Celluloid::SupervisionGroup) do
-          supervise MyActor, as: :example, args: [:foo, :bar]
-        end.run!
+        it "evaluates correctly" do
+          expect(Celluloid::Actor[:example].args).to eq([:lazy])
+        end
       end
-
-      it "passes them" do
-        expect(Celluloid::Actor[:example].args).to eq([:foo, :bar])
-      end
-    end
-
-    context "with lazy evaluation" do
-      subject do
-        Class.new(Celluloid::SupervisionGroup) do
-          supervise MyActor, as: :example, args: ->{ :lazy }
-        end.run!
-      end
-
-      it "evaluates correctly" do
-        expect(Celluloid::Actor[:example].args).to eq([:lazy])
-      end
-    end
+    }
   end
 end

@@ -8,7 +8,7 @@ RSpec.describe Celluloid::Supervision::Services::Root, actor_system: :global do
   end
 
   before(:all) {
-    Celluloid::Supervision::Configuration.sync_parameters
+    Celluloid::Supervision::Configuration.resync_parameters
   }
 
   context("deploys root services") {

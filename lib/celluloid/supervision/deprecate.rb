@@ -1,6 +1,7 @@
 # TODO: Remove at 1.0
 module Celluloid
   SupervisionGroup = Supervision::Container
+  Supervision::Group = Supervision::Container
 end
 
 require 'celluloid/supervision/deprecate/supervision'

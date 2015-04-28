@@ -68,17 +68,17 @@ module Celluloid
         def add_accessors
           remove_accessors
           if @configuration[:accessors].is_a? Array
-            #de REMOVE puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ACCESSORS: #{@configuration[:accessors]}"
+            # TODO: Decide which level to keep, and only keep that.
+            #       Do we provide access by Celluloid.accessor
+            #       Do we provide access by Celluloid.actor_system.accessor
             @configuration[:accessors].each { |name|
               Celluloid.instance_exec(@configuration[:as],name) { |actor,where|
                 define_method(name) {
-                  puts "calling through Celluloid.#{where}"
                   Celluloid.actor_system[actor]
                 }
               }
               Celluloid::ActorSystem.instance_exec(@configuration[:as],name) { |actor,where|
                 define_method(name) { 
-                  puts "calling through Celluloid.actor_system.#{where}"
                   Celluloid.actor_system[actor]
                 }
               }
