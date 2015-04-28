@@ -27,7 +27,7 @@
   * Moved Celluloid::SyncProxy to Celluloid::Proxy::Sync
 * GEM EXTRACTION: `Internals`, `Notifications`, `Probe`, and the contents of `logging/*` have become a `celluloid-essentials` gem.
 * Implement `Group::Manager` as base for future `Group::Unlocker` and other such systems traversing `ActorSystem#group` regularly.
-* Reduce number of supervisors instantiated by `ActorSystem` by consolidating them down to `BaseServices`
+* Reduce number of supervisors instantiated by `ActorSystem` by consolidating them down to `Service::Root` container instances.
 
 0.16.0 (2014-09-04)
 -----

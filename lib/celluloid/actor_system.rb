@@ -25,7 +25,7 @@ module Celluloid
       },
       {
         :as => :public_services,
-        :type => Celluloid::Supervision::Services::Public,
+        :type => Celluloid::Supervision::Service::Public,
         :accessors => [ :services ],
         :supervise => []
       }
@@ -57,7 +57,7 @@ module Celluloid
     # Launch default services
     def start
       within do
-        @root = Supervision::Services::Root.define
+        @root = Supervision::Service::Root.define
         @tree = root_configuration.deploy
         #de root_services[:group_manager].manage! @group
       end
