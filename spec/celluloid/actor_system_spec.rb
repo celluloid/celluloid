@@ -53,7 +53,6 @@ RSpec.describe Celluloid::ActorSystem do
 
   it "returns named actors" do
     subject.start
-    #de expect(subject.registered).to be_empty
     subject.within do
       TestActor.supervise as: :test
     end

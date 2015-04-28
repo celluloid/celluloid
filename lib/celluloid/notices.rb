@@ -4,6 +4,10 @@ module Celluloid
 
       @@notices = []
 
+      def backported_mini
+        @@notices << [ :warn, "Celluloid is running in BACKPORTED mode. [ http://git.io/vfteb ]" ]
+      end
+
       def backported
         @@notices << [ :warn, "+--------------------------------------------------+" ]
         @@notices << [ :warn, "|     Celluloid is running in BACKPORTED mode.     |" ]

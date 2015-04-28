@@ -14,7 +14,7 @@ module Celluloid
         :type => Celluloid::Notifications::Fanout
       },
       {
-        :as => :default_incident_reporter,
+        :as => :incident_reporter,
         :type => Celluloid::IncidentReporter,
         :args => [ STDERR ]
       },

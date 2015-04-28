@@ -1,10 +1,13 @@
 source 'https://rubygems.org'
 
+gem 'bundler'
 gem 'coveralls', require: false
 
 gem 'timers', github: 'celluloid/timers'
 
-gemspec development_group: :gem_build_tools
+gem 'celluloid-essentials', github: 'celluloid/celluloid-essentials', branch: 'master'
+
+#de gemspec development_group: :gem_build_tools
 
 group :development do
   gem 'pry'
