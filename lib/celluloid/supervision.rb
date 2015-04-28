@@ -8,7 +8,6 @@ require 'celluloid/supervision/container/behavior'
 require 'celluloid/supervision/container/injections'
 
 require 'celluloid/supervision/container/behavior/tree'
-require 'celluloid/supervision/container/behavior/pool'
 
 require 'celluloid/supervision/configuration'
 require 'celluloid/supervision/configuration/instance'
