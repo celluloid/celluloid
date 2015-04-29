@@ -1,5 +1,6 @@
 # -*- encoding: utf-8 -*-
-require File.expand_path("../lib/celluloid/version", __FILE__)
+
+require File.expand_path("../culture/sync", __FILE__)
 
 Gem::Specification.new do |gem|
   gem.name        = "celluloid"
@@ -16,14 +17,17 @@ Gem::Specification.new do |gem|
   gem.required_ruby_version     = ">= 1.9.2"
   gem.required_rubygems_version = ">= 1.3.6"
 
-  gem.files        = Dir["README.md", "CHANGES.md", "LICENSE.txt", "lib/**/*", "spec/**/*", "examples/*"]
+  gem.files        = Dir[
+                      "README.md",
+                      "CHANGES.md",
+                      "LICENSE.txt",
+                      "culture/**/*",
+                      "lib/**/*",
+                      "spec/**/*",
+                      "examples/*"
+                    ]
+                    
   gem.require_path = "lib"
 
-  gem.add_development_dependency "bundler"
-  gem.add_development_dependency "celluloid-essentials"
-  gem.add_development_dependency "celluloid-extras"
-  gem.add_development_dependency "celluloid-supervision"
-  gem.add_development_dependency "celluloid-fsm"
-  gem.add_development_dependency "celluloid-pool"
-  gem.add_development_dependency "timers", "~> 4.0.0"
+  Celluloid::Sync.gems(gem)
 end
