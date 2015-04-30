@@ -9,7 +9,7 @@ module Celluloid
 
       def version
         @@notices << [:info, "+--------------------------------------------------+"]
-        @@notices << [:info, "|     Celluloid version running now: #{"%-9s" %Celluloid::VERSION}      +"]
+        @@notices << [:info, "|    Celluloid version running now: #{"%-13s" %Celluloid::VERSION}  +"]
       end
 
       def backported
