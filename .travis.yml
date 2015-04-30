@@ -9,8 +9,8 @@ rvm:
   - rbx-2
 
 # TODO: Put these back:
-# CELLULOID_TASK_CLASS=Fibered
-# CELLULOID_TASK_CLASS=Threaded
+# * CELLULOID_TASK_CLASS=Fibered
+# * CELLULOID_TASK_CLASS=Threaded
 # For right now the imporant thing is to test BACKPORTED mode:
 
 matrix:
