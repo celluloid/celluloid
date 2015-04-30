@@ -7,10 +7,6 @@ module Celluloid
       @retry = 0
       @method, @arguments = method, arguments
       if block
-        if Celluloid.exclusive?
-          # FIXME: nicer exception
-          fail "Cannot execute blocks on sender in exclusive mode"
-        end
         @block = Proxy::Block.new(self, Celluloid.mailbox, block)
       else
         @block = nil
