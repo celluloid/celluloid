@@ -1,15 +1,13 @@
 require File.expand_path("../culture/sync", __FILE__)
 source "https://rubygems.org"
 
-
-Celluloid::Sync.gems(self)
 gemspec
 
 group :development do
   gem "pry"
-  gem "guard"
-  gem "rb-fsevent", "~> 0.9.1" if RUBY_PLATFORM =~ /darwin/
-  gem "guard-rspec"
+  # gem "guard"
+  # gem "rb-fsevent", "~> 0.9.1" if RUBY_PLATFORM =~ /darwin/
+  # gem "guard-rspec"
 end
 
 group :test do
@@ -22,3 +20,5 @@ end
 group :gem_build_tools do
   gem "rake"
 end
+
+Celluloid::Sync.gems(self)
