@@ -32,12 +32,8 @@ module Celluloid
         super
 
         if task && block && block.execute_on_sender? && task.exclusive?
-          raise "Cannot execute blocks on sender in exclusive mode"
+          fail "Cannot execute blocks on sender in exclusive mode"
         end
-      rescue AbortError
-        raise
-      rescue => ex
-        raise AbortError.new(ex)
       end
 
       def cleanup
