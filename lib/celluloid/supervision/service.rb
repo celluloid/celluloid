@@ -5,11 +5,11 @@ module Celluloid
         class << self
           def define
             super({
-              :supervise => Celluloid.actor_system.root_configuration,
-              :as => :root_supervisor,
-              :accessors => [ :root ],
-              :branch => :root,
-              :type => self
+              supervise: Celluloid.actor_system.root_configuration,
+              as: :root_supervisor,
+              accessors: [:root],
+              branch: :root,
+              type: self,
             })
           end
 

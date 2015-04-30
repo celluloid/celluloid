@@ -1,7 +1,7 @@
 require File.expand_path("../culture/sync", __FILE__)
 source "https://rubygems.org"
 
-gemspec #de development_group: :gem_build_tools
+gemspec # de development_group: :gem_build_tools
 
 group :development do
   gem "pry"

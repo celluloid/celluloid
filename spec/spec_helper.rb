@@ -136,12 +136,12 @@ Celluloid.shutdown_timeout = 1
 
 Dir["./spec/support/*/*.rb"].map { |f| require f }
 
-  RSpec.configure do |config|
+RSpec.configure do |config|
   config.filter_run focus: true unless Nenv.ci?
-  
+
   config.backtrace_exclusion_patterns = [
     /spec_helper/,
-    /bin/
+    /bin/,
   ]
 
   config.run_all_when_everything_filtered = true
