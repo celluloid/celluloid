@@ -4,7 +4,13 @@ module Celluloid
       class Root < Container
         class << self
           def define
-            super(supervise: Celluloid.actor_system.root_configuration, branch: :root, as: :root, type: self)
+            super({
+              :supervise => Celluloid.actor_system.root_configuration,
+              :as => :root_supervisor,
+              :accessors => [ :root ],
+              :branch => :root,
+              :type => self
+            })
           end
 
           def deploy(instances)
