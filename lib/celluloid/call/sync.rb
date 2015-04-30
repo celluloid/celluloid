@@ -29,11 +29,11 @@ module Celluloid
       end
 
       def check(obj)
-        super
-
         if task && block && block.execute_on_sender? && task.exclusive?
           fail "Cannot execute blocks on sender in exclusive mode"
         end
+
+        super
       end
 
       def cleanup
