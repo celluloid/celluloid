@@ -78,7 +78,6 @@ module Celluloid
 
             Configuration::INJECTIONS.each do |point|
               define_method(point) do |&injector|
-                puts "behavioral injection #{point} for #{self}"
                 behavior_injections[point] = injector
               end
             end
