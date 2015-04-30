@@ -25,8 +25,7 @@ module Celluloid
         raise AbortError, error
       end
 
-      _b = @block && @block.to_proc
-      obj.public_send(@method, *@arguments, &_b)
+      obj.public_send(@method, *@arguments, &@block)
       #     rescue Celluloid::TimeoutError => ex
       #       raise ex unless ( @retry += 1 ) <= RETRY_CALL_LIMIT
       #       puts "retrying"
