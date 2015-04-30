@@ -18,7 +18,12 @@ module Celluloid
     end
 
     def dispatch(obj)
-      check(obj)
+      begin
+        check(obj)
+      rescue => error
+        raise AbortError.new(error)
+      end
+
       _b = @block && @block.to_proc
       obj.public_send(@method, *@arguments, &_b)
       #     rescue Celluloid::TimeoutError => ex
@@ -45,8 +50,6 @@ module Celluloid
         mandatory_args = -arity - 1
         fail ArgumentError, "wrong number of arguments (#{@arguments.size} for #{mandatory_args}+)" if arguments.size < mandatory_args
       end
-    rescue => ex
-      raise AbortError.new(ex)
     end
   end
 end
