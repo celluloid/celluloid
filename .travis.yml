@@ -8,17 +8,21 @@ rvm:
   - jruby-head
   - rbx-2
 
+# TODO: Put these back:
+# CELLULOID_TASK_CLASS=Fibered
+# CELLULOID_TASK_CLASS=Threaded
+# For right now the imporant thing is to test BACKPORTED mode:
+
 matrix:
   allow_failures:
     - rvm: rbx-2
     - rvm: ruby-head
     - rvm: jruby-head
-    - env: CELLULOID_TASK_CLASS=Threaded
+    - env: CELLULOID_BACKPORTED=true
 
 env:
   matrix:
-    - CELLULOID_TASK_CLASS=Fibered
-    - CELLULOID_TASK_CLASS=Threaded
+    - CELLULOID_BACKPORTED=true
     - CELLULOID_BACKPORTED=false
 
 notifications:
