@@ -28,6 +28,6 @@ Gem::Specification.new do |gem|
                     ]
                     
   gem.require_path = "lib"
-
+  
   Celluloid::Sync.gems(gem)
 end
