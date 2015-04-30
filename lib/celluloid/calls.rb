@@ -6,11 +6,7 @@ module Celluloid
     def initialize(method, arguments = [], block = nil)
       @retry = 0
       @method, @arguments = method, arguments
-      if block
-        @block = Proxy::Block.new(self, Celluloid.mailbox, block)
-      else
-        @block = nil
-      end
+      @block = block && Proxy::Block.new(self, Celluloid.mailbox, block)
     end
 
     def execute_block_on_receiver
