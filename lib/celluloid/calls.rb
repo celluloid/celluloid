@@ -21,7 +21,7 @@ module Celluloid
       begin
         check(obj)
       rescue => error
-        raise AbortError.new(error)
+        raise AbortError, error
       end
 
       _b = @block && @block.to_proc
@@ -44,11 +44,14 @@ module Celluloid
 
       arity = meth.arity
 
-      if arity >= 0
-        fail ArgumentError, "wrong number of arguments (#{@arguments.size} for #{arity})" if @arguments.size != arity
+      if arity >= 0 && @arguments.size != arity
+        fail ArgumentError, "wrong number of arguments (#{@arguments.size} for #{arity})"
       elsif arity < -1
         mandatory_args = -arity - 1
-        fail ArgumentError, "wrong number of arguments (#{@arguments.size} for #{mandatory_args}+)" if arguments.size < mandatory_args
+
+        if arguments.size < mandatory_args
+          fail ArgumentError, "wrong number of arguments (#{@arguments.size} for #{mandatory_args}+)"
+        end
       end
     end
   end
