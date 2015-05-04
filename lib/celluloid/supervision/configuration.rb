@@ -36,10 +36,10 @@ module Celluloid
           true
         end
 
-        def options(args, options={})
-          configuration = args.merge(options)
+        def options(config={}, options={})
+          configuration = config.merge(options)
           return configuration if configuration.is_a? Configuration
-          configuration[:initialize] = Container::Behavior.configure(configuration)
+          configuration[:configuration] = Container::Behavior.configure(configuration)
           valid?(configuration, true)
           configuration
         end
@@ -68,8 +68,8 @@ module Celluloid
         @supervisor ||= :"Celluloid.services"
 
         if options.is_a? Hash
-          options[:initialize] ||= Container::Behavior.configure(options)
-          @configuration = instance_eval(&options[:initialize])
+          options[:configuration] ||= Container::Behavior.configure(options)
+          @configuration = instance_eval(&options[:configuration])
           @supervisor ||= @configuration.fetch(:supervisor, :"Celluloid.services")
         end
 
