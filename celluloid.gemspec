@@ -26,8 +26,8 @@ Gem::Specification.new do |gem|
                       "spec/**/*",
                       "examples/*"
                     ]
-                    
+
   gem.require_path = "lib"
-  
+
   Celluloid::Sync.gems(gem)
 end
