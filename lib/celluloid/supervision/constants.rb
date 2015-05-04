@@ -107,7 +107,7 @@ module Celluloid
       ################ These are applied inside Supervision::Member ################
 
       REMOVE_AT_EXPORT = [
-        :initialize,
+        :configuration,
         :behavior,
       ]
 
