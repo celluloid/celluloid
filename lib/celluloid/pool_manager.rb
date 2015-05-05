@@ -16,11 +16,11 @@ module Celluloid
       @worker_class = worker_class
       @args = options[:args] ? Array(options[:args]) : []
 
-      @idle = @size.times.map { worker_class.new_link(*@args) }
-
       # FIXME: Another data structure (e.g. Set) would be more appropriate
       # here except it causes MRI to crash :o
       @busy = []
+
+      @idle = @size.times.map { worker_class.new_link(*@args) }
     end
 
     def __shutdown__
