@@ -57,8 +57,8 @@ class RepeatingTimerExample
   def count_sheep
     print "<#{self.class.name}> Counting sheep to go to sleep: "
     @timer = every(0.1) do
-      sheep += 1
-      print sheep, ' '
+      @sheep += 1
+      print @sheep, ' '
     end
   end
   
