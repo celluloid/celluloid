@@ -48,8 +48,7 @@ puts "Timer shouldn't have fired because we cancelled it: #{actor.fired}"
 
 class RepeatingTimerExample
   include Celluloid
-  
-  attr_accessor :sheep
+
   def initialize
     @sheep = 0
   end
