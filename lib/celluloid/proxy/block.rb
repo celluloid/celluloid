@@ -10,8 +10,12 @@ module Celluloid
       attr_writer :execution
       attr_reader :call, :block
 
+      def execute_on_sender?
+        @execution == :sender
+      end
+
       def to_proc
-        if @execution == :sender
+        if execute_on_sender?
           lambda do |*values|
             if task = Thread.current[:celluloid_task]
               @mailbox << Call::Block.new(self, Celluloid::Actor.current.mailbox, values)
