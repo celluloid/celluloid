@@ -40,9 +40,9 @@ module Celluloid
         end
 
         # Run the application in the foreground with a simple watchdog
-        def run(_options)
+        def run(options={})
           loop do
-            supervisor = run!(options = {})
+            supervisor = run!(options)
 
             # Take five, toplevel supervisor
             sleep 5 while supervisor.alive? # Why 5?

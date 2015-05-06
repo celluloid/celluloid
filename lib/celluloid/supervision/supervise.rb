@@ -4,7 +4,6 @@ module Celluloid
     def supervise(config={}, &block)
       supervisor = Supervision.router(config, &block)
       supervisor.supervise(config, &block)
-      supervisor.actors.last
     end
   end
   module ClassMethods
