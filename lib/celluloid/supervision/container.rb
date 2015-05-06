@@ -50,17 +50,6 @@ module Celluloid
             Internals::Logger.error "!!! Celluloid::Supervision::Container #{self} crashed. Restarting..."
           end
         end
-
-        # Register one or more actors to be launched and supervised
-        def supervise(config, &block)
-          blocks << lambda do |container|
-            container.add(Configuration.options(config, block: block))
-          end
-        end
-      end
-
-      def supervise(config, &block)
-        add(Configuration.options(config, block: block))
       end
 
       finalizer :finalize
