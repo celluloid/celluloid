@@ -37,4 +37,4 @@ before_install:
   - if [ "$TRAVIS_RUBY_VERSION" == "rbx-2" ] ; then export BUNDLE_JOBS=1 ; else export BUNDLE_JOBS=4; fi
 
 sudo: false
-install: bundle install --retry=3 --without=development
+install: bundle install --without=development
