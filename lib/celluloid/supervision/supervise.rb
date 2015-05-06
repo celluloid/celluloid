@@ -2,9 +2,9 @@
 module Celluloid
   class << self
     def supervise(config={}, &block)
-      # select which supervisor, and route this call to that directly.
-      # for now, use .services
-      services.supervise(config, &block)
+      supervisor = Supervision.router(config, &block)
+      supervisor.supervise(config, &block)
+      supervisor.actors.last
     end
   end
   module ClassMethods
@@ -16,6 +16,11 @@ module Celluloid
     end
   end
   module Supervision
+    class << self
+      def router(config={}, &block)
+        Celluloid.services # for now, hardcode .services
+      end
+    end
     class Container
       class << self
         def supervise(config, &block)
