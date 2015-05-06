@@ -29,4 +29,4 @@ notifications:
   irc: "irc.freenode.org#celluloid"
 
 sudo: false
-install: bundle install --retry=3 --without=development
+install: bundle install --without=development
