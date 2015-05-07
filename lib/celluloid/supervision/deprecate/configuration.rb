@@ -10,7 +10,6 @@ module Celluloid
         #          ( the pulling out of keys is where danger mentioned above comes )
         undef parse rescue nil
         def parse(args)
-          puts "PARSING@args: #{args} #{caller[0]}"
           return args if args.is_a? Configuration::Instance
           options = {args: []}
           return {type: args} if args.is_a? Class
@@ -33,7 +32,6 @@ module Celluloid
               options[:args] += args if args.any?
             end
           end
-          puts "PARSED@end: #{options}"
           options
         end
 
@@ -49,7 +47,6 @@ module Celluloid
           options[:args].compact! if options[:args].is_a? Array
           options.select! { |k, v| !v.nil? }
           Configuration.valid? options, true
-          puts "USING: #{options}"
           options
         end
       end
