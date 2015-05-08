@@ -1,12 +1,3 @@
-require_relative "support/env"
-require_relative "support/logging"
-require_relative "support/split_logs"
-require_relative "support/sleep_and_wait"
-require_relative "support/reset_class_variables"
-require_relative "support/crash_checking"
-require_relative "support/stubbing"
-require_relative "support/coverage"
-
 require "rubygems"
 require "bundler/setup"
 
@@ -19,6 +10,7 @@ end
 
 # Require in order, so both CELLULOID_TEST and CELLULOID_DEBUG are true
 require "celluloid/test"
+require "celluloid/rspec"
 require "celluloid/essentials"
 
 module CelluloidSpecs
