@@ -1,19 +1,26 @@
 # TODO: Remove at 0.19.0
 module Celluloid
   class << self
+    undef supervise rescue nil
     def supervise(*args, &block)
-      supervisor = Supervision.router(*args, &block)
-      supervisor.supervise(args, &block)
+      supervisor = Supervision.router(*args)
+      supervisor.supervise(*args, &block)
+    end
+    undef supervise_as rescue nil
+    def supervise_as(name, *args, &block)
+      supervisor = Supervision.router(*args)
+      supervisor.supervise_as(name, *args, &block)
     end
   end
   module ClassMethods
     undef supervise rescue nil
     def supervise(*args, &block)
-      Celluloid.supervise(*args, type: self, block: block)
+      args.unshift(self)
+      Celluloid.supervise(*args, &block)
     end
     undef supervise_as rescue nil
     def supervise_as(name, *args, &block)
-      args.unshift self
+      args.unshift(self)
       Celluloid.supervise_as(name, *args, &block)
     end
   end
@@ -26,20 +33,24 @@ module Celluloid
       attr_accessor :root
 
       undef supervise rescue nil
-      def supervise(*args, &block)
-        Celluloid.supervise(Supervision::Configuration.options(args, block: block))
+      def supervise(klass, *args, &block)
+        args.unshift(klass)
+        Celluloid.supervise(*args, &block)
       end
 
       undef supervise_as rescue nil
-      def supervise_as(name, *args, &block)
-        Celluloid.supervise(Supervision::Configuration.options(args, as: name, block: block))
+      def supervise_as(name, klass, *args, &block)
+        args.unshift(klass)
+        Celluloid.supervise_as(name, *args, &block)
       end
     end
   end
 
   module Supervision
     class << self
-      def router(*args, &block)
+      undef router rescue nil
+      def router(*args)
+        # TODO: Actually route, based on :branch, if present; or else:
         Celluloid.services
       end
     end
@@ -47,7 +58,7 @@ module Celluloid
       class << self
         undef run! rescue nil
         def run!(*args)
-          container = new(Supervision::Configuration.options(args)) do |g|
+          container = new(*args) do |g|
             blocks.each do |block|
               block.call(g)
             end
@@ -58,27 +69,24 @@ module Celluloid
         undef run rescue nil
         def run(*args)
           loop do
-            supervisor = run!(Supervision::Configuration.options(args))
-
+            supervisor = run!(*args)
             # Take five, toplevel supervisor
             sleep 5 while supervisor.alive? # Why 5?
-
             Internals::Logger.error "!!! Celluloid::Supervision::Container #{self} crashed. Restarting..."
           end
         end
 
-        undef
-         supervise rescue nil
+        undef supervise rescue nil
         def supervise(*args, &block)
-          blocks << lambda do |group|
-            group.add(Configuration.options(args, block: block))
+          blocks << lambda do |container|
+            container.supervise(*args, &block)
           end
         end
 
         undef supervise_as rescue nil
-        def supervise_as(name, klass, *args, &block)
-          blocks << lambda do |group|
-            group.add(Configuration.options(args, block: block, type: klass, as: name))
+        def supervise_as(name, *args, &block)
+          blocks << lambda do |container|
+            container.supervise_as(name, *args, &block)
           end
         end
       end

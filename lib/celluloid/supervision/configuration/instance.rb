@@ -99,7 +99,7 @@ module Celluloid
         alias_method :[], :get
 
         def delete(k)
-          current_instance.delete(k)
+          @configuration.delete(k)
         end
 
         private

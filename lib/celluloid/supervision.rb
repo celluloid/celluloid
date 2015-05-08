@@ -10,6 +10,7 @@ require "celluloid/supervision/container/injections"
 
 require "celluloid/supervision/container/behavior/tree"
 
+require "celluloid/supervision/validation"
 require "celluloid/supervision/configuration"
 require "celluloid/supervision/configuration/instance"
 

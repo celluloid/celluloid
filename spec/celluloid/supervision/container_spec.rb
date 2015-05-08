@@ -3,12 +3,23 @@ RSpec.describe Celluloid::Supervision::Container, actor_system: :global do
 
   unless defined? SupervisionContainerHelper
     class SupervisionContainerHelper
-      QUEUE = Queue.new
+      @queue = nil
+      class << self
+        def reset!
+          @queue = Queue.new
+        end
+        def done!
+          @queue << :done
+        end
+        def pop!
+          @queue.pop
+        end
+      end
     end
   end
 
-  unless defined? MyActor
-    class MyActor
+  unless defined? MyContainerActor
+    class MyContainerActor
       include Celluloid
 
       attr_reader :args
@@ -23,34 +34,15 @@ RSpec.describe Celluloid::Supervision::Container, actor_system: :global do
       end
 
       def ready
-        SupervisionContainerHelper::QUEUE << :done
-      end
-    end
-  end
-
-  unless defined? MyPoolActor
-    class MyPoolActor
-      include Celluloid
-
-      attr_reader :args
-      def initialize(*args)
-        @args = *args
-        ready
-      end
-
-      def running?
-        :yep
-      end
-
-      def ready
-        SupervisionContainerHelper::QUEUE << :done
+        SupervisionContainerHelper.done!
       end
     end
   end
 
   before do
+    SupervisionContainerHelper.reset!
     subject # init for easier debugging
-    queue_count.times { SupervisionContainerHelper::QUEUE.pop }
+    queue_count.times { SupervisionContainerHelper.pop! }
   end
 
   after do
@@ -61,7 +53,7 @@ RSpec.describe Celluloid::Supervision::Container, actor_system: :global do
   context "when supervising a single actor" do
     subject do
       Class.new(Celluloid::Supervision::Container) do
-        supervise type: MyActor, as: :example
+        supervise type: MyContainerActor, as: :example
       end.run!(*registry)
     end
 
@@ -85,14 +77,14 @@ RSpec.describe Celluloid::Supervision::Container, actor_system: :global do
     end
 
     it "allows external access to the internal registry" do
-      expect(subject[:example]).to be_a MyActor
+      expect(subject[:example]).to be_a MyContainerActor
     end
   end
 
   context "with multiple args" do
     subject do
       Class.new(Celluloid::Supervision::Container) do
-        supervise type: MyActor, as: :example, args: [:foo, :bar]
+        supervise type: MyContainerActor, as: :example, args: [:foo, :bar]
       end.run!
     end
 
@@ -104,7 +96,7 @@ RSpec.describe Celluloid::Supervision::Container, actor_system: :global do
   context "with lazy evaluation" do
     subject do
       Class.new(Celluloid::Supervision::Container) do
-        supervise type: MyActor, as: :example, args: -> { :lazy }
+        supervise type: MyContainerActor, as: :example, args: -> { :lazy }
       end.run!
     end
 

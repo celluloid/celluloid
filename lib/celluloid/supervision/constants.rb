@@ -79,7 +79,7 @@ module Celluloid
           @@parameters[key] << value unless @@parameters[key].include? value
         end
 
-        def arity(*_args)
+        def arity
           @@arity
         end
 

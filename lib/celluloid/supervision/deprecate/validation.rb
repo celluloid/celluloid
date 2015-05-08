@@ -20,8 +20,6 @@ module Celluloid
               return args[0] if args.first.is_a? Configuration::Instance
               return {type: args.first} if args.first.is_a? Class
               if args.first.is_a?(Hash) && args = args.pop
-                Configuration.valid? args, true
-                puts "PARSED@args: #{args}"
                 return args
               end
               options[:args] = args if args.any?
@@ -40,10 +38,11 @@ module Celluloid
         # those will not appear in the resulting actor's initialize call.
         undef options rescue nil
         def options(args, options={})
-          return args.merge(options) if args.is_a? Configuration
+          return args.merge!(options) if args.is_a? Configuration::Instance
           # Not a Supervision:Configuration?
           # Try to guess its structure and build one:
           options = parse(args).merge(options)
+          options[:configuration] = Container::Behavior.configure(options)
           options[:args].compact! if options[:args].is_a? Array
           options.select! { |k, v| !v.nil? }
           Configuration.valid? options, true

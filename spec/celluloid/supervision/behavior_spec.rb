@@ -1,4 +1,4 @@
-RSpec.describe(Celluloid::Supervision::Container::Behavior) do
+RSpec.describe Celluloid::Supervision::Container::Behavior do
   class WellBehaved
     include Celluloid
   end

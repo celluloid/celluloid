@@ -6,4 +6,4 @@ module Celluloid
 end
 
 require "celluloid/supervision/deprecate/supervise"
-require "celluloid/supervision/deprecate/configuration"
+require "celluloid/supervision/deprecate/validation"

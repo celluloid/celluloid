@@ -2,21 +2,19 @@
 module Celluloid
   class << self
     def supervise(config={}, &block)
-      supervisor = Supervision.router(config, &block)
+      supervisor = Supervision.router(config)
       supervisor.supervise(config, &block)
     end
   end
   module ClassMethods
     def supervise(config={}, &block)
-      Celluloid.supervise(config.merge(type: self, block: block))
-    rescue NoMethodError
-      Internals::Logger.warn("No public supervision service was found. Supervising #{self} a la carte.")
-      Supervision::Container.supervise(config.merge(type: self, block: block))
+      Celluloid.supervise(config, &block)
     end
   end
   module Supervision
     class << self
-      def router(config={}, &block)
+      def router(config={})
+        # TODO: Actually route.
         Celluloid.services # for now, hardcode .services
       end
     end
@@ -24,7 +22,7 @@ module Celluloid
       class << self
         def supervise(config, &block)
           blocks << lambda do |container|
-            container.add(Configuration.options(config, block: block))
+            container.add(config, &block)
           end
         end
       end

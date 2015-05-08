@@ -9,40 +9,6 @@ module Celluloid
         def define(options={})
           new(options)
         end
-
-        def valid?(configuration, fail=false)
-          parameters(:mandatory).each do |k|
-            unless configuration.key? k
-              if fail
-                fail Error::Incomplete, "Missing `:#{k}` in supervision configuration."
-              else
-                return false
-              end
-            end
-          end
-          arity.each do |klass, args|
-            unless configuration[args].is_a? Proc
-              __a = configuration[args] && configuration[args].count || 0
-              __arity = configuration[klass].allocate.method(:initialize).arity
-              unless __arity == -1 || __a == __arity
-                if fail
-                  fail ArgumentError.new("#{__a} vs. #{__arity}")
-                else
-                  return false
-                end
-              end
-            end
-          end
-          true
-        end
-
-        def options(config={}, options={})
-          configuration = config.merge(options)
-          return configuration if configuration.is_a? Configuration
-          configuration[:configuration] = Container::Behavior.configure(configuration)
-          valid?(configuration, true)
-          configuration
-        end
       end
 
       extend Forwardable
@@ -65,13 +31,13 @@ module Celluloid
         @i = 0 # incrementer of instances in this branch
         resync_accessors
         @configuration = options
-        @supervisor ||= :"Celluloid.services"
 
         if options.is_a? Hash
           options[:configuration] ||= Container::Behavior.configure(options)
           @configuration = instance_eval(&options[:configuration])
           @supervisor ||= @configuration.fetch(:supervisor, :"Celluloid.services")
         end
+        @supervisor ||= :"Celluloid.services"
 
         if (@configuration.is_a?(Hash) || @configuration.is_a?(Array)) && @configuration.any?
           define(@configuration)
@@ -80,7 +46,7 @@ module Celluloid
 
       def provider
         @provider ||= if @supervisor.is_a? Hash
-                        @supervisor[:type].run!(as: @supervisor[:as])
+                        @supervisor[:type].run!(@supervisor)
                       elsif @supervisor.is_a? Symbol
                         @supervisor = Object.module_eval(@supervisor.to_s)
                         provider
@@ -90,13 +56,13 @@ module Celluloid
                         @supervisor
                       else
                         fail Error::InvalidSupervisor
-        end
+                      end
       end
 
       def deploy(options={})
         define(options) if options.any?
         @instances.each do |instance|
-          provider.supervise instance.merge(branch: @branch)
+          provider.add instance.merge(branch: @branch)
         end
         provider
       end

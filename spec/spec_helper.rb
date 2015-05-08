@@ -3,19 +3,19 @@ require "nenv"
 require "dotenv"
 Dotenv.load!(Nenv("celluloid").config_file || (Nenv.ci? ? ".env-ci" : ".env-dev"))
 
-module Specs
-  def self.sleep_and_wait_until(timeout=10)
-    t1 = Time.now.to_f
-    ::Timeout.timeout(timeout) do
-      loop until yield
-    end
+if Nenv.ci?
+  require "coveralls"
+  Coveralls.wear!
+end
 
-    diff = Time.now.to_f - t1
-    STDERR.puts "wait took a bit long: #{diff} seconds" if diff > 0.4
-  rescue Timeout::Error
-    t2 = Time.now.to_f
-    raise "Timeout after: #{t2 - t1} seconds"
-  end
+require "rubygems"
+require "bundler/setup"
+
+# Require in order, so both CELLULOID_TEST and CELLULOID_DEBUG are true
+require "celluloid/rspec"
+require "celluloid/supervision"
+
+module Specs
 
   def self.env
     @env ||= Nenv("celluloid_specs")
@@ -104,28 +104,6 @@ module Specs
       probe.const_set(const, value)
     end
   end
-end
-
-if Nenv.ci?
-  require "coveralls"
-  Coveralls.wear!
-end
-
-require "rubygems"
-require "bundler/setup"
-
-# Require in order, so both CELLULOID_TEST and CELLULOID_DEBUG are true
-require "celluloid/test"
-require "celluloid/supervision"
-
-module CelluloidSpecs
-  def self.included_module
-    # Celluloid::IO implements this with with 'Celluloid::IO'
-    Celluloid
-  end
-
-  # Timer accuracy enforced by the tests (50ms)
-  TIMER_QUANTUM = 0.05
 end
 
 $CELLULOID_DEBUG = true

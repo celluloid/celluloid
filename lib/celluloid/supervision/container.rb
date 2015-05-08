@@ -18,8 +18,8 @@ module Celluloid
         def top(options)
           {
             as: (options.delete(:as)),
-            branch: (options.delete(:branch) || :services),
             type: (options.delete(:type) || self),
+            branch: (options.delete(:branch) || :services),
             supervise: options.delete(:supervise) || [],
           }
         end
@@ -58,7 +58,6 @@ module Celluloid
 
       # Start the container.
       def initialize(options={})
-        options ||= {}
         options = {registry: options} if options.is_a? Internals::Registry
         @state = :initializing
         @actors = [] # instances in the container
@@ -67,13 +66,10 @@ module Celluloid
         yield current_actor if block_given?
       end
 
-      execute_block_on_receiver :initialize, :supervise # DEPRECIATED: , :supervise_as
+      execute_block_on_receiver :initialize, :supervise, :supervise_as
 
       def add(configuration)
-        unless configuration.is_a? Configuration::Instance
-          configuration = Configuration.options(configuration)
-        end
-        Configuration.valid? configuration, true
+        Configuration.valid?(configuration, true)
         @actors << Instance.new(configuration.merge(registry: @registry, branch: @branch))
         @state = :running
         add_accessors configuration
