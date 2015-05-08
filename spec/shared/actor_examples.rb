@@ -1,6 +1,3 @@
-# NOTE: Celluloid::IO "shares" this test by loading it from the Celluloid gem
-# location and setting the CELLULOID_TEST_MODULE_CLASS below
-
 RSpec.shared_examples "a Celluloid Actor" do
 
   before do
