@@ -25,7 +25,7 @@ class EveryActor
   attr_reader :times
 end
 
-RSpec.describe Celluloid::Actor do
+RSpec.describe "Celluloid::Actor timers" do
   it "run every(t) task several times" do
     Celluloid.boot
 
