@@ -1,7 +1,16 @@
 # NOTE: Celluloid::IO "shares" this test by loading it from the Celluloid gem
 # location and setting the CELLULOID_TEST_MODULE_CLASS below
 
-RSpec.describe Celluloid, actor_system: :global do
+RSpec.shared_examples "a Celluloid Actor" do
+
+  before do
+    Celluloid.boot
+  end
+
+  after do
+    Celluloid.shutdown
+  end
+
   let(:task_klass) { Celluloid.task_class }
   let(:actor_class) { ExampleActorClass.create(CelluloidSpecs.included_module, task_klass) }
   let(:actor) { actor_class.new "Troy McClure" }
