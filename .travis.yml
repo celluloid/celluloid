@@ -14,6 +14,7 @@ rvm:
 # For right now the imporant thing is to test BACKPORTED mode:
 
 matrix:
+  fast_finish: true
   allow_failures:
     - rvm: rbx-2
     - rvm: ruby-head
