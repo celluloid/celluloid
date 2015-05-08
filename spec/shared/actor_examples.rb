@@ -1,10 +1,8 @@
 RSpec.shared_examples "a Celluloid Actor" do
 
-  before do
+  around do |ex|
     Celluloid.boot
-  end
-
-  after do
+    ex.run
     Celluloid.shutdown
   end
 
