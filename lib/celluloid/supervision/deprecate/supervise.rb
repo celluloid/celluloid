@@ -1,5 +1,11 @@
 # TODO: Remove at 0.19.0
 module Celluloid
+  class << self
+    def supervise(config={}, &block)
+      supervisor = Supervision.router(config, &block)
+      supervisor.supervise(config, &block)
+    end
+  end
   module ClassMethods
     undef supervise rescue nil
     def supervise(*args, &block)
