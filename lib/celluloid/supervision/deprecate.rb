@@ -5,6 +5,5 @@ module Celluloid
   Supervision::Member = Supervision::Container::Instance
 end
 
-require "celluloid/supervision/deprecate/supervision"
-# de require 'celluloid/supervision/deprecate/supervisor'
+require "celluloid/supervision/deprecate/supervise"
 require "celluloid/supervision/deprecate/configuration"
