@@ -1,13 +1,11 @@
-RSpec.describe Celluloid::ActorSystem do
-  class TestActor
-    include Celluloid
-    def identity
-      :testing
-    end
-  end
+RSpec.describe "Deprecated Celluloid::ActorSystem" do
 
-  after do
-    subject.shutdown
+  subject {
+    Celluloid::ActorSystem.new
+  }
+
+  class DeprecatedTestActor
+    include Celluloid
   end
 
   it "supports non-global ActorSystem" do
@@ -16,68 +14,62 @@ RSpec.describe Celluloid::ActorSystem do
     end
   end
 
-  it "makes actors accessible by Celluloid[:actor]" do
-    subject.start
-    subject.within do
-      TestActor.supervise as: :testing, type: TestActor
-      expect(subject.registered).to include(:testing)
-      expect(Celluloid::Actor[:testing].identity).to eq(:testing)
-    end
-  end
-
   it "starts default actors" do
     subject.start
     expect(subject.registered).to eq(Celluloid::ActorSystem::ROOT_SERVICES.map { |r| r[:as] })
+    subject.shutdown
   end
 
   it "support getting threads" do
+    subject.start
     queue = Queue.new
-    subject.get_thread do
+    thread = subject.get_thread do
       expect(Celluloid.actor_system).to eq(subject)
       queue << nil
     end
     queue.pop
+    subject.shutdown
   end
 
   it "allows a stack dump" do
-    expect(subject.stack_dump).to be_a(Celluloid::Internals::Stack::Dump)
-  end
-
-  it "allows a stack summary" do
-    expect(subject.stack_summary).to be_a(Celluloid::Internals::Stack::Summary)
+    expect(subject.stack_dump).to be_a(Celluloid::StackDump)
   end
 
   it "returns named actors" do
     subject.start
+
     subject.within do
-      TestActor.supervise as: :test
+      DeprecatedTestActor.supervise_as :test
     end
+
     expect(subject.registered).to include(:test)
+    subject.shutdown
   end
 
   it "returns running actors" do
     expect(subject.running).to be_empty
 
     first = subject.within do
-      TestActor.new
+      DeprecatedTestActor.new
     end
 
     second = subject.within do
-      TestActor.new
+      DeprecatedTestActor.new
     end
 
     expect(subject.running).to eq([first, second])
+    subject.shutdown
   end
 
   it "shuts down" do
     subject.shutdown
 
-    expect { subject.get_thread }
-      .to raise_error(Celluloid::Group::NotActive)
+    expect { subject.get_thread }.
+      to raise_error(Celluloid::Group::NotActive)
   end
 
   it "warns nicely when no actor system is started" do
-    expect { TestActor.new }
-      .to raise_error("Celluloid is not yet started; use Celluloid.boot")
+    expect { DeprecatedTestActor.new }.
+      to raise_error("Celluloid is not yet started; use Celluloid.boot")
   end
 end

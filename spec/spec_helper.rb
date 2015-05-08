@@ -9,7 +9,6 @@ if RUBY_ENGINE == "rbx"
 end
 
 # Require in order, so both CELLULOID_TEST and CELLULOID_DEBUG are true
-require "celluloid/test"
 require "celluloid/rspec"
 require "celluloid/essentials"
 
@@ -52,6 +51,7 @@ RSpec.configure do |config|
       crashes = @fake_logger.crashes.map do |args, call_stack|
         msg, ex = *args
         "\n** Crash: #{msg.inspect}(#{ex.inspect})\n  Backtrace:\n    (crash) #{call_stack * "\n    (crash) " }"\
+          "\n** Crash: \"Actor crashed!\"(#{ex.inspect})\n  Backtrace:\n    (crash) #{call_stack * "\n    (crash) " }"\
           "\n  Exception Backtrace (#{ex.inspect}):\n    (ex) #{ex.backtrace * "\n    (ex) "}"
       end.join("\n")
 

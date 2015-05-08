@@ -1,4 +1,5 @@
 RSpec.shared_examples "a Celluloid Mailbox" do
+
   after do
     allow(Celluloid.logger).to receive(:debug)
     subject.shutdown if subject.alive?
