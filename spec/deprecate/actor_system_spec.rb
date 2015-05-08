@@ -1,9 +1,6 @@
-unless $CELLULOID_BACKPORTED == false
-  RSpec.describe "Deprecated Celluloid::ActorSystem" do
+RSpec.describe "Deprecated Celluloid::ActorSystem" do
 
-  subject {
-    Celluloid::ActorSystem.new
-  }
+  subject { Celluloid::ActorSystem.new }
 
   class DeprecatedTestActor
     include Celluloid
