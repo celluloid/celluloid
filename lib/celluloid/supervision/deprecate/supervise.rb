@@ -1,26 +1,20 @@
 # TODO: Remove at 0.19.0
 module Celluloid
   class << self
-    def supervise(config={}, &block)
-      supervisor = Supervision.router(config, &block)
-      supervisor.supervise(config, &block)
+    def supervise(*args, &block)
+      supervisor = Supervision.router(*args, &block)
+      supervisor.supervise(args, &block)
     end
   end
   module ClassMethods
     undef supervise rescue nil
     def supervise(*args, &block)
-      Celluloid.services.supervise(*args, type: self, block: block)
-    rescue
-      raise ActorSystem::Uninitialized unless Celluloid.services
-      raise
+      Celluloid.supervise(*args, type: self, block: block)
     end
     undef supervise_as rescue nil
     def supervise_as(name, *args, &block)
       args.unshift self
-      Celluloid.services.supervise_as(name, *args, &block)
-    rescue
-      raise ActorSystem::Uninitialized unless Celluloid.services
-      raise
+      Celluloid.supervise_as(name, *args, &block)
     end
   end
 
@@ -33,23 +27,22 @@ module Celluloid
 
       undef supervise rescue nil
       def supervise(*args, &block)
-        Celluloid.services.supervise(Supervision::Configuration.options(args, block: block))
-      rescue
-        raise ActorSystem::Uninitialized unless Celluloid.services
-        raise
+        Celluloid.supervise(Supervision::Configuration.options(args, block: block))
       end
 
       undef supervise_as rescue nil
       def supervise_as(name, *args, &block)
-        Celluloid.services.supervise(Supervision::Configuration.options(args, as: name, block: block))
-      rescue
-        raise ActorSystem::Uninitialized unless Celluloid.services
-        raise
+        Celluloid.supervise(Supervision::Configuration.options(args, as: name, block: block))
       end
     end
   end
 
   module Supervision
+    class << self
+      def router(*args, &block)
+        Celluloid.services
+      end
+    end
     class Container
       class << self
         undef run! rescue nil
