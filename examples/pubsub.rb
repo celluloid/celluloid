@@ -31,6 +31,6 @@ end
 
 sub = Subscriber.new
 
-Celluloid::Notifications.publish "example_write_by_class_method", Time.now
+Celluloid::Notifications.notifier.publish "example_write_by_class_method", Time.now
 
 pub = Publisher.new
