@@ -8,7 +8,7 @@ module Celluloid
   end
   module ClassMethods
     def supervise(config={}, &block)
-      Celluloid.supervise(config, &block)
+      Celluloid.supervise(config.merge(type: self), &block)
     end
   end
   module Supervision
@@ -26,7 +26,6 @@ module Celluloid
           end
         end
       end
-
       def supervise(config, &block)
         add(Configuration.options(config, block: block))
       end
