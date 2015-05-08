@@ -34,7 +34,7 @@ RSpec.describe "Deprecated Celluloid::SyncCall", actor_system: :global do
         expect(actor).to_not receive(:inspect)
         expect { actor.no_such_method }.to raise_exception(
           NoMethodError,
-          /undefined method `no_such_method' for #\<DeprecatedCallExampleActor:0x[a-f0-9]+>/
+          /undefined method `no_such_method' for #\<DeprecatedCallExampleActor:0x[a-f0-9]+>/,
         )
       end
     end

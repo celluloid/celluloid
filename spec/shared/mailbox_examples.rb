@@ -1,5 +1,4 @@
 RSpec.shared_examples "a Celluloid Mailbox" do
-
   after do
     allow(Celluloid.logger).to receive(:debug)
     subject.shutdown if subject.alive?
@@ -25,7 +24,9 @@ RSpec.shared_examples "a Celluloid Mailbox" do
     class Bar; end
     class Baz; end
 
-    foo, bar, baz = Foo.new, Bar.new, Baz.new
+    foo = Foo.new
+    bar = Bar.new
+    baz = Baz.new
 
     subject << baz
     subject << foo

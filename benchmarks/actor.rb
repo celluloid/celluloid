@@ -26,7 +26,8 @@ end
 example_actor = ExampleActor.new
 mailbox = Celluloid::Mailbox.new
 
-latch_in, latch_out = Queue.new, Queue.new
+latch_in = Queue.new
+latch_out = Queue.new
 latch = Thread.new do
   loop do
     n = latch_in.pop

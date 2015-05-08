@@ -97,7 +97,8 @@ module Celluloid
       attr_reader :future
 
       def initialize(result, future)
-        @result, @future = result, future
+        @result = result
+        @future = future
       end
 
       def value

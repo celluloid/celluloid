@@ -1,6 +1,6 @@
 RSpec.describe "Deprecated Celluloid::Future", actor_system: :global do
   subject { Celluloid::Future.new }
-  
+
   it "creates future objects that can be retrieved later" do
     future = Celluloid::Future.new { 40 + 2 }
     expect(future.value).to eq(42)
@@ -14,7 +14,7 @@ RSpec.describe "Deprecated Celluloid::Future", actor_system: :global do
   it "reraises exceptions that occur when the value is retrieved" do
     class ExampleError < StandardError; end
 
-    future = Celluloid::Future.new { raise ExampleError, "oh noes crash!" }
+    future = Celluloid::Future.new { fail ExampleError, "oh noes crash!" }
     expect { future.value }.to raise_exception(ExampleError)
   end
 

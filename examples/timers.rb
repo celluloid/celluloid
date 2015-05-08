@@ -52,15 +52,15 @@ class RepeatingTimerExample
   def initialize
     @sheep = 0
   end
-  
+
   def count_sheep
     print "<#{self.class.name}> Counting sheep to go to sleep: "
     @timer = every(0.1) do
       @sheep += 1
-      print @sheep, ' '
+      print @sheep, " "
     end
   end
-  
+
   def stop_counting
     @timer.cancel
   end
@@ -70,4 +70,3 @@ sleepy_actor = RepeatingTimerExample.new
 sleepy_actor.count_sheep
 sleep 1
 sleepy_actor.stop_counting
-

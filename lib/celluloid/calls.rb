@@ -5,7 +5,8 @@ module Celluloid
 
     def initialize(method, arguments = [], block = nil)
       @retry = 0
-      @method, @arguments = method, arguments
+      @method = method
+      @arguments = arguments
       if block
         if Celluloid.exclusive?
           # FIXME: nicer exception
