@@ -49,4 +49,4 @@ RSpec.describe "Deprecated Blocks", actor_system: :global do
 
     expect($data).to eq(expected)
   end
-end
+end unless $CELLULOID_BACKPORTED == false

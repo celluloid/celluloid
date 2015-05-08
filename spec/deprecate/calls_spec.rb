@@ -54,4 +54,4 @@ RSpec.describe "Deprecated Celluloid::SyncCall", actor_system: :global do
     uuid, next_actor_uuid = actor2.chained_call_ids
     expect(uuid).to eq next_actor_uuid
   end
-end
+end unless $CELLULOID_BACKPORTED == false

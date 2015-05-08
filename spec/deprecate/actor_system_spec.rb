@@ -1,4 +1,5 @@
-RSpec.describe "Deprecated Celluloid::ActorSystem" do
+unless $CELLULOID_BACKPORTED == false
+  RSpec.describe "Deprecated Celluloid::ActorSystem" do
 
   subject {
     Celluloid::ActorSystem.new
@@ -72,4 +73,4 @@ RSpec.describe "Deprecated Celluloid::ActorSystem" do
     expect { DeprecatedTestActor.new }.
       to raise_error("Celluloid is not yet started; use Celluloid.boot")
   end
-end
+end unless $CELLULOID_BACKPORTED == false
