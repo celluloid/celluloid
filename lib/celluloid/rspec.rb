@@ -12,9 +12,11 @@ $CELLULOID_DEBUG = true
   "reset_class_variables",
   "crash_checking",
   "stubbing",
-  "coverage"
+  "coverage",
+  "includer"
 ].each { |f|
   require "#{File.expand_path("../../../spec/support", __FILE__)}/#{f}.rb"
 }
 
+Dir["#{File.expand_path("../../../spec/support/examples", __FILE__)}/*.rb"].map {|f| require f }
 Dir["#{File.expand_path("../../../spec/shared", __FILE__)}/*.rb"].map {|f| require f }

@@ -1,5 +1,10 @@
 RSpec.shared_examples "a Celluloid Actor" do
 
+  before(:each) do |example|
+    @fake_logger = Specs::FakeLogger.new(Celluloid.logger, example.description)
+    stub_const("Celluloid::Internals::Logger", @fake_logger)
+  end
+
   around do |ex|
     Celluloid.boot
     ex.run

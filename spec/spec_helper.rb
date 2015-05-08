@@ -13,16 +13,6 @@ require "celluloid/test"
 require "celluloid/rspec"
 require "celluloid/essentials"
 
-module CelluloidSpecs
-  def self.included_module
-    # Celluloid::IO implements this with with 'Celluloid::IO'
-    Celluloid
-  end
-
-  # Timer accuracy enforced by the tests (50ms)
-  TIMER_QUANTUM = 0.05
-end
-
 $CELLULOID_DEBUG = true
 
 # Require but disable, so it has to be explicitly enabled in tests
