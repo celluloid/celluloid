@@ -27,7 +27,6 @@ module Celluloid
           end
           true
         end
-
         def options(config={}, options={})
           configuration = config.merge(options)
           return configuration if configuration.is_a? Configuration
