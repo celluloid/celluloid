@@ -10,7 +10,6 @@ end
 
 # TODO: Remove link to Interal::Logger
 module Celluloid
-  Logger = Internals::Logger
   SyncCall = Call::Sync
   EventedMailbox = Mailbox::Evented
   InternalPool = Group::Pool
