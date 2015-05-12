@@ -35,7 +35,7 @@ module Celluloid
           @registry.add(@name, @actor, @branch) if @name
           invoke_injection(:after_start)
         rescue Celluloid::TimeoutError => ex
-          Internals::Logger.error("TimeoutError at start of supervised actor.")
+          Internals::Logger.error("TimeoutError at start of supervised instance of #{@type}")
           raise ex
           #           TODO: Implement timeout/retry.
           #           unless ( @retry += 1 ) <= INSTANCE_RETRY_LIMIT
