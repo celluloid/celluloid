@@ -39,7 +39,7 @@ RSpec.describe "Leaks", actor_system: :global, leaktest: true,
   def actor_life(what, &block)
     GC.start
     weak = do_actor what, &block
-    expect(wait_for_release(weak, what)).to be true
+    expect(wait_for_release(weak, what)).to be_truthy
   end
 
   context "celluloid actor" do
