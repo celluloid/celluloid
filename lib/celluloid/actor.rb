@@ -205,7 +205,7 @@ module Celluloid
           end
         end
 
-        fail TimeoutError, "linking timeout of #{LINKING_TIMEOUT} seconds exceeded"
+        fail TimeoutError, "linking timeout of #{LINKING_TIMEOUT} seconds exceeded with receiver: #{receiver}"
       end
     end
 
