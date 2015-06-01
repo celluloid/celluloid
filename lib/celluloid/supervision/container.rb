@@ -94,7 +94,7 @@ module Celluloid
       def remove(actor)
         actor = Celluloid::Actor[actor] if actor.is_a? Symbol
         instance = find(actor)
-        instance.terminate
+        instance.terminate if instance
       end
 
       def actors
