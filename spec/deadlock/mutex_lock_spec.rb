@@ -25,14 +25,13 @@ RSpec.describe Celluloid::Group do
 	end
 
 	unless RUBY_ENGINE == "ruby"
-		it "recovers from deadlock using Unlocker" do
+		it "Mutex Lock recovers from deadlock using Unlocker" do
 
 			account1 = Account.new
 			account2 = Account.new
 
 			account1.async.transfer(account1,account2,100)
 			account1.transfer(account2,account1,100)
-			sleep 10
 
 			expect(account1.dead? && account2.dead?)
 		end

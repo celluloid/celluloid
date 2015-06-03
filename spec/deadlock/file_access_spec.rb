@@ -8,13 +8,12 @@ RSpec.describe Celluloid::Group do
 
 		def lock_file
 			@f1 = File.open('Account.rb', File::RDWR|File::CREAT, 0644)
-			binding.pry
 			@f1.flock(File::LOCK_EX)
 			@f1.close
 		end
 	end
 
-	it "recovers from deadlock using Unlocker" do
+	it "File access recovers from deadlock using Unlocker" do
 
 		aFile = File_Access.new
 		bFile = File_Access.new

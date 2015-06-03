@@ -21,15 +21,13 @@ RSpec.describe Celluloid::Group do
 	end
 
 	unless RUBY_ENGINE == "ruby"
-		it "recovers from deadlock using Unlocker" do
+		it "exclusive block recovers from deadlock using Unlocker" do
 
 			user1 = User.new
 			user2 = User.new
 
 			user1.async.create(user2)
 			user1.running(user1)
-
-			sleep 10
 
 			expect(user1.dead? && user2.dead?)
 		end

@@ -18,14 +18,13 @@ RSpec.describe Celluloid::Group do
 	end
 
 	unless RUBY_ENGINE == "ruby"
-		it "recovers from deadlock using Unlocker" do
+		it "Mutex synchronize recovers from deadlock using Unlocker" do
 
 			worker1 = Worker.new
 			worker2 = Worker.new
 
 			worker1.async.wait
 			worker2.wait_for(worker1)
-			sleep 10
 
 			expect(worker1.dead? && worker2.dead?)
 		end
