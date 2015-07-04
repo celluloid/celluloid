@@ -1,19 +1,63 @@
 module Celluloid
+  extend Forwardable
+  def_delegators :actor_system, :[], :[]=
+
   class ActorSystem
     extend Forwardable
+    def_delegators :@registry, :[], :get, :[]=, :set, :delete
+
+    ROOT_SERVICES = [
+      {
+        as: :notifications_fanout,
+        type: Celluloid::Notifications::Fanout,
+      },
+      {
+        as: :incident_reporter,
+        type: Celluloid::IncidentReporter,
+        args: [STDERR],
+      },
+      {
+        as: :group_manager,
+        type: Celluloid::Group::Manager,
+        accessors: [:manager],
+      },
+      {
+        as: :public_services,
+        type: Celluloid::Supervision::Service::Public,
+        accessors: [:services],
+        supervise: [],
+      },
+    ]
+
+    attr_reader :registry, :group
+
+    module Error
+      class Uninitialized < StandardError; end
+    end
+
+    # the root of the supervisor tree is established at supervision/root
+
+    def root_services
+      @tree
+    end
+
+    def root_configuration
+      @root
+    end
 
     def initialize
-      @internal_pool = InternalPool.new
-      @registry      = Registry.new
+      @tree = nil
+      @group = Celluloid.group_class.new
+      @registry = Internals::Registry.new
+      @root = ROOT_SERVICES
     end
-    attr_reader :registry
 
     # Launch default services
-    # FIXME: We should set up the supervision hierarchy here
     def start
       within do
-        Celluloid::Notifications::Fanout.supervise_as :notifications_fanout
-        Celluloid::IncidentReporter.supervise_as :default_incident_reporter, STDERR
+        @root = Supervision::Service::Root.define
+        @tree = root_configuration.deploy
+        # de root_services[:group_manager].manage! @group
       end
       true
     end
@@ -27,17 +71,19 @@ module Celluloid
     end
 
     def get_thread
-      @internal_pool.get do
+      @group.get do
         Thread.current[:celluloid_actor_system] = self
         yield
       end
     end
 
     def stack_dump
-      Celluloid::StackDump.new(@internal_pool)
+      Internals::Stack::Dump.new(@group)
     end
 
-    def_delegators "@registry", :[], :get, :[]=, :set, :delete
+    def stack_summary
+      Internals::Stack::Summary.new(@group)
+    end
 
     def registered
       @registry.names
@@ -49,22 +95,29 @@ module Celluloid
 
     def running
       actors = []
-      @internal_pool.each do |t|
+      @group.each do |t|
         next unless t.role == :actor
-        actors << t.actor.behavior_proxy if t.actor && t.actor.respond_to?(:behavior_proxy)
+        actor = t.actor
+
+        # NOTE - these are in separate statements, since on JRuby t.actor may
+        # become nil befor .behavior_proxy() is called
+        next unless actor
+        next unless actor.respond_to?(:behavior_proxy)
+        proxy = actor.behavior_proxy
+        actors << proxy
       end
       actors
     end
 
     def running?
-      @internal_pool.running?
+      @group.active?
     end
 
     # Shut down all running actors
     def shutdown
       actors = running
       Timeout.timeout(shutdown_timeout) do
-        Logger.debug "Terminating #{actors.size} #{(actors.size > 1) ? 'actors' : 'actor'}..." if actors.size > 0
+        Internals::Logger.debug "Terminating #{actors.size} #{(actors.size > 1) ? 'actors' : 'actor'}..." if actors.size > 0
 
         # Actors cannot self-terminate, you must do it for them
         actors.each do |actor|
@@ -80,24 +133,24 @@ module Celluloid
           rescue DeadActorError
           end
         end
-
-        @internal_pool.shutdown
       end
     rescue Timeout::Error
-      Logger.error("Couldn't cleanly terminate all actors in #{shutdown_timeout} seconds!")
-      actors.each do |actor|
-        begin
-          Actor.kill(actor)
-        rescue DeadActorError, MailboxDead
+      Internals::Logger.error("Couldn't cleanly terminate all actors in #{shutdown_timeout} seconds!")
+      unless RUBY_PLATFORM == "java" || RUBY_ENGINE == "rbx"
+        actors.each do |actor|
+          begin
+            Actor.kill(actor)
+          rescue DeadActorError, MailboxDead
+          end
         end
       end
     ensure
-      @internal_pool.kill
+      @group.shutdown
       clear_registry
     end
 
     def assert_inactive
-      @internal_pool.assert_inactive
+      @group.assert_inactive
     end
 
     def shutdown_timeout

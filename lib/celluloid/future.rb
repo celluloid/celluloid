@@ -1,4 +1,4 @@
-require 'thread'
+require "thread"
 
 module Celluloid
   # Celluloid::Future objects allow methods and blocks to run in the
@@ -8,9 +8,9 @@ module Celluloid
       return super unless block
 
       future = new
-      Celluloid::ThreadHandle.new(Celluloid.actor_system, :future) do
+      Internals::ThreadHandle.new(Celluloid.actor_system, :future) do
         begin
-          call = SyncCall.new(future, :call, args)
+          call = Call::Sync.new(future, :call, args)
           call.dispatch(block)
         rescue
           # Exceptions in blocks will get raised when the value is retrieved
@@ -91,7 +91,7 @@ module Celluloid
       if result
         result.value
       else
-        raise TimeoutError, "Timed out"
+        fail TimeoutError, "Timed out"
       end
     end
     alias_method :call, :value
@@ -102,7 +102,7 @@ module Celluloid
       result = Result.new(value, self)
 
       @mutex.synchronize do
-        raise "the future has already happened!" if @ready
+        fail "the future has already happened!" if @ready
 
         if @forwards
           @forwards.is_a?(Array) ? @forwards.each { |f| f << result } : @forwards << result
@@ -130,7 +130,8 @@ module Celluloid
       attr_reader :future
 
       def initialize(result, future)
-        @result, @future = result, future
+        @result = result
+        @future = future
       end
 
       def value

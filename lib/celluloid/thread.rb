@@ -1,4 +1,4 @@
-require 'celluloid/fiber'
+require "celluloid/fiber"
 
 module Celluloid
   class Thread < ::Thread
@@ -35,6 +35,11 @@ module Celluloid
     # Obtain the call chain ID for this thread
     def call_chain_id
       self[:celluloid_chain_id]
+    end
+
+    def <<(proc)
+      self[:celluloid_queue] << proc
+      self
     end
   end
 end

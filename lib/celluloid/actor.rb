@@ -1,5 +1,5 @@
 
-require 'timers'
+require "timers"
 
 module Celluloid
   # Actors are Celluloid's concurrency primitive. They're implemented as
@@ -12,37 +12,37 @@ module Celluloid
     class << self
       extend Forwardable
 
-      def_delegators "Celluloid.actor_system", :[], :[]=, :delete, :registered, :clear_registry
+      def_delegators :"Celluloid.actor_system", :[], :[]=, :delete, :registered, :clear_registry
 
       # Obtain the current actor
       def current
         actor = Thread.current[:celluloid_actor]
-        raise NotActorError, "not in actor scope" unless actor
+        fail NotActorError, "not in actor scope" unless actor
         actor.behavior_proxy
       end
 
       # Obtain the name of the current actor
       def registered_name
         actor = Thread.current[:celluloid_actor]
-        raise NotActorError, "not in actor scope" unless actor
+        fail NotActorError, "not in actor scope" unless actor
         actor.name
       end
 
       # Invoke a method on the given actor via its mailbox
       def call(mailbox, meth, *args, &block)
-        proxy = SyncProxy.new(mailbox, "UnknownClass")
+        proxy = Proxy::Sync.new(mailbox, "UnknownClass")
         proxy.method_missing(meth, *args, &block)
       end
 
       # Invoke a method asynchronously on an actor via its mailbox
       def async(mailbox, meth, *args, &block)
-        proxy = AsyncProxy.new(mailbox, "UnknownClass")
+        proxy = Proxy::Async.new(mailbox, "UnknownClass")
         proxy.method_missing(meth, *args, &block)
       end
 
       # Call a method asynchronously and retrieve its value later
       def future(mailbox, meth, *args, &block)
-        proxy = FutureProxy.new(mailbox, "UnknownClass")
+        proxy = Proxy::Future.new(mailbox, "UnknownClass")
         proxy.method_missing(meth, *args, &block)
       end
 
@@ -53,13 +53,13 @@ module Celluloid
 
       # Watch for exit events from another actor
       def monitor(actor)
-        raise NotActorError, "can't link outside actor context" unless Celluloid.actor?
+        fail NotActorError, "can't link outside actor context" unless Celluloid.actor?
         Thread.current[:celluloid_actor].linking_request(actor, :link)
       end
 
       # Stop waiting for exit events from another actor
       def unmonitor(actor)
-        raise NotActorError, "can't link outside actor context" unless Celluloid.actor?
+        fail NotActorError, "can't link outside actor context" unless Celluloid.actor?
         Thread.current[:celluloid_actor].linking_request(actor, :unlink)
       end
 
@@ -85,10 +85,12 @@ module Celluloid
         monitoring?(actor) && Thread.current[:celluloid_actor].links.include?(actor)
       end
 
-      # Forcibly kill a given actor
-      def kill(actor)
-        actor.thread.kill
-        actor.mailbox.shutdown if actor.mailbox.alive?
+      unless RUBY_PLATFORM == "java" || RUBY_ENGINE == "rbx"
+        # Forcibly kill a given actor
+        def kill(actor)
+          actor.thread.kill
+          actor.mailbox.shutdown if actor.mailbox.alive?
+        end
       end
 
       # Wait for an actor to terminate
@@ -109,12 +111,12 @@ module Celluloid
       @exit_handler = method(:default_exit_handler)
       @exclusive    = options.fetch(:exclusive, false)
 
-      @tasks     = TaskSet.new
-      @links     = Links.new
-      @signals   = Signals.new
       @timers    = Timers::Group.new
-      @receivers = Receivers.new(@timers)
-      @handlers  = Handlers.new
+      @tasks     = Internals::TaskSet.new
+      @links     = Internals::Links.new
+      @handlers  = Internals::Handlers.new
+      @receivers = Internals::Receivers.new(@timers)
+      @signals   = Internals::Signals.new
       @running   = false
       @name      = nil
 
@@ -125,12 +127,12 @@ module Celluloid
 
     def start
       @running = true
-      @thread = ThreadHandle.new(@actor_system, :actor) do
+      @thread = Internals::ThreadHandle.new(@actor_system, :actor) do
         setup_thread
         run
       end
 
-      @proxy = ActorProxy.new(@thread, @mailbox)
+      @proxy = Proxy::Actor.new(@mailbox, @thread)
       Celluloid::Probe.actor_created(self) if $CELLULOID_MONITORING
     end
 
@@ -148,7 +150,7 @@ module Celluloid
       while @running
         begin
           @timers.wait do |interval|
-            interval = 0 if interval and interval < 0
+            interval = 0 if interval && interval < 0
 
             if message = @mailbox.check(interval)
               handle_message(message)
@@ -157,6 +159,9 @@ module Celluloid
             end
           end
         rescue MailboxShutdown
+          @running = false
+        rescue MailboxDead
+          # TODO: not tests (but fails occasionally in tests)
           @running = false
         end
       end
@@ -191,19 +196,16 @@ module Celluloid
 
           if message.instance_of? LinkingResponse
             Celluloid::Probe.actors_linked(self, receiver) if $CELLULOID_MONITORING
-
-            # We're done!
             system_events.each { |ev| @mailbox << ev }
-
             return
           elsif message.is_a? SystemEvent
             # Queue up pending system events to be processed after we've successfully linked
             system_events << message
-          else raise "Unexpected message type: #{message.class}. Expected LinkingResponse, NilClass, SystemEvent."
+          else fail "Unexpected message type: #{message.class}. Expected LinkingResponse, NilClass, SystemEvent."
           end
         end
 
-        raise TimeoutError, "linking timeout of #{LINKING_TIMEOUT} seconds exceeded"
+        fail TimeoutError, "linking timeout of #{LINKING_TIMEOUT} seconds exceeded with receiver: #{receiver}"
       end
     end
 
@@ -223,9 +225,9 @@ module Celluloid
 
     # Receive an asynchronous message
     def receive(timeout = nil, &block)
-      loop do
+      while true
         message = @receivers.receive(timeout, &block)
-        break message unless message.is_a?(SystemEvent)
+        return message unless message.is_a?(SystemEvent)
 
         handle_system_event(message)
       end
@@ -279,7 +281,7 @@ module Celluloid
     def handle_message(message)
       unless @handlers.handle_message(message)
         unless @receivers.handle_message(message)
-          Logger.debug "Discarded message (unhandled): #{message}" if $CELLULOID_DEBUG
+          Internals::Logger.debug "Discarded message (unhandled): #{message}" if $CELLULOID_DEBUG
         end
       end
       message
@@ -299,7 +301,7 @@ module Celluloid
       elsif event.instance_of? SignalConditionRequest
         event.call
       else
-        Logger.debug "Discarded message (unhandled): #{message}" if $CELLULOID_DEBUG
+        Internals::Logger.debug "Discarded message (unhandled): #{message}" if $CELLULOID_DEBUG
       end
     end
 
@@ -311,16 +313,16 @@ module Celluloid
     end
 
     def default_exit_handler(event)
-      raise event.reason if event.reason
+      fail event.reason if event.reason
     end
 
     # Handle any exceptions that occur within a running actor
     def handle_crash(exception)
       # TODO: add meta info
-      Logger.crash("Actor crashed!", exception)
+      Internals::Logger.crash("Actor crashed!", exception)
       shutdown ExitEvent.new(behavior_proxy, exception)
     rescue => ex
-      Logger.crash("ERROR HANDLER CRASHED!", ex)
+      Internals::Logger.crash("Actor#handle_crash CRASHED!", ex)
     end
 
     # Handle cleaning up this actor after it exits
@@ -337,26 +339,30 @@ module Celluloid
       Celluloid::Probe.actor_died(self) if $CELLULOID_MONITORING
       @mailbox.shutdown
       @links.each do |actor|
-        if actor.mailbox.alive?
-          actor.mailbox << exit_event
-        end
+        actor.mailbox << exit_event if actor.mailbox.alive?
       end
 
-      tasks.to_a.each(&:terminate)
+      tasks.to_a.each do |task|
+        begin
+          task.terminate
+        rescue DeadTaskError
+          # TODO: not tested (failed on Travis)
+        end
+      end
     rescue => ex
       # TODO: metadata
-      Logger.crash("CLEANUP CRASHED!", ex)
+      Internals::Logger.crash("CLEANUP CRASHED!", ex)
     end
 
     # Run a method inside a task unless it's exclusive
     def task(task_type, meta = nil)
-      @task_class.new(task_type, meta) {
+      @task_class.new(task_type, meta) do
         if @exclusive
           Celluloid.exclusive { yield }
         else
           yield
         end
-      }.resume
+      end.resume
     end
   end
 end

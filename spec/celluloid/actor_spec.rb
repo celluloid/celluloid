@@ -1,3 +1,5 @@
-RSpec.describe Celluloid, actor_system: :global do
+require "spec_helper"
+
+RSpec.describe Celluloid do
   it_behaves_like "a Celluloid Actor", Celluloid
 end

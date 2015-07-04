@@ -1,6 +1,13 @@
 RSpec.describe Celluloid::ActorSystem do
   class TestActor
     include Celluloid
+    def identity
+      :testing
+    end
+  end
+
+  after do
+    subject.shutdown
   end
 
   it "supports non-global ActorSystem" do
@@ -9,15 +16,23 @@ RSpec.describe Celluloid::ActorSystem do
     end
   end
 
+  it "makes actors accessible by Celluloid[:actor]" do
+    subject.start
+    subject.within do
+      TestActor.supervise as: :testing, type: TestActor
+      expect(subject.registered).to include(:testing)
+      expect(Celluloid::Actor[:testing].identity).to eq(:testing)
+    end
+  end
+
   it "starts default actors" do
     subject.start
-
-    expect(subject.registered).to eq([:notifications_fanout, :default_incident_reporter])
+    expect(subject.registered).to eq(Celluloid::ActorSystem::ROOT_SERVICES.map { |r| r[:as] })
   end
 
   it "support getting threads" do
     queue = Queue.new
-    thread = subject.get_thread do
+    subject.get_thread do
       expect(Celluloid.actor_system).to eq(subject)
       queue << nil
     end
@@ -25,17 +40,19 @@ RSpec.describe Celluloid::ActorSystem do
   end
 
   it "allows a stack dump" do
-    expect(subject.stack_dump).to be_a(Celluloid::StackDump)
+    expect(subject.stack_dump).to be_a(Celluloid::Internals::Stack::Dump)
+  end
+
+  it "allows a stack summary" do
+    expect(subject.stack_summary).to be_a(Celluloid::Internals::Stack::Summary)
   end
 
   it "returns named actors" do
-    expect(subject.registered).to be_empty
-
+    subject.start
     subject.within do
-      TestActor.supervise_as :test
+      TestActor.supervise as: :test
     end
-
-    expect(subject.registered).to eq([:test])
+    expect(subject.registered).to include(:test)
   end
 
   it "returns running actors" do
@@ -55,12 +72,12 @@ RSpec.describe Celluloid::ActorSystem do
   it "shuts down" do
     subject.shutdown
 
-    expect { subject.get_thread }.
-      to raise_error("Thread pool is not running")
+    expect { subject.get_thread }
+      .to raise_error(Celluloid::Group::NotActive)
   end
 
   it "warns nicely when no actor system is started" do
-    expect { TestActor.new }.
-      to raise_error("Celluloid is not yet started; use Celluloid.boot")
+    expect { TestActor.new }
+      .to raise_error("Celluloid is not yet started; use Celluloid.boot")
   end
 end

@@ -1,0 +1,3 @@
+[submodule "culture"]
+	path = culture
+	url = http://github.com/celluloid/culture.git

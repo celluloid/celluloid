@@ -1,4 +1,4 @@
-require 'timeout'
+require "timeout"
 
 desc "Run Celluloid benchmarks"
 task :benchmark do
@@ -11,6 +11,6 @@ task :benchmark do
     puts "ERROR: Couldn't complete benchmark: #{ex.class}: #{ex}"
     puts "  #{ex.backtrace.join("\n  ")}"
 
-    exit 1 unless ENV['CI'] # Hax for running benchmarks on Travis
+    exit 1 unless ENV["CI"] # Hax for running benchmarks on Travis
   end
 end

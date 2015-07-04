@@ -1,13 +1,12 @@
-require 'celluloid/rspec/example_actor_class'
-require 'celluloid/rspec/actor_examples'
-require 'celluloid/rspec/mailbox_examples'
-require 'celluloid/rspec/task_examples'
-
-module Celluloid
-  # Timer accuracy enforced by the tests (50ms)
-  TIMER_QUANTUM = 0.05
-end
+require "celluloid/test"
 
 $CELLULOID_DEBUG = true
 
-require 'celluloid/test'
+# Load shared examples and test support code for other gems to use.
+
+%w(env logging split_logs sleep_and_wait reset_class_variables crash_checking stubbing coverage includer).each { |f|
+  require "#{File.expand_path('../../../spec/support', __FILE__)}/#{f}.rb"
+}
+
+Dir["#{File.expand_path('../../../spec/support/examples', __FILE__)}/*.rb"].map { |f| require f }
+Dir["#{File.expand_path('../../../spec/shared', __FILE__)}/*.rb"].map { |f| require f }

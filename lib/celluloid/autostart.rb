@@ -1,3 +1,3 @@
-require 'celluloid'
+require "celluloid"
 
 Celluloid.start

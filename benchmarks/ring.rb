@@ -1,9 +1,9 @@
 #!/usr/bin/env ruby
 
-require 'rubygems'
-require 'bundler/setup'
-require 'celluloid'
-require 'benchmark/ips'
+require "rubygems"
+require "bundler/setup"
+require "celluloid"
+require "benchmark/ips"
 require File.expand_path("../../examples/ring", __FILE__)
 
 # 512-node ring

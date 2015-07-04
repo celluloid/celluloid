@@ -12,14 +12,19 @@ RSpec.describe Celluloid::Future, actor_system: :global do
   it "reraises exceptions that occur when the value is retrieved" do
     class ExampleError < StandardError; end
 
-    future = Celluloid::Future.new { raise ExampleError, "oh noes crash!" }
+    future = Celluloid::Future.new { fail ExampleError, "oh noes crash!" }
     expect { future.value }.to raise_exception(ExampleError)
   end
 
   it "knows if it's got a value yet" do
-    future = Celluloid::Future.new { sleep Celluloid::TIMER_QUANTUM * 5 }
+    queue = Queue.new
+    future = Celluloid::Future.new { queue.pop }
+
     expect(future).not_to be_ready
-    sleep Celluloid::TIMER_QUANTUM * 6
+    queue << nil # let it continue
+
+    Specs.sleep_and_wait_until { future.ready? }
+
     expect(future).to be_ready
   end
 
