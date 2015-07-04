@@ -13,9 +13,9 @@ class Celluloid::Proxy::Actor < Celluloid::Proxy::Abstract
 
   def inspect
     # TODO: use a system event to fetch actor state: tasks?
-    "#<::Celluloid::Proxy::Actor(#{@mailbox.address}) alive>"
+    "#<Celluloid::Proxy::Actor(#{@mailbox.address}) alive>"
   rescue DeadActorError
-    "#<::Celluloid::Proxy::Actor(#{@mailbox.address}) dead>"
+    "#<Celluloid::Proxy::Actor(#{@mailbox.address}) dead>"
   end
 
   def alive?
