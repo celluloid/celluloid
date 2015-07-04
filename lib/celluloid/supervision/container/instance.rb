@@ -44,6 +44,9 @@ module Celluloid
           #           Internals::Logger.warn("TimeoutError at start of supervised actor. Retrying in #{INSTANCE_RETRY_WAIT} seconds. ( Attempt #{@retry} of #{INSTANCE_RETRY_LIMIT} )")
           #           sleep INSTANCE_RETRY_WAIT
           #           retry
+        rescue => ex
+          Internals::Logger.error("Error ( #{ex.class} ) at start of supervised instance of #{@type}")
+          raise ex
         end
 
         def restart
