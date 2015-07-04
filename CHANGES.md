@@ -1,4 +1,4 @@
-0.17.0 (2015)
+0.17.0 (2015-07-04)
 ----
 * Fix $CELLULOID_TEST warnings
 * Massive overhaul of test suite, end-to-end.

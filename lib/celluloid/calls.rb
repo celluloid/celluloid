@@ -12,7 +12,7 @@ module Celluloid
           # FIXME: nicer exception
           fail "Cannot execute blocks on sender in exclusive mode"
         end
-        @block = Proxy::Block.new(self, Celluloid.mailbox, block)
+        @block = Proxy::Block.new(Celluloid.mailbox, self, block)
       else
         @block = nil
       end

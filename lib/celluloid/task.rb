@@ -93,7 +93,11 @@ module Celluloid
     # Resume a suspended task, giving it a value to return if needed
     def resume(value = nil)
       guard "Cannot resume a task from inside of a task" if Thread.current[:celluloid_task]
-      deliver(value)
+      if running?
+        deliver(value)
+      else
+        logger.warn "Attempted to resume a dead task: type=#{@type.inspect}, meta=#{@meta.inspect}, status=#{@status.inspect}"
+      end
       nil
     end
 

@@ -8,14 +8,9 @@ $CELLULOID_DEBUG = false
 require "celluloid/version"
 require "celluloid/notices"
 
-if ENV["CELLULOID_BACKPORTED"] == "silently" || (defined?($CELLULOID_BACKPORTED) && $CELLULOID_BACKPORTED == :silently)
-  $CELLULOID_BACKPORTED = true
-  Celluloid::Notices.backported_mini
-else
-  $CELLULOID_BACKPORTED = false if defined?(CELLULOID_FUTURE) && CELLULOID_FUTURE
-  $CELLULOID_BACKPORTED = (ENV["CELLULOID_BACKPORTED"] != "false") unless defined?($CELLULOID_BACKPORTED)
-  Celluloid::Notices.backported if $CELLULOID_BACKPORTED
-end
+$CELLULOID_BACKPORTED = false if defined?(CELLULOID_FUTURE) && CELLULOID_FUTURE
+$CELLULOID_BACKPORTED = (ENV["CELLULOID_BACKPORTED"] != "false") unless defined?($CELLULOID_BACKPORTED)
+Celluloid::Notices.backported if $CELLULOID_BACKPORTED
 
 module Celluloid
   # Expose all instance methods as singleton methods

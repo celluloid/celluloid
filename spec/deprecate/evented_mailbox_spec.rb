@@ -1,5 +1,5 @@
 unless $CELLULOID_BACKPORTED == false
-  class DeprecatedTestEventedMailbox < Celluloid::EventedMailbox
+  class DeprecatedTestEventedMailbox < Celluloid::Mailbox::Evented
     class Reactor
       def initialize
         @condition = ConditionVariable.new
@@ -27,7 +27,7 @@ unless $CELLULOID_BACKPORTED == false
     end
   end
 
-  RSpec.describe "Deprecated Celluloid::EventedMailbox" do
+  RSpec.describe "Deprecated Celluloid::Mailbox::Evented" do
     subject { DeprecatedTestEventedMailbox.new }
     it_behaves_like "a Celluloid Mailbox"
   end
