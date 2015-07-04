@@ -1,2 +1,2 @@
-$CELLULOID_BACKPORTED = :silently
+$CELLULOID_BACKPORTED = true
 require "celluloid/autostart"
