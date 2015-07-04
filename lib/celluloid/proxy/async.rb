@@ -12,7 +12,7 @@ class Celluloid::Proxy::Async < Celluloid::Proxy::Abstract
   end
 
   def inspect
-    "#<::Celluloid::Proxy::Async(#{@klass})>"
+    "#<Celluloid::Proxy::Async(#{@klass})>"
   end
 
   def method_missing(meth, *args, &block)
