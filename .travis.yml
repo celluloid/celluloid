@@ -1,17 +1,14 @@
 script: rake ci
 language: ruby
 rvm:
+  - 2.0.0
+  - 2.1.4
   - 2.2.0
   - 2.2.2
   - jruby
   - ruby-head
   - jruby-head
   - rbx-2
-
-# TODO: Put these back:
-# * CELLULOID_TASK_CLASS=Fibered
-# * CELLULOID_TASK_CLASS=Threaded
-# For right now the imporant thing is to test BACKPORTED mode:
 
 matrix:
   fast_finish: true
@@ -21,14 +18,18 @@ matrix:
     - rvm: jruby-head
     - env: CELLULOID_BACKPORTED=true
     - env: CELLULOID_BACKPORTED=false CELLULOID_LEAKTEST=1
+    - env: CELLULOID_BACKPORTED=false CELLULOID_TASK_CLASS=Threaded
+    - env: CELLULOID_BACKPORTED=true CELLULOID_TASK_CLASS=Threaded
 
 env:
   global:
-    - NUMBER_OF_PROCESSORS=2 CELLULOID_CONFIG_FILE=.env-ci
+    - NUMBER_OF_PROCESSORS=4 CELLULOID_CONFIG_FILE=.env-ci
   matrix:
     - CELLULOID_BACKPORTED=true
     - CELLULOID_BACKPORTED=false
     - CELLULOID_BACKPORTED=false CELLULOID_LEAKTEST=1
+    - CELLULOID_BACKPORTED=false CELLULOID_TASK_CLASS=Threaded
+    - CELLULOID_BACKPORTED=true CELLULOID_TASK_CLASS=Threaded
 
 notifications:
   irc: "irc.freenode.org#celluloid"

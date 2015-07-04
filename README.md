@@ -1,9 +1,9 @@
 ![Celluloid](https://raw.github.com/celluloid/celluloid-logos/master/celluloid/celluloid.png)
 =========
-[![Gem Version](https://badge.fury.io/rb/celluloid.png)](http://rubygems.org/gems/celluloid)
-[![Build Status](https://secure.travis-ci.org/celluloid/celluloid.png?branch=master)](http://travis-ci.org/celluloid/celluloid)
-[![Code Climate](https://codeclimate.com/github/celluloid/celluloid.png)](https://codeclimate.com/github/celluloid/celluloid)
-[![Coverage Status](https://coveralls.io/repos/celluloid/celluloid/badge.png?branch=master)](https://coveralls.io/r/celluloid/celluloid)
+[![Gem Version](https://badge.fury.io/rb/celluloid.svg)](http://rubygems.org/gems/celluloid)
+[![Build Status](https://secure.travis-ci.org/celluloid/celluloid.svg?branch=master)](http://travis-ci.org/celluloid/celluloid)
+[![Code Climate](https://codeclimate.com/github/celluloid/celluloid.svg)](https://codeclimate.com/github/celluloid/celluloid)
+[![Coverage Status](https://coveralls.io/repos/celluloid/celluloid/badge.svg?branch=master)](https://coveralls.io/r/celluloid/celluloid)
 
 > "I thought of objects being like biological cells and/or individual
 > computers on a network, only able to communicate with messages"
@@ -133,10 +133,16 @@ Or install it yourself as:
 
     $ gem install celluloid
 
-Inside of your Ruby program, require Celluloid with:
+Inside of your Ruby program, require Celluloid with [newest API](/celluloid/celluloid/wiki/DEPRECATION-WARNING):
 
 ```ruby
-require 'celluloid/autostart'
+require 'celluloid/current'
+```
+
+Or to support the old API, use:
+
+```ruby
+require 'celluloid/backported'
 ```
 
 Supported Platforms
