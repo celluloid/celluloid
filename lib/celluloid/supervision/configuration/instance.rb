@@ -8,7 +8,7 @@ module Celluloid
           @state = :initializing # :ready
           resync_accessors
           @configuration = configuration
-          define configuration if configuration.any?
+          define(configuration) if configuration.any?
         end
 
         def export
