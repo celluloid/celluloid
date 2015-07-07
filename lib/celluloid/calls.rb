@@ -7,15 +7,7 @@ module Celluloid
       @retry = 0
       @method = method
       @arguments = arguments
-      if block
-        if Celluloid.exclusive?
-          # FIXME: nicer exception
-          fail "Cannot execute blocks on sender in exclusive mode"
-        end
-        @block = Proxy::Block.new(Celluloid.mailbox, self, block)
-      else
-        @block = nil
-      end
+      @block = block && Proxy::Block.new(Celluloid.mailbox, self, block)
     end
 
     def execute_block_on_receiver
@@ -23,9 +15,13 @@ module Celluloid
     end
 
     def dispatch(obj)
-      check(obj)
-      _b = @block && @block.to_proc
-      obj.public_send(@method, *@arguments, &_b)
+      begin
+        check(obj)
+      rescue => error
+        raise AbortError, error
+      end
+
+      obj.public_send(@method, *@arguments, &@block)
       #     rescue Celluloid::TimeoutError => ex
       #       raise ex unless ( @retry += 1 ) <= RETRY_CALL_LIMIT
       #       puts "retrying"
@@ -44,14 +40,15 @@ module Celluloid
 
       arity = meth.arity
 
-      if arity >= 0
-        fail ArgumentError, "wrong number of arguments (#{@arguments.size} for #{arity})" if @arguments.size != arity
+      if arity >= 0 && @arguments.size != arity
+        fail ArgumentError, "wrong number of arguments (#{@arguments.size} for #{arity})"
       elsif arity < -1
         mandatory_args = -arity - 1
-        fail ArgumentError, "wrong number of arguments (#{@arguments.size} for #{mandatory_args}+)" if arguments.size < mandatory_args
+
+        if arguments.size < mandatory_args
+          fail ArgumentError, "wrong number of arguments (#{@arguments.size} for #{mandatory_args}+)"
+        end
       end
-    rescue => ex
-      raise AbortError.new(ex)
     end
   end
 end

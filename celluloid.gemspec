@@ -10,8 +10,8 @@ Gem::Specification.new do |gem|
   gem.description = "Celluloid enables people to build concurrent programs out of concurrent objects just as easily as they build sequential programs out of sequential objects"
   gem.licenses    = ["MIT"]
 
-  gem.authors     = ["Tony Arcieri"]
-  gem.email       = ["tony.arcieri@gmail.com"]
+  gem.authors     = ["Tony Arcieri", "digitalextremist//"]
+  gem.email       = ["tony.arcieri@gmail.com", "code@extremist.digital"]
   gem.homepage    = "https://github.com/celluloid/celluloid"
 
   gem.required_ruby_version     = ">= 1.9.2"
