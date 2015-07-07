@@ -7,12 +7,12 @@ RSpec.describe "Blocks", actor_system: :global do
     end
     attr_reader :name
 
-    def yield_on_sender(trace, &block)
+    def yield_on_sender(trace)
       trace << [:yielding_on_sender, @name, Actor.current.name]
       trace << yield(:foo)
     end
 
-    def yield_on_receiver(trace, &block)
+    def yield_on_receiver(trace)
       trace << [:yielding_on_receiver, @name, Actor.current.name]
       trace << yield(:foo)
     end
@@ -52,7 +52,7 @@ RSpec.describe "Blocks", actor_system: :global do
 
       lambda do |value|
         trace << [:yielded, @name, Actor.current.name]
-        trace << self.receive_result(:self)
+        trace << receive_result(:self)
         trace << Actor.current.receive_result(:current_actor)
         trace << sender_actor.receive_result(:sender) unless sender_exclusive
         "somevalue"
@@ -95,9 +95,9 @@ RSpec.describe "Blocks", actor_system: :global do
     it "cannot be executed on the sender" do
       expect(Specs::FakeLogger.current).to receive(:crash)
 
-      expect {
+      expect do
         actor_one.exclusive_perform_on_sender(actor_two)
-      }.to raise_error("Cannot execute blocks on sender in exclusive mode")
+      end.to raise_error("Cannot execute blocks on sender in exclusive mode")
 
       expect(actor_one).not_to be_alive
       expect(actor_two).to be_alive
@@ -120,10 +120,10 @@ RSpec.describe "Blocks", actor_system: :global do
   context "outside an actor" do
     let(:trace) { [] }
     let(:block) do
-      lambda { |value|
+      lambda do |value|
         trace << [:yielded, value, Celluloid.actor?]
         "somevalue"
-      }
+      end
     end
 
     it "can be executed on the sender" do
@@ -132,7 +132,7 @@ RSpec.describe "Blocks", actor_system: :global do
       expect(trace).to eq([
         [:yielding_on_sender, "one", "one"],
         [:yielded, :foo, false],
-        "somevalue"
+        "somevalue",
       ])
     end
 
@@ -142,7 +142,7 @@ RSpec.describe "Blocks", actor_system: :global do
       expect(trace).to eq([
         [:yielding_on_receiver, "one", "one"],
         [:yielded, :foo, true],
-        "somevalue"
+        "somevalue",
       ])
     end
   end
