@@ -38,16 +38,12 @@ RSpec.describe "Blocks", actor_system: :global do
       trace << [:outside, @name, Actor.current.name]
       exclusive { other.yield_on_sender(trace, &make_block(trace)) }
       trace
-    rescue => error
-      abort error
     end
 
     def exclusive_perform_on_receiver(other, trace = [])
       trace << [:outside, @name, Actor.current.name]
       exclusive { other.yield_on_receiver(trace, &make_block(trace)) }
       trace
-    rescue => error
-      abort error
     end
 
     def make_block(trace)
@@ -95,15 +91,28 @@ RSpec.describe "Blocks", actor_system: :global do
 
   context "in exclusive mode" do
     it "cannot be executed on the sender" do
+      expect(Specs::FakeLogger.current).to receive(:crash)
+
       expect {
         actor_one.exclusive_perform_on_sender(actor_two)
       }.to raise_error("Cannot execute blocks on sender in exclusive mode")
+
+      expect(actor_one).not_to be_alive
+      expect(actor_two).to be_alive
     end
 
-    it "cannot be executed on the receiver" do
-      expect {
-        actor_one.exclusive_perform_on_sender(actor_two)
-      }.to raise_error("Cannot execute blocks on sender in exclusive mode")
+    it "can be executed on the receiver", pending: "https://github.com/celluloid/celluloid/issues/604" do
+      trace = actor_one.exclusive_perform_on_receiver(actor_two)
+
+      expect(trace).to eq([
+        [:outside, "one", "one"],
+        [:yielding_on_receiver, "two", "two"],
+        [:yielded, "one", "two"],
+        [:self, "one", "two"],
+        [:current_actor, "two", "two"],
+        [:sender, "one", "one"],
+        "somevalue",
+      ])
     end
   end
 end
