@@ -28,6 +28,18 @@ module Celluloid
         Internals::CallChain.current_id = nil
       end
 
+      def check(obj)
+        super
+
+        if task && block && block.execute_on_sender? && task.exclusive?
+          raise "Cannot execute blocks on sender in exclusive mode"
+        end
+      rescue AbortError
+        raise
+      rescue => ex
+        raise AbortError.new(ex)
+      end
+
       def cleanup
         exception = DeadActorError.new("attempted to call a dead actor")
         respond Internals::Response::Error.new(self, exception)
