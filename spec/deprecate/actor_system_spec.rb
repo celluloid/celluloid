@@ -1,11 +1,11 @@
-RSpec.describe "Deprecated Celluloid::Actor::System" do
-  subject { Celluloid::Actor::System.new }
+RSpec.describe "Deprecated Celluloid::ActorSystem" do
+  subject { Celluloid::ActorSystem.new }
 
   class DeprecatedTestActor
     include Celluloid
   end
 
-  it "supports non-global Actor::System" do
+  it "supports non-global ActorSystem" do
     subject.within do
       expect(Celluloid.actor_system).to eq(subject)
     end
@@ -13,7 +13,7 @@ RSpec.describe "Deprecated Celluloid::Actor::System" do
 
   it "starts default actors" do
     subject.start
-    expect(subject.registered).to eq(Celluloid::Actor::System::ROOT_SERVICES.map { |r| r[:as] })
+    expect(subject.registered).to eq(Celluloid::ActorSystem::ROOT_SERVICES.map { |r| r[:as] })
     subject.shutdown
   end
 
