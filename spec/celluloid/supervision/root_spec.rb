@@ -12,7 +12,7 @@ RSpec.describe Celluloid::Supervision::Service::Root, actor_system: :global do
 
   context("deploys root services") do
     it("properly") do
-      expect(Celluloid.actor_system.registered).to eq(Celluloid::ActorSystem::ROOT_SERVICES.map { |r| r[:as] })
+      expect(Celluloid.actor_system.registered).to eq(Celluloid::Actor::System::ROOT_SERVICES.map { |r| r[:as] })
     end
   end
 

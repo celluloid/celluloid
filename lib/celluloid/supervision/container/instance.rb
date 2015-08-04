@@ -82,7 +82,7 @@ module Celluloid
                   Celluloid.actor_system[actor]
                 end
               end
-              Celluloid::ActorSystem.instance_exec(@configuration[:as], name) do |actor, where|
+              Celluloid::Actor::System.instance_exec(@configuration[:as], name) do |actor, where|
                 define_method(name) do
                   Celluloid.actor_system[actor]
                 end
@@ -97,7 +97,7 @@ module Celluloid
               Celluloid.instance_eval do
                 remove_method(name) rescue nil # avoid warnings in tests
               end
-              Celluloid::ActorSystem.instance_eval do
+              Celluloid::Actor::System.instance_eval do
                 remove_method(name) rescue nil # avoid warnings in tests
               end
             end

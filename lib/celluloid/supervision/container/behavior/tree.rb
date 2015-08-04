@@ -20,6 +20,7 @@ module Celluloid
             @branch = @configuration.fetch(:branch, @configuration[:as])
             @configuration.delete(Behavior.parameter(:supervise, @configuration))
           else
+            puts "#{@configuration[:supervise].class.name} ... #{@configuration[:supervise]}"
             fail ArgumentError.new("No actors given to Tree to supervise.")
           end
         end

@@ -28,7 +28,7 @@ RSpec.describe Celluloid::Supervision::Configuration, actor_system: :global do
 
   context("remains reusable without being mutated") do
     it("properly") do
-      expect(Celluloid.actor_system.root_configuration.export).to eq(Celluloid::ActorSystem::ROOT_SERVICES)
+      expect(Celluloid.actor_system.root_configuration.export).to eq(Celluloid::Actor::System::ROOT_SERVICES)
     end
   end
 
