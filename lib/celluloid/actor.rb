@@ -12,7 +12,7 @@ module Celluloid
       extend Forwardable
 
       def_delegators :"Celluloid.actor_system", :[], :[]=, :delete, :registered, :clear_registry
-
+      
       # Obtain the current actor
       def current
         actor = Thread.current[:celluloid_actor]
@@ -133,6 +133,7 @@ module Celluloid
 
       @proxy = Proxy::Actor.new(@mailbox, @thread)
       Celluloid::Probe.actor_created(self) if $CELLULOID_MONITORING
+      Celluloid::Actor::Manager.actor_created(self) if $CELLULOID_MANAGED
     end
 
     def behavior_proxy
@@ -284,31 +285,6 @@ module Celluloid
         end
       end
       message
-    end
-
-    # Handle high-priority system event messages
-    def handle_system_event(event)
-      if event.instance_of? ExitEvent
-        handle_exit_event(event)
-      elsif event.instance_of? LinkingRequest
-        event.process(links)
-      elsif event.instance_of? NamingRequest
-        @name = event.name
-        Celluloid::Probe.actor_named(self) if $CELLULOID_MONITORING
-      elsif event.instance_of? TerminationRequest
-        terminate
-      elsif event.instance_of? SignalConditionRequest
-        event.call
-      else
-        Internals::Logger.debug "Discarded message (unhandled): #{message}" if $CELLULOID_DEBUG
-      end
-    end
-
-    # Handle exit events received by this actor
-    def handle_exit_event(event)
-      @links.delete event.actor
-
-      @exit_handler.call(event)
     end
 
     def default_exit_handler(event)
