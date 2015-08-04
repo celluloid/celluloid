@@ -4,6 +4,7 @@ require "timeout"
 require "set"
 
 $CELLULOID_DEBUG = false
+$CELLULOID_MANAGED ||= false
 
 require "celluloid/version"
 require "celluloid/notices"
