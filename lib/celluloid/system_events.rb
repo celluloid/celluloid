@@ -1,17 +1,8 @@
 module Celluloid
   class Actor
-    class << self
-      @@system_events = {}
-      def system_event(type)
-        @@system_events[type]
-      end
-      def system_events
-        @@system_events
-      end
-    end
     # Handle high-priority system event messages
     def handle_system_event(event)
-      if handler = Actor.system_event(event.class)
+      if handler = SystemEvent.handle(event.class)
         send(handler, event)
       else
         Internals::Logger.debug "Discarded message (unhandled): #{message}" if $CELLULOID_DEBUG
@@ -20,8 +11,11 @@ module Celluloid
   end
   # High-priority internal system events
   class SystemEvent
-
     class << self
+      @@system_events = {}
+      def handle(type)
+        @@system_events[type]
+      end
       def handler(&block)
         raise ArgumentError, "SystemEvent handlers must be defined with a block." unless block
         method = begin
@@ -36,7 +30,7 @@ module Celluloid
           :"handle_#{handler}"
         end
         Actor.send(:define_method, method, &block)
-        Actor.system_events[self] = method
+        @@system_events[self] = method
       end
     end
 
