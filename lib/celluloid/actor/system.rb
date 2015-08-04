@@ -7,28 +7,33 @@ module Celluloid
       extend Forwardable
       def_delegators :@registry, :[], :get, :[]=, :set, :delete
 
-      ROOT_SERVICES = [
-        {
-          as: :notifications_fanout,
-          type: Celluloid::Notifications::Fanout,
-        },
-        {
-          as: :incident_reporter,
-          type: Celluloid::IncidentReporter,
-          args: [STDERR],
-        },
-        {
-          as: :group_manager,
-          type: Celluloid::Group::Manager,
-          accessors: [:manager],
-        },
-        {
-          as: :public_services,
-          type: Celluloid::Supervision::Service::Public,
-          accessors: [:services],
-          supervise: [],
-        }
-      ]
+      ROOT_SERVICES = begin
+        root_services = [
+          {
+            as: :notifications_fanout,
+            type: Celluloid::Notifications::Fanout,
+          },
+          {
+            as: :incident_reporter,
+            type: Celluloid::IncidentReporter,
+            args: [STDERR],
+          },
+          {
+            as: :public_services,
+            type: Celluloid::Supervision::Service::Public,
+            accessors: [:services],
+            supervise: [],
+          }
+        ]
+        if $CELLULOID_MANAGED
+          root_services << {
+            as: :actor_manager,
+            type: Celluloid::Actor::Manager,
+            accessors: [:manager],
+          }
+        end
+        root_services
+      end
 
       attr_reader :registry, :group
 
