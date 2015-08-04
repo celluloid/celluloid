@@ -1,4 +1,4 @@
-RSpec.describe Celluloid::ActorSystem do
+RSpec.describe Celluloid::Actor::System do
   class TestActor
     include Celluloid
     def identity
@@ -10,7 +10,7 @@ RSpec.describe Celluloid::ActorSystem do
     subject.shutdown
   end
 
-  it "supports non-global ActorSystem" do
+  it "supports non-global Actor::System" do
     subject.within do
       expect(Celluloid.actor_system).to eq(subject)
     end
@@ -27,7 +27,7 @@ RSpec.describe Celluloid::ActorSystem do
 
   it "starts default actors" do
     subject.start
-    expect(subject.registered).to eq(Celluloid::ActorSystem::ROOT_SERVICES.map { |r| r[:as] })
+    expect(subject.registered).to eq(Celluloid::Actor::System::ROOT_SERVICES.map { |r| r[:as] })
   end
 
   it "support getting threads" do

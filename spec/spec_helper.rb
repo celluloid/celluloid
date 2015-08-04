@@ -80,7 +80,7 @@ RSpec.configure do |config|
   end
 
   config.around actor_system: :within do |ex|
-    Celluloid::ActorSystem.new.within do
+    Celluloid::Actor::System.new.within do
       ex.run
     end
   end

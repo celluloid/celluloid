@@ -4,6 +4,7 @@ require "timeout"
 require "set"
 
 $CELLULOID_DEBUG = false
+$CELLULOID_MANAGED ||= false
 
 require "celluloid/version"
 require "celluloid/notices"
@@ -147,7 +148,7 @@ module Celluloid
     end
 
     def init
-      @actor_system = ActorSystem.new
+      @actor_system = Actor::System.new
     end
 
     def start
@@ -480,7 +481,6 @@ require "celluloid/mailbox/evented"
 require "celluloid/essentials"
 
 require "celluloid/group"
-require "celluloid/group/manager"
 require "celluloid/group/spawner"
 require "celluloid/group/pool"      # TODO: Find way to only load this if being used.
 
@@ -492,7 +492,8 @@ require "celluloid/actor"
 require "celluloid/cell"
 require "celluloid/future"
 
-require "celluloid/actor_system"
+require "celluloid/actor/system"
+require "celluloid/actor/manager"
 
 require "celluloid/deprecate" unless $CELLULOID_BACKPORTED == false
 

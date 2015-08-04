@@ -1,6 +1,45 @@
 module Celluloid
+  class Actor
+    class << self
+      @@system_events = {}
+      def system_event(type)
+        @@system_events[type]
+      end
+      def system_events
+        @@system_events
+      end
+    end
+    # Handle high-priority system event messages
+    def handle_system_event(event)
+      if handler = Actor.system_event(event.class)
+        send(handler, event)
+      else
+        Internals::Logger.debug "Discarded message (unhandled): #{message}" if $CELLULOID_DEBUG
+      end
+    end
+  end
   # High-priority internal system events
   class SystemEvent
+
+    class << self
+      def handler(&block)
+        raise ArgumentError, "SystemEvent handlers must be defined with a block." unless block
+        method = begin
+          handler = self.name
+                      .gsub(/::/, '/')
+                      .split('/')
+                      .last
+                      .gsub(/([A-Z]+)([A-Z][a-z])/,'\1_\2')
+                      .gsub(/([a-z\d])([A-Z])/,'\1_\2')
+                      .tr("-", "_")
+                      .downcase
+          :"handle_#{handler}"
+        end
+        Actor.send(:define_method, method, &block)
+        Actor.system_events[self] = method
+      end
+    end
+
     class LinkingEvent < SystemEvent
       # Shared initializer for LinkingRequest and LinkingResponse
       def initialize(actor, type)
@@ -14,6 +53,10 @@ module Celluloid
   # Request to link with another actor
   class LinkingRequest < SystemEvent::LinkingEvent
     attr_reader :actor, :type
+
+    handler { |event|
+      event.process(links)
+    }
 
     def process(links)
       case type
@@ -34,6 +77,11 @@ module Celluloid
   class ExitEvent < SystemEvent
     attr_reader :actor, :reason
 
+    handler { |event|
+      @links.delete event.actor
+      @exit_handler.call(event)
+    }
+
     def initialize(actor, reason = nil)
       @actor = actor
       @reason = reason
@@ -44,13 +92,22 @@ module Celluloid
   class NamingRequest < SystemEvent
     attr_reader :name
 
+    handler { |event|
+      @name = event.name
+      Celluloid::Probe.actor_named(self) if $CELLULOID_MONITORING
+    }
+
     def initialize(name)
       @name = name
     end
   end
 
   # Request for an actor to terminate
-  class TerminationRequest < SystemEvent; end
+  class TerminationRequest < SystemEvent
+    handler { |event|
+      terminate
+    }
+  end
 
   # Signal a condition
   class SignalConditionRequest < SystemEvent
@@ -60,8 +117,13 @@ module Celluloid
     end
     attr_reader :task, :value
 
+    handler { |event|
+      event.call
+    }
+
     def call
       @task.resume(@value)
     end
   end
+
 end
