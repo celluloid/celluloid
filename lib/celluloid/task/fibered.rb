@@ -25,7 +25,7 @@ module Celluloid
       def deliver(value)
         @fiber.resume value
       rescue SystemStackError => ex
-        raise StackError, "#{ex} (please see https://github.com/celluloid/celluloid/wiki/Fiber-stack-errors)"
+        raise StackError, "#{ex} @#{meta[:method_name] || :unknown} (see https://github.com/celluloid/celluloid/wiki/Fiber-stack-errors)"
       rescue FiberError => ex
         raise DeadTaskError, "cannot resume a dead task (#{ex})"
       end

@@ -1,4 +1,3 @@
-
 require "timers"
 
 module Celluloid
