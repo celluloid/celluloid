@@ -120,9 +120,11 @@ module Celluloid
       fail "Cannot terminate an exclusive task" if exclusive?
 
       if running?
-        Internals::Logger.with_backtrace(backtrace) do |logger|
-          type = @dangerous_suspend ? :warn : :debug
-          logger.send(type, "Terminating task: type=#{@type.inspect}, meta=#{@meta.inspect}, status=#{@status.inspect}")
+        if $CELLULOID_DEBUG
+          Internals::Logger.with_backtrace(backtrace) do |logger|
+            type = @dangerous_suspend ? :warn : :debug
+            logger.send(type, "Terminating task: type=#{@type.inspect}, meta=#{@meta.inspect}, status=#{@status.inspect}")
+          end
         end
         exception = Task::TerminatedError.new("task was terminated")
         exception.set_backtrace(caller)
