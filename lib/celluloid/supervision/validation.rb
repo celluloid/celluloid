@@ -2,10 +2,10 @@ module Celluloid
   module Supervision
     class Configuration
       class << self
-        def valid?(configuration, fail=false)
+        def valid?(configuration, fails=false)
           parameters(:mandatory).each do |k|
             unless configuration.key? k
-              if fail
+              if fails
                 fail Error::Incomplete, "Missing `:#{k}` in supervision configuration."
               else
                 return false
@@ -16,8 +16,8 @@ module Celluloid
             unless configuration[args].is_a? Proc
               __a = configuration[args] && configuration[args].count || 0
               __arity = configuration[klass].allocate.method(:initialize).arity
-              unless __arity == -1 || __a == __arity
-                if fail
+              unless (__arity < 0 && __arity <= __a.abs) || __a == __arity
+                if fails
                   fail ArgumentError.new("#{__a} vs. #{__arity}")
                 else
                   return false
