@@ -15,4 +15,5 @@ module Celluloid
   InternalPool = Group::Pool
   TaskThread = Task::Threaded
   TaskFiber = Task::Fibered
+  ActorSystem = Actor::System
 end

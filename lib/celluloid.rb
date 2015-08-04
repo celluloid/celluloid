@@ -492,7 +492,8 @@ require "celluloid/actor"
 require "celluloid/cell"
 require "celluloid/future"
 
-require "celluloid/actor_system"
+require "celluloid/actor/system"
+require "celluloid/actor/manager"
 
 require "celluloid/deprecate" unless $CELLULOID_BACKPORTED == false
 
