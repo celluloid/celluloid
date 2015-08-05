@@ -2,6 +2,7 @@
 -----
 * `Celluloid::ActorSystem` moved to `Celluloid::Actor::System`, and from `celluloid/actor_system.rb` to `celluloid/actor/system.rb`
 * Added extensible API for defining new SystemEvents, and having them handled... without everyone changing `Actor#handle_system_event`.
+* Deprecated Task::TerminatedError & Task::TimeoutError... Consolidated in exceptions.rb, inherited from SignalExceptions vs. StandardError.
 
 0.17.0 (2015-07-04)
 -----

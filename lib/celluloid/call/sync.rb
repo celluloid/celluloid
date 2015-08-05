@@ -15,7 +15,7 @@ module Celluloid
         Internals::CallChain.current_id = @chain_id
         result = super(obj)
         respond Internals::Response::Success.new(self, result)
-      rescue Exception => ex
+      rescue ::Exception => ex
         # Exceptions that occur during synchronous calls are reraised in the
         # context of the sender
         respond Internals::Response::Error.new(self, ex)

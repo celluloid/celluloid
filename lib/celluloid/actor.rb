@@ -167,9 +167,9 @@ module Celluloid
       end
 
       shutdown
-    rescue Exception => ex
+    rescue ::Exception => ex
       handle_crash(ex)
-      raise unless ex.is_a? StandardError
+      raise unless ex.is_a?(StandardError) #de || ex.is_a?(Celluloid::Exception)
     end
 
     # Terminate this actor
@@ -190,7 +190,7 @@ module Celluloid
               msg.actor.mailbox.address == receiver.mailbox.address &&
               msg.type == type
             end
-          rescue TimeoutError
+          rescue TaskTimeout
             next # IO reactor did something, no message in queue yet.
           end
 
@@ -205,7 +205,7 @@ module Celluloid
           end
         end
 
-        fail TimeoutError, "linking timeout of #{LINKING_TIMEOUT} seconds exceeded with receiver: #{receiver}"
+        fail TaskTimeout, "linking timeout of #{LINKING_TIMEOUT} seconds exceeded with receiver: #{receiver}"
       end
     end
 
@@ -247,7 +247,7 @@ module Celluloid
       bt = caller
       task = Task.current
       timer = @timers.after(duration) do
-        exception = Task::TimeoutError.new("execution expired")
+        exception = TaskTimeout.new("execution expired")
         exception.set_backtrace bt
         task.resume exception
       end

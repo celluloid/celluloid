@@ -25,7 +25,6 @@ module Celluloid
             th.kill
             queue << th
           end
-
           loop do
             break if queue.empty?
             queue.pop.join
@@ -52,7 +51,7 @@ module Celluloid
 
           begin
             proc.call
-          rescue Exception => ex
+          rescue ::Exception => ex
             Internals::Logger.crash("thread crashed", ex)
             Thread.current[:celluloid_meta][:state] = :error
           ensure

@@ -93,7 +93,7 @@ module Celluloid
           while proc = queue.pop
             begin
               proc.call
-            rescue Exception => ex
+            rescue ::Exception => ex
               Internals::Logger.crash("thread crashed", ex)
             ensure
               put thread

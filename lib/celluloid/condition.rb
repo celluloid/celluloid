@@ -1,5 +1,4 @@
 module Celluloid
-  class ConditionError < Celluloid::Error; end
 
   # ConditionVariable-like signaling between tasks and threads
   class Condition
@@ -21,8 +20,8 @@ module Celluloid
           message = @mailbox.receive(@timeout) do |msg|
             msg.is_a?(SignalConditionRequest) && msg.task == Thread.current
           end
-        rescue TimeoutError
-          raise ConditionError, "timeout after #{@timeout.inspect} seconds"
+        rescue TimedOut
+          raise ConditionTimedOut, "timeout after #{@timeout.inspect} seconds"
         end until message
 
         message.value
@@ -43,7 +42,7 @@ module Celluloid
         if timeout
           bt = caller
           timer = actor.timers.after(timeout) do
-            exception = ConditionError.new("timeout after #{timeout.inspect} seconds")
+            exception = ConditionTimedOut.new("timeout after #{timeout.inspect} seconds")
             exception.set_backtrace bt
             task.resume exception
           end
@@ -59,7 +58,7 @@ module Celluloid
 
       result = Celluloid.suspend :condwait, waiter
       timer.cancel if timer
-      fail result if result.is_a? ConditionError
+      fail result if result.is_a?(ConditionError) || result.is_a?(ConditionTimedOut)
       result
     end
 

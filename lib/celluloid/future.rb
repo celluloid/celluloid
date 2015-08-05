@@ -91,7 +91,7 @@ module Celluloid
       if result
         result.value
       else
-        fail TimeoutError, "Timed out"
+        fail TimedOut, "Timed out"
       end
     end
     alias_method :call, :value

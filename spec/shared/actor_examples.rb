@@ -225,7 +225,7 @@ RSpec.shared_examples "a Celluloid Actor" do
 
     it "warns about suspending the finalizer" do
       allow(logger).to receive(:warn)
-      allow(logger).to receive(:crash).with(/finalizer crashed!/, Celluloid::Task::TerminatedError)
+      allow(logger).to receive(:crash).with(/finalizer crashed!/, Celluloid::TaskTerminated)
       expect(logger).to receive(:warn).with(/Dangerously suspending task: type=:finalizer, meta={:dangerous_suspend=>true, :method_name=>:cleanup}, status=:sleeping/)
       actor.terminate
       Specs.sleep_and_wait_until { !actor.alive? }
@@ -1216,9 +1216,9 @@ RSpec.shared_examples "a Celluloid Actor" do
     let(:a1) { actor_class.new }
     let(:a2) { actor_class.new }
 
-    it "allows timing out tasks, raising Celluloid::Task::TimeoutError" do
-      allow(logger).to receive(:crash).with("Actor crashed!", Celluloid::Task::TimeoutError)
-      expect { a1.ask_name_with_timeout a2, 0.3 }.to raise_error(Celluloid::Task::TimeoutError)
+    it "allows timing out tasks, raising Celluloid::TaskTimeout" do
+      allow(logger).to receive(:crash).with("Actor crashed!", Celluloid::TaskTimeout)
+      expect { a1.ask_name_with_timeout a2, 0.3 }.to raise_error(Celluloid::TaskTimeout)
       Specs.sleep_and_wait_until { !a1.alive? }
     end
 

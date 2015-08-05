@@ -37,10 +37,6 @@ module Celluloid
 
       attr_reader :registry, :group
 
-      module Error
-        class Uninitialized < StandardError; end
-      end
-
       # the root of the supervisor tree is established at supervision/root
 
       def root_services

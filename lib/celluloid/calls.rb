@@ -26,10 +26,10 @@ module Celluloid
       check(obj)
       _b = @block && @block.to_proc
       obj.public_send(@method, *@arguments, &_b)
-      #     rescue Celluloid::TimeoutError => ex
+      #     rescue Celluloid::TaskTimeout => ex
       #       raise ex unless ( @retry += 1 ) <= RETRY_CALL_LIMIT
       #       puts "retrying"
-      #       Internals::Logger.warn("TimeoutError at Call dispatch. Retrying in #{RETRY_CALL_WAIT} seconds. ( Attempt #{@retry} of #{RETRY_CALL_LIMIT} )")
+      #       Internals::Logger.warn("TaskTimeout at Call dispatch. Retrying in #{RETRY_CALL_WAIT} seconds. ( Attempt #{@retry} of #{RETRY_CALL_LIMIT} )")
       #       sleep RETRY_CALL_WAIT
       #       retry
     end
@@ -51,6 +51,7 @@ module Celluloid
         fail ArgumentError, "wrong number of arguments (#{@arguments.size} for #{mandatory_args}+)" if arguments.size < mandatory_args
       end
     rescue => ex
+      puts "THERE #{ex}"
       raise AbortError.new(ex)
     end
   end

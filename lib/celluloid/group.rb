@@ -1,8 +1,5 @@
 module Celluloid
   class Group
-    class NotImplemented < StandardError; end
-    class StillActive < StandardError; end
-    class NotActive < StandardError; end
 
     attr_accessor :group
 
@@ -13,7 +10,7 @@ module Celluloid
     end
 
     def assert_active
-      fail NotActive unless active?
+      fail Celluloid::NotActive unless active?
     end
 
     def assert_inactive
@@ -21,7 +18,7 @@ module Celluloid
       if RUBY_PLATFORM == "java"
         Celluloid.logger.warn "Group is still active"
       else
-        fail StillActive
+        fail Celluloid::StillActive
       end
     end
 
@@ -51,15 +48,15 @@ module Celluloid
     end
 
     def get
-      fail NotImplemented
+      fail Celluloid::NotImplemented
     end
 
     def create
-      fail NotImplemented
+      fail Celluloid::NotImplemented
     end
 
     def shutdown
-      fail NotImplemented
+      fail Celluloid::NotImplemented
     end
   end
 end
