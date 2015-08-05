@@ -48,15 +48,15 @@ module Celluloid
     end
 
     def get
-      fail Celluloid::NotImplemented
+      fail NotImplementedError
     end
 
     def create
-      fail Celluloid::NotImplemented
+      fail NotImplementedError
     end
 
     def shutdown
-      fail Celluloid::NotImplemented
+      fail NotImplementedError
     end
   end
 end

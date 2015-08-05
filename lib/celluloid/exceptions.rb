@@ -4,7 +4,6 @@ module Celluloid
   class TimedOut           < Celluloid::Interruption;   end # Distinguished from `Timeout`
   class StillActive        < Celluloid::Error;          end
   class NotActive          < Celluloid::Error;          end
-  class NotImplemented     < Celluloid::Error;          end
   class NotActorError      < Celluloid::Error;          end # Don't do Actor-like things outside Actor scope
   class DeadActorError     < Celluloid::Error;          end # Trying to do something to a dead actor
   class NotTaskError       < Celluloid::Error;          end # Asked to do task-related things outside a task
