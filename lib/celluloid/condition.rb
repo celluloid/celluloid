@@ -21,7 +21,7 @@ module Celluloid
             msg.is_a?(SignalConditionRequest) && msg.task == Thread.current
           end
         rescue TimedOut
-          raise ConditionTimedOut, "timeout after #{@timeout.inspect} seconds"
+          raise ConditionError, "timeout after #{@timeout.inspect} seconds"
         end until message
 
         message.value
@@ -42,7 +42,7 @@ module Celluloid
         if timeout
           bt = caller
           timer = actor.timers.after(timeout) do
-            exception = ConditionTimedOut.new("timeout after #{timeout.inspect} seconds")
+            exception = ConditionError.new("timeout after #{timeout.inspect} seconds")
             exception.set_backtrace bt
             task.resume exception
           end
@@ -58,7 +58,7 @@ module Celluloid
 
       result = Celluloid.suspend :condwait, waiter
       timer.cancel if timer
-      fail result if result.is_a?(ConditionError) || result.is_a?(ConditionTimedOut)
+      fail result if result.is_a?(ConditionError)
       result
     end
 

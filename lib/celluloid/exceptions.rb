@@ -1,6 +1,6 @@
 module Celluloid
   class Error              < StandardError;             end
-  class Interruption       < SignalException;           end
+  class Interruption       < Exception;                 end
   class TimedOut           < Celluloid::Interruption;   end # Distinguished from `Timeout`
   class StillActive        < Celluloid::Error;          end
   class NotActive          < Celluloid::Error;          end
@@ -11,7 +11,6 @@ module Celluloid
   class TaskTerminated     < Celluloid::Interruption;   end # Kill a running task after terminate
   class TaskTimeout        < Celluloid::TimedOut;       end # A timeout occured before the given request could complete
   class ConditionError     < Celluloid::Error;          end
-  class ConditionTimedOut  < Celluloid::TimedOut;       end
   class AbortError         < Celluloid::Error           # The sender made an error, not the current actor
     attr_reader :cause
     def initialize(cause)
