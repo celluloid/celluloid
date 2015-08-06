@@ -59,6 +59,12 @@ RSpec.describe Celluloid::Condition, actor_system: :global do
     expect(future.value).to be(:example_value)
   end
 
+  it "supports running blocks with value once obtained" do
+    condition = Celluloid::Condition.new
+    actor.async.signal_condition condition, :value
+    expect(condition.wait { |value| "#{value} post-handled" }).to eq("value post-handled")
+  end
+
   it "supports waiting outside actors" do
     condition = Celluloid::Condition.new
     actor.async.signal_condition condition, :value

@@ -58,6 +58,7 @@ module Celluloid
       result = Celluloid.suspend :condwait, waiter
       timer.cancel if timer
       fail result if result.is_a?(ConditionError)
+      return yield(result) if block_given?
       result
     end
 
