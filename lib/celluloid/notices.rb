@@ -4,7 +4,7 @@ module Celluloid
       @@notices = []
 
       def backported
-        @@notices << [:debug, "Celluloid #{Celluloid::VERSION} is running in BACKPORTED mode. [ http://git.io/vJf3J ]"]
+        @@notices << [:info, "Celluloid #{Celluloid::VERSION} is running in BACKPORTED mode. [ http://git.io/vJf3J ]"]
       end
 
       def output
