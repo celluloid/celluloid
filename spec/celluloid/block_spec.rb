@@ -76,10 +76,16 @@ RSpec.describe "Blocks", actor_system: :global do
     expect($data).to eq(expected)
   end
 
-  it "can execute deferred blocks" do
+  execute_deferred = Proc.new {
     a1 = MyBlockActor.new("one")
     expect(a1.deferred_excecution(:pete_the_polyglot_alien) { |v| v })
       .to eq(:pete_the_polyglot_alien)
+  }
+
+  unless RUBY_PLATFORM == 'jruby' || RUBY_PLATFORM == 'rbx'
+    xit("can be deferred", &execute_deferred)
+  else
+    it("can be deferred", &execute_deferred)
   end
 
   xit "can execute deferred blocks referencing current_actor" do
