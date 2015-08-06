@@ -111,10 +111,13 @@ like Celluloid we definitely recommend you check them out:
 * [nio4r][nio4r]: "New IO for Ruby": high performance IO selectors
 * [Timers][timers]: A generic Ruby timer library for event-based systems
 
+[reel]: https://github.com/celluloid/reel/
+[dcell]: https://github.com/celluloid/dcell/
+[ecell]: https://github.com/celluloid/ecell/
 [celluloid-io]: https://github.com/celluloid/celluloid-io/
 [celluloid-zmq]: https://github.com/celluloid/celluloid-zmq/
-[dcell]: https://github.com/celluloid/dcell/
-[reel]: https://github.com/celluloid/reel/
+[celluloid-dns]: https://github.com/celluloid/celluloid-dns/
+[celluloid-smtp]: https://github.com/celluloid/celluloid-smtp/
 [lattice]: https://github.com/celluloid/lattice/
 [nio4r]: https://github.com/celluloid/nio4r/
 [timers]: https://github.com/celluloid/timers/
