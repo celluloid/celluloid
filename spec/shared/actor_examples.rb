@@ -576,9 +576,11 @@ RSpec.shared_examples "a Celluloid Actor" do
       Class.new do # like a boss
         include CelluloidSpecs.included_module
         trap_exit :lambaste_subordinate
+        attr_reader :exception
 
         def initialize(name)
           @name = name
+          @exception = nil
           @subordinate_lambasted = false
         end
 
@@ -588,6 +590,7 @@ RSpec.shared_examples "a Celluloid Actor" do
 
         def lambaste_subordinate(_actor, _reason)
           @subordinate_lambasted = true
+          @exception = _reason
         end
       end
     end
@@ -668,6 +671,19 @@ RSpec.shared_examples "a Celluloid Actor" do
 
       sleep 0.1 # hax to prevent a race between exit handling and the next call
       expect(chuck.links.count).to be(0)
+    end
+
+    it "traps exit reason from subordinates" do
+      allow(logger).to receive(:crash).with("Actor crashed!", ExampleCrash)
+      chuck = supervisor_class.new "Chuck Lorre"
+      chuck.link @charlie
+
+      expect do
+        @charlie.crash
+      end.to raise_exception(ExampleCrash)
+
+      sleep 0.1 # hax to prevent a race between exit handling and the next call
+      expect(chuck.exception.class).to be(ExampleCrash)
     end
   end
 
