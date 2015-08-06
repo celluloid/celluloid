@@ -70,7 +70,7 @@ module Celluloid
     end
 
     # Receive a letter from the mailbox. Guaranteed to return a message. If
-    # timeout is exceeded, raise a TimeoutError.
+    # timeout is exceeded, raise a TaskTimeout.
     def receive(timeout = nil, &block)
       message = nil
       Timers::Wait.for(timeout) do |remaining|
@@ -78,7 +78,7 @@ module Celluloid
         break if message
       end
       return message if message
-      fail TimeoutError.new("receive timeout exceeded")
+      fail TaskTimeout.new("receive timeout exceeded")
     end
 
     # Shut down this mailbox and clean up its contents

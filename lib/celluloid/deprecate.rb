@@ -16,4 +16,6 @@ module Celluloid
   TaskThread = Task::Threaded
   TaskFiber = Task::Fibered
   ActorSystem = Actor::System
+  Task::TerminatedError = TaskTerminated
+  Task::TimeoutError = TaskTimeout
 end

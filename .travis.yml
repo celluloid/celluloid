@@ -13,7 +13,6 @@ rvm:
 matrix:
   fast_finish: true
   allow_failures:
-    - rvm: rbx-2
     - rvm: ruby-head
     - rvm: jruby-head
     - env: CELLULOID_BACKPORTED=true

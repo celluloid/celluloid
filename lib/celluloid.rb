@@ -314,9 +314,9 @@ module Celluloid
   # Raise an exception in sender context, but stay running
   def abort(cause)
     cause = case cause
-      when String then RuntimeError.new(cause)
-      when Exception then cause
-      else fail TypeError, "Exception object/String expected, but #{cause.class} received"
+            when String then RuntimeError.new(cause)
+            when Exception then cause
+            else fail TypeError, "Exception object/String expected, but #{cause.class} received"
     end
     fail AbortError.new(cause)
   end

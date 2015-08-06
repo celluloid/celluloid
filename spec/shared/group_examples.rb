@@ -25,7 +25,7 @@ RSpec.shared_examples "a Celluloid Group" do
     wait_until_idle
   end
 
-  [StandardError, Exception].each do |exception_class|
+  [::StandardError, ::Exception].each do |exception_class|
     context "with an #{exception_class} in the thread" do
       before do
         @wait_queue = Queue.new # doesn't work if in a let()

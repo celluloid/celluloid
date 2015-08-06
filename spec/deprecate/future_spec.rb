@@ -25,8 +25,8 @@ RSpec.describe "Deprecated Celluloid::Future", actor_system: :global do
     expect(future).to be_ready
   end
 
-  it "raises TimeoutError when the future times out" do
+  it "raises TaskTimeout when the future times out" do
     future = Celluloid::Future.new { sleep 2 }
-    expect { future.value(1) }.to raise_exception(Celluloid::TimeoutError)
+    expect { future.value(1) }.to raise_exception(Celluloid::TaskTimeout)
   end
 end unless $CELLULOID_BACKPORTED == false

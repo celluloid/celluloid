@@ -18,10 +18,10 @@ module Celluloid
         thread = Internals::ThreadHandle.new(Thread.current[:celluloid_actor_system], :task) do
           begin
             ex = @resume_queue.pop
-            fail ex if ex.is_a?(Task::TerminatedError)
+            fail ex if ex.is_a?(TaskTerminated)
 
             yield
-          rescue Exception => ex
+          rescue ::Exception => ex
             @exception_queue << ex
           ensure
             @yield_mutex.synchronize do

@@ -1,19 +1,6 @@
 module Celluloid
-  # Asked to do task-related things outside a task
-  class NotTaskError < Celluloid::Error; end
-
-  # Trying to resume a dead task
-  class DeadTaskError < Celluloid::Error; end
-
-  # Errors which should be resumed automatically
-  class ResumableError < Celluloid::Error; end
-
   # Tasks are interruptable/resumable execution contexts used to run methods
   class Task
-    class TerminatedError < ResumableError; end # kill a running task after terminate
-
-    class TimeoutError < ResumableError; end # kill a running task after timeout
-
     # Obtain the current task
     def self.current
       Thread.current[:celluloid_task] || fail(NotTaskError, "not within a task context")
@@ -55,7 +42,7 @@ module Celluloid
 
           actor.tasks << self
           yield
-        rescue Task::TerminatedError
+        rescue TaskTerminated
           # Task was explicitly terminated
         ensure
           name_current_thread nil
@@ -85,8 +72,7 @@ module Celluloid
       value = signal
 
       @status = :running
-      fail value if value.is_a?(Celluloid::ResumableError)
-
+      fail value if value.is_a?(Celluloid::Interruption)
       value
     end
 
@@ -126,7 +112,7 @@ module Celluloid
             logger.send(type, "Terminating task: type=#{@type.inspect}, meta=#{@meta.inspect}, status=#{@status.inspect}")
           end
         end
-        exception = Task::TerminatedError.new("task was terminated")
+        exception = TaskTerminated.new("task was terminated")
         exception.set_backtrace(caller)
         resume exception
       else

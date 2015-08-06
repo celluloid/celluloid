@@ -62,7 +62,7 @@ RSpec.describe "Deprecated Celluloid::ActorSystem" do
     subject.shutdown
 
     expect { subject.get_thread }
-      .to raise_error(Celluloid::Group::NotActive)
+      .to raise_error(Celluloid::NotActive)
   end
 
   it "warns nicely when no actor system is started" do

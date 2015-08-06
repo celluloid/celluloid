@@ -23,7 +23,7 @@ module Celluloid
             type: Celluloid::Supervision::Service::Public,
             accessors: [:services],
             supervise: [],
-          }
+          },
         ]
         if $CELLULOID_MANAGED
           root_services << {
@@ -36,10 +36,6 @@ module Celluloid
       end
 
       attr_reader :registry, :group
-
-      module Error
-        class Uninitialized < StandardError; end
-      end
 
       # the root of the supervisor tree is established at supervision/root
 

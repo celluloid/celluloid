@@ -43,7 +43,7 @@ RSpec.shared_examples "a Celluloid Mailbox" do
 
     expect do
       subject.receive(interval) { false }
-    end.to raise_exception(Celluloid::TimeoutError)
+    end.to raise_exception(Celluloid::TaskTimeout)
 
     # Just check to make sure it didn't return earlier
     expect(Time.now - started_at).to be >= interval

@@ -2,7 +2,9 @@ class Celluloid::Proxy::Block
   attr_writer :execution
   attr_reader :call, :block
   def initialize(mailbox, call, block)
-    @mailbox, @call, @block = mailbox, call, block
+    @mailbox = mailbox
+    @call = call
+    @block = block
     @execution = :sender
   end
 
