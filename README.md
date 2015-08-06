@@ -1,3 +1,5 @@
+![Celluloid Supervision](https://raw.github.com/celluloid/celluloid-logos/master/celluloid-supervision/celluloid-supervision.png)
+
 [![Gem Version](https://badge.fury.io/rb/celluloid-supervision.svg)](http://rubygems.org/gems/celluloid-supervision)
 [![Build Status](https://secure.travis-ci.org/celluloid/celluloid-supervision.svg?branch=master)](http://travis-ci.org/celluloid/celluloid-supervision)
 [![Code Climate](https://codeclimate.com/github/celluloid/celluloid-supervision.svg)](https://codeclimate.com/github/celluloid/celluloid-supervision)
