@@ -21,9 +21,7 @@ module Celluloid
         fail ArgumentError, "SystemEvent handlers must be defined with a block." unless block
         method = begin
           handler = name
-                    .gsub(/::/, "/")
-                    .split("/")
-                    .last
+                    .split("::").last
                     .gsub(/([A-Z]+)([A-Z][a-z])/, '\1_\2')
                     .gsub(/([a-z\d])([A-Z])/, '\1_\2')
                     .tr("-", "_")
