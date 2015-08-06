@@ -6,7 +6,7 @@ module Celluloid
         @@behaviors = {}   # Hash of identifying symbol parameter => Class
 
         module Error
-          class Mutant < StandardError; end
+          class Mutant < Celluloid::Error; end
         end
 
         class << self

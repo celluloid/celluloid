@@ -1,6 +1,6 @@
 unless $CELLULOID_BACKPORTED == false
   RSpec.describe Celluloid::Supervisor, actor_system: :global do
-    class SubordinateDead < StandardError; end
+    class SubordinateDead < Celluloid::Error; end
 
     class Subordinate
       include Celluloid

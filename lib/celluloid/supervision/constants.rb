@@ -5,16 +5,16 @@ module Celluloid
     INSTANCE_RETRY_LIMIT = 5
 
     module Error
-      class NoPublicService < StandardError; end
+      class NoPublicService < Celluloid::Error; end
     end
 
     class Configuration
       module Error
-        class AlreadyDefined < StandardError; end
-        class InvalidSupervisor < StandardError; end
-        class InvalidValues < StandardError; end
-        class Incomplete < StandardError; end
-        class Invalid < StandardError; end
+        class AlreadyDefined < Celluloid::Error; end
+        class InvalidSupervisor < Celluloid::Error; end
+        class InvalidValues < Celluloid::Error; end
+        class Incomplete < Celluloid::Error; end
+        class Invalid < Celluloid::Error; end
       end
 
       # Using class variable so that parameters can be added by plugins.
