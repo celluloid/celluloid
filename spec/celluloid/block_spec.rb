@@ -15,8 +15,34 @@ RSpec.describe "Blocks", actor_system: :global do
         $data << receive_result(:self)
         $data << current_actor.receive_result(:current_actor)
         $data << sender_actor.receive_result(:sender)
-        "somevalue"
+        :pete_the_polyglot_alien
       end
+    end
+
+    def deferred_excecution(value, &block)
+      defer {
+        yield(value)
+      }
+    end
+
+    def deferred_current_actor(&block)
+      defer {
+        yield(current_actor.name)
+      }
+    end
+
+    def defer_for_something(other, &block)
+      sender_actor = current_actor
+      defer {
+        $data << [:outside, @name, current_actor.name]
+        other.do_something_and_callback do |value|
+          $data << [:yielded, @name, current_actor.name]
+          $data << receive_result(:self)
+          $data << current_actor.receive_result(:current_actor)
+          $data << sender_actor.receive_result(:sender)
+          :pete_the_polyglot_alien
+        end
+      }
     end
 
     def do_something_and_callback
@@ -29,7 +55,7 @@ RSpec.describe "Blocks", actor_system: :global do
     end
   end
 
-  it "works" do
+  it "work between actors" do
     $data = []
 
     a1 = MyBlockActor.new("one")
@@ -44,7 +70,36 @@ RSpec.describe "Blocks", actor_system: :global do
       [:self, "one", "one"],
       [:current_actor, "one", "one"],
       [:sender, "one", "one"],
-      "somevalue",
+      :pete_the_polyglot_alien,
+    ]
+
+    expect($data).to eq(expected)
+  end
+
+  it "can execute deferred blocks" do
+    a1 = MyBlockActor.new("one")
+    expect(a1.deferred_excecution(:pete_the_polyglot_alien) { |v| v })
+      .to eq(:pete_the_polyglot_alien)
+  end
+
+  xit "can execute deferred blocks referencing current_actor" do
+    a1 = MyBlockActor.new("one")
+    expect(a1.deferred_current_actor { |v| v }).to be("one")
+  end
+
+  xit "can execute deferred blocks with another actor" do
+    $data = []
+    a1 = MyBlockActor.new("one")
+    a2 = MyBlockActor.new("two")
+    a1.defer_for_something a2
+    expected = [
+      [:outside, "one", "one"],
+      [:something, "two", "two"],
+      [:yielded, "one", "one"],
+      [:self, "one", "one"],
+      [:current_actor, "one", "one"],
+      [:sender, "one", "one"],
+      :pete_the_polyglot_alien,
     ]
 
     expect($data).to eq(expected)
