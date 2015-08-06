@@ -1,4 +1,11 @@
-Supervisors, Supervision Groups, and Supervision Trees for Celluloid.
+![Celluloid](https://raw.github.com/celluloid/celluloid-logos/master/celluloid/celluloid.png)
+=========
+[![Gem Version](https://badge.fury.io/rb/celluloid.svg)](http://rubygems.org/gems/celluloid-supervision)
+[![Build Status](https://secure.travis-ci.org/celluloid/celluloid-supervision.svg?branch=master)](http://travis-ci.org/celluloid/celluloid)
+[![Code Climate](https://codeclimate.com/github/celluloid/celluloid-supervision.svg)](https://codeclimate.com/github/celluloid/celluloid)
+[![Coverage Status](https://coveralls.io/repos/celluloid/celluloid-supervision/badge.svg?branch=master)](https://coveralls.io/r/celluloid/celluloid)
+
+Supervisors, Supervision Containers (Groups), Supervisor Configurations, and Supervision Trees for [Celluloid](https://github.com/celluloid/celluloid).
 
 # Using supervisors.
 
@@ -10,15 +17,26 @@ To supervise an actor, you have several options:
 MyActor.supervise as: :my_actor # Without arguments.
 MyActor.supervise as: :my_actor, args: [:one_arg, :two_args]
 ```
-
+---
 ### Indirectly
 
 ```ruby
 Celluloid.supervise as: :my_actor, type: MyActor # Without arguments.
 Celluloid.supervise as: :my_actor, type: MyActor, args: [:one_arg, :two_args]
 ```
+---
+# Using containers.
 
-### By pre-made configuration object:
+```ruby
+container = Celluloid::Supervision::Container.new {
+  supervise type: MyActor, as: :my_actor
+  supervise type: MyActor, as: :my_actor_with_args, args: [:one_arg, :two_args]
+}
+container.run!
+```
+---
+
+# Using configuration objects:
 
 ```ruby
 config = Celluloid::Supervision::Configuration.define([
@@ -45,7 +63,7 @@ config.shutdown
 # Reuse the same configuration if you like!
 config.deploy
 ```
-
+---
 ### By on-going configuration object:
 
 ```ruby
@@ -58,3 +76,25 @@ config deploy
 config.add type: MyActor, as: :my_actor_deployed_immediately
 config.shutdown
 ```
+
+---
+
+# Documentation coming:
+
+* Supervision Trees
+* Supervised Pools
+* Supervised Supervisors
+
+
+
+## Contributing
+
+* Fork this repository on github.
+* Make your changes and send us a pull request.
+* If we like them we'll merge them.
+* If we've accepted a patch, feel free to ask for commit access.
+
+## License
+
+Copyright (c) 2011-2015 Tony Arcieri, Donovan Keme.
+Distributed under the MIT License. See LICENSE.txt for further details.
