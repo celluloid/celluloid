@@ -82,7 +82,7 @@ RSpec.describe "Blocks", actor_system: :global do
       .to eq(:pete_the_polyglot_alien)
   }
 
-  unless RUBY_ENGINE == 'jruby' || RUBY_ENGINE == 'rbx'
+  unless RUBY_ENGINE == 'jruby'
     xit("can be deferred", &execute_deferred)
   else
     it("can be deferred", &execute_deferred)
