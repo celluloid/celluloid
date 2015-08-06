@@ -4,6 +4,7 @@
 * Added extensible API for defining new SystemEvents, and having them handled... without everyone changing `Actor#handle_system_event`.
 * Deprecated Task::TerminatedError & Task::TimeoutError... Consolidated in exceptions.rb, inherited from Exceptions vs. StandardError.
 * General round-up of all "errors" emitted throughout Celluloid, to either be derived from `Celluloid::Error` or `Celluloid::Interruption`.
+* Added ability to pass a block to `Condition#wait` which runs a `{ |value| ... }` type block if present, once the value is obtained by waiting.
 
 0.17.0 (2015-07-04)
 -----
