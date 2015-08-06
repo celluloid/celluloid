@@ -82,7 +82,7 @@ module Celluloid
       if running?
         deliver(value)
       else
-        logger.warn "Attempted to resume a dead task: type=#{@type.inspect}, meta=#{@meta.inspect}, status=#{@status.inspect}"
+        Internals::Logger.warn "Attempted to resume a dead task: type=#{@type.inspect}, meta=#{@meta.inspect}, status=#{@status.inspect}"
       end
       nil
     end

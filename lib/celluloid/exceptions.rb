@@ -18,4 +18,11 @@ module Celluloid
       super "caused by #{cause.inspect}: #{cause}"
     end
   end
+  module Feature
+    module Requires
+      class RubiniusOrJRuby < Celluloid::Error; end
+      class Rubinius < Celluloid::Error; end
+      class JRuby < Celluloid::Error; end
+    end
+  end
 end

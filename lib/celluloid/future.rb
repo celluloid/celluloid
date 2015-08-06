@@ -34,7 +34,7 @@ module Celluloid
       @cancelled = false
 
       if block
-        @call = SyncCall.new(self, :call, args)
+        @call = Call::Sync.new(self, :call, args)
         Celluloid.internal_pool.get do
           begin
             @call.dispatch(block)
@@ -51,7 +51,7 @@ module Celluloid
     def execute(receiver, method, args, block)
       @mutex.synchronize do
         fail "already calling" if @call
-        @call = SyncCall.new(self, method, args, block)
+        @call = Call::Sync.new(self, method, args, block)
       end
 
       receiver << @call
