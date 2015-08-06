@@ -164,6 +164,8 @@ module Celluloid
 
       # Terminate all actors at exit
       at_exit do
+        sleep 0.126 # hax grace period for unnaturally terminating actors
+                    # allows "reason" in exit_handler to resolve before being destroyed
         if defined?(RUBY_ENGINE) && RUBY_ENGINE == "ruby" && RUBY_VERSION >= "1.9"
           # workaround for MRI bug losing exit status in at_exit block
           # http://bugs.ruby-lang.org/issues/5218
