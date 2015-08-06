@@ -10,7 +10,7 @@ Gem::Specification.new do |gem|
   gem.description  = "Supervisors, Supervision Groups, and Supervision Trees for Celluloid."
   gem.licenses     = ["MIT"]
 
-  gem.authors      = ["digitalextremist //", "Tony Arcieri", "Tim Carey-Smith"]
+  gem.authors      = ["Donovan Keme", "Tony Arcieri", "Tim Carey-Smith"]
   gem.email        = ["code@extremist.digital", "tony.arcieri@gmail.com"]
   gem.homepage     = "https://github.com/celluloid/"
 
