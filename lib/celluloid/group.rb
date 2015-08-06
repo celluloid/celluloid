@@ -1,6 +1,5 @@
 module Celluloid
   class Group
-
     attr_accessor :group
 
     def initialize

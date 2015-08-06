@@ -8,7 +8,8 @@ class Celluloid::Proxy::Future < Celluloid::Proxy::Abstract
   end
 
   def initialize(mailbox, klass)
-    @mailbox, @klass = mailbox, klass
+    @mailbox = mailbox
+    @klass = klass
   end
 
   def inspect

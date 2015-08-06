@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
-$:.push File.expand_path('../../lib', __FILE__)
-require 'celluloid/autostart'
+$LOAD_PATH.push File.expand_path("../../lib", __FILE__)
+require "celluloid/autostart"
 
 # This example builds on basic_usage.rb to show two things about #async: the
 # (new) fluent API and the preservation of causality order.
@@ -14,15 +14,15 @@ class Stack
     @ary = []
   end
 
-  def push x
+  def push(x)
     @ary.push x
   end
-  alias << push
-  
+  alias_method :<<, :push
+
   def pop
     @ary.pop
   end
-  
+
   def show
     p @ary
   end

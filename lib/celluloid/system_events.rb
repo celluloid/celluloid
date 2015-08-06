@@ -16,17 +16,18 @@ module Celluloid
       def handle(type)
         @@system_events[type]
       end
+
       def handler(&block)
-        raise ArgumentError, "SystemEvent handlers must be defined with a block." unless block
+        fail ArgumentError, "SystemEvent handlers must be defined with a block." unless block
         method = begin
-          handler = self.name
-                      .gsub(/::/, '/')
-                      .split('/')
-                      .last
-                      .gsub(/([A-Z]+)([A-Z][a-z])/,'\1_\2')
-                      .gsub(/([a-z\d])([A-Z])/,'\1_\2')
-                      .tr("-", "_")
-                      .downcase
+          handler = name
+                    .gsub(/::/, "/")
+                    .split("/")
+                    .last
+                    .gsub(/([A-Z]+)([A-Z][a-z])/, '\1_\2')
+                    .gsub(/([a-z\d])([A-Z])/, '\1_\2')
+                    .tr("-", "_")
+                    .downcase
           :"handle_#{handler}"
         end
         Actor.send(:define_method, method, &block)
@@ -48,9 +49,9 @@ module Celluloid
   class LinkingRequest < SystemEvent::LinkingEvent
     attr_reader :actor, :type
 
-    handler { |event|
+    handler do |event|
       event.process(links)
-    }
+    end
 
     def process(links)
       case type
@@ -71,10 +72,10 @@ module Celluloid
   class ExitEvent < SystemEvent
     attr_reader :actor, :reason
 
-    handler { |event|
+    handler do |event|
       @links.delete event.actor
       @exit_handler.call(event)
-    }
+    end
 
     def initialize(actor, reason = nil)
       @actor = actor
@@ -86,10 +87,10 @@ module Celluloid
   class NamingRequest < SystemEvent
     attr_reader :name
 
-    handler { |event|
+    handler do |event|
       @name = event.name
       Celluloid::Probe.actor_named(self) if $CELLULOID_MONITORING
-    }
+    end
 
     def initialize(name)
       @name = name
@@ -98,9 +99,9 @@ module Celluloid
 
   # Request for an actor to terminate
   class TerminationRequest < SystemEvent
-    handler { |event|
+    handler do |event|
       terminate
-    }
+    end
   end
 
   # Signal a condition
@@ -111,13 +112,10 @@ module Celluloid
     end
     attr_reader :task, :value
 
-    handler { |event|
-      event.call
-    }
+    handler(&:call)
 
     def call
       @task.resume(@value)
     end
   end
-
 end

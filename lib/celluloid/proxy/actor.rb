@@ -8,7 +8,8 @@ class Celluloid::Proxy::Actor < Celluloid::Proxy::Abstract
   end
 
   def initialize(mailbox, thread)
-    @mailbox, @thread = mailbox, thread
+    @mailbox = mailbox
+    @thread = thread
   end
 
   def inspect

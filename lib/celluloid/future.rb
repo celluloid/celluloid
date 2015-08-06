@@ -46,7 +46,7 @@ module Celluloid
     # Execute the given method in future context
     def execute(receiver, method, args, block)
       @mutex.synchronize do
-        raise "already calling" if @call
+        fail "already calling" if @call
         @call = SyncCall.new(self, method, args, block)
       end
 

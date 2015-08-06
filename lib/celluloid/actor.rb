@@ -12,7 +12,7 @@ module Celluloid
       extend Forwardable
 
       def_delegators :"Celluloid.actor_system", :[], :[]=, :delete, :registered, :clear_registry
-      
+
       # Obtain the current actor
       def current
         actor = Thread.current[:celluloid_actor]

@@ -1,5 +1,4 @@
 module Celluloid
-
   # ConditionVariable-like signaling between tasks and threads
   class Condition
     class Waiter

@@ -1,8 +1,6 @@
 module Celluloid
-
   # Tasks are interruptable/resumable execution contexts used to run methods
   class Task
-
     # Obtain the current task
     def self.current
       Thread.current[:celluloid_task] || fail(NotTaskError, "not within a task context")

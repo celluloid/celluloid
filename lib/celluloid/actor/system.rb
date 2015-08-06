@@ -23,7 +23,7 @@ module Celluloid
             type: Celluloid::Supervision::Service::Public,
             accessors: [:services],
             supervise: [],
-          }
+          },
         ]
         if $CELLULOID_MANAGED
           root_services << {
