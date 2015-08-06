@@ -1,11 +1,9 @@
-![Celluloid](https://raw.github.com/celluloid/celluloid-logos/master/celluloid/celluloid.png)
-=========
-[![Gem Version](https://badge.fury.io/rb/celluloid.svg)](http://rubygems.org/gems/celluloid-supervision)
-[![Build Status](https://secure.travis-ci.org/celluloid/celluloid-supervision.svg?branch=master)](http://travis-ci.org/celluloid/celluloid)
-[![Code Climate](https://codeclimate.com/github/celluloid/celluloid-supervision.svg)](https://codeclimate.com/github/celluloid/celluloid)
-[![Coverage Status](https://coveralls.io/repos/celluloid/celluloid-supervision/badge.svg?branch=master)](https://coveralls.io/r/celluloid/celluloid)
+[![Gem Version](https://badge.fury.io/rb/celluloid-supervision.svg)](http://rubygems.org/gems/celluloid-supervision)
+[![Build Status](https://secure.travis-ci.org/celluloid/celluloid-supervision.svg?branch=master)](http://travis-ci.org/celluloid/celluloid-supervision)
+[![Code Climate](https://codeclimate.com/github/celluloid/celluloid-supervision.svg)](https://codeclimate.com/github/celluloid/celluloid-supervision)
+[![Coverage Status](https://coveralls.io/repos/celluloid/celluloid-supervision/badge.svg?branch=master)](https://coveralls.io/r/celluloid/celluloid-supervision)
 
-Supervisors, Supervision Containers (Groups), Supervisor Configurations, and Supervision Trees for [Celluloid](https://github.com/celluloid/celluloid).
+Supervisors; with Supervision Containers (Groups), Configurations, and Trees for [Celluloid](https://github.com/celluloid/celluloid).
 
 # Using supervisors.
 
