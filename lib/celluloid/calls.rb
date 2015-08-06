@@ -51,7 +51,6 @@ module Celluloid
         fail ArgumentError, "wrong number of arguments (#{@arguments.size} for #{mandatory_args}+)" if arguments.size < mandatory_args
       end
     rescue => ex
-      puts "THERE #{ex}"
       raise AbortError.new(ex)
     end
   end
