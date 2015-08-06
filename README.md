@@ -7,9 +7,12 @@
 
 Supervisors; with Supervision Containers (Groups), Configurations, and Trees for [Celluloid](https://github.com/celluloid/celluloid).
 
-# Using supervisors.
 
-To supervise an actor, you have several options:
+To supervise actors, you have many options:
+
+
+
+# Using supervisors.
 
 ### Directly
 
@@ -17,14 +20,15 @@ To supervise an actor, you have several options:
 MyActor.supervise as: :my_actor # Without arguments.
 MyActor.supervise as: :my_actor, args: [:one_arg, :two_args]
 ```
----
+
 ### Indirectly
 
 ```ruby
 Celluloid.supervise as: :my_actor, type: MyActor # Without arguments.
 Celluloid.supervise as: :my_actor, type: MyActor, args: [:one_arg, :two_args]
 ```
----
+
+
 # Using containers.
 
 ```ruby
@@ -34,7 +38,6 @@ container = Celluloid::Supervision::Container.new {
 }
 container.run!
 ```
----
 
 # Using configuration objects:
 
@@ -63,7 +66,7 @@ config.shutdown
 # Reuse the same configuration if you like!
 config.deploy
 ```
----
+
 ### By on-going configuration object:
 
 ```ruby
@@ -77,7 +80,6 @@ config.add type: MyActor, as: :my_actor_deployed_immediately
 config.shutdown
 ```
 
----
 
 # Documentation coming:
 
