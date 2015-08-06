@@ -100,11 +100,14 @@ Related Projects
 Celluloid is the parent project of a related ecosystem of other projects. If you
 like Celluloid we definitely recommend you check them out:
 
+* [Reel][reel]: An "evented" web server based on `Celluloid::IO`
+* [DCell][dcell]: The Celluloid actor protocol distributed over 0MQ
+* [ECell][ecell]: Specialized strategies and capacities for distributed actors
 * [Celluloid::IO][celluloid-io]: "Evented" IO support for Celluloid actors
 * [Celluloid::ZMQ][celluloid-zmq]: "Evented" 0MQ support for Celluloid actors
-* [DCell][dcell]: The Celluloid actor protocol distributed over 0MQ
-* [Reel][reel]: An "evented" web server based on Celluloid::IO
-* [Lattice][lattice]: A concurrent realtime web framework based on Celluloid::IO
+* [Celluloid::DNS][celluloid-dns]: An "evented" DNS server based on `Celluloid::IO`
+* [Celluloid::SMTP][celluloid-smtp]: An "evented" SMTP server based on `Celluloid::IO`
+* [Lattice][lattice]: A concurrent realtime web framework based on `Celluloid::IO`
 * [nio4r][nio4r]: "New IO for Ruby": high performance IO selectors
 * [Timers][timers]: A generic Ruby timer library for event-based systems
 
