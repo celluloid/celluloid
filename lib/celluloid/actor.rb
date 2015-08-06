@@ -169,7 +169,7 @@ module Celluloid
       shutdown
     rescue ::Exception => ex
       handle_crash(ex)
-      raise unless ex.is_a?(StandardError)
+      raise unless ex.is_a?(StandardError) || ex.is_a?(Celluloid::Interruption)
     end
 
     # Terminate this actor
