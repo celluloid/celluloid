@@ -8,12 +8,12 @@ module Celluloid
       return super unless block
 
       future = new
-      task = Thread.current[:celluloid_task]
-      actor = Thread.current[:celluloid_actor]
+      #de task = Thread.current[:celluloid_task]
+      #de actor = Thread.current[:celluloid_actor]
       Internals::ThreadHandle.new(Celluloid.actor_system, :future) do
         begin
-          Thread.current[:celluloid_task] = task
-          Thread.current[:celluloid_actor] = actor
+          #de Thread.current[:celluloid_task] = task
+          #de Thread.current[:celluloid_actor] = actor
           call = Call::Sync.new(future, :call, args)
           call.dispatch(block)
         rescue
