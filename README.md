@@ -139,16 +139,10 @@ Or install it yourself as:
 
     $ gem install celluloid
 
-Inside of your Ruby program, require Celluloid with [newest API](/celluloid/celluloid/wiki/DEPRECATION-WARNING):
+Inside of your Ruby program, require Celluloid
 
 ```ruby
-require 'celluloid/current'
-```
-
-Or to support the old API, use:
-
-```ruby
-require 'celluloid/backported'
+require 'celluloid'
 ```
 
 Supported Platforms
