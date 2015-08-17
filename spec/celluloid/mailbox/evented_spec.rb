@@ -24,4 +24,17 @@ RSpec.describe Celluloid::Mailbox::Evented do
       expect(Time.now - started_at).to be_within(CelluloidSpecs::TIMER_QUANTUM).of timeout_interval
     end
   end
+
+  it "discard messages when reactor wakeup fails" do
+    expect(Celluloid::Internals::Logger).to receive(:crash).with('reactor crashed', RuntimeError)
+    expect(Celluloid.logger).to receive(:debug).with("Discarded message (mailbox is dead): first")
+
+    bad_reactor = Class.new do
+      def wakeup
+        fail
+      end
+    end
+    mailbox = Celluloid::Mailbox::Evented.new(bad_reactor)
+    mailbox << :first
+  end
 end

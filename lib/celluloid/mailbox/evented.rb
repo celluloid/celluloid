@@ -31,7 +31,7 @@ module Celluloid
         begin
           current_actor = Thread.current[:celluloid_actor]
           @reactor.wakeup unless current_actor && current_actor.mailbox == self
-        rescue IOError
+        rescue
           Internals::Logger.crash "reactor crashed", $ERROR_INFO
           dead_letter(message)
         end
@@ -51,8 +51,6 @@ module Celluloid
 
         # No message was received:
         return nil
-      rescue IOError
-        raise MailboxShutdown, "mailbox shutdown called during receive"
       end
 
       # Obtain the next message from the mailbox that matches the given block
