@@ -14,9 +14,6 @@ Gem::Specification.new do |gem|
   gem.email        = ["code@extremist.digital", "tony.arcieri@gmail.com"]
   gem.homepage     = "https://github.com/celluloid/"
 
-  gem.required_ruby_version     = ">= 1.9.2"
-  gem.required_rubygems_version = ">= 1.3.6"
-
   gem.files        = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|examples|spec|features)/}) }
   gem.require_path = "lib"
 
