@@ -218,7 +218,8 @@ module Celluloid
     def wait(name)
       @signals.wait name
     end
-
+    
+    # Register a new handler for a given pattern
     def handle(*patterns, &block)
       @handlers.handle(*patterns, &block)
     end
