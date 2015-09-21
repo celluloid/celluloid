@@ -17,18 +17,18 @@ module Celluloid
 
       def shutdown
         @running = false
+        queue = []
         @mutex.synchronize do
-          queue = Queue.new
           loop do
             break if @group.empty?
             th = @group.shift
             th.kill
             queue << th
           end
-          loop do
-            break if queue.empty?
-            queue.pop.join
-          end
+        end
+        loop do
+          break if queue.empty?
+          queue.pop.join
         end
       end
 
@@ -59,6 +59,7 @@ module Celluloid
               Thread.current[:celluloid_meta][:state] = :finished
             end
             Thread.current[:celluloid_meta][:finished] = Time.now
+            @mutex.synchronize { @group.delete Thread.current }
           end
         end
 
