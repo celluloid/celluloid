@@ -6,8 +6,10 @@ if Celluloid.group_class == Celluloid::Group::Spawner
     it_behaves_like "a Celluloid Group"
 
     it "does not leak finished threads" do
-      th = subject.get { sleep 0.1 }
+      queue = Queue.new
+      th = subject.get { queue.pop }
       expect {
+        queue << nil
         th.join
       }.to change{ subject.group.length }.by(-1)
     end
