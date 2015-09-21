@@ -1,5 +1,18 @@
 0.17.5 (HEAD)
 -----
+
+
+0.17.1.2 (2015-08-21)
+-----
+- Fixes to posted markdown content.
+- Pull in new gem dependencies.
+
+0.17.1.1 (2015-08-07)
+-----
+- Revert "no task to suspend" code from #232.
+
+0.17.1 (2015-08-06)
+-----
 * `Celluloid::ActorSystem` moved to `Celluloid::Actor::System`, and from `celluloid/actor_system.rb` to `celluloid/actor/system.rb`
 * Added extensible API for defining new SystemEvents, and having them handled... without everyone changing `Actor#handle_system_event`.
 * Deprecated Task::TerminatedError & Task::TimeoutError... Consolidated in exceptions.rb, inherited from Exceptions vs. StandardError.
