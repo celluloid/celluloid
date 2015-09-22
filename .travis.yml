@@ -1,14 +1,14 @@
 script: rake ci
 language: ruby
 rvm:
+  - rbx-2
+  - jruby
   - 2.0.0
+  - 2.2.2
   - 2.1.4
   - 2.2.0
-  - 2.2.2
-  - jruby
   - ruby-head
   - jruby-head
-  - rbx-2
 
 matrix:
   fast_finish: true
