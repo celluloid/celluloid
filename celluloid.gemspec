@@ -14,7 +14,7 @@ Gem::Specification.new do |gem|
   gem.email       = ["tony.arcieri@gmail.com", "code@extremist.digital"]
   gem.homepage    = "https://github.com/celluloid/celluloid"
 
-  gem.required_ruby_version     = ">= 1.9.2"
+  gem.required_ruby_version     = ">= 1.9.3"
   gem.required_rubygems_version = ">= 1.3.6"
 
   gem.files        = Dir[
