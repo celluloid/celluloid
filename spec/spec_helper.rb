@@ -1,6 +1,6 @@
 require "nenv"
-
 require "dotenv"
+
 Dotenv.load!(Nenv("celluloid").config_file || (Nenv.ci? ? ".env-ci" : ".env-dev"))
 
 if Nenv.ci?
@@ -29,7 +29,7 @@ module Specs
         env.create_method(:sync?) { |s| s || !Nenv.ci? }
 
         env.create_method(:strategy) do |strategy|
-          strategy || (Nenv.ci? ? "stderr" : "split")
+          strategy || (Nenv.ci? ? "stderr" : "single")
         end
 
         env.create_method(:level) do |level|
@@ -40,10 +40,6 @@ module Specs
           end
         end
       end
-    end
-
-    def split_logs?
-      log.strategy == "split"
     end
 
     def logger
@@ -60,12 +56,8 @@ module Specs
         logfile = File.open(File.expand_path(log.file, __FILE__), "a")
         logfile.sync if log.sync?
         Logger.new(logfile)
-      when "split"
-        # Use Celluloid in case there's logging in a before/after handle
-        # (is that a bug in rspec-log_split?)
-        Celluloid.logger
       else
-        fail "Unknown logger strategy: #{strategy.inspect}. Expected 'split', 'single' or 'stderr'."
+        fail "Unknown logger strategy: #{strategy.inspect}. Expected 'single' or 'stderr'."
       end
     end
 
@@ -108,8 +100,6 @@ end
 
 $CELLULOID_DEBUG = true
 
-require "rspec/log_split" if Specs.split_logs?
-
 Celluloid.shutdown_timeout = 1
 
 Dir["./spec/support/*/*.rb"].map { |f| require f }
@@ -125,11 +115,6 @@ RSpec.configure do |config|
   config.run_all_when_everything_filtered = true
   config.disable_monkey_patching!
   config.profile_examples = 3
-
-  if Specs.split_logs?
-    config.log_split_dir = File.expand_path("../../log/#{DateTime.now.iso8601}", __FILE__)
-    config.log_split_module = Specs
-  end
 
   config.around do |ex|
     Celluloid.actor_system = nil
@@ -158,7 +143,7 @@ RSpec.configure do |config|
     end
   end
 
-  config.filter_gems_from_backtrace(*%w(rspec-expectations rspec-core rspec-mocks rspec-retry rspec-log_split rubysl-thread rubysl-timeout))
+  config.filter_gems_from_backtrace(*%w(rspec-expectations rspec-core rspec-mocks rspec-retry rubysl-thread rubysl-timeout))
 
   config.mock_with :rspec do |mocks|
     mocks.verify_doubled_constant_names = true
@@ -170,10 +155,4 @@ RSpec.configure do |config|
     Celluloid.logger = Specs.logger
     example.run
   end
-
-  # Must be *after* the around hook above
-  #   #de We should not need retries.
-  #   require 'rspec/retry'
-  #   config.verbose_retry = true
-  #   config.default_sleep_interval = 1
 end
