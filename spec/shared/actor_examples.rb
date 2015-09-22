@@ -766,13 +766,13 @@ RSpec.shared_examples "a Celluloid Actor" do
 
         def exclusive_with_block_log_task(task)
           exclusive do
-            sleep CelluloidSpecs::TIMER_QUANTUM
+            sleep Specs::TIMER_QUANTUM
             log_task(task)
           end
         end
 
         def exclusive_log_task(task)
-          sleep CelluloidSpecs::TIMER_QUANTUM
+          sleep Specs::TIMER_QUANTUM
           log_task(task)
         end
         exclusive :exclusive_log_task
@@ -794,14 +794,14 @@ RSpec.shared_examples "a Celluloid Actor" do
     it "executes methods in the proper order with block form" do
       subject.async.exclusive_with_block_log_task(:one)
       subject.async.log_task(:two)
-      sleep CelluloidSpecs::TIMER_QUANTUM * 2
+      sleep Specs::TIMER_QUANTUM * 2
       expect(subject.tasks).to eq([:one, :two])
     end
 
     it "executes methods in the proper order with a class-level annotation" do
       subject.async.exclusive_log_task :one
       subject.async.log_task :two
-      sleep CelluloidSpecs::TIMER_QUANTUM * 2
+      sleep Specs::TIMER_QUANTUM * 2
       expect(subject.tasks).to eq([:one, :two])
     end
 
@@ -828,7 +828,7 @@ RSpec.shared_examples "a Celluloid Actor" do
         end
 
         def eat_donuts
-          sleep CelluloidSpecs::TIMER_QUANTUM
+          sleep Specs::TIMER_QUANTUM
           @tasks << "donuts"
         end
 
@@ -844,7 +844,7 @@ RSpec.shared_examples "a Celluloid Actor" do
       before do
         actor.async.eat_donuts
         actor.async.drink_coffee
-        sleep CelluloidSpecs::TIMER_QUANTUM * 2
+        sleep Specs::TIMER_QUANTUM * 2
       end
 
       it "executes in an exclusive order" do
@@ -888,7 +888,7 @@ RSpec.shared_examples "a Celluloid Actor" do
         ended_at = Time.now - started_at
 
         expect(result).to_not be
-        expect(ended_at).to be_within(CelluloidSpecs::TIMER_QUANTUM).of interval
+        expect(ended_at).to be_within(Specs::TIMER_QUANTUM).of interval
       end
     end
   end
@@ -930,8 +930,8 @@ RSpec.shared_examples "a Celluloid Actor" do
       end.new
     end
 
-    let(:interval) { CelluloidSpecs::TIMER_QUANTUM * 10 }
-    let(:sleep_interval) { interval + CelluloidSpecs::TIMER_QUANTUM } # wonky! #/
+    let(:interval) { Specs::TIMER_QUANTUM * 10 }
+    let(:sleep_interval) { interval + Specs::TIMER_QUANTUM } # wonky! #/
 
     it "suspends execution of a method (but not the actor) for a given time" do
       # Sleep long enough to ensure we're actually seeing behavior when asleep
@@ -944,7 +944,7 @@ RSpec.shared_examples "a Celluloid Actor" do
 
       future.value
       # I got 0.558 (in a slighly busy MRI) which is outside 0.05 of 0.5, so let's use (0.05 * 2)
-      expect(Time.now - started_at).to be_within(CelluloidSpecs::TIMER_QUANTUM * 2).of interval
+      expect(Time.now - started_at).to be_within(Specs::TIMER_QUANTUM * 2).of interval
     end
 
     it "schedules timers which fire in the future" do
@@ -1247,7 +1247,7 @@ RSpec.shared_examples "a Celluloid Actor" do
     it "logs on unhandled messages" do
       expect(logger).to receive(:debug).with("Discarded message (unhandled): first")
       actor.mailbox << :first
-      sleep CelluloidSpecs::TIMER_QUANTUM
+      sleep Specs::TIMER_QUANTUM
     end
   end
 end

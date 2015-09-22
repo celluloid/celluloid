@@ -30,7 +30,7 @@ module Specs
         Logger.new(open_logfile(log.file, log.sync?))
       else
         fail "Unknown logger strategy: #{strategy.inspect}."\
-          " Expected single' or 'stderr'."
+          " Expected 'single' or 'stderr'."
       end
     end
 

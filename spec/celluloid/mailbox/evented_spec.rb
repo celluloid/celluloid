@@ -13,7 +13,7 @@ RSpec.describe Celluloid::Mailbox::Evented do
   #
   unless RUBY_ENGINE == "rbx"
     it "recovers from timeout exceeded to process mailbox message" do
-      timeout_interval = CelluloidSpecs::TIMER_QUANTUM + 0.1
+      timeout_interval = Specs::TIMER_QUANTUM + 0.1
       started_at = Time.now
       expect do
         Kernel.send(:timeout, timeout_interval) do
@@ -21,7 +21,7 @@ RSpec.describe Celluloid::Mailbox::Evented do
         end
       end.to raise_exception(Timeout::Error)
 
-      expect(Time.now - started_at).to be_within(CelluloidSpecs::TIMER_QUANTUM).of timeout_interval
+      expect(Time.now - started_at).to be_within(Specs::TIMER_QUANTUM).of timeout_interval
     end
   end
 end
