@@ -14,10 +14,6 @@ module Specs
       end
     end
 
-    def split_logs?
-      log.strategy == "split"
-    end
-
     def logger
       @logger ||= default_logger.tap { |logger| logger.level = log.level }
     end
@@ -32,13 +28,9 @@ module Specs
         Logger.new(STDERR)
       when "single"
         Logger.new(open_logfile(log.file, log.sync?))
-      when "split"
-        # Use Celluloid in case there's logging in a before/after handle
-        # (is that a bug in rspec-log_split?)
-        Celluloid.logger
       else
         fail "Unknown logger strategy: #{strategy.inspect}."\
-          " Expected 'split', 'single' or 'stderr'."
+          " Expected single' or 'stderr'."
       end
     end
 
@@ -51,7 +43,7 @@ module Specs
     end
 
     def default_strategy
-      (Nenv.ci? ? "stderr" : "split")
+      (Nenv.ci? ? "stderr" : "single")
     end
 
     def default_level_for(env, level)

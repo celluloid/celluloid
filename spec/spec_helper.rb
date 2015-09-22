@@ -30,8 +30,6 @@ RSpec.configure do |config|
   config.disable_monkey_patching!
   config.profile_examples = 3
 
-  Specs.configure(config)
-
   config.before(:suite) do
     Specs.stub_out_class_method(Celluloid::Internals::Logger, :crash) do |*args|
       _name, ex = *args
@@ -85,7 +83,7 @@ RSpec.configure do |config|
     end
   end
 
-  config.filter_gems_from_backtrace(*%w(rspec-expectations rspec-core rspec-mocks rspec-logsplit rubysl-thread rubysl-timeout))
+  config.filter_gems_from_backtrace(*%w(rspec-expectations rspec-core rspec-mocks rubysl-thread rubysl-timeout))
 
   config.mock_with :rspec do |mocks|
     mocks.verify_doubled_constant_names = true
