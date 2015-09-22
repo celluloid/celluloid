@@ -1,7 +1,8 @@
-0.17.1.3 (HEAD)
+0.17.1.3 (2015-09-22)
 -----
 - Remove `rspec-log_split`.
 - Synchronize with celluloid-culture dependency changes and re-release.
+- Clean up deprecation notes.
 
 0.17.1.2 (2015-08-21)
 -----
