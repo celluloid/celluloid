@@ -1,23 +1,7 @@
 unless $CELLULOID_BACKPORTED == false
-  RSpec.describe Celluloid::Supervisor, actor_system: :global do
-    class SubordinateDead < Celluloid::Error; end
+  RSpec.describe "Deprecated Celluloid::Supervisor", actor_system: :global do
 
-    class Subordinate
-      include Celluloid
-      attr_reader :state
-
-      def initialize(state)
-        @state = state
-      end
-
-      def crack_the_whip
-        case @state
-        when :idle
-          @state = :working
-        else fail SubordinateDead, "the spec purposely crashed me :("
-        end
-      end
-    end
+    let(:logger) { Specs::FakeLogger.current }
 
     it "restarts actors when they die" do
       supervisor = Celluloid::Supervisor.supervise(Subordinate, :idle)
@@ -26,6 +10,8 @@ unless $CELLULOID_BACKPORTED == false
 
       subordinate.crack_the_whip
       expect(subordinate.state).to be(:working)
+
+      allow(logger).to receive(:crash).with("Actor crashed!", SubordinateDead)
 
       expect do
         subordinate.crack_the_whip
@@ -46,6 +32,8 @@ unless $CELLULOID_BACKPORTED == false
       subordinate.crack_the_whip
       expect(subordinate.state).to be(:working)
 
+      allow(logger).to receive(:crash).with("Actor crashed!", SubordinateDead)
+
       expect do
         subordinate.crack_the_whip
       end.to raise_exception(SubordinateDead)
@@ -62,6 +50,7 @@ unless $CELLULOID_BACKPORTED == false
       subordinate = supervisor.actors.first
       expect(subordinate.state).to be(:working)
 
+      allow(logger).to receive(:crash).with("Actor crashed!", SubordinateDead)
       expect do
         subordinate.crack_the_whip
       end.to raise_exception(SubordinateDead)
@@ -78,6 +67,7 @@ unless $CELLULOID_BACKPORTED == false
       subordinate = Celluloid::Actor[:subordinate]
       expect(subordinate.state).to be(:working)
 
+      allow(logger).to receive(:crash).with("Actor crashed!", SubordinateDead)
       expect do
         subordinate.crack_the_whip
       end.to raise_exception(SubordinateDead)

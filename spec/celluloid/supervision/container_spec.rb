@@ -1,44 +1,6 @@
 RSpec.describe Celluloid::Supervision::Container, actor_system: :global do
   let(:queue_count) { 1 }
 
-  unless defined? SupervisionContainerHelper
-    class SupervisionContainerHelper
-      @queue = nil
-      class << self
-        def reset!
-          @queue = Queue.new
-        end
-        def done!
-          @queue << :done
-        end
-        def pop!
-          @queue.pop
-        end
-      end
-    end
-  end
-
-  unless defined? MyContainerActor
-    class MyContainerActor
-      include Celluloid
-
-      attr_reader :args
-
-      def initialize(*args)
-        @args = args
-        ready
-      end
-
-      def running?
-        :yep
-      end
-
-      def ready
-        SupervisionContainerHelper.done!
-      end
-    end
-  end
-
   before do
     SupervisionContainerHelper.reset!
     subject # init for easier debugging
