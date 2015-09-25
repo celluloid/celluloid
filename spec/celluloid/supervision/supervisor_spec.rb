@@ -1,4 +1,4 @@
-RSpec.describe Celluloid::Supervisor, actor_system: :global do
+RSpec.describe "Celluloid supervisor", actor_system: :global do
 
   let(:logger) { Specs::FakeLogger.current }
 
