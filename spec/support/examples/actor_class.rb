@@ -1,4 +1,4 @@
-class ExampleCrash < StandardError
+class ExampleCrash < Celluloid::Error
   attr_accessor :foo
 end
 
