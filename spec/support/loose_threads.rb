@@ -21,6 +21,8 @@ module Specs
 
         if RUBY_ENGINE == "ruby"
           # Sometimes stays
+          next if thread.backtrace.nil?
+          next unless thread.backtrace.is_a?(Array)
           next if thread.backtrace.empty?
           next if thread.backtrace.first =~ %r{timeout\.rb}
         end
