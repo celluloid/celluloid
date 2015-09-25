@@ -16,13 +16,13 @@ module Specs
 
         if RUBY_ENGINE == "rbx"
           # Avoid disrupting Rubinious thread
-          next if thread.backtrace.empty?
           next if thread.backtrace.first =~ %r{rubysl/timeout/timeout\.rb}
         end
 
         if RUBY_ENGINE == "ruby"
           # Sometimes stays
-          next if thread.backtrace.first =~ %r{/timeout\.rb}
+          next if thread.backtrace.empty?
+          next if thread.backtrace.first =~ %r{timeout\.rb}
         end
 
         thread
