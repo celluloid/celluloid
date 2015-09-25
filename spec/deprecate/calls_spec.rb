@@ -1,24 +1,6 @@
 RSpec.describe "Deprecated Celluloid::SyncCall", actor_system: :global do
   subject { Celluloid::SyncCall.new }
 
-  class DeprecatedCallExampleActor
-    include Celluloid
-
-    def initialize(next_actor = nil)
-      @next = next_actor
-    end
-
-    def actual_method; end
-
-    def inspect
-      fail "Please don't call me! I'm not ready yet!"
-    end
-
-    def chained_call_ids
-      [call_chain_id, @next.call_chain_id]
-    end
-  end
-
   let(:actor) { DeprecatedCallExampleActor.new }
 
   context "when obj does not respond to a method" do

@@ -1,23 +1,6 @@
 RSpec.describe Celluloid::Call::Sync, actor_system: :global do
   # TODO: these should be Call::Sync unit tests (without working on actual actors)
-  class CallExampleActor
-    include Celluloid
-
-    def initialize(next_actor = nil)
-      @next = next_actor
-    end
-
-    def actual_method; end
-
-    def inspect
-      fail "Don't call!"
-    end
-
-    def chained_call_ids
-      [call_chain_id, @next.call_chain_id]
-    end
-  end
-
+  
   let(:actor) { CallExampleActor.new }
   let(:logger) { Specs::FakeLogger.current }
 
