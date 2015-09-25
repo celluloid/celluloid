@@ -3,7 +3,7 @@ RSpec.describe "Celluloid supervisor", actor_system: :global do
   let(:logger) { Specs::FakeLogger.current }
 
   it "restarts actors when they die" do
-    supervisor = Celluloid::Supervisor.supervise(type: Subordinate, args: [:idle])
+    supervisor = Celluloid.supervise(type: Subordinate, args: [:idle])
     subordinate = supervisor.actors.first
     expect(subordinate.state).to be(:idle)
 
@@ -24,7 +24,7 @@ RSpec.describe "Celluloid supervisor", actor_system: :global do
   end
 
   it "registers actors and reregisters them when they die" do
-    Celluloid::Supervisor.supervise(as: :subordinate, type: Subordinate, args: [:idle])
+    Celluloid.supervise(as: :subordinate, type: Subordinate, args: [:idle])
     subordinate = Celluloid::Actor[:subordinate]
     expect(subordinate.state).to be(:idle)
 
