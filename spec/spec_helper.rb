@@ -1,3 +1,6 @@
+require "rubygems"
+require "bundler/setup"
+
 require "celluloid/rspec"
 require "celluloid/essentials"
 
