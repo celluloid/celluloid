@@ -1,5 +1,4 @@
 RSpec.describe "Celluloid supervisor", actor_system: :global do
-
   let(:logger) { Specs::FakeLogger.current }
 
   it "restarts actors when they die" do
