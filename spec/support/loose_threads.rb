@@ -5,6 +5,10 @@ module Specs
         next unless thread
         next if thread == Thread.current
 
+        # TODO: Remove Specs::ALLOW_SLOW_MAILBOXES hax.
+        #       Allows slow shutdown of mailboxes.
+        #       Find more graceful way to do shutdown.
+
         if RUBY_PLATFORM == "java"
           # Avoid disrupting jRuby's "fiber" threads.
           name = thread.to_java.getNativeThread.get_name
@@ -18,6 +22,12 @@ module Specs
         if RUBY_ENGINE == "rbx"
           # Avoid disrupting Rubinious thread
           next if thread.backtrace.first =~ %r{rubysl/timeout/timeout\.rb}
+
+          if Specs::ALLOW_SLOW_MAILBOXES
+            if thread.backtrace.first =~ %r{wait}
+              next if thread.backtrace[1] =~ %r{mailbox\.rb} && thread.backtrace[1] =~ %r{check}
+            end
+          end
         end
 
         if RUBY_ENGINE == "ruby"
@@ -26,14 +36,9 @@ module Specs
           next unless thread.backtrace.is_a?(Array)
           next if thread.backtrace.empty?
           next if thread.backtrace.first =~ %r{timeout\.rb}
-        end
 
-        # TODO: Remove hax.
-        #       Allows slow shutdown of mailboxes.
-        #       Find more graceful way to do shutdown.
-        if Specs::ALLOW_SLOW_MAILBOXES
-          if thread.backtrace.first =~ %r{wait}
-            next if thread.backtrace[1] =~ %r{mailbox\.rb} && thread.backtrace[1] =~ %r{check}
+          if Specs::ALLOW_SLOW_MAILBOXES
+            next if thread.backtrace[1] =~ %r{mailbox\.rb} && thread.backtrace[1] =~ %r{sleep}
           end
         end
 
