@@ -1,6 +1,6 @@
 module CelluloidSpecs
   def self.included_module
     # Celluloid::IO implements this with with 'Celluloid::IO'
-    Celluloid
+    (defined? INCLUDED_MODULE) ? INCLUDED_MODULE : Celluloid
   end
 end

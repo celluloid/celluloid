@@ -4,6 +4,7 @@ module Specs
       Thread.list.map do |thread|
         next unless thread
         next if thread == Thread.current
+
         if RUBY_PLATFORM == "java"
           # Avoid disrupting jRuby's "fiber" threads.
           name = thread.to_java.getNativeThread.get_name
@@ -26,6 +27,18 @@ module Specs
           next if thread.backtrace.empty?
           next if thread.backtrace.first =~ %r{timeout\.rb}
         end
+
+        # TODO: Remove hax.
+        #       Allows slow shutdown of mailboxes.
+        #       Find more graceful way to do shutdown.
+        if Specs::ALLOW_SLOW_MAILBOXES
+          if thread.backtrace.first =~ %r{wait}
+            next if thread.backtrace[1] =~ %r{mailbox\.rb} && thread.backtrace[1] =~ %r{check}
+          end
+        end
+
+        puts "THREAD * * * * * * * * * * * * * * * * * * * * * * * *"
+        puts thread.backtrace
 
         thread
       end.compact

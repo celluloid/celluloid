@@ -11,6 +11,9 @@ if RUBY_ENGINE == "rbx"
 end
 
 module Specs
+
+  ALLOW_SLOW_MAILBOXES = false unless defined? ALLOW_SLOW_MAILBOXES
+
   INCLUDE_SUPPORT = [
     "env",
     "logging",
