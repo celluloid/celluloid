@@ -10,8 +10,10 @@ if RUBY_ENGINE == "rbx"
   require "rspec/matchers/built_in/be"
 end
 
-module Specs
+require "rspec/retry"
 
+module Specs
+  ALLOW_RETRIES = 3
   ALLOW_SLOW_MAILBOXES = false unless defined? ALLOW_SLOW_MAILBOXES
 
   INCLUDE_SUPPORT = [

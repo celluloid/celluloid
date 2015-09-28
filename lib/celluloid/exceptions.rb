@@ -18,6 +18,7 @@ module Celluloid
       super "caused by #{cause.inspect}: #{cause}"
     end
   end
+  class ThreadLeak < Celluloid::Error; end
   module Feature
     module Requires
       class RubiniusOrJRuby < Celluloid::Error; end

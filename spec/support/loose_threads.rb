@@ -69,7 +69,7 @@ module Specs
         sleep
       end
 
-      fail "Aborted due to runaway threads (#{location})\n"\
+      fail Celluloid::ThreadLeak, "Aborted due to runaway threads (#{location})\n"\
         "List: (#{loose.map(&:inspect)})\n:#{backtraces.join("\n")}"
     end
   end

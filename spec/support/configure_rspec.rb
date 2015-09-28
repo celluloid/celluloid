@@ -5,6 +5,12 @@ RSpec.configure do |config|
   config.profile_examples = 3
   config.filter_gems_from_backtrace(*Specs::BACKTRACE_OMITTED)
 
+  config.verbose_retry = true
+  config.default_retry_count = Specs::ALLOW_RETRIES
+  config.display_try_failure_messages = true
+  config.default_sleep_interval = 1
+  config.exceptions_to_retry = [ Timeout::Error, Celluloid::ThreadLeak ]
+
   config.mock_with :rspec do |mocks|
     mocks.verify_doubled_constant_names = true
     mocks.verify_partial_doubles = true

@@ -1,7 +1,7 @@
-0.17.1.3 (2015-09-22)
+0.17.2 (2015-09-28)
 -----
-- Remove `rspec-log_split`.
-- Synchronize with celluloid-culture dependency changes and re-release.
+* Revamped test suite, using shared RSpec configuration layer provided by Celluloid itself.
+* Updated gem dependencies provided by Celluloid::Sync... extraneous gems removed, or marked as development dependencies.
 - Clean up deprecation notes.
 
 0.17.1.2 (2015-08-21)

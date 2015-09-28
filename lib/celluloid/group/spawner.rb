@@ -26,7 +26,7 @@ module Celluloid
             queue << th
           end
         end
-        sleep 1.126 unless queue.empty?
+        Thread.pass unless queue.empty?
         loop do
           break if queue.empty?
           queue.pop.join
@@ -56,6 +56,7 @@ module Celluloid
               Thread.current[:celluloid_thread_state] = :finished
             end
             @mutex.synchronize { @group.delete Thread.current }
+            Thread.exit
           end
         end
 
