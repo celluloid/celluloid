@@ -1,5 +1,5 @@
 module Celluloid
   module Supervision
-    VERSION = "0.20.1.2"
+    VERSION = "0.20.5"
   end
 end
