@@ -16,7 +16,7 @@ class CallExampleActor
   end
 end
 
-#de DEPRECATE:
+# de DEPRECATE:
 
 class DeprecatedCallExampleActor
   include Celluloid

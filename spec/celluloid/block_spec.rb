@@ -19,21 +19,21 @@ RSpec.describe "Blocks", actor_system: :global do
       end
     end
 
-    def deferred_excecution(value, &block)
-      defer {
+    def deferred_excecution(value, &_block)
+      defer do
         yield(value)
-      }
+      end
     end
 
-    def deferred_current_actor(&block)
-      defer {
+    def deferred_current_actor(&_block)
+      defer do
         yield(current_actor.name)
-      }
+      end
     end
 
-    def defer_for_something(other, &block)
+    def defer_for_something(other, &_block)
       sender_actor = current_actor
-      defer {
+      defer do
         $data << [:outside, @name, current_actor.name]
         other.do_something_and_callback do |value|
           $data << [:yielded, @name, current_actor.name]
@@ -42,7 +42,7 @@ RSpec.describe "Blocks", actor_system: :global do
           $data << sender_actor.receive_result(:sender)
           :pete_the_polyglot_alien
         end
-      }
+      end
     end
 
     def do_something_and_callback
@@ -76,14 +76,14 @@ RSpec.describe "Blocks", actor_system: :global do
     expect($data).to eq(expected)
   end
 
-  execute_deferred = Proc.new {
+  execute_deferred = proc do
     a1 = MyBlockActor.new("one")
     expect(a1.deferred_excecution(:pete_the_polyglot_alien) { |v| v })
-      .to eq(:pete_the_polyglot_alien)
-  }
+    .to eq(:pete_the_polyglot_alien)
+  end
 
   # unless RUBY_ENGINE == 'jruby'
-    xit("can be deferred", &execute_deferred)
+  xit("can be deferred", &execute_deferred)
   # else
   #   it("can be deferred", &execute_deferred)
   # end

@@ -24,8 +24,8 @@ module Specs
           next if thread.backtrace.first =~ %r{rubysl/timeout/timeout\.rb}
 
           if Specs::ALLOW_SLOW_MAILBOXES
-            if thread.backtrace.first =~ %r{wait}
-              next if thread.backtrace[1] =~ %r{mailbox\.rb} && thread.backtrace[1] =~ %r{check}
+            if thread.backtrace.first =~ /wait/
+              next if thread.backtrace[1] =~ /mailbox\.rb/ && thread.backtrace[1] =~ /check/
             end
           end
         end
@@ -35,10 +35,10 @@ module Specs
           next if thread.backtrace.nil?
           next unless thread.backtrace.is_a?(Array)
           next if thread.backtrace.empty?
-          next if thread.backtrace.first =~ %r{timeout\.rb}
+          next if thread.backtrace.first =~ /timeout\.rb/
 
           if Specs::ALLOW_SLOW_MAILBOXES
-            next if thread.backtrace[1] =~ %r{mailbox\.rb} && thread.backtrace[1] =~ %r{sleep}
+            next if thread.backtrace[1] =~ /mailbox\.rb/ && thread.backtrace[1] =~ /sleep/
           end
         end
 

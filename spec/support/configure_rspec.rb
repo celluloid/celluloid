@@ -9,7 +9,7 @@ RSpec.configure do |config|
   config.default_retry_count = Specs::ALLOW_RETRIES
   config.display_try_failure_messages = true
   config.default_sleep_interval = 1
-  config.exceptions_to_retry = [ Timeout::Error, Celluloid::ThreadLeak ]
+  config.exceptions_to_retry = [Timeout::Error, Celluloid::ThreadLeak]
 
   config.mock_with :rspec do |mocks|
     mocks.verify_doubled_constant_names = true
@@ -39,7 +39,7 @@ RSpec.configure do |config|
     if @fake_logger.crashes?
       crashes = @fake_logger.crashes.map do |args, call_stack|
         msg, ex = *args
-        "\n** Crash: #{msg.inspect}(#{ex.inspect})\n  Backtrace:\n    (crash) #{call_stack * "\n    (crash) " }"\
+        "\n** Crash: #{msg.inspect}(#{ex.inspect})\n  Backtrace:\n    (crash) #{call_stack * "\n    (crash) "}"\
           "\n  Exception Backtrace (#{ex.inspect}):\n    (ex) #{ex.backtrace * "\n    (ex) "}"
       end.join("\n")
       fail "Actor crashes occured (please stub/mock if these are expected): #{crashes}"

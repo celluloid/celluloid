@@ -1,5 +1,4 @@
 RSpec.shared_examples "a Celluloid Actor" do
-
   around do |ex|
     Celluloid.boot
     ex.run

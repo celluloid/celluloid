@@ -24,7 +24,7 @@ module Celluloid
   BARE_OBJECT_WARNING_MESSAGE = "WARNING: BARE CELLULOID OBJECT "
 
   class << self
-    attr_writer :actor_system         # Default Actor System
+    attr_writer :actor_system # Default Actor System
     attr_accessor :logger               # Thread-safe logger class
     attr_accessor :log_actor_crashes
     attr_accessor :group_class          # Default internal thread group to use
@@ -165,7 +165,7 @@ module Celluloid
       # Terminate all actors at exit
       at_exit do
         sleep 0.126 # hax grace period for unnaturally terminating actors
-                    # allows "reason" in exit_handler to resolve before being destroyed
+        # allows "reason" in exit_handler to resolve before being destroyed
         if defined?(RUBY_ENGINE) && RUBY_ENGINE == "ruby" && RUBY_VERSION >= "1.9"
           # workaround for MRI bug losing exit status in at_exit block
           # http://bugs.ruby-lang.org/issues/5218

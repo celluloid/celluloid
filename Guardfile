@@ -1,6 +1,6 @@
 guard "rspec", cmd: "bundle exec rspec" do
   watch(/^spec\/.+_spec\.rb$/)
-  watch(/^lib\/(.+)\.rb$/)     { |m| "spec/#{m[1]}_spec.rb" }
+  watch(/^lib\/(.+)\.rb$/) { |m| "spec/#{m[1]}_spec.rb" }
 
   {
     "actor_examples" => "actor",
@@ -13,5 +13,5 @@ guard "rspec", cmd: "bundle exec rspec" do
     end
   end
 
-  watch("spec/spec_helper.rb")  { "spec/" }
+  watch("spec/spec_helper.rb") { "spec/" }
 end

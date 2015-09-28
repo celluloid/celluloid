@@ -9,7 +9,7 @@ RSpec.describe Celluloid::Condition, actor_system: :global do
     def initialize
       @condition = Condition.new
 
-      @waiting  = false
+      @waiting = false
       @signaled_times = 0
     end
 

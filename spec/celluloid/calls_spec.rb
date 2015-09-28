@@ -1,6 +1,6 @@
 RSpec.describe Celluloid::Call::Sync, actor_system: :global do
   # TODO: these should be Call::Sync unit tests (without working on actual actors)
-  
+
   let(:actor) { CallExampleActor.new }
   let(:logger) { Specs::FakeLogger.current }
 
