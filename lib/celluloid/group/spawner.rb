@@ -17,19 +17,19 @@ module Celluloid
 
       def shutdown
         @running = false
-        #de queue = []
+        queue = []
         @mutex.synchronize do
           loop do
             break if @group.empty?
             th = @group.shift
             th.kill
-            #de queue << th
+            queue << th
           end
         end
-        #de loop do
-        #de   break if queue.empty?
-        #de   queue.pop.join
-        #de end
+        loop do
+          break if queue.empty?
+          queue.pop.join
+        end
       end
 
       def idle?
