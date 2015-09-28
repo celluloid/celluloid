@@ -45,7 +45,7 @@ RSpec.configure do |config|
       fail "Actor crashes occured (please stub/mock if these are expected): #{crashes}"
     end
     @fake_logger = nil
-    Specs.assert_no_loose_threads!("after example: #{ex.description}")
+    Specs.assert_no_loose_threads!("after example: #{ex.description}") if Specs::CHECK_LOOSE_THREADS
   end
 
   config.around :each, library: :IO do |ex|

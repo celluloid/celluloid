@@ -13,7 +13,9 @@ end
 require "rspec/retry"
 
 module Specs
-  ALLOW_RETRIES = 3
+
+  CHECK_LOOSE_THREADS = !Nenv.ci? unless defined? CHECK_LOOSE_THREADS
+  ALLOW_RETRIES = 3 unless defined? ALLOW_RETRIES
   ALLOW_SLOW_MAILBOXES = false unless defined? ALLOW_SLOW_MAILBOXES
 
   INCLUDE_SUPPORT = [
