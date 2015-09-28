@@ -26,6 +26,7 @@ module Celluloid
             queue << th
           end
         end
+        sleep 1.126 unless queue.empty?
         loop do
           break if queue.empty?
           queue.pop.join
@@ -44,11 +45,7 @@ module Celluloid
 
       def instantiate(proc)
         thread = Thread.new do
-          Thread.current[:celluloid_meta] = {
-            started: Time.now,
-            state: :running,
-          }
-
+          Thread.current[:celluloid_thread_state] = :running
           begin
             proc.call
           rescue ::Exception => ex
