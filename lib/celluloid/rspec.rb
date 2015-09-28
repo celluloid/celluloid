@@ -33,7 +33,7 @@ module Specs
     "./spec/shared/*.rb"
   ]
 
-  MAX_EXECUTION = 7
+  MAX_EXECUTION = 13
   MAX_ATTEMPTS = 20
 
   TIMER_QUANTUM = 0.05 # Timer accuracy enforced by the tests (50ms)
