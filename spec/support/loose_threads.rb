@@ -42,9 +42,6 @@ module Specs
           end
         end
 
-        puts "THREAD * * * * * * * * * * * * * * * * * * * * * * * *"
-        puts thread.backtrace
-
         thread
       end.compact
     end
