@@ -17,27 +17,27 @@ module Celluloid
 
       def shutdown
         @running = false
-        queue = []
+        #de queue = []
         @mutex.synchronize do
           loop do
             break if @group.empty?
             th = @group.shift
             th.kill
-            queue << th
+            #de queue << th
           end
         end
-        loop do
-          break if queue.empty?
-          queue.pop.join
-        end
+        #de loop do
+        #de   break if queue.empty?
+        #de   queue.pop.join
+        #de end
       end
 
       def idle?
-        to_a.select { |t| t[:celluloid_meta] && t[:celluloid_meta][:state] == :running }.empty?
+        to_a.select { |t| t[:celluloid_thread_state] == :running }.empty?
       end
 
       def busy?
-        to_a.select { |t| t[:celluloid_meta] && t[:celluloid_meta][:state] == :running }.any?
+        to_a.select { |t| t[:celluloid_thread_state] == :running }.any?
       end
 
       private
@@ -53,10 +53,10 @@ module Celluloid
             proc.call
           rescue ::Exception => ex
             Internals::Logger.crash("thread crashed", ex)
-            Thread.current[:celluloid_meta][:state] = :error
+            Thread.current[:celluloid_thread_state] = :error
           ensure
-            unless Thread.current[:celluloid_meta][:state] == :error
-              Thread.current[:celluloid_meta][:state] = :finished
+            unless Thread.current[:celluloid_thread_state] == :error
+              Thread.current[:celluloid_thread_state] = :finished
             end
             @mutex.synchronize { @group.delete Thread.current }
           end
