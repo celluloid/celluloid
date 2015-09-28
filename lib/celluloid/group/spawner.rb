@@ -58,7 +58,6 @@ module Celluloid
             unless Thread.current[:celluloid_meta][:state] == :error
               Thread.current[:celluloid_meta][:state] = :finished
             end
-            Thread.current[:celluloid_meta][:finished] = Time.now
             @mutex.synchronize { @group.delete Thread.current }
           end
         end
