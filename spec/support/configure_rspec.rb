@@ -27,10 +27,8 @@ RSpec.configure do |config|
     # Needed because some specs mock/stub/expect on the logger
     Celluloid.logger = Specs.logger
     Celluloid.actor_system = nil
-    Specs.assert_no_loose_threads(ex.description) do
-      Specs.reset_class_variables(ex.description) do
-        Timeout.timeout(Specs::MAX_EXECUTION) { ex.run }
-      end
+    Specs.reset_class_variables(ex.description) do
+      Timeout.timeout(Specs::MAX_EXECUTION) { ex.run }
     end
     if @fake_logger.crashes?
       crashes = @fake_logger.crashes.map do |args, call_stack|
@@ -41,16 +39,17 @@ RSpec.configure do |config|
       fail "Actor crashes occured (please stub/mock if these are expected): #{crashes}"
     end
     @fake_logger = nil
+    Specs.assert_no_loose_threads!("after example: #{ex.description}")
   end
 
-  config.around library: :IO do |ex|
+  config.around :each, library: :IO do |ex|
     Celluloid.boot
     FileUtils.rm("/tmp/cell_sock") if File.exist?("/tmp/cell_sock")
     ex.run
     Celluloid.shutdown
   end
 
-  config.around library: :ZMQ do |ex|
+  config.around :each, library: :ZMQ do |ex|
     Celluloid::ZMQ.init(1) unless ex.metadata[:no_init]
     Celluloid.boot
     ex.run
@@ -58,13 +57,13 @@ RSpec.configure do |config|
     Celluloid::ZMQ.terminate
   end
 
-  config.around actor_system: :global do |ex|
+  config.around :each, actor_system: :global do |ex|
     Celluloid.boot
     ex.run
     Celluloid.shutdown
   end
 
-  config.around actor_system: :within do |ex|
+  config.around :each, actor_system: :within do |ex|
     Celluloid::Actor::System.new.within do
       ex.run
     end

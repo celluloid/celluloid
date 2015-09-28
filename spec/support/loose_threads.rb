@@ -46,12 +46,6 @@ module Specs
       end.compact
     end
 
-    def assert_no_loose_threads(location)
-      Specs.assert_no_loose_threads!("before example: #{location}")
-      yield
-      Specs.assert_no_loose_threads!("after example: #{location}")
-    end
-
     def thread_name(thread)
       (RUBY_PLATFORM == "java") ? thread.to_java.getNativeThread.get_name : ""
     end
