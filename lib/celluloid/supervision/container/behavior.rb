@@ -29,7 +29,7 @@ module Celluloid
           def parameter(identifier, options)
             found = nil
             p = Configuration.aliases.inject([identifier]) { |invoke, (a, i)| invoke << a if i == identifier; invoke }
-            case p.select { |parameter| found = parameter; options.key?(parameter) }.count
+            case p.count { |parameter| found = parameter; options.key?(parameter) }
             when 1
               found
             when 0

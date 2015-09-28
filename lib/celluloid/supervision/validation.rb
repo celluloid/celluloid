@@ -16,7 +16,7 @@ module Celluloid
             unless configuration[args].is_a? Proc
               __a = configuration[args] && configuration[args].count || 0
               __arity = configuration[klass].allocate.method(:initialize).arity
-              unless (__arity < 0 && __a >= __arity.abs-1) || __a == __arity.abs
+              unless (__arity < 0 && __a >= __arity.abs - 1) || __a == __arity.abs
                 if fails
                   fail ArgumentError.new("#{__a} vs. #{__arity}")
                 else
@@ -27,6 +27,7 @@ module Celluloid
           end
           true
         end
+
         def options(config={}, options={})
           configuration = config.merge(options)
           return configuration if configuration.is_a? Configuration

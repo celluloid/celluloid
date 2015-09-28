@@ -13,7 +13,7 @@ module Celluloid
   end
   module Supervision
     class << self
-      def router(config={})
+      def router(_config={})
         # TODO: Actually route.
         Celluloid.services # for now, hardcode .services
       end

@@ -4,9 +4,11 @@ class SupervisionContainerHelper
     def reset!
       @queue = Queue.new
     end
+
     def done!
       @queue << :done
     end
+
     def pop!
       @queue.pop
     end

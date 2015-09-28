@@ -164,7 +164,7 @@ module Celluloid
       end
 
       def invoke_injection(_point)
-        #de puts "injection? #{point}"
+        # de puts "injection? #{point}"
       end
     end
   end

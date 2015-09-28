@@ -49,7 +49,7 @@ module Celluloid
   module Supervision
     class << self
       undef router rescue nil
-      def router(*args)
+      def router(*_args)
         # TODO: Actually route, based on :branch, if present; or else:
         Celluloid.services
       end

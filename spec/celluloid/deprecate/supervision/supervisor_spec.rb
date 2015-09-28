@@ -1,6 +1,5 @@
 unless $CELLULOID_BACKPORTED == false
   RSpec.describe "Deprecated Celluloid::Supervisor", actor_system: :global do
-
     let(:logger) { Specs::FakeLogger.current }
 
     it "restarts actors when they die" do
