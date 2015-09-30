@@ -18,7 +18,6 @@ matrix:
     - rvm: ruby-head
     - rvm: jruby-head
     - env: CELLULOID_BACKPORTED=true
-    - env: CELLULOID_BACKPORTED=false CELLULOID_LEAKTEST=1
     - env: CELLULOID_BACKPORTED=false CELLULOID_TASK_CLASS=Threaded
     - env: CELLULOID_BACKPORTED=true CELLULOID_TASK_CLASS=Threaded
 
@@ -28,7 +27,6 @@ env:
   matrix:
     - CELLULOID_BACKPORTED=true
     - CELLULOID_BACKPORTED=false
-    - CELLULOID_BACKPORTED=false CELLULOID_LEAKTEST=1
     - CELLULOID_BACKPORTED=false CELLULOID_TASK_CLASS=Threaded
     - CELLULOID_BACKPORTED=true CELLULOID_TASK_CLASS=Threaded
 
