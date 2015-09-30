@@ -46,6 +46,7 @@ module Specs
     "rspec-expectations",
     "rspec-core",
     "rspec-mocks",
+    "rspec-retry",
     "rubysl-thread",
     "rubysl-timeout"
   ]
