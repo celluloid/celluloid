@@ -1,7 +1,16 @@
 require "nenv"
 require "dotenv"
 
-Dotenv.load!(Nenv("celluloid").config_file || (Nenv.ci? ? ".env-ci" : ".env-dev"))
+# Default to `pwd`/.env-* ( whatever is in the current directory )
+# Otherwise take the `.env-*` from the gem itself.
+unless env = Nenv("celluloid").config_file
+  env = Nenv.ci? ? ".env-ci" : ".env-dev"
+  unless File.exist?(env)
+    env = File.expand_path("../../../#{env}", __FILE__)
+  end
+end
+
+Dotenv.load!(env) rescue nil # If for some reason no .env-* files are available at all, use defaults.
 
 module Specs
   class << self
