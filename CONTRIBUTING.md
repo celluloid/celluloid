@@ -16,7 +16,7 @@ If you don't get anywhere with this checklist, please feel free to [file a bug r
 If you encounter a bug, it's entirely possible that it has already been fixed but not yet included in a released version. You can establish this by trying to run your application with a pre-release version of Celluloid direct from source control. You can do this by modifying your application's Gemfile as follows:
 
 ```ruby
-gem 'celluloid', github: 'celluloid'
+gem 'celluloid', github: 'celluloid', submodules: true
 ```
 
 If it is suggested to you that you try a different branch, add `branch: 'somebranch'`.
@@ -32,6 +32,7 @@ If it persists, you should consider [filing a bug report](#filing-a-bug-report).
   * Full steps to reproduce the issue, including minimal reproduction code. A minimal reproduction means only what is necessary to display the problem and nothing more. This is perhaps the most important thing, don't skip it!
   * Output from a reproduction.
   * Full references for version numbers (of Celluloid, dependencies, Ruby, Operating System, etc). One easy way to do this is to post your Gemfile.lock, though you will still need to tell us what version of Ruby is in use.
+* See: [Triage Process](https://github.com/celluloid/celluloid/wiki/Triage-Process)
 * Some more guidelines on filing good bug reports:
   * http://www.chiark.greenend.org.uk/~sgtatham/bugs.html
   * http://itscommonsensestupid.blogspot.com/2008/07/tips-to-write-good-bug-report.html

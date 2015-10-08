@@ -1,11 +1,11 @@
 #!/usr/bin/env ruby
 
-require 'rubygems'
-require 'bundler/setup'
-require 'celluloid'
-require 'benchmark/ips'
+require "rubygems"
+require "bundler/setup"
+require "celluloid"
+require "benchmark/ips"
 
-class ExampleActor
+class BenchmarkingActor
   include Celluloid
 
   def initialize
@@ -23,10 +23,11 @@ class ExampleActor
   end
 end
 
-example_actor = ExampleActor.new
+example_actor = BenchmarkingActor.new
 mailbox = Celluloid::Mailbox.new
 
-latch_in, latch_out = Queue.new, Queue.new
+latch_in = Queue.new
+latch_out = Queue.new
 latch = Thread.new do
   loop do
     n = latch_in.pop
@@ -36,7 +37,7 @@ latch = Thread.new do
 end
 
 Benchmark.ips do |ips|
-  ips.report("spawn")       { ExampleActor.new.terminate }
+  ips.report("spawn")       { BenchmarkingActor.new.terminate }
 
   ips.report("calls")       { example_actor.example_method }
 

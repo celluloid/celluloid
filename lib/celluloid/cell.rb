@@ -33,43 +33,60 @@ module Celluloid
       @actor.handle(Call) do |message|
         invoke(message)
       end
-      @actor.handle(BlockCall) do |message|
+      @actor.handle(Call::Block) do |message|
         task(:invoke_block) { message.dispatch }
       end
-      @actor.handle(BlockResponse, Response) do |message|
+      @actor.handle(Internals::Response::Block, Internals::Response) do |message|
         message.dispatch
       end
 
       @actor.start
-      @proxy = (options[:proxy_class] || CellProxy).new(@actor.proxy, @actor.mailbox, @subject.class.to_s)
+      @proxy = (options[:proxy_class] || Proxy::Cell).new(@actor.mailbox, @actor.proxy, @subject.class.to_s)
     end
     attr_reader :proxy, :subject
 
+    def self.dispatch
+      proc do |subject|
+        subject[:call].dispatch(subject[:subject])
+        subject[:call] = nil
+        subject[:subject] = nil
+      end
+    end
+
     def invoke(call)
       meth = call.method
-      if meth == :__send__
-        meth = call.arguments.first
-      end
+      meth = call.arguments.first if meth == :__send__
       if @receiver_block_executions && meth
         if @receiver_block_executions.include?(meth.to_sym)
           call.execute_block_on_receiver
         end
       end
 
-      task(:call, meth, :dangerous_suspend => meth == :initialize) {
-        call.dispatch(@subject)
-      }
+      task(:call, meth, {call: call, subject: @subject},
+           dangerous_suspend: meth == :initialize, &Cell.dispatch)
     end
 
-    def task(task_type, method_name = nil, meta = nil, &block)
+    def task(task_type, method_name = nil, subject = nil, meta = nil, &_block)
       meta ||= {}
-      meta.merge!(:method_name => method_name)
+      meta.merge!(method_name: method_name)
       @actor.task(task_type, meta) do
         if @exclusive_methods && method_name && @exclusive_methods.include?(method_name.to_sym)
-          Celluloid.exclusive { yield }
+          Celluloid.exclusive { yield subject }
         else
-          yield
+          yield subject
         end
+      end
+    end
+
+    def self.shutdown
+      proc do |subject|
+        begin
+          subject[:subject].__send__(subject[:call])
+        rescue => ex
+          Internals::Logger.crash("#{subject[:subject].class} finalizer crashed!", ex)
+        end
+        subject[:call] = nil
+        subject[:subject] = nil
       end
     end
 
@@ -77,13 +94,8 @@ module Celluloid
     def shutdown
       return unless @finalizer && @subject.respond_to?(@finalizer, true)
 
-      task(:finalizer, @finalizer, :dangerous_suspend => true) do
-        begin
-          @subject.__send__(@finalizer)
-        rescue => ex
-          Logger.crash("#{@subject.class} finalizer crashed!", ex)
-        end
-      end
+      task(:finalizer, @finalizer, {call: @finalizer, subject: @subject},
+           dangerous_suspend: true, &Cell.shutdown)
     end
   end
 end

@@ -1,9 +1,9 @@
 ![Celluloid](https://raw.github.com/celluloid/celluloid-logos/master/celluloid/celluloid.png)
 =========
-[![Gem Version](https://badge.fury.io/rb/celluloid.png)](http://rubygems.org/gems/celluloid)
-[![Build Status](https://secure.travis-ci.org/celluloid/celluloid.png?branch=master)](http://travis-ci.org/celluloid/celluloid)
-[![Code Climate](https://codeclimate.com/github/celluloid/celluloid.png)](https://codeclimate.com/github/celluloid/celluloid)
-[![Coverage Status](https://coveralls.io/repos/celluloid/celluloid/badge.png?branch=master)](https://coveralls.io/r/celluloid/celluloid)
+[![Gem Version](https://badge.fury.io/rb/celluloid.svg)](http://rubygems.org/gems/celluloid)
+[![Build Status](https://secure.travis-ci.org/celluloid/celluloid.svg?branch=master)](http://travis-ci.org/celluloid/celluloid)
+[![Code Climate](https://codeclimate.com/github/celluloid/celluloid.svg)](https://codeclimate.com/github/celluloid/celluloid)
+[![Coverage Status](https://coveralls.io/repos/celluloid/celluloid/badge.svg?branch=master)](https://coveralls.io/r/celluloid/celluloid)
 
 > "I thought of objects being like biological cells and/or individual
 > computers on a network, only able to communicate with messages"
@@ -100,18 +100,24 @@ Related Projects
 Celluloid is the parent project of a related ecosystem of other projects. If you
 like Celluloid we definitely recommend you check them out:
 
-* [Celluloid::IO][celluloid-io]: "Evented" IO support for Celluloid actors
-* [Celluloid::ZMQ][celluloid-zmq]: "Evented" 0MQ support for Celluloid actors
+* [Reel][reel]: An "evented" web server based on `Celluloid::IO`
 * [DCell][dcell]: The Celluloid actor protocol distributed over 0MQ
-* [Reel][reel]: An "evented" web server based on Celluloid::IO
-* [Lattice][lattice]: A concurrent realtime web framework based on Celluloid::IO
+* [ECell][ecell]: Mesh strategies for `Celluloid` actors distributed over 0MQ
+* [Celluloid::IO][celluloid-io]: "Evented" IO support for `Celluloid` actors
+* [Celluloid::ZMQ][celluloid-zmq]: "Evented" 0MQ support for `Celluloid` actors
+* [Celluloid::DNS][celluloid-dns]: An "evented" DNS server based on `Celluloid::IO`
+* [Celluloid::SMTP][celluloid-smtp]: An "evented" SMTP server based on `Celluloid::IO`
+* [Lattice][lattice]: A concurrent realtime web framework based on `Celluloid::IO`
 * [nio4r][nio4r]: "New IO for Ruby": high performance IO selectors
 * [Timers][timers]: A generic Ruby timer library for event-based systems
 
+[reel]: https://github.com/celluloid/reel/
+[dcell]: https://github.com/celluloid/dcell/
+[ecell]: https://github.com/celluloid/ecell/
 [celluloid-io]: https://github.com/celluloid/celluloid-io/
 [celluloid-zmq]: https://github.com/celluloid/celluloid-zmq/
-[dcell]: https://github.com/celluloid/dcell/
-[reel]: https://github.com/celluloid/reel/
+[celluloid-dns]: https://github.com/celluloid/celluloid-dns/
+[celluloid-smtp]: https://github.com/celluloid/celluloid-smtp/
 [lattice]: https://github.com/celluloid/lattice/
 [nio4r]: https://github.com/celluloid/nio4r/
 [timers]: https://github.com/celluloid/timers/
@@ -133,16 +139,22 @@ Or install it yourself as:
 
     $ gem install celluloid
 
-Inside of your Ruby program, require Celluloid with:
+Inside of your Ruby program, require Celluloid with [newest API](https://github.com/celluloid/celluloid/wiki/DEPRECATION-WARNING):
 
 ```ruby
-require 'celluloid/autostart'
+require 'celluloid/current'
+```
+
+Or to support the old API, use:
+
+```ruby
+require 'celluloid/backported'
 ```
 
 Supported Platforms
 -------------------
 
-Celluloid works on Ruby 1.9.3, 2.0.0, JRuby 1.6+, and Rubinius 2.0.
+Celluloid works on Ruby 2.0+, JRuby 1.7+, and Rubinius 2.0.
 
 JRuby or Rubinius are the preferred platforms as they support true thread-level
 parallelism when executing Ruby code, whereas MRI/YARV is constrained by a global
@@ -168,5 +180,6 @@ Contributing to Celluloid
 License
 -------
 
-Copyright (c) 2011-2014 Tony Arcieri. Distributed under the MIT License. See
-LICENSE.txt for further details.
+Copyright (c) 2011-2015 Tony Arcieri, Donovan Keme.
+
+Distributed under the MIT License. See [LICENSE.txt](https://github.com/celluloid/celluloid/blob/master/LICENSE.txt) for further details.

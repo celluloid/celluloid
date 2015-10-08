@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
-$:.push File.expand_path('../../lib', __FILE__)
-require 'celluloid/autostart'
+$LOAD_PATH.push File.expand_path("../../lib", __FILE__)
+require "celluloid/autostart"
 
 module Enumerable
   # Simple parallel map using Celluloid::Futures
@@ -11,4 +11,4 @@ module Enumerable
   end
 end
 
-p 100.times.pmap {|n| n * 2}
+p 100.times.pmap { |n| n * 2 }

@@ -1,4 +1,4 @@
-require 'thread'
+require "thread"
 
 module Celluloid
   # Celluloid::Future objects allow methods and blocks to run in the
@@ -8,9 +8,13 @@ module Celluloid
       return super unless block
 
       future = new
-      Celluloid::ThreadHandle.new(Celluloid.actor_system, :future) do
+      # task = Thread.current[:celluloid_task]
+      # actor = Thread.current[:celluloid_actor]
+      Internals::ThreadHandle.new(Celluloid.actor_system, :future) do
         begin
-          call = SyncCall.new(future, :call, args)
+          # Thread.current[:celluloid_task] = task
+          # Thread.current[:celluloid_actor] = actor
+          call = Call::Sync.new(future, :call, args)
           call.dispatch(block)
         rescue
           # Exceptions in blocks will get raised when the value is retrieved
@@ -21,12 +25,36 @@ module Celluloid
 
     attr_reader :address
 
-    def initialize
+    def initialize(&block)
       @address = Celluloid.uuid
       @mutex = Mutex.new
       @ready = false
       @result = nil
       @forwards = nil
+      @cancelled = false
+
+      if block
+        @call = Call::Sync.new(self, :call, args)
+        Celluloid.internal_pool.get do
+          begin
+            @call.dispatch(block)
+          rescue
+            # Exceptions in blocks will get raised when the value is retrieved
+          end
+        end
+      else
+        @call = nil
+      end
+    end
+
+    # Execute the given method in future context
+    def execute(receiver, method, args, block)
+      @mutex.synchronize do
+        fail "already calling" if @call
+        @call = Call::Sync.new(self, method, args, block)
+      end
+
+      receiver << @call
     end
 
     # Check if this future has a value yet
@@ -65,19 +93,20 @@ module Celluloid
       end
 
       if result
-        result.value
+        (result.respond_to?(:value)) ? result.value : result
       else
-        raise TimeoutError, "Timed out"
+        fail TimedOut, "Timed out"
       end
     end
     alias_method :call, :value
 
     # Signal this future with the given result value
     def signal(value)
+      return if @cancelled
       result = Result.new(value, self)
 
       @mutex.synchronize do
-        raise "the future has already happened!" if @ready
+        fail "the future has already happened!" if @ready
 
         if @forwards
           @forwards.is_a?(Array) ? @forwards.each { |f| f << result } : @forwards << result
@@ -89,6 +118,14 @@ module Celluloid
     end
     alias_method :<<, :signal
 
+    def cancel(error)
+      response = ErrorResponse.new(@call, error)
+      signal response
+      @mutex.synchronize do
+        @cancelled = true
+      end
+    end
+
     # Inspect this Celluloid::Future
     alias_method :inspect, :to_s
 
@@ -97,7 +134,8 @@ module Celluloid
       attr_reader :future
 
       def initialize(result, future)
-        @result, @future = result, future
+        @result = result
+        @future = future
       end
 
       def value

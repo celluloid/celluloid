@@ -1,0 +1,1 @@
+$CELLULOID_DEBUG = true
