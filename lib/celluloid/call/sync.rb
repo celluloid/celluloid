@@ -29,7 +29,7 @@ module Celluloid
       end
 
       def cleanup
-        exception = DeadActorError.new("attempted to call a dead actor")
+        exception = DeadActorError.new("attempted to call a dead actor: #{self.method}")
         respond Internals::Response::Error.new(self, exception)
       end
 

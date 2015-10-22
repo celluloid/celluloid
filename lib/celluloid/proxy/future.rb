@@ -18,7 +18,7 @@ class Celluloid::Proxy::Future < Celluloid::Proxy::Abstract
 
   def method_missing(meth, *args, &block)
     unless @mailbox.alive?
-      fail ::Celluloid::DeadActorError, "attempted to call a dead actor"
+      fail ::Celluloid::DeadActorError, "attempted to call a dead actor: #{meth}"
     end
 
     if block_given?
