@@ -59,4 +59,3 @@ end
 require "celluloid/call/sync"
 require "celluloid/call/async"
 require "celluloid/call/block"
-require "celluloid/call/block"
