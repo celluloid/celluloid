@@ -17,3 +17,28 @@ class Celluloid::Proxy::Abstract < BasicObject
     alias_method(:equal?, :==) unless instance_methods.include?(:equal?)
   end
 end
+
+class Celluloid::Proxy::AbstractCall < Celluloid::Proxy::Abstract
+  attr_reader :mailbox
+  
+  def initialize(mailbox, klass)
+    @mailbox = mailbox
+    @klass = klass
+  end
+  
+  def eql?(other)
+    self.__class__.eql?(other.__class__) and @mailbox.eql?(other.mailbox)
+  end
+
+  def hash
+    @mailbox.hash
+  end
+
+  def __klass__
+    @klass
+  end
+
+  def inspect
+    "#<#{self.__class__}(#{@klass})>"
+  end
+end

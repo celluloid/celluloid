@@ -1,19 +1,8 @@
 # A proxy which creates future calls to an actor
-class Celluloid::Proxy::Future < Celluloid::Proxy::Abstract
-  attr_reader :mailbox
-
+class Celluloid::Proxy::Future < Celluloid::Proxy::AbstractCall
   # Used for reflecting on proxy objects themselves
   def __class__
     ::Celluloid::Proxy::Future
-  end
-
-  def initialize(mailbox, klass)
-    @mailbox = mailbox
-    @klass = klass
-  end
-
-  def inspect
-    "#<Celluloid::Proxy::Future(#{@klass})>"
   end
 
   def method_missing(meth, *args, &block)
