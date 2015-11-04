@@ -9,7 +9,6 @@ class Celluloid::Proxy::Cell < Celluloid::Proxy::Sync
   def initialize(mailbox, actor_proxy, klass)
     super(mailbox, klass)
     @actor_proxy  = actor_proxy
-    @sync_proxy   = ::Celluloid::Proxy::Sync.new(mailbox, klass)
     @async_proxy  = ::Celluloid::Proxy::Async.new(mailbox, klass)
     @future_proxy = ::Celluloid::Proxy::Future.new(mailbox, klass)
   end
