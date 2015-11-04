@@ -29,6 +29,17 @@ RSpec.shared_examples "a Celluloid Actor" do
   it "can be stored in hashes" do
     expect(actor.hash).not_to eq(Kernel.hash)
     expect(actor.object_id).not_to eq(Kernel.object_id)
+    expect(actor.eql? actor).to be_truthy
+  end
+
+  it "can be stored in hashes even when dead" do
+    actor.terminate
+    
+    expect(actor.dead?).to be_truthy
+    
+    expect(actor.hash).not_to eq(Kernel.hash)
+    expect(actor.object_id).not_to eq(Kernel.object_id)
+    expect(actor.eql? actor).to be_truthy
   end
 
   it "implements respond_to? correctly" do
