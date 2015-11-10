@@ -2,11 +2,6 @@
 class Celluloid::Proxy::Actor < Celluloid::Proxy::Abstract
   attr_reader :thread, :mailbox
 
-  # Used for reflecting on proxy objects themselves
-  def __class__
-    ::Celluloid::Proxy::Actor
-  end
-
   def initialize(mailbox, thread)
     @mailbox = mailbox
     @thread = thread

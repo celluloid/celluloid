@@ -1,10 +1,5 @@
 # A proxy which creates future calls to an actor
 class Celluloid::Proxy::Future < Celluloid::Proxy::AbstractCall
-  # Used for reflecting on proxy objects themselves
-  def __class__
-    ::Celluloid::Proxy::Future
-  end
-
   def method_missing(meth, *args, &block)
     unless @mailbox.alive?
       fail ::Celluloid::DeadActorError, "attempted to call a dead actor: #{meth}"

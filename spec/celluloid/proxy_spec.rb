@@ -25,4 +25,9 @@ RSpec.describe Celluloid::Proxy::Abstract do
 		
 		expect(actor.future.eql? other_future).to be_truthy
 	end
+	
+	it "should be possible to compare with non-proxy objects" do
+		expect(actor.eql? "string").to be_falsey
+		expect("string".eql? actor).to be_falsey
+	end
 end

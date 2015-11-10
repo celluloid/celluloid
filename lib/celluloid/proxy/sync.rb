@@ -1,10 +1,5 @@
 # A proxy which sends synchronous calls to an actor
 class Celluloid::Proxy::Sync < Celluloid::Proxy::AbstractCall
-  # Used for reflecting on proxy objects themselves
-  def __class__
-    ::Celluloid::Proxy::Sync
-  end
-
   def respond_to?(meth, include_private = false)
     __class__.instance_methods.include?(meth) || method_missing(:respond_to?, meth, include_private)
   end
