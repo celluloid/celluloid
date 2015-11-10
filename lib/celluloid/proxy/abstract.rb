@@ -1,9 +1,7 @@
 module Celluloid::Proxy
-  CLASS_METHOD = ::Kernel.instance_method(:class)
-  
   # Looks up the actual class of instance, even if instance is a proxy.
   def self.class_of(instance)
-    CLASS_METHOD.bind(instance).call
+    (class << instance; self; end).superclass
   end
 end
 
