@@ -79,7 +79,7 @@ or visit us on IRC at #celluloid on freenode
 ### Is It "Production Ready™"?
 
 Yes, many users are now running Celluloid in production by using
-[Sidekiq](http://sidekiq.org) and [Adhearsion](http://adhearsion.com/)
+[Sidekiq](http://sidekiq.org) ([< 4.0.0](http://www.mikeperham.com/2015/10/14/should-you-use-celluloid/)) and [Adhearsion](http://adhearsion.com/)
 
 Documentation
 -------------
