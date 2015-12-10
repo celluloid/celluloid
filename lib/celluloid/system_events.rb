@@ -110,7 +110,9 @@ module Celluloid
     end
     attr_reader :task, :value
 
-    handler(&:call)
+    handler do |event|
+      event.call
+    end
 
     def call
       @task.resume(@value)
