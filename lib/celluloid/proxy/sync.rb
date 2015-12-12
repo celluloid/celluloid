@@ -1,21 +1,5 @@
 # A proxy which sends synchronous calls to an actor
-class Celluloid::Proxy::Sync < Celluloid::Proxy::Abstract
-  attr_reader :mailbox
-
-  # Used for reflecting on proxy objects themselves
-  def __class__
-    ::Celluloid::Proxy::Sync
-  end
-
-  def initialize(mailbox, klass)
-    @mailbox = mailbox
-    @klass = klass
-  end
-
-  def inspect
-    "#<Celluloid::Proxy::Sync(#{@klass})>"
-  end
-
+class Celluloid::Proxy::Sync < Celluloid::Proxy::AbstractCall
   def respond_to?(meth, include_private = false)
     __class__.instance_methods.include?(meth) || method_missing(:respond_to?, meth, include_private)
   end

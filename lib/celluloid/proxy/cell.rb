@@ -1,15 +1,9 @@
 # A proxy object returned from Celluloid::Actor.new/new_link which converts
 # the normal Ruby method protocol into an inter-actor message protocol
 class Celluloid::Proxy::Cell < Celluloid::Proxy::Sync
-  # Used for reflecting on proxy objects themselves
-  def __class__
-    ::Celluloid::Proxy::Cell
-  end
-
   def initialize(mailbox, actor_proxy, klass)
     super(mailbox, klass)
     @actor_proxy  = actor_proxy
-    @sync_proxy   = ::Celluloid::Proxy::Sync.new(mailbox, klass)
     @async_proxy  = ::Celluloid::Proxy::Async.new(mailbox, klass)
     @future_proxy = ::Celluloid::Proxy::Future.new(mailbox, klass)
   end

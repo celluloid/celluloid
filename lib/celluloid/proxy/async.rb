@@ -1,21 +1,5 @@
 # A proxy which sends asynchronous calls to an actor
-class Celluloid::Proxy::Async < Celluloid::Proxy::Abstract
-  attr_reader :mailbox
-
-  # Used for reflecting on proxy objects themselves
-  def __class__
-    ::Celluloid::Proxy::Async
-  end
-
-  def initialize(mailbox, klass)
-    @mailbox = mailbox
-    @klass = klass
-  end
-
-  def inspect
-    "#<Celluloid::Proxy::Async(#{@klass})>"
-  end
-
+class Celluloid::Proxy::Async < Celluloid::Proxy::AbstractCall
   def method_missing(meth, *args, &block)
     if @mailbox == ::Thread.current[:celluloid_mailbox]
       args.unshift meth
