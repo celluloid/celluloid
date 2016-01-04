@@ -463,7 +463,10 @@ end
 
 require "celluloid/exceptions"
 
-Celluloid.logger = Logger.new(STDERR)
+Celluloid.logger = Logger.new(STDERR).tap do |logger|
+  logger.level = Logger::INFO unless $CELLULOID_DEBUG
+end
+
 Celluloid.shutdown_timeout = 10
 Celluloid.log_actor_crashes = true
 
