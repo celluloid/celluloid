@@ -38,7 +38,7 @@ module Specs
           next if thread.backtrace.first =~ /timeout\.rb/
 
           if Specs::ALLOW_SLOW_MAILBOXES
-            next if thread.backtrace[0] =~ /mailbox\.rb/ && thread.backtrace[0] =~ /sleep/
+            next if thread.backtrace[0] =~ /sleep/ && thread.backtrace.any? { |l| l =~ /mailbox\.rb/ }
           end
         end
 
