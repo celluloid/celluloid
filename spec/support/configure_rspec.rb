@@ -49,7 +49,7 @@ RSpec.configure do |config|
   end
 
   config.around :each, library: :IO do |ex|
-    Celluloid.boot
+    Celluloid.init
     FileUtils.rm("/tmp/cell_sock") if File.exist?("/tmp/cell_sock")
     ex.run
     Celluloid.shutdown
