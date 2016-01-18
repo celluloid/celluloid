@@ -1,17 +1,52 @@
+0.17.3 (2016-01-18)
+-----
+* [#701](https://github.com/celluloid/celluloid/pull/701)
+  Conditions in loose threads loop does not take into account the difference between
+  backtraces from ruby 2.0.0 and greater than. Fixes celluloid/celluloid-io#165.
+  ([@TiagoCardoso1983])
+
+* [#700](https://github.com/celluloid/celluloid/pull/700)
+  Set celluloid logger level to info by default unless debug is enabled. Fixes #667.
+  ([@ioquatix])
+
+* [#695](https://github.com/celluloid/celluloid/pull/695)
+  Extending the condition event handler with the block; this solves a bug
+  introduced in jruby >9.0.0.0, which breaks with an ArgumentError exception,
+  apparently due to the way to_proc procs are passed arguments. Fixes #694.
+  ([@TiagoCardoso1983])
+
+* [#689](https://github.com/celluloid/celluloid/pull/689)
+  Simplified sync, async and future proxies by providing specific AbstractCall base.
+  ([@ioquatix])
+
+* [#688](https://github.com/celluloid/celluloid/pull/688)
+  Fix failure to remove dead actors from sets, e.g. celluloid-supervision.
+  ([@ioquatix])
+
+* [#686](https://github.com/celluloid/celluloid/pull/686)
+  Print out method name to help debugging method call which caused dead actor error.
+  ([@ioquatix])
+
+* [#682](https://github.com/celluloid/celluloid/pull/682)
+  Remove excess call/block require.
+
+* [#666](https://github.com/celluloid/celluloid/pull/666)
+  Don't catch IOError.
+
 0.17.2 (2015-09-30)
 -----
 * Revamped test suite, using shared RSpec configuration layer provided by Celluloid itself.
 * Updated gem dependencies provided by Celluloid::Sync... extraneous gems removed, or marked as development dependencies.
-- Clean up deprecation notes.
+* Clean up deprecation notes.
 
 0.17.1.2 (2015-08-21)
 -----
-- Fixes to posted markdown content.
-- Pull in new gem dependencies.
+* Fixes to posted markdown content.
+* Pull in new gem dependencies.
 
 0.17.1.1 (2015-08-07)
 -----
-- Revert "no task to suspend" code from #232.
+* Revert "no task to suspend" code from #232.
 
 0.17.1 (2015-08-06)
 -----
@@ -354,3 +389,6 @@
 0.0.1
 -----
 * Initial release
+
+[@ioquatix]: https://github.com/ioquatix
+[@TiagoCardoso1983]: https://github.com/TiagoCardoso1983
