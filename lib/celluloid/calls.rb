@@ -45,10 +45,18 @@ module Celluloid
       arity = meth.arity
 
       if arity >= 0
-        fail ArgumentError, "wrong number of arguments (#{@arguments.size} for #{arity})" if @arguments.size != arity
+        if @arguments.size != arity
+          e = ArgumentError.new("wrong number of arguments (#{@arguments.size} for #{arity})")
+          e.set_backtrace(caller << "#{meth.source_location.join(':')}: in `#{meth.name}`")
+          fail e
+        end
       elsif arity < -1
         mandatory_args = -arity - 1
-        fail ArgumentError, "wrong number of arguments (#{@arguments.size} for #{mandatory_args}+)" if arguments.size < mandatory_args
+        if arguments.size < mandatory_args
+          e = ArgumentError.new("wrong number of arguments (#{@arguments.size} for #{mandatory_args}+)")
+          e.set_backtrace(caller << "#{meth.source_location.join(':')}: in `#{meth.name}`")
+          fail e
+        end
       end
     rescue => ex
       raise AbortError.new(ex)
