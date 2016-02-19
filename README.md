@@ -78,8 +78,9 @@ or visit us on IRC at #celluloid on freenode
 
 ### Is It "Production Ready™"?
 
-Yes, many users are now running Celluloid in production by using
-[Sidekiq](http://sidekiq.org) and [Adhearsion](http://adhearsion.com/)
+Yes, many users are now running Celluloid in production.
+
+* **See:** [Projects Using Celluloid](https://github.com/celluloid/celluloid/wiki/Projects-Using-Celluloid)
 
 Documentation
 -------------
