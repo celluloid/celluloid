@@ -531,7 +531,3 @@ Celluloid.group_class =
     end
   end
 
-unless defined?($CELLULOID_TEST) && $CELLULOID_TEST
-  Celluloid.register_shutdown
-  Celluloid.init
-end
