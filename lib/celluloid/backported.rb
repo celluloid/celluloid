@@ -1,2 +1,2 @@
-$CELLULOID_BACKPORTED = true
-require "celluloid/autostart"
+
+fatal "Backported mode is no longer supported. Please require 'celluloid' and update your code."
