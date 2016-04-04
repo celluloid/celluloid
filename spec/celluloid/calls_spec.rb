@@ -16,12 +16,6 @@ RSpec.describe Celluloid::Call::Sync, actor_system: :global do
     context "when obj raises during inspect" do
       it "should emulate obj.inspect" do
         allow(logger).to receive(:crash).with("Actor crashed!", NoMethodError)
-
-        if RUBY_ENGINE == "rbx"
-          expected = /undefined method `no_such_method' on an instance of CallExampleActor/
-        else
-          expected = /undefined method `no_such_method' for #\<CallExampleActor:0x[a-f0-9]+\>/
-        end
       end
     end
   end

@@ -7,7 +7,6 @@ $CELLULOID_DEBUG = false
 $CELLULOID_MANAGED ||= false
 
 require "celluloid/version"
-require "celluloid/notices"
 
 module Celluloid
   # Expose all instance methods as singleton methods
@@ -503,7 +502,6 @@ require "celluloid/actor/system"
 require "celluloid/actor/manager"
 
 $CELLULOID_MONITORING = false
-Celluloid::Notices.output
 
 # Configure default systemwide settings
 
