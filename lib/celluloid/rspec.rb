@@ -1,7 +1,7 @@
 require "dotenv"
 require "nenv"
 
-require "celluloid/test"
+require "celluloid"
 
 # To help produce better bug reports in Rubinius
 if RUBY_ENGINE == "rbx"

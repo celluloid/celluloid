@@ -19,6 +19,7 @@ class Celluloid::Proxy::Sync < Celluloid::Proxy::AbstractCall
 
     call = ::Celluloid::Call::Sync.new(::Celluloid.mailbox, meth, args, block)
     @mailbox << call
-    call.value
+    
+    return call.value
   end
 end

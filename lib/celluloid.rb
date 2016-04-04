@@ -7,11 +7,6 @@ $CELLULOID_DEBUG = false
 $CELLULOID_MANAGED ||= false
 
 require "celluloid/version"
-require "celluloid/notices"
-
-$CELLULOID_BACKPORTED = false if defined?(CELLULOID_FUTURE) && CELLULOID_FUTURE
-$CELLULOID_BACKPORTED = (ENV["CELLULOID_BACKPORTED"] != "false") unless defined?($CELLULOID_BACKPORTED)
-Celluloid::Notices.backported if $CELLULOID_BACKPORTED
 
 module Celluloid
   # Expose all instance methods as singleton methods
@@ -182,6 +177,12 @@ module Celluloid
     # Shut down all running actors
     def shutdown
       actor_system.shutdown
+    end
+
+    def autostart
+      self.start
+      self.register_shutdown
+      self.init
     end
 
     def version
@@ -500,10 +501,7 @@ require "celluloid/future"
 require "celluloid/actor/system"
 require "celluloid/actor/manager"
 
-require "celluloid/deprecate" unless $CELLULOID_BACKPORTED == false
-
 $CELLULOID_MONITORING = false
-Celluloid::Notices.output
 
 # Configure default systemwide settings
 

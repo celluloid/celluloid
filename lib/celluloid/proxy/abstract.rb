@@ -22,16 +22,20 @@ class Celluloid::Proxy::Abstract < BasicObject
   def __class__
     @class ||= ::Celluloid::Proxy.class_of(self)
   end
+  
+  def nil?
+    false
+  end
 end
 
 class Celluloid::Proxy::AbstractCall < Celluloid::Proxy::Abstract
   attr_reader :mailbox
-  
+
   def initialize(mailbox, klass)
     @mailbox = mailbox
     @klass = klass
   end
-  
+
   def eql?(other)
     self.__class__.eql?(::Celluloid::Proxy.class_of(other)) and @mailbox.eql?(other.mailbox)
   end
@@ -39,11 +43,11 @@ class Celluloid::Proxy::AbstractCall < Celluloid::Proxy::Abstract
   def hash
     @mailbox.hash
   end
-  
+
   def __klass__
     @klass
   end
-  
+
   def inspect
     "#<#{self.__class__}(#{@klass})>"
   end
