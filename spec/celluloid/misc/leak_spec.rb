@@ -1,7 +1,6 @@
 require "weakref"
 
-RSpec.describe "Leaks", actor_system: :global, leaktest: true,
-                        skip: !ENV["CELLULOID_LEAKTEST"] && "leak test disabled" do
+RSpec.describe "Leaks", actor_system: :global do
   class LeakActor
     include Celluloid
 

@@ -22,7 +22,7 @@ env:
   global:
     - NUMBER_OF_PROCESSORS=4 CELLULOID_CONFIG_FILE=.env-ci
   matrix:
-    - CELLULOID_LEAKTEST=1
+    - CELLULOID_TASK_CLASS=Fibered
     - CELLULOID_TASK_CLASS=Threaded
 
 notifications:
