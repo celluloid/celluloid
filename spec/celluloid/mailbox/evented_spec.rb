@@ -16,7 +16,7 @@ RSpec.describe Celluloid::Mailbox::Evented do
       timeout_interval = Specs::TIMER_QUANTUM + 0.1
       started_at = Time.now
       expect do
-        Kernel.send(:timeout, timeout_interval) do
+        ::Timeout.timeout(timeout_interval) do
           subject.receive { false }
         end
       end.to raise_exception(Timeout::Error)
