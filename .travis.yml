@@ -2,6 +2,7 @@ script: rake ci
 cache: bundler
 language: ruby
 rvm:
+  - rbx-3.26
   - rbx-2
   - jruby
   - 2.2.2
