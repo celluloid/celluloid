@@ -419,7 +419,7 @@ module Celluloid
       # WARNING: if the klass exception is not a Celluloid::Interruption, things won't fly!!!
       exception.set_backtrace bt
       task.resume exception
-    end
+    end unless duration.nil?
     yield
   ensure
     timer.cancel if timer
