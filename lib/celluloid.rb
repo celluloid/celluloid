@@ -169,9 +169,11 @@ module Celluloid
         if defined?(RUBY_ENGINE) && RUBY_ENGINE == "ruby" && RUBY_VERSION >= "1.9"
           # workaround for MRI bug losing exit status in at_exit block
           # http://bugs.ruby-lang.org/issues/5218
-          exit_status = $ERROR_INFO.status if $ERROR_INFO.is_a?(SystemExit)
+          # return previous status or assume something failed
+          # see https://github.com/colszowka/simplecov/issues/41
+          exit_status = ($ERROR_INFO.is_a?(SystemExit) ? $ERROR_INFO.status : 1)
           Celluloid.shutdown
-          exit exit_status if exit_status
+          exit exit_status
         else
           Celluloid.shutdown
         end
