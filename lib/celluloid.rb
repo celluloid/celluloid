@@ -162,20 +162,11 @@ module Celluloid
     def register_shutdown
       return if defined?(@shutdown_registered) && @shutdown_registered
 
-      # Terminate all actors at exit
+      # Terminate all actors at exit, unless the exit is abnormal.
       at_exit do
-        sleep 0.126 # hax grace period for unnaturally terminating actors
-        # allows "reason" in exit_handler to resolve before being destroyed
-        if defined?(RUBY_ENGINE) && RUBY_ENGINE == "ruby" && RUBY_VERSION >= "1.9"
-          # workaround for MRI bug losing exit status in at_exit block
-          # http://bugs.ruby-lang.org/issues/5218
-          exit_status = $ERROR_INFO.status if $ERROR_INFO.is_a?(SystemExit)
-          Celluloid.shutdown
-          exit exit_status if exit_status
-        else
-          Celluloid.shutdown
-        end
+        Celluloid.shutdown unless $!
       end
+      
       @shutdown_registered = true
     end
 
