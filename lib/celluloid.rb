@@ -148,7 +148,7 @@ module Celluloid
     end
 
     def init
-      @actor_system = Actor::System.new
+      @actor_system ||= Actor::System.new
     end
 
     def start
