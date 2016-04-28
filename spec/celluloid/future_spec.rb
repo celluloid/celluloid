@@ -32,4 +32,10 @@ RSpec.describe Celluloid::Future, actor_system: :global do
     future = Celluloid::Future.new { sleep 2 }
     expect { future.value(1) }.to raise_exception(Celluloid::TaskTimeout)
   end
+
+  it "cancels future" do
+    future = Celluloid::Future.new { sleep 3600 }
+    future.cancel(StandardError.new('cancelled'))
+    expect { future.value }.to raise_exception(StandardError, "cancelled")
+  end
 end
