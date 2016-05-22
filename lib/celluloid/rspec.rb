@@ -13,7 +13,7 @@ end
 require "rspec/retry"
 
 module Specs
-
+  ALLOW_SLOW_MAILBOXES = true # TODO: Remove hax.
   CHECK_LOOSE_THREADS = !Nenv.ci? unless defined? CHECK_LOOSE_THREADS
   ALLOW_RETRIES = 3 unless defined? ALLOW_RETRIES
 
