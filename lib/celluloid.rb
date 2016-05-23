@@ -159,6 +159,20 @@ module Celluloid
       actor_system && actor_system.running?
     end
 
+    def trap(signal)
+      r, w = IO.pipe
+
+      Thread.new {
+        while r.read(1)
+          yield
+        end
+      }
+       
+      Signal.trap(signal) {
+        w.write(".")
+      }
+    end
+
     def register_shutdown
       return if defined?(@shutdown_registered) && @shutdown_registered
 
