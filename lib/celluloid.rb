@@ -159,14 +159,13 @@ module Celluloid
       actor_system && actor_system.running?
     end
 
+    #de TODO Anticipate outside process finalizer that would by-pass this.
     def register_shutdown
       return if defined?(@shutdown_registered) && @shutdown_registered
-
       # Terminate all actors at exit, unless the exit is abnormal.
       at_exit do
         Celluloid.shutdown unless $!
       end
-      
       @shutdown_registered = true
     end
 
@@ -521,4 +520,3 @@ Celluloid.group_class =
       Celluloid::Group.const_get(str)
     end
   end
-
