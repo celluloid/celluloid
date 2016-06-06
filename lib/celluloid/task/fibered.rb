@@ -13,7 +13,7 @@ module Celluloid
           Thread.current[:celluloid_actor_system] = actor_system
           yield
           # TODO: Determine why infinite thread leakage happens under jRuby, if `Fiber.yield` is used:
-          Fiber.yield unless RUBY_PLATFORM == "java"
+          #de Fiber.yield unless RUBY_PLATFORM == "java"
         end
       end
 
