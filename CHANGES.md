@@ -1,7 +1,10 @@
 0.17.4 (HEAD)
 -----
+* Clean up and tune-up to become fully compatible with `Rubinius 3.*` ([@digitalextremist])
+* Avoid blowing away the actor system & cleaning out hax. ([@ioquatix])
+* `README.md` tweaks. Updates to constants. ([@digitalextremist])
+* Adding method path in source code to backtrace on arity failures. ([@TiagoCardoso1983])
 * Removed faulty conditional "loose threads" test wrapper. ([@digitalextremist])
-* Clean up and tune-up to become compatible with `Rubinius 3.*` ([@digitalextremist])
 * Updated `Travis CI` configuration, especially post `Celluloid::Sync` fix. ([@digitalextremist])
 
 0.17.3 (2016-01-18)

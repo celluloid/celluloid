@@ -20,7 +20,6 @@ RSpec.describe "Leaks", actor_system: :global, skip: ENV["CELLULOID_LEAKTEST"] !
     trash = []
     count.times do |step|
       GC.start
-      sleep 0.0126 #de hax
       return true unless weak.weakref_alive?
       trash << "*" * step
     end
