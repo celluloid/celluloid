@@ -6,8 +6,10 @@ language: ruby
 
 rvm:
   - rbx
-  - jruby
   - 2.2.2
+  - jruby
+  - 2.1.8
+  - 2.3.0
   - ruby-head
   - jruby-head
 
@@ -16,6 +18,8 @@ matrix:
   fast_finish: true
 
   allow_failures:
+    - rvm: 2.1.8
+    - rvm: 2.3.0
     - rvm: ruby-head
     - rvm: jruby-head
     - env: CELLULOID_BACKPORTED=true
