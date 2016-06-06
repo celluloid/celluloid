@@ -1,7 +1,6 @@
 require "weakref"
 
-RSpec.describe "Leaks", actor_system: :global, leaktest: true,
-                        skip: !ENV["CELLULOID_LEAKTEST"] && "leak test disabled" do
+RSpec.describe "Leaks", actor_system: :global, skip: ENV["CELLULOID_LEAKTEST"] != 'true' do
   class LeakActor
     include Celluloid
 
@@ -21,10 +20,10 @@ RSpec.describe "Leaks", actor_system: :global, leaktest: true,
     trash = []
     count.times do |step|
       GC.start
+      sleep 0.0126 #de hax
       return true unless weak.weakref_alive?
       trash << "*" * step
     end
-
     false
   end
 
@@ -39,7 +38,8 @@ RSpec.describe "Leaks", actor_system: :global, leaktest: true,
   def actor_life(what, &block)
     GC.start
     weak = do_actor what, &block
-    expect(wait_for_release(weak, what)).to be_truthy
+    result = wait_for_release(weak, what)
+    expect(result).to be_truthy
   end
 
   context "celluloid actor" do
