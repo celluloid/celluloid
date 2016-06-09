@@ -152,6 +152,20 @@ Or to support the old API, use:
 require 'celluloid/backported'
 ```
 
+###Cloning Celluloid via GitHub
+
+Celluloid is divided into submodules. To install the framework via github, you will have to clone the submodules as well.
+
+__Clone Cellulloid from scratch:__
+
+    $ git clone --recursive https://github.com/celluloid/celluloid
+    
+__If you have already cloned Celluloid without submodules:__
+
+Run the following command in the directory containing Celluloid.
+
+	git submodule update --init --recursive
+
 Supported Platforms
 -------------------
 
