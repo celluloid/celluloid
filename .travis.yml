@@ -3,8 +3,10 @@ cache: bundler
 language: ruby
 rvm:
 - rbx
+- jruby-1.7.25
 - 2.2.2
-- jruby
+- rbx-2
+- jruby-9.1.2.0
 - 2.1.8
 - 2.3.0
 - ruby-head
@@ -12,6 +14,8 @@ rvm:
 matrix:
   fast_finish: true
   allow_failures:
+  - rvm: rbx-2
+  - rvm: jruby-9.1.2.0
   - rvm: 2.1.8
   - rvm: 2.3.0
   - rvm: ruby-head
