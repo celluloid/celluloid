@@ -1,3 +1,8 @@
+0.20.6 (2016-06-19)
+-----
+* `Tree`: Detect and accept already defined `Celluloid::Supervision::Configuration` vs. fail as if undefined.
+* Updated gem dependencies.
+
 0.20.5 (2015-09-30)
 -----
 * Revamped test suite, using shared RSpec configuration layer provided by Celluloid itself.
