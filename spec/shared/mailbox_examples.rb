@@ -11,6 +11,10 @@ RSpec.shared_examples "a Celluloid Mailbox" do
     expect(subject.receive).to eq(message)
   end
 
+  it "responds with correct message on inspect" do
+    expect(subject.inspect).to eq("#<#{subject.class}:#{subject.object_id.to_s(16)} @messages=[]>")
+  end
+
   it "prioritizes system events over other messages" do
     subject << :dummy1
     subject << :dummy2
