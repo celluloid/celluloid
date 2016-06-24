@@ -37,6 +37,7 @@ module Specs
     def open_logfile(rel_path, sync)
       root = Pathname(__FILE__).dirname.dirname.dirname
       log_path = root + rel_path
+      log_path.dirname.mkpath
       logfile = File.open(log_path.to_s, "a")
       logfile.sync if sync
       logfile
