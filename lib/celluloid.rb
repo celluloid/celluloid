@@ -490,6 +490,8 @@ require "celluloid/future"
 require "celluloid/actor/system"
 require "celluloid/actor/manager"
 
+require "celluloid/multiplex"
+
 require "celluloid/deprecate" unless $CELLULOID_BACKPORTED == false
 
 $CELLULOID_MONITORING = false

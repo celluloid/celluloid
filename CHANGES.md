@@ -1,3 +1,12 @@
+0.17.4 (HEAD)
+-----
+* Clean up and tune-up to become fully compatible with `Rubinius 3.*` ([@digitalextremist])
+* Avoid blowing away the actor system & cleaning out hax. ([@ioquatix])
+* `README.md` tweaks. Updates to constants. ([@digitalextremist])
+* Adding method path in source code to backtrace on arity failures. ([@TiagoCardoso1983])
+* Removed faulty conditional "loose threads" test wrapper. ([@digitalextremist])
+* Updated `Travis CI` configuration, especially post `Celluloid::Sync` fix. ([@digitalextremist])
+
 0.17.3 (2016-01-18)
 -----
 * [#701](https://github.com/celluloid/celluloid/pull/701)
@@ -33,13 +42,13 @@
 * [#666](https://github.com/celluloid/celluloid/pull/666)
   Don't catch IOError.
 
-0.17.2 (2015-09-30)
+0.17.2 (2015-09-30) ([@digitalextremist])
 -----
 * Revamped test suite, using shared RSpec configuration layer provided by Celluloid itself.
 * Updated gem dependencies provided by Celluloid::Sync... extraneous gems removed, or marked as development dependencies.
 * Clean up deprecation notes.
 
-0.17.1.2 (2015-08-21)
+0.17.1.2 (2015-08-21) ([@digitalextremist])
 -----
 * Fixes to posted markdown content.
 * Pull in new gem dependencies.
@@ -48,7 +57,7 @@
 -----
 * Revert "no task to suspend" code from #232.
 
-0.17.1 (2015-08-06)
+0.17.1 (2015-08-06) ([@digitalextremist])
 -----
 * `Celluloid::ActorSystem` moved to `Celluloid::Actor::System`, and from `celluloid/actor_system.rb` to `celluloid/actor/system.rb`
 * Added extensible API for defining new SystemEvents, and having them handled... without everyone changing `Actor#handle_system_event`.
@@ -56,7 +65,7 @@
 * General round-up of all "errors" emitted throughout Celluloid, to either be derived from `Celluloid::Error` or `Celluloid::Interruption`.
 * Added ability to pass a block to `Condition#wait` which runs a `{ |value| ... }` type block if present, once the value is obtained by waiting.
 
-0.17.0 (2015-07-04)
+0.17.0 (2015-07-04) ([@digitalextremist])
 -----
 * Fix $CELLULOID_TEST warnings
 * Massive overhaul of test suite, end-to-end.

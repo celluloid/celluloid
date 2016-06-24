@@ -1,2 +1,2 @@
 $CELLULOID_BACKPORTED = false
-require "celluloid"
+require "celluloid/autostart"
