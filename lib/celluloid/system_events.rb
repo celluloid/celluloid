@@ -18,7 +18,7 @@ module Celluloid
       end
 
       def handler(&block)
-        fail ArgumentError, "SystemEvent handlers must be defined with a block." unless block
+        raise ArgumentError, "SystemEvent handlers must be defined with a block." unless block
         method = begin
           handler = name
                     .split("::").last
@@ -38,7 +38,7 @@ module Celluloid
       def initialize(actor, type)
         @actor = actor
         @type = type.to_sym
-        fail ArgumentError, "type must be link or unlink" unless [:link, :unlink].include?(@type)
+        raise ArgumentError, "type must be link or unlink" unless [:link, :unlink].include?(@type)
       end
     end
   end

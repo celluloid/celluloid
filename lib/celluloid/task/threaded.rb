@@ -18,7 +18,7 @@ module Celluloid
         thread = Internals::ThreadHandle.new(Thread.current[:celluloid_actor_system], :task) do
           begin
             ex = @resume_queue.pop
-            fail ex if ex.is_a?(TaskTerminated)
+            raise ex if ex.is_a?(TaskTerminated)
 
             yield
           rescue ::Exception => ex
@@ -40,12 +40,12 @@ module Celluloid
       end
 
       def deliver(value)
-        fail DeadTaskError, "cannot resume a dead task" unless @thread.alive?
+        raise DeadTaskError, "cannot resume a dead task" unless @thread.alive?
 
         @yield_mutex.synchronize do
           @resume_queue.push(value)
           @yield_cond.wait(@yield_mutex)
-          fail @exception_queue.pop while @exception_queue.size > 0
+          raise @exception_queue.pop while @exception_queue.size > 0
         end
       rescue ThreadError
         raise DeadTaskError, "cannot resume a dead task"

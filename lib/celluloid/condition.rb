@@ -34,7 +34,7 @@ module Celluloid
 
     # Wait for the given signal and return the associated value
     def wait(timeout = nil)
-      fail ConditionError, "cannot wait for signals while exclusive" if Celluloid.exclusive?
+      raise ConditionError, "cannot wait for signals while exclusive" if Celluloid.exclusive?
 
       if actor = Thread.current[:celluloid_actor]
         task = Task.current
@@ -57,7 +57,7 @@ module Celluloid
 
       result = Celluloid.suspend :condwait, waiter
       timer.cancel if timer
-      fail result if result.is_a?(ConditionError)
+      raise result if result.is_a?(ConditionError)
       return yield(result) if block_given?
       result
     end

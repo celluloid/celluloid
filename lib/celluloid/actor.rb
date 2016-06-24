@@ -16,14 +16,14 @@ module Celluloid
       # Obtain the current actor
       def current
         actor = Thread.current[:celluloid_actor]
-        fail NotActorError, "not in actor scope" unless actor
+        raise NotActorError, "not in actor scope" unless actor
         actor.behavior_proxy
       end
 
       # Obtain the name of the current actor
       def registered_name
         actor = Thread.current[:celluloid_actor]
-        fail NotActorError, "not in actor scope" unless actor
+        raise NotActorError, "not in actor scope" unless actor
         actor.name
       end
 
@@ -52,13 +52,13 @@ module Celluloid
 
       # Watch for exit events from another actor
       def monitor(actor)
-        fail NotActorError, "can't link outside actor context" unless Celluloid.actor?
+        raise NotActorError, "can't link outside actor context" unless Celluloid.actor?
         Thread.current[:celluloid_actor].linking_request(actor, :link)
       end
 
       # Stop waiting for exit events from another actor
       def unmonitor(actor)
-        fail NotActorError, "can't link outside actor context" unless Celluloid.actor?
+        raise NotActorError, "can't link outside actor context" unless Celluloid.actor?
         Thread.current[:celluloid_actor].linking_request(actor, :unlink)
       end
 
@@ -201,11 +201,11 @@ module Celluloid
           elsif message.is_a? SystemEvent
             # Queue up pending system events to be processed after we've successfully linked
             system_events << message
-          else fail "Unexpected message type: #{message.class}. Expected LinkingResponse, NilClass, SystemEvent."
+          else raise "Unexpected message type: #{message.class}. Expected LinkingResponse, NilClass, SystemEvent."
           end
         end
 
-        fail TaskTimeout, "linking timeout of #{LINKING_TIMEOUT} seconds exceeded with receiver: #{receiver}"
+        raise TaskTimeout, "linking timeout of #{LINKING_TIMEOUT} seconds exceeded with receiver: #{receiver}"
       end
     end
 
@@ -218,7 +218,7 @@ module Celluloid
     def wait(name)
       @signals.wait name
     end
-    
+
     # Register a new handler for a given pattern
     def handle(*patterns, &block)
       @handlers.handle(*patterns, &block)
@@ -289,7 +289,7 @@ module Celluloid
     end
 
     def default_exit_handler(event)
-      fail event.reason if event.reason
+      raise event.reason if event.reason
     end
 
     # Handle any exceptions that occur within a running actor

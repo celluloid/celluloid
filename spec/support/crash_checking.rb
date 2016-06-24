@@ -19,7 +19,7 @@ module Specs
 
     def crash(*args)
       check
-      fail "Testing block has already ended!" if @details
+      raise "Testing block has already ended!" if @details
       @crashes << [args, caller.dup]
     end
 
@@ -59,7 +59,7 @@ module Specs
     def check
       return if self.class.allowed_logger.first == self
 
-      fail "Incorrect logger used:"\
+      raise "Incorrect logger used:"\
         " active/allowed: \n#{clas.allowed_logger.inspect},\n"\
         " actual/self: \n#{[self, @example].inspect}\n"\
         " (maybe an actor from another test is still running?)"

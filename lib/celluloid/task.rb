@@ -27,7 +27,7 @@ module Celluloid
       actor     = Thread.current[:celluloid_actor]
       @chain_id = Internals::CallChain.current_id
 
-      fail NotActorError, "can't create tasks outside of actors" unless actor
+      raise NotActorError, "can't create tasks outside of actors" unless actor
       guard "can't create tasks inside of tasks" if Thread.current[:celluloid_task]
 
       create do
@@ -53,13 +53,13 @@ module Celluloid
     end
 
     def create(&_block)
-      fail "Implement #{self.class}#create"
+      raise "Implement #{self.class}#create"
     end
 
     # Suspend the current task, changing the status to the given argument
     def suspend(status)
-      fail "Cannot suspend while in exclusive mode" if exclusive?
-      fail "Cannot suspend a task from outside of itself" unless Task.current == self
+      raise "Cannot suspend while in exclusive mode" if exclusive?
+      raise "Cannot suspend a task from outside of itself" unless Task.current == self
 
       @status = status
 
@@ -72,7 +72,7 @@ module Celluloid
       value = signal
 
       @status = :running
-      fail value if value.is_a?(Celluloid::Interruption)
+      raise value if value.is_a?(Celluloid::Interruption)
       value
     end
 
@@ -103,7 +103,7 @@ module Celluloid
 
     # Terminate this task
     def terminate
-      fail "Cannot terminate an exclusive task" if exclusive?
+      raise "Cannot terminate an exclusive task" if exclusive?
 
       if running?
         if $CELLULOID_DEBUG
@@ -116,7 +116,7 @@ module Celluloid
         exception.set_backtrace(caller)
         resume exception
       else
-        fail DeadTaskError, "task is already dead"
+        raise DeadTaskError, "task is already dead"
       end
     end
 
@@ -142,7 +142,7 @@ module Celluloid
       if @guard_warnings
         Internals::Logger.warn message if $CELLULOID_DEBUG
       else
-        fail message if $CELLULOID_DEBUG
+        raise message if $CELLULOID_DEBUG
       end
     end
 

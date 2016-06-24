@@ -8,7 +8,7 @@ class CallExampleActor
   def actual_method; end
 
   def inspect
-    fail "Don't call!"
+    raise "Don't call!"
   end
 
   def chained_call_ids
@@ -28,7 +28,7 @@ class DeprecatedCallExampleActor
   def actual_method; end
 
   def inspect
-    fail "Please don't call me! I'm not ready yet!"
+    raise "Please don't call me! I'm not ready yet!"
   end
 
   def chained_call_ids

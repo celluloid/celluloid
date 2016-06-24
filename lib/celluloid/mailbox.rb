@@ -52,7 +52,7 @@ module Celluloid
 
       @mutex.lock
       begin
-        fail MailboxDead, "attempted to receive from a dead mailbox" if @dead
+        raise MailboxDead, "attempted to receive from a dead mailbox" if @dead
 
         message = nil
         Timers::Wait.for(timeout) do |remaining|
@@ -78,12 +78,12 @@ module Celluloid
         break if message
       end
       return message if message
-      fail TaskTimeout.new("receive timeout exceeded")
+      raise TaskTimeout.new("receive timeout exceeded")
     end
 
     # Shut down this mailbox and clean up its contents
     def shutdown
-      fail MailboxDead, "mailbox already shutdown" if @dead
+      raise MailboxDead, "mailbox already shutdown" if @dead
 
       @mutex.lock
       begin

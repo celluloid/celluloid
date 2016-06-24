@@ -33,9 +33,9 @@ module Celluloid
 
     def actor_system
       if Thread.current.celluloid?
-        Thread.current[:celluloid_actor_system] || fail(Error, "actor system not running")
+        Thread.current[:celluloid_actor_system] || raise(Error, "actor system not running")
       else
-        Thread.current[:celluloid_actor_system] || @actor_system || fail(Error, "Celluloid is not yet started; use Celluloid.boot")
+        Thread.current[:celluloid_actor_system] || @actor_system || raise(Error, "Celluloid is not yet started; use Celluloid.boot")
       end
     end
 
@@ -190,7 +190,7 @@ module Celluloid
 
     # Create a new actor and link to the current one
     def new_link(*args, &block)
-      fail NotActorError, "can't link outside actor context" unless Celluloid.actor?
+      raise NotActorError, "can't link outside actor context" unless Celluloid.actor?
 
       proxy = Cell.new(allocate, behavior_options, actor_options).proxy
       Actor.link(proxy)
@@ -308,9 +308,9 @@ module Celluloid
     cause = case cause
             when String then RuntimeError.new(cause)
             when Exception then cause
-            else fail TypeError, "Exception object/String expected, but #{cause.class} received"
+            else raise TypeError, "Exception object/String expected, but #{cause.class} received"
     end
-    fail AbortError.new(cause)
+    raise AbortError.new(cause)
   end
 
   # Terminate this actor
@@ -448,7 +448,7 @@ module Celluloid
 end
 
 if defined?(JRUBY_VERSION) && JRUBY_VERSION == "1.7.3"
-  fail "Celluloid is broken on JRuby 1.7.3. Please upgrade to 1.7.4+"
+  raise "Celluloid is broken on JRuby 1.7.3. Please upgrade to 1.7.4+"
 end
 
 require "celluloid/exceptions"

@@ -29,7 +29,7 @@ module Specs
       when "single"
         Logger.new(open_logfile(log.file, log.sync?))
       else
-        fail "Unknown logger strategy: #{strategy.inspect}."\
+        raise "Unknown logger strategy: #{strategy.inspect}."\
           " Expected 'single' or 'stderr'."
       end
     end

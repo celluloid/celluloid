@@ -50,7 +50,7 @@ module Celluloid
     # Execute the given method in future context
     def execute(receiver, method, args, block)
       @mutex.synchronize do
-        fail "already calling" if @call
+        raise "already calling" if @call
         @call = Call::Sync.new(self, method, args, block)
       end
 
@@ -95,7 +95,7 @@ module Celluloid
       if result
         (result.respond_to?(:value)) ? result.value : result
       else
-        fail TimedOut, "Timed out"
+        raise TimedOut, "Timed out"
       end
     end
     alias_method :call, :value
@@ -106,7 +106,7 @@ module Celluloid
       result = Result.new(value, self)
 
       @mutex.synchronize do
-        fail "the future has already happened!" if @ready
+        raise "the future has already happened!" if @ready
 
         if @forwards
           @forwards.is_a?(Array) ? @forwards.each { |f| f << result } : @forwards << result

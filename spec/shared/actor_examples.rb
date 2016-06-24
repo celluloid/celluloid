@@ -34,9 +34,9 @@ RSpec.shared_examples "a Celluloid Actor" do
 
   it "can be stored in hashes even when dead" do
     actor.terminate
-    
+
     expect(actor.dead?).to be_truthy
-    
+
     expect(actor.hash).not_to eq(Kernel.hash)
     expect(actor.object_id).not_to eq(Kernel.object_id)
     expect(actor.eql? actor).to be_truthy
@@ -418,7 +418,7 @@ RSpec.shared_examples "a Celluloid Actor" do
           include CelluloidSpecs.included_module
 
           define_method(:receiver_method) do
-            fail ExampleCrash, "the spec purposely crashed me :("
+            raise ExampleCrash, "the spec purposely crashed me :("
           end
         end.new
 
@@ -704,7 +704,7 @@ RSpec.shared_examples "a Celluloid Actor" do
         end
 
         def wait_for_signal
-          fail "already signaled" if @signaled
+          raise "already signaled" if @signaled
 
           @waiting = true
           value = wait :ponycopter
@@ -1102,7 +1102,7 @@ RSpec.shared_examples "a Celluloid Actor" do
 
           klass = Class.new(Celluloid::Proxy::Cell) do
             def dividing_3_by(number)
-              fail ArgumentError, "<facepalm>" if number.zero?
+              raise ArgumentError, "<facepalm>" if number.zero?
               super
             end
           end
@@ -1141,7 +1141,7 @@ RSpec.shared_examples "a Celluloid Actor" do
             mandatory_args = -arity - 1
             unmet_requirement = "#{mandatory_args}+" if args.size < mandatory_args
           end
-          fail ArgumentError, "wrong number of arguments (#{args.size} for #{unmet_requirement})" if unmet_requirement
+          raise ArgumentError, "wrong number of arguments (#{args.size} for #{unmet_requirement})" if unmet_requirement
 
           super
         end
@@ -1160,7 +1160,7 @@ RSpec.shared_examples "a Celluloid Actor" do
           end
 
           def this_is_not_madness(word1, word2, word3, *_args)
-            fail "This is madness!" unless [word1, word2, word3] == [:this, :is, :Sparta]
+            raise "This is madness!" unless [word1, word2, word3] == [:this, :is, :Sparta]
           end
 
           proxy_class klass

@@ -10,7 +10,7 @@ module Celluloid
       if block
         if Celluloid.exclusive?
           # FIXME: nicer exception
-          fail "Cannot execute blocks on sender in exclusive mode"
+          raise "Cannot execute blocks on sender in exclusive mode"
         end
         @block = Proxy::Block.new(Celluloid.mailbox, self, block)
       else
@@ -48,14 +48,14 @@ module Celluloid
         if @arguments.size != arity
           e = ArgumentError.new("wrong number of arguments (#{@arguments.size} for #{arity})")
           e.set_backtrace(caller << "#{meth.source_location.join(':')}: in `#{meth.name}`")
-          fail e
+          raise e
         end
       elsif arity < -1
         mandatory_args = -arity - 1
         if arguments.size < mandatory_args
           e = ArgumentError.new("wrong number of arguments (#{@arguments.size} for #{mandatory_args}+)")
           e.set_backtrace(caller << "#{meth.source_location.join(':')}: in `#{meth.name}`")
-          fail e
+          raise e
         end
       end
     rescue => ex
