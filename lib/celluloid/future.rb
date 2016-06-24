@@ -119,7 +119,7 @@ module Celluloid
     alias_method :<<, :signal
 
     def cancel(error)
-      response = ErrorResponse.new(@call, error)
+      response = Internals::Response::Error.new(@call, error)
       signal response
       @mutex.synchronize do
         @cancelled = true

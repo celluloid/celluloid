@@ -152,6 +152,20 @@ Or to support the old API, use:
 require 'celluloid/backported'
 ```
 
+###Cloning via GitHub
+
+Right now `Celluloid` has a [submodule](https://github.com/celluloid/culture). To install the framework via GitHub, you need to clone the submodules as well.
+
+__Clone from scratch:__
+
+    $ git clone --recursive https://github.com/celluloid/celluloid
+    
+__If you  already cloned `Celluloid` without submodules:__
+
+Run the following command in the directory containing `Celluloid`:
+
+	git submodule update --init --recursive
+
 Supported Platforms
 -------------------
 
@@ -161,7 +175,7 @@ JRuby or Rubinius are the preferred platforms as they support true thread-level
 parallelism when executing Ruby code, whereas MRI/YARV is constrained by a global
 interpreter lock (GIL) and can only execute one thread at a time.
 
-Celluloid requires Ruby 1.9 mode on all interpreters.
+Celluloid requires Ruby 1.9 mode or higher on all interpreters.
 
 Additional Reading
 ------------------
