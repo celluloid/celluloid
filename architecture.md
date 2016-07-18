@@ -37,6 +37,12 @@ Next, the code sets up two global default settings for the `task_class` and `gro
 Lastly, the code registers some methods for shutdown to terminate all actors `at_exit` and then initializes the system.
 
 To boot the system, code is clearly intended to `require 'celluloid/current'` or `require 'celluloid/backported'` which in turn call `require 'celluloid/autostart'`. Autostart finishes the initialization sequence by calling the equivalent to `Actor::System.new.start`.
+
+## Supervision Lifecycle
+The final call to `Actor::System.new.start` kicks off the top level supervisor. The supervisor container is an actor and it will keep track of all defined actors as they are added for supervision. A user may create an actor that is not supervised, so the top-level supervisor does not necessarily have a reference to every actor in the system.
+
+The Registry is also created at this time and lives within the main container. Actors can be added to the registry even if they are not supervised. The two concepts are separate even though the code is somewhat comingled. 
+
 ## Classes / Modules
 
 ### Celluloid Module
@@ -73,3 +79,42 @@ This module contains instance-level methods which are added to every user class 
 #### Depends on Classes
 * Actor
 * Celluloid
+
+
+### Actor::System class
+Is created and `start`'ed as part of the entire boot sequence. This class provides essential services utilized by the rest of the library such as the Registry and the top-level Supervisor.
+
+#### Lifecycle
+Creates the `Registry` and initializes the `Celluloid.group_class`. Upon `start` it makes sure that it switches the `Thread.current[:celluloid_actor_system]` to itself, then defines and deploys the `Root` services.
+
+#### Depends On Classes
+* Supervision::Service::Root which is in gem `celluloid-supervision`
+* Celluloid::Notifications::Fanout
+* Celluloid::IncidentReporter
+* Celluloid::Supervision::Service::Public
+* Celluloid::Actor::Manager
+* Celluloid
+* Internals::Registry
+* Celluloid.group_class
+
+## Gem - celluloid-supervision
+Necessary for the core system to boot.
+
+Really has only two classes/modules of note. One is Supervision::Container which is an actor that keeps track of all actors under supervision. It also handles restart. Two is Supervision::Configuration. This class manages the several different ways that an actor may be placed under supervision, arguments passed to it, and other data.
+
+Be careful when reading the code. Each file in the gem relies on open Ruby classes. These files reopen previously defined classes and add more behavior, so to get a complete picture for what the Configuration and Container classes can do you must look through all of the files. While this logical separation of business logic to its own file is neat, it adds to the cognitive load when reading the code since the entire class defintion is spread over multiple files.
+
+### Supervision::Service::Root
+
+#### Depends On Classes
+* Supervision::Container
+
+
+### Supervision::Container
+Stores references to Actors on behalf of a Supervisor.
+
+This is the only class under the `Supervision` namespace that is an Actor. Every other class is a regular Ruby class.
+
+#### Depends On Classes
+* Supervision::Configuration
+* 
