@@ -56,3 +56,14 @@ Benchmark.ips do |ips|
     latch_out.pop
   end
 end
+
+# Calculating -------------------------------------
+# spawn         458 i/100ms
+# calls         1453 i/100ms
+# async calls   734 i/100ms
+# messages      7632 i/100ms
+# -------------------------------------------------
+# spawn         4863.9 (±7.5%) i/s -       24274 in     5.018577s
+# calls         15075.6 (±10.6%) i/s -     75556 in     5.073639s
+# async calls   27773.1 (±20.6%) i/s -     131386 in    5.008310s
+# messages      530365.6 (±14.4%) i/s -    2564352 in   5.005310s
