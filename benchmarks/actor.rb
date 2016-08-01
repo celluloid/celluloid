@@ -2,7 +2,7 @@
 
 require "rubygems"
 require "bundler/setup"
-require "celluloid"
+require "celluloid/autostart"
 require "benchmark/ips"
 
 class BenchmarkingActor
