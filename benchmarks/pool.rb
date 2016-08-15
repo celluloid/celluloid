@@ -13,15 +13,18 @@ class Worker
   end
 end
 
+# Worker pool of different sizes
 pool_10   = Worker.pool(size: 10)
 pool_100  = Worker.pool(size: 100)
 
 hash  = {}
 
 ENTRIES = 10_000
-KEY = 500
 TESTS = 100_000
+# Using a constant key, to derive consistent benchmarking results
+KEY = 500
 
+# Populate hash array
 ENTRIES.times do |i|
   hash[i]  = i
 end
