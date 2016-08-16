@@ -28,10 +28,10 @@ mailbox = Celluloid::Mailbox.new
 
 latch_in = Queue.new
 latch_out = Queue.new
-latch = Thread.new do
+Thread.new do
   loop do
     n = latch_in.pop
-    for i in 0..n; mailbox.receive; end
+    (0..n).each { mailbox.receive }
     latch_out << :done
   end
 end
@@ -52,7 +52,7 @@ Benchmark.ips do |ips|
 
   ips.report("messages") do |n|
     latch_in << n
-    for i in 0..n; mailbox << :message; end
+    (0..n).each { mailbox << :message }
     latch_out.pop
   end
 end

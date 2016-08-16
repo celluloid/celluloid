@@ -2,15 +2,19 @@
 
 require "rubygems"
 require "bundler/setup"
-require "celluloid"
-require "celluloid/pool"
+require "celluloid/autostart"
 require "celluloid/extras/rehasher"
 require "benchmark/ips"
 
-pool = Celluloid::Extras::Rehasher.new
+actor = Celluloid::Extras::Rehasher.spawn
 
 Benchmark.ips do |ips|
   ips.report("parallel hash") do
-    64.times.map { pool.future(:rehash, "w3rd", 10_000) }.map(&:value)
+    actor.future(:rehash, "w3rd", 10_000)
   end
 end
+
+# Calculating -------------------------------------
+# parallel hash      5584 i/100ms
+# -------------------------------------------------
+# parallel hash   108310.1 (±59.7%) i/s -     323872 in   5.002222s

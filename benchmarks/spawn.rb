@@ -9,18 +9,18 @@ class Worker
   include Celluloid
 
   def hashed(hash, key)
-      hash[key]
+    hash[key]
   end
 end
 
-spawnedWorker = Worker.spawn
+spawned_worker = Worker.spawn
 worker = Worker.new
-hash  = {}
+hash = {}
 
 ENTRIES = 10_000
 
 ENTRIES.times do |i|
-  hash[i]  = i
+  hash[i] = i
 end
 
 TESTS = 400_000
@@ -28,14 +28,13 @@ Benchmark.bmbm do |ips|
   key = rand(10_000)
 
   ips.report("spawn") do
-    TESTS.times { spawnedWorker.async.hashed(hash, key) }
+    TESTS.times { spawned_worker.async.hashed(hash, key) }
   end
 
   ips.report("without spawn") do
     TESTS.times { worker.async.hashed(hash, key) }
   end
 end
-
 
 # Rehearsal -------------------------------------------------
 # spawn           1.180000   0.090000   1.270000 (  1.270529)

@@ -1,32 +1,28 @@
 #!/usr/bin/env ruby
 
-require 'rubygems'
-require 'bundler/setup'
-require 'celluloid/autostart'
-require 'benchmark'
-
+require "rubygems"
+require "bundler/setup"
+require "celluloid/autostart"
+require "benchmark"
 
 message = :ohai
 
 BM_COUNT = 1_000_000
 
 Benchmark.bmbm do |bm|
-    mailbox = Celluloid.mailbox
-    selective_mailbox = Celluloid.mailbox
-    class Foo; end
-    foo = Foo.new
+  mailbox = Celluloid.mailbox
 
-    bm.report('mailbox send message') do
-        BM_COUNT.times do
-            mailbox << message
-        end
+  bm.report("mailbox send message") do
+    BM_COUNT.times do
+      mailbox << message
     end
+  end
 
-    bm.report('mailbox receive message') do
-        BM_COUNT.times do
-            mailbox.receive
-        end
+  bm.report("mailbox receive message") do
+    BM_COUNT.times do
+      mailbox.receive
     end
+  end
 end
 
 # Rehearsal -----------------------------------------------------------

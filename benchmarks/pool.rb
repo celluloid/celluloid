@@ -17,7 +17,7 @@ end
 pool_10   = Worker.pool(size: 10)
 pool_100  = Worker.pool(size: 100)
 
-hash  = {}
+hash = {}
 
 ENTRIES = 10_000
 TESTS = 100_000
@@ -26,7 +26,7 @@ KEY = 500
 
 # Populate hash array
 ENTRIES.times do |i|
-  hash[i]  = i
+  hash[i] = i
 end
 
 Benchmark.bmbm do |ips|
