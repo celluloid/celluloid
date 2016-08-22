@@ -195,6 +195,6 @@ Contributing to Celluloid
 License
 -------
 
-Copyright (c) 2011-2015 Tony Arcieri, Donovan Keme.
+Copyright (c) 2011-2016 Tony Arcieri, Donovan Keme.
 
 Distributed under the MIT License. See [LICENSE.txt](https://github.com/celluloid/celluloid/blob/master/LICENSE.txt) for further details.
