@@ -1,3 +1,7 @@
+## 0.18.0.pre (Final release TBD)
+
+* Release notes coming soon!
+
 ## 0.17.3 (2016-01-18)
 
 * [#701](https://github.com/celluloid/celluloid/pull/701)
@@ -39,7 +43,7 @@
 * Updated gem dependencies provided by Celluloid::Sync... extraneous gems removed, or marked as development dependencies.
 * Clean up deprecation notes.
 
-0.17.1.2 (2015-08-21)
+## 0.17.1.2 (2015-08-21)
 
 * Fixes to posted markdown content.
 * Pull in new gem dependencies.
