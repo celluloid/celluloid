@@ -5,6 +5,11 @@
 [![Code Climate](https://codeclimate.com/github/celluloid/celluloid.svg)](https://codeclimate.com/github/celluloid/celluloid)
 [![Coverage Status](https://coveralls.io/repos/celluloid/celluloid/badge.svg?branch=master)](https://coveralls.io/r/celluloid/celluloid)
 
+_NOTE: This is the 0.17.x **stable** branch of Celluloid. For the 0.18.x
+**development** branch, please see:_
+
+https://github.com/celluloid/celluloid
+
 > "I thought of objects being like biological cells and/or individual
 > computers on a network, only able to communicate with messages"
 > _--Alan Kay, creator of Smalltalk, on the meaning of "object oriented programming"_
