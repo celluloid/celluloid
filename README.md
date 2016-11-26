@@ -182,13 +182,27 @@ Run the following command in the directory containing `Celluloid`:
 
 ## Supported Platforms
 
-Celluloid works on Ruby 2.0+, JRuby 1.7+, and Rubinius 2.0.
+This library aims to support and is [tested against][travis] the following Ruby
+versions:
 
-JRuby or Rubinius are the preferred platforms as they support true thread-level
-parallelism when executing Ruby code, whereas MRI/YARV is constrained by a global
-interpreter lock (GIL) and can only execute one thread at a time.
+* Ruby 2.2.6+
+* Ruby 2.3.0+
+* JRuby 9.1.6.0+
 
-Celluloid requires Ruby 1.9 mode or higher on all interpreters.
+If something doesn't work on one of these versions, it's a bug.
+
+This library may inadvertently work (or seem to work) on other Ruby versions,
+however support will only be provided for the versions listed above.
+
+If you would like this library to support another Ruby version or
+implementation, you may volunteer to be a maintainer. Being a maintainer
+entails making sure all tests run and pass on that implementation. When
+something breaks on your implementation, you will be responsible for providing
+patches in a timely fashion. If critical issues for a particular implementation
+exist at the time of a major release, support for that Ruby version may be
+dropped.
+
+[travis]: http://travis-ci.org/celluloid/celluloid/
 
 ## Additional Reading
 
