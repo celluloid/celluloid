@@ -1,4 +1,4 @@
-# [Celluloid](https://raw.github.com/celluloid/celluloid-logos/master/celluloid/celluloid.png)
+# ![Celluloid](https://raw.github.com/celluloid/celluloid-logos/master/celluloid/celluloid.png)
 
 [![Gem Version][gem-image]][gem-link] [![Build Status][build-image]][build-link] [![Code Climate][codeclimate-image]][codeclimate-link] [![Coverage Status][coverage-image]][coverage-link] [![MIT licensed][license-image]][license-link]
 
