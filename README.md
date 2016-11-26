@@ -1,9 +1,17 @@
-![Celluloid](https://raw.github.com/celluloid/celluloid-logos/master/celluloid/celluloid.png)
-=========
-[![Gem Version](https://badge.fury.io/rb/celluloid.svg)](http://rubygems.org/gems/celluloid)
-[![Build Status](https://secure.travis-ci.org/celluloid/celluloid.svg?branch=master)](http://travis-ci.org/celluloid/celluloid)
-[![Code Climate](https://codeclimate.com/github/celluloid/celluloid.svg)](https://codeclimate.com/github/celluloid/celluloid)
-[![Coverage Status](https://coveralls.io/repos/celluloid/celluloid/badge.svg?branch=master)](https://coveralls.io/r/celluloid/celluloid)
+# [Celluloid](https://raw.github.com/celluloid/celluloid-logos/master/celluloid/celluloid.png)
+
+[![Gem Version][gem-image]][gem-link] [![Build Status][build-image]][build-link] [![Code Climate][codeclimate-image]][codeclimate-link] [![Coverage Status][coverage-image]][coverage-link] [![MIT licensed][license-image]][license-link]
+
+[gem-image]: https://badge.fury.io/rb/celluloid.svg
+[gem-link]: http://rubygems.org/gems/celluloid
+[build-image]: https://secure.travis-ci.org/celluloid/celluloid.svg?branch=master
+[build-link]: http://travis-ci.org/celluloid/celluloid
+[codeclimate-image]: https://codeclimate.com/github/celluloid/celluloid.svg
+[codeclimate-link]: https://codeclimate.com/github/celluloid/celluloid)
+[coverage-image]: https://coveralls.io/repos/celluloid/celluloid/badge.svg?branch=master
+[coverage-link]: https://coveralls.io/r/celluloid/celluloid
+[license-image]: https://img.shields.io/badge/license-MIT-blue.svg
+[license-link]: https://github.com/celluloid/celluloid/blob/master/LICENSE.txt
 
 > "I thought of objects being like biological cells and/or individual
 > computers on a network, only able to communicate with messages"
@@ -14,6 +22,8 @@ programs in Ruby. With Celluloid, you can build systems out of concurrent
 objects just as easily as you build sequential programs out of regular objects.
 Recommended for any developer, including novices, Celluloid should help ease
 your worries about building multithreaded Ruby programs.
+
+## Motivation
 
 Much of the difficulty with building concurrent programs in Ruby arises because
 the object-oriented mechanisms for structuring code, such as classes and
@@ -69,9 +79,6 @@ to EventMachine (with a synchronous API instead of callback/deferrable soup)
 is available through the [Celluloid::IO](https://github.com/celluloid/celluloid-io)
 library.
 
-Like Celluloid? [Join the mailing list/Google Group](http://groups.google.com/group/celluloid-ruby)
-or visit us on IRC at #celluloid on freenode
-
 ### Is it any good?
 
 [Yes](http://news.ycombinator.com/item?id=3067434)
@@ -82,8 +89,12 @@ Yes, many users are now running Celluloid in production.
 
 * **See:** [Projects Using Celluloid](https://github.com/celluloid/celluloid/wiki/Projects-Using-Celluloid)
 
-Documentation
--------------
+## Discussion
+
+Like Celluloid? [Join the mailing list/Google Group](http://groups.google.com/group/celluloid-ruby)
+or visit us on IRC at #celluloid on freenode
+
+## Documentation
 
 [Please see the Celluloid Wiki](https://github.com/celluloid/celluloid/wiki)
 for more detailed documentation and usage notes.
@@ -95,8 +106,7 @@ The following API documentation is also available:
 * [Celluloid class methods](http://rubydoc.info/gems/celluloid/Celluloid/ClassMethods)
 * [All Celluloid classes](http://rubydoc.info/gems/celluloid/index)
 
-Related Projects
-----------------
+## Related Projects
 
 Celluloid is the parent project of a related ecosystem of other projects. If you
 like Celluloid we definitely recommend you check them out:
@@ -123,8 +133,7 @@ like Celluloid we definitely recommend you check them out:
 [nio4r]: https://github.com/celluloid/nio4r/
 [timers]: https://github.com/celluloid/timers/
 
-Installation
-------------
+## Installation
 
 Add this line to your application's Gemfile:
 
@@ -152,7 +161,7 @@ Or to support the old API, use:
 require 'celluloid/backported'
 ```
 
-###Cloning via GitHub
+### Cloning via GitHub
 
 Right now `Celluloid` has a [submodule](https://github.com/celluloid/culture). To install the framework via GitHub, you need to clone the submodules as well.
 
@@ -166,8 +175,7 @@ Run the following command in the directory containing `Celluloid`:
 
 	git submodule update --init --recursive
 
-Supported Platforms
--------------------
+## Supported Platforms
 
 Celluloid works on Ruby 2.0+, JRuby 1.7+, and Rubinius 2.0.
 
@@ -177,24 +185,23 @@ interpreter lock (GIL) and can only execute one thread at a time.
 
 Celluloid requires Ruby 1.9 mode or higher on all interpreters.
 
-Additional Reading
-------------------
+## Additional Reading
 
-* [Concurrent Object-Oriented Programming in Python with
-  ATOM](http://citeseerx.ist.psu.edu/viewdoc/download;jsessionid=11A3EACE78AAFF6D6D62A64118AFCA7C?doi=10.1.1.47.5074&rep=rep1&type=pdf):
+* [Concurrent Object-Oriented Programming in Python with ATOM][ATOM]
   a similar system to Celluloid written in Python
 
-Contributing to Celluloid
--------------------------
+[ATOM]: http://citeseerx.ist.psu.edu/viewdoc/download;jsessionid=11A3EACE78AAFF6D6D62A64118AFCA7C?doi=10.1.1.47.5074&rep=rep1&type=pdf
+
+## Contributing to Celluloid
 
 * Fork this repository on github
 * Make your changes and send us a pull request
 * If we like them we'll merge them
 * If we've accepted a patch, feel free to ask for commit access
 
-License
--------
+## License
 
 Copyright (c) 2011-2016 Tony Arcieri, Donovan Keme.
 
-Distributed under the MIT License. See [LICENSE.txt](https://github.com/celluloid/celluloid/blob/master/LICENSE.txt) for further details.
+Distributed under the MIT License. See [LICENSE.txt](https://github.com/celluloid/celluloid/blob/master/LICENSE.txt)
+for further details.
