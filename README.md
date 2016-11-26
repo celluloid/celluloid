@@ -13,6 +13,11 @@
 [license-image]: https://img.shields.io/badge/license-MIT-blue.svg
 [license-link]: https://github.com/celluloid/celluloid/blob/master/LICENSE.txt
 
+_NOTE: This is the 0.18.x **development** branch of Celluloid. For the 0.17.x
+**stable** branch, please see:_
+
+https://github.com/celluloid/celluloid/tree/0-17-stable
+
 > "I thought of objects being like biological cells and/or individual
 > computers on a network, only able to communicate with messages"
 > _--Alan Kay, creator of Smalltalk, on the meaning of "object oriented programming"_
