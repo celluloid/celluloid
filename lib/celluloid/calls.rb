@@ -24,14 +24,7 @@ module Celluloid
 
     def dispatch(obj)
       check(obj)
-      _b = @block && @block.to_proc
-      obj.public_send(@method, *@arguments, &_b)
-      #     rescue Celluloid::TaskTimeout => ex
-      #       raise ex unless ( @retry += 1 ) <= RETRY_CALL_LIMIT
-      #       puts "retrying"
-      #       Internals::Logger.warn("TaskTimeout at Call dispatch. Retrying in #{RETRY_CALL_WAIT} seconds. ( Attempt #{@retry} of #{RETRY_CALL_LIMIT} )")
-      #       sleep RETRY_CALL_WAIT
-      #       retry
+      obj.public_send(@method, *@arguments, &(@block && @block.to_proc))
     end
 
     def check(obj)

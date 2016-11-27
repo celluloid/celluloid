@@ -1,24 +1,10 @@
-require "dotenv"
-require "nenv"
-
 require "celluloid/test"
 
-# To help produce better bug reports in Rubinius
-if RUBY_ENGINE == "rbx"
-  # $DEBUG = true # would be nice if this didn't fail ... :(
-  require "rspec/matchers"
-  require "rspec/matchers/built_in/be"
-end
-
-require "rspec/retry"
-
 module Specs
-  ALLOW_SLOW_MAILBOXES = true # TODO: Remove hax.
-  CHECK_LOOSE_THREADS = !Nenv.ci? unless defined? CHECK_LOOSE_THREADS
+  CHECK_LOOSE_THREADS = false
   ALLOW_RETRIES = 3 unless defined? ALLOW_RETRIES
 
   INCLUDE_SUPPORT = [
-    "env",
     "logging",
     "sleep_and_wait",
     "reset_class_variables",
