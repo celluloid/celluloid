@@ -6,8 +6,6 @@ module Celluloid
           @cores ||= count_cores
         end
 
-        private unless $CELLULOID_TEST
-
         def count_cores
           from_result(from_env || from_sysdev || from_java || from_proc || from_win32ole || from_sysctl) || 1
         end

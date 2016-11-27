@@ -88,9 +88,6 @@ Style/For:
 Style/FrozenStringLiteralComment:
   Enabled: false # TODO: enable
 
-Style/GlobalVars:
-  Enabled: false # TODO: enable
-
 Style/GuardClause:
   Enabled: false # TODO: enable
 
@@ -120,9 +117,6 @@ Style/Semicolon:
 
 Style/SingleLineBlockParams:
   Enabled: false
-
-Style/SpecialGlobalVars:
-  Enabled: false # TODO: enable
 
 Style/StringLiterals:
   EnforcedStyle: double_quotes

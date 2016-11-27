@@ -11,7 +11,11 @@ module Specs
     end
 
     def reset_probe(value)
+      # !!! DO NOT INTRODUCE ADDITIONAL GLOBAL VARIABLES !!!
+      # rubocop:disable Style/GlobalVars
       $CELLULOID_MONITORING = !value.nil?
+      # rubocop:enable Style/GlobalVars
+
       replace_const(Celluloid::Probe, :EVENTS_BUFFER, value)
     end
 

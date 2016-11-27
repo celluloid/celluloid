@@ -48,14 +48,15 @@ if $PROGRAM_NAME == __FILE__
   require "benchmark"
   SIZE  = 512
   TIMES = 10
+  ring = nil
 
   puts "*** Creating a #{SIZE} node ring..."
   puts Benchmark.measure {
-    $ring = Ring.new(SIZE)
+    ring = Ring.new(SIZE)
   }
 
   puts "*** Sending a message around #{TIMES} times"
   puts Benchmark.measure {
-    $ring.run(TIMES)
+    ring.run(TIMES)
   }
 end

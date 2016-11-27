@@ -5,7 +5,10 @@ module Celluloid
       if handler = SystemEvent.handle(event.class)
         send(handler, event)
       else
+        # !!! DO NOT INTRODUCE ADDITIONAL GLOBAL VARIABLES !!!
+        # rubocop:disable Style/GlobalVars
         Internals::Logger.debug "Discarded message (unhandled): #{message}" if $CELLULOID_DEBUG
+        # rubocop:enable Style/GlobalVars
       end
     end
   end
@@ -87,7 +90,11 @@ module Celluloid
 
     handler do |event|
       @name = event.name
+
+      # !!! DO NOT INTRODUCE ADDITIONAL GLOBAL VARIABLES !!!
+      # rubocop:disable Style/GlobalVars
       Celluloid::Probe.actor_named(self) if $CELLULOID_MONITORING
+      # rubocop:enable Style/GlobalVars
     end
 
     def initialize(name)
