@@ -36,7 +36,7 @@ Next, the code sets up two global default settings for the `task_class` and `gro
 
 Lastly, the code registers some methods for shutdown to terminate all actors `at_exit` and then initializes the system.
 
-To boot the system, code is clearly intended to `require 'celluloid/current'` or `require 'celluloid/backported'` which in turn call `require 'celluloid/autostart'`. Autostart finishes the initialization sequence by calling the equivalent to `Actor::System.new.start`.
+To boot the system, call `require 'celluloid'`.
 
 ## Supervision Lifecycle
 The final call to `Actor::System.new.start` kicks off the top level supervisor. The supervisor container is an actor and it will keep track of all defined actors as they are added for supervision. A user may create an actor that is not supervised, so the top-level supervisor does not necessarily have a reference to every actor in the system.

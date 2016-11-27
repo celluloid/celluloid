@@ -133,7 +133,6 @@ module Celluloid
 
       @proxy = Proxy::Actor.new(@mailbox, @thread)
       Celluloid::Probe.actor_created(self) if $CELLULOID_MONITORING
-      Celluloid::Actor::Manager.actor_created(self) if $CELLULOID_MANAGED
     end
 
     def behavior_proxy
