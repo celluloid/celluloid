@@ -4,11 +4,12 @@ require "timeout"
 require "set"
 
 $CELLULOID_DEBUG = false
-
-require "celluloid/version"
+$CELLULOID_MONITORING = false
 
 # TODO: gut this
 $CELLULOID_BACKPORTED = false
+
+require "celluloid/version"
 
 module Celluloid
   # Expose all instance methods as singleton methods
@@ -470,8 +471,6 @@ require "celluloid/proxies"
 require "celluloid/mailbox"
 require "celluloid/mailbox/evented"
 
-require "celluloid/essentials"
-
 require "celluloid/group"
 require "celluloid/group/spawner"
 require "celluloid/group/pool"      # TODO: Find way to only load this if being used.
@@ -484,9 +483,27 @@ require "celluloid/actor"
 require "celluloid/cell"
 require "celluloid/future"
 
-require "celluloid/actor/system"
+require "celluloid/internals/call_chain"
+require "celluloid/internals/cpu_counter"
+require "celluloid/internals/handlers"
+require "celluloid/internals/links"
+require "celluloid/internals/logger"
+require "celluloid/internals/method"
+require "celluloid/internals/properties"
+require "celluloid/internals/receivers"
+require "celluloid/internals/registry"
+require "celluloid/internals/responses"
+require "celluloid/internals/signals"
+require "celluloid/internals/stack"
+require "celluloid/internals/task_set"
+require "celluloid/internals/thread_handle"
+require "celluloid/internals/uuid"
 
-$CELLULOID_MONITORING = false
+require "celluloid/notifications"
+require "celluloid/supervision"
+
+require "celluloid/logging"
+require "celluloid/actor/system"
 
 # Configure default systemwide settings
 

@@ -142,9 +142,7 @@ like Celluloid we definitely recommend you check them out:
 
 Add this line to your application's Gemfile:
 
-```ruby
-gem 'celluloid'
-```
+    gem 'celluloid'
 
 And then execute:
 
@@ -157,20 +155,6 @@ Or install it yourself as:
 Require Celluloid with:
 
     require 'celluloid'
-
-### Cloning via GitHub
-
-Right now `Celluloid` has a [submodule](https://github.com/celluloid/culture). To install the framework via GitHub, you need to clone the submodules as well.
-
-__Clone from scratch:__
-
-    $ git clone --recursive https://github.com/celluloid/celluloid
-    
-__If you  already cloned `Celluloid` without submodules:__
-
-Run the following command in the directory containing `Celluloid`:
-
-	git submodule update --init --recursive
 
 ## Supported Platforms
 

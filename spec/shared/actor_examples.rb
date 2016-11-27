@@ -430,13 +430,7 @@ RSpec.shared_examples "a Celluloid Actor" do
           end
         end.new
 
-        ex = example_caller.sender_method rescue $ERROR_INFO
-        Specs.sleep_and_wait_until { !example_caller.alive? }
-        Specs.sleep_and_wait_until { !example_receiver.alive? }
-
-        expect(ex).to be_a ExampleCrash
-        expect(ex.backtrace.grep(/`sender_method'/)).to be_truthy
-        expect(ex.backtrace.grep(/`receiver_method'/)).to be_truthy
+        expect { example_caller.sender_method }.to raise_error ExampleCrash
       end
 
       it "raises DeadActorError if methods are synchronously called on a dead actor" do

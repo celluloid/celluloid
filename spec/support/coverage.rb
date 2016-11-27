@@ -1,4 +1,2 @@
-if Nenv.ci?
-  require "coveralls"
-  Coveralls.wear!
-end
+require "coveralls"
+Coveralls.wear!

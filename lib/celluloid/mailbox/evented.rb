@@ -31,8 +31,8 @@ module Celluloid
         begin
           current_actor = Thread.current[:celluloid_actor]
           @reactor.wakeup unless current_actor && current_actor.mailbox == self
-        rescue
-          Internals::Logger.crash "reactor crashed", $ERROR_INFO
+        rescue => ex
+          Internals::Logger.crash "reactor crashed", ex
           dead_letter(message)
         end
         nil
