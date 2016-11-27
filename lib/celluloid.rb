@@ -2,6 +2,7 @@ require "logger"
 require "thread"
 require "timeout"
 require "set"
+require "English"
 
 $CELLULOID_DEBUG = false
 $CELLULOID_MONITORING = false
