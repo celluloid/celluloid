@@ -13,20 +13,7 @@ module Specs
           backtrace = thread.backtrace # avoid race maybe
           next unless backtrace
           next if backtrace.empty? # possibly a timer thread
-        end
-
-        if RUBY_ENGINE == "rbx"
-          # Avoid disrupting Rubinious thread
-          next if thread.backtrace.first =~ %r{rubysl/timeout/timeout\.rb}
-
-          if Specs::ALLOW_SLOW_MAILBOXES
-            if thread.backtrace.first =~ /wait/
-              next if thread.backtrace[1] =~ /mailbox\.rb/ && thread.backtrace[1] =~ /check/
-            end
-          end
-        end
-
-        if RUBY_ENGINE == "ruby"
+        else
           # Sometimes stays
           next if thread.backtrace.nil?
           next unless thread.backtrace.is_a?(Array)

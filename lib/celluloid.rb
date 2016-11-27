@@ -454,10 +454,6 @@ module Celluloid
   end
 end
 
-if defined?(JRUBY_VERSION) && JRUBY_VERSION == "1.7.3"
-  raise "Celluloid is broken on JRuby 1.7.3. Please upgrade to 1.7.4+"
-end
-
 require "celluloid/exceptions"
 
 Celluloid.logger = Logger.new(STDERR).tap do |logger|
