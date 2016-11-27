@@ -25,13 +25,6 @@ module Celluloid
             supervise: [],
           },
         ]
-        if $CELLULOID_MANAGED
-          root_services << {
-            as: :actor_manager,
-            type: Celluloid::Actor::Manager,
-            accessors: [:manager],
-          }
-        end
         root_services
       end
 

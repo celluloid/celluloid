@@ -16,20 +16,15 @@ rvm:
 matrix:
   fast_finish: true
   allow_failures:
-    - env: CELLULOID_BACKPORTED=true
-    - env: CELLULOID_BACKPORTED=false CELLULOID_LEAKTEST=1
-    - env: CELLULOID_BACKPORTED=false CELLULOID_TASK_CLASS=Threaded
-    - env: CELLULOID_BACKPORTED=true CELLULOID_TASK_CLASS=Threaded
+    - env: CELLULOID_LEAKTEST=1
 
 env:
   global:
     - NUMBER_OF_PROCESSORS=4 CELLULOID_CONFIG_FILE=.env-ci
   matrix:
-    - CELLULOID_BACKPORTED=true
-    - CELLULOID_BACKPORTED=false
-    - CELLULOID_BACKPORTED=false CELLULOID_LEAKTEST=1
-    - CELLULOID_BACKPORTED=false CELLULOID_TASK_CLASS=Threaded
-    - CELLULOID_BACKPORTED=true CELLULOID_TASK_CLASS=Threaded
+    - CELLULOID_TASK_CLASS=Fibered
+    - CELLULOID_TASK_CLASS=Threaded
+    - CELLULOID_LEAKTEST=1
 
 notifications:
   irc: "irc.freenode.org#celluloid"

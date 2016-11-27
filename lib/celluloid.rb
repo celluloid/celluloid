@@ -4,14 +4,11 @@ require "timeout"
 require "set"
 
 $CELLULOID_DEBUG = false
-$CELLULOID_MANAGED ||= false
 
 require "celluloid/version"
-require "celluloid/notices"
 
-$CELLULOID_BACKPORTED = false if defined?(CELLULOID_FUTURE) && CELLULOID_FUTURE
-$CELLULOID_BACKPORTED = (ENV["CELLULOID_BACKPORTED"] != "false") unless defined?($CELLULOID_BACKPORTED)
-Celluloid::Notices.backported if $CELLULOID_BACKPORTED
+# TODO: gut this
+$CELLULOID_BACKPORTED = false
 
 module Celluloid
   # Expose all instance methods as singleton methods
@@ -488,12 +485,8 @@ require "celluloid/cell"
 require "celluloid/future"
 
 require "celluloid/actor/system"
-require "celluloid/actor/manager"
-
-require "celluloid/deprecate" unless $CELLULOID_BACKPORTED == false
 
 $CELLULOID_MONITORING = false
-Celluloid::Notices.output
 
 # Configure default systemwide settings
 
