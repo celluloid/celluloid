@@ -5,7 +5,8 @@ module Celluloid
       attr_reader :call, :value
 
       def initialize(call, value)
-        @call, @value = call, value
+        @call = call
+        @value = value
       end
 
       def dispatch
@@ -26,7 +27,7 @@ module Celluloid
             ex.backtrace.concat(caller)
           end
 
-          fail ex
+          raise ex
         end
       end
 

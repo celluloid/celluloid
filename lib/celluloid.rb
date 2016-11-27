@@ -19,7 +19,7 @@ module Celluloid
   LINKING_TIMEOUT = 5
 
   # Warning message added to Celluloid objects accessed outside their actors
-  BARE_OBJECT_WARNING_MESSAGE = "WARNING: BARE CELLULOID OBJECT "
+  BARE_OBJECT_WARNING_MESSAGE = "WARNING: BARE CELLULOID OBJECT ".freeze
 
   class << self
     attr_writer :actor_system # Default Actor System
@@ -31,9 +31,9 @@ module Celluloid
 
     def actor_system
       if Thread.current.celluloid?
-        Thread.current[:celluloid_actor_system] || fail(Error, "actor system not running")
+        Thread.current[:celluloid_actor_system] || raise(Error, "actor system not running")
       else
-        Thread.current[:celluloid_actor_system] || @actor_system || fail(Error, "Celluloid is not yet started; use Celluloid.boot")
+        Thread.current[:celluloid_actor_system] || @actor_system || raise(Error, "Celluloid is not yet started; use Celluloid.boot")
       end
     end
 
@@ -59,8 +59,16 @@ module Celluloid
       klass.property :exit_handler_name
 
       singleton = class << klass; self; end
-      singleton.send(:remove_method, :trap_exit) rescue nil
-      singleton.send(:remove_method, :exclusive) rescue nil
+      begin
+        singleton.send(:remove_method, :trap_exit)
+      rescue
+        nil
+      end
+      begin
+        singleton.send(:remove_method, :exclusive)
+      rescue
+        nil
+      end
 
       singleton.send(:define_method, :trap_exit) do |*args|
         exit_handler_name(*args)
@@ -94,20 +102,20 @@ module Celluloid
     def cores
       Internals::CPUCounter.cores
     end
-    alias_method :cpus, :cores
-    alias_method :ncpus, :cores
+    alias cpus cores
+    alias ncpus cores
 
     # Perform a stack dump of all actors to the given output object
     def stack_dump(output = STDERR)
       actor_system.stack_dump.print(output)
     end
-    alias_method :dump, :stack_dump
+    alias dump stack_dump
 
     # Perform a stack summary of all actors to the given output object
     def stack_summary(output = STDERR)
       actor_system.stack_summary.print(output)
     end
-    alias_method :summarize, :stack_summary
+    alias summarize stack_summary
 
     def public_registry
       actor_system.public_registry
@@ -157,7 +165,7 @@ module Celluloid
       actor_system && actor_system.running?
     end
 
-    #de TODO Anticipate outside process finalizer that would by-pass this.
+    # de TODO Anticipate outside process finalizer that would by-pass this.
     def register_shutdown
       return if defined?(@shutdown_registered) && @shutdown_registered
       # Terminate all actors at exit, unless the exit is abnormal.
@@ -184,18 +192,18 @@ module Celluloid
       proxy._send_(:initialize, *args, &block)
       proxy
     end
-    alias_method :spawn, :new
+    alias spawn new
 
     # Create a new actor and link to the current one
     def new_link(*args, &block)
-      fail NotActorError, "can't link outside actor context" unless Celluloid.actor?
+      raise NotActorError, "can't link outside actor context" unless Celluloid.actor?
 
       proxy = Cell.new(allocate, behavior_options, actor_options).proxy
       Actor.link(proxy)
       proxy._send_(:initialize, *args, &block)
       proxy
     end
-    alias_method :spawn_link, :new_link
+    alias spawn_link new_link
 
     # Run an actor in the foreground
     def run(*args, &block)
@@ -213,7 +221,7 @@ module Celluloid
         mailbox_class: mailbox_class,
         mailbox_size: mailbox_size,
         task_class: task_class,
-        exclusive: exclusive_actor,
+        exclusive: exclusive_actor
       }
     end
 
@@ -223,7 +231,7 @@ module Celluloid
         exclusive_methods: exclusive_methods,
         exit_handler_name: exit_handler_name,
         finalizer: finalizer,
-        receiver_block_executions: execute_block_on_receiver,
+        receiver_block_executions: execute_block_on_receiver
       }
     end
 
@@ -251,7 +259,7 @@ module Celluloid
     def bare_object
       self
     end
-    alias_method :wrapped_object, :bare_object
+    alias wrapped_object bare_object
 
     # Are we being invoked in a different thread from our owner?
     def leaked?
@@ -267,18 +275,18 @@ module Celluloid
     def registered_name
       Actor.registered_name
     end
-    alias_method :name, :registered_name
+    alias name registered_name
 
     def inspect
       return "..." if Celluloid.detect_recursion
 
       str = "#<"
 
-      if leaked?
-        str << Celluloid::BARE_OBJECT_WARNING_MESSAGE
-      else
-        str << "Celluloid::Proxy::Cell"
-      end
+      str << if leaked?
+               Celluloid::BARE_OBJECT_WARNING_MESSAGE
+             else
+               "Celluloid::Proxy::Cell"
+             end
 
       str << "(#{self.class}:0x#{object_id.to_s(16)})"
       str << " " unless instance_variables.empty?
@@ -306,9 +314,10 @@ module Celluloid
     cause = case cause
             when String then RuntimeError.new(cause)
             when Exception then cause
-            else fail TypeError, "Exception object/String expected, but #{cause.class} received"
-    end
-    fail AbortError.new(cause)
+            else raise TypeError, "Exception object/String expected, but #{cause.class} received"
+            end
+
+    raise AbortError, cause
   end
 
   # Terminate this actor
@@ -446,7 +455,7 @@ module Celluloid
 end
 
 if defined?(JRUBY_VERSION) && JRUBY_VERSION == "1.7.3"
-  fail "Celluloid is broken on JRuby 1.7.3. Please upgrade to 1.7.4+"
+  raise "Celluloid is broken on JRuby 1.7.3. Please upgrade to 1.7.4+"
 end
 
 require "celluloid/exceptions"

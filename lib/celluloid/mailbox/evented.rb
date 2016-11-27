@@ -26,7 +26,11 @@ module Celluloid
             @messages << message
           end
         ensure
-          @mutex.unlock rescue nil
+          begin
+            @mutex.unlock
+          rescue
+            nil
+          end
         end
         begin
           current_actor = Thread.current[:celluloid_actor]
@@ -50,7 +54,7 @@ module Celluloid
         @reactor.run_once(timeout)
 
         # No message was received:
-        return nil
+        nil
       end
 
       # Obtain the next message from the mailbox that matches the given block
@@ -59,7 +63,11 @@ module Celluloid
         begin
           super(&block)
         ensure
-          @mutex.unlock rescue nil
+          begin
+            @mutex.unlock
+          rescue
+            nil
+          end
         end
       end
 

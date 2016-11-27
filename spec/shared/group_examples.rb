@@ -35,7 +35,7 @@ RSpec.shared_examples "a Celluloid Group" do
         subject.get do
           busy_queue << nil
           @wait_queue.pop
-          fail exception_class, "Error"
+          raise exception_class, "Error"
         end
 
         wait_until_busy(busy_queue)
@@ -89,7 +89,7 @@ RSpec.shared_examples "a Celluloid Group" do
       subject.get do
         thread << Thread.current
         sleep
-      end,
+      end
     ).to be_a(Celluloid::Thread)
 
     thread.pop # wait for 3rd-party thread to get strated

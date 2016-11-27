@@ -8,7 +8,7 @@ module Celluloid
 
       # Wait for the given signal and return the associated value
       def wait(name)
-        fail "cannot wait for signals while exclusive" if Celluloid.exclusive?
+        raise "cannot wait for signals while exclusive" if Celluloid.exclusive?
 
         @conditions[name] ||= Condition.new
         @conditions[name].wait

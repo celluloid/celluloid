@@ -17,7 +17,7 @@ module Celluloid
       # Handle incoming messages
       def handle_message(message)
         handler = @handlers.find { |h| h.match(message) }
-        handler.call message if handler
+        handler.call(message) if handler
         handler
       end
     end

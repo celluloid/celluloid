@@ -36,9 +36,7 @@ module Celluloid
       @actor.handle(Call::Block) do |message|
         task(:invoke_block) { message.dispatch }
       end
-      @actor.handle(Internals::Response::Block, Internals::Response) do |message|
-        message.dispatch
-      end
+      @actor.handle(Internals::Response::Block, Internals::Response, &:dispatch)
 
       @actor.start
       @proxy = (options[:proxy_class] || Proxy::Cell).new(@actor.mailbox, @actor.proxy, @subject.class.to_s)
@@ -62,13 +60,13 @@ module Celluloid
         end
       end
 
-      task(:call, meth, {call: call, subject: @subject},
+      task(:call, meth, { call: call, subject: @subject },
            dangerous_suspend: meth == :initialize, &Cell.dispatch)
     end
 
     def task(task_type, method_name = nil, subject = nil, meta = nil, &_block)
       meta ||= {}
-      meta.merge!(method_name: method_name)
+      meta[:method_name] = method_name
       @actor.task(task_type, meta) do
         if @exclusive_methods && method_name && @exclusive_methods.include?(method_name.to_sym)
           Celluloid.exclusive { yield subject }
@@ -94,7 +92,7 @@ module Celluloid
     def shutdown
       return unless @finalizer && @subject.respond_to?(@finalizer, true)
 
-      task(:finalizer, @finalizer, {call: @finalizer, subject: @subject},
+      task(:finalizer, @finalizer, { call: @finalizer, subject: @subject },
            dangerous_suspend: true, &Cell.shutdown)
     end
   end

@@ -2,7 +2,7 @@ module Specs
   class << self
     def reset_class_variables(description)
       # build uuid from example ending (most unique)
-      uuid_prefix = description[-([description.size, 20].min)..-1]
+      uuid_prefix = description[-[description.size, 20].min..-1]
       reset_uuid(uuid_prefix)
 
       reset_probe(Queue.new)

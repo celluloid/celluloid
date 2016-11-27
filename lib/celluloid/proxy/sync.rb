@@ -6,7 +6,7 @@ class Celluloid::Proxy::Sync < Celluloid::Proxy::AbstractCall
 
   def method_missing(meth, *args, &block)
     unless @mailbox.alive?
-      fail ::Celluloid::DeadActorError, "attempted to call a dead actor: #{meth}"
+      raise ::Celluloid::DeadActorError, "attempted to call a dead actor: #{meth}"
     end
 
     if @mailbox == ::Thread.current[:celluloid_mailbox]

@@ -22,24 +22,24 @@ RSpec.shared_examples "a Celluloid Actor" do
         true
       else
         false
-      end,
+      end
     ).to be_truthy
   end
 
   it "can be stored in hashes" do
     expect(actor.hash).not_to eq(Kernel.hash)
     expect(actor.object_id).not_to eq(Kernel.object_id)
-    expect(actor.eql? actor).to be_truthy
+    expect(actor.eql?(actor)).to be_truthy
   end
 
   it "can be stored in hashes even when dead" do
     actor.terminate
-    
+
     expect(actor.dead?).to be_truthy
-    
+
     expect(actor.hash).not_to eq(Kernel.hash)
     expect(actor.object_id).not_to eq(Kernel.object_id)
-    expect(actor.eql? actor).to be_truthy
+    expect(actor.eql?(actor)).to be_truthy
   end
 
   it "implements respond_to? correctly" do
@@ -418,7 +418,7 @@ RSpec.shared_examples "a Celluloid Actor" do
           include CelluloidSpecs.included_module
 
           define_method(:receiver_method) do
-            fail ExampleCrash, "the spec purposely crashed me :("
+            raise ExampleCrash, "the spec purposely crashed me :("
           end
         end.new
 
@@ -435,7 +435,11 @@ RSpec.shared_examples "a Celluloid Actor" do
 
       it "raises DeadActorError if methods are synchronously called on a dead actor" do
         allow(logger).to receive(:crash).with("Actor crashed!", ExampleCrash)
-        actor.crash rescue ExampleCrash
+        begin
+          actor.crash
+        rescue
+          ExampleCrash
+        end
 
         # TODO: avoid this somehow
         sleep 0.1 # hax to prevent a race between exit handling and the next call
@@ -588,9 +592,9 @@ RSpec.shared_examples "a Celluloid Actor" do
           @subordinate_lambasted
         end
 
-        def lambaste_subordinate(_actor, _reason)
+        def lambaste_subordinate(_actor, reason)
           @subordinate_lambasted = true
-          @exception = _reason
+          @exception = reason
         end
       end
     end
@@ -698,7 +702,7 @@ RSpec.shared_examples "a Celluloid Actor" do
         end
 
         def wait_for_signal
-          fail "already signaled" if @signaled
+          raise "already signaled" if @signaled
 
           @waiting = true
           value = wait :ponycopter
@@ -1096,7 +1100,7 @@ RSpec.shared_examples "a Celluloid Actor" do
 
           klass = Class.new(Celluloid::Proxy::Cell) do
             def dividing_3_by(number)
-              fail ArgumentError, "<facepalm>" if number.zero?
+              raise ArgumentError, "<facepalm>" if number.zero?
               super
             end
           end
@@ -1115,7 +1119,11 @@ RSpec.shared_examples "a Celluloid Actor" do
         end
 
         it "does not crash the actor" do
-          subject.dividing_3_by(0) rescue ArgumentError
+          begin
+            subject.dividing_3_by(0)
+          rescue
+            ArgumentError
+          end
           expect(subject.dividing_3_by(3)).to eq(1)
         end
       end
@@ -1135,7 +1143,7 @@ RSpec.shared_examples "a Celluloid Actor" do
             mandatory_args = -arity - 1
             unmet_requirement = "#{mandatory_args}+" if args.size < mandatory_args
           end
-          fail ArgumentError, "wrong number of arguments (#{args.size} for #{unmet_requirement})" if unmet_requirement
+          raise ArgumentError, "wrong number of arguments (#{args.size} for #{unmet_requirement})" if unmet_requirement
 
           super
         end
@@ -1154,7 +1162,7 @@ RSpec.shared_examples "a Celluloid Actor" do
           end
 
           def this_is_not_madness(word1, word2, word3, *_args)
-            fail "This is madness!" unless [word1, word2, word3] == [:this, :is, :Sparta]
+            raise "This is madness!" unless [word1, word2, word3] == [:this, :is, :Sparta]
           end
 
           proxy_class klass
@@ -1167,7 +1175,11 @@ RSpec.shared_examples "a Celluloid Actor" do
         end
 
         it "does not crash the actor" do
-          subject.method_to_madness rescue NoMethodError
+          begin
+            subject.method_to_madness
+          rescue
+            NoMethodError
+          end
           expect(subject.madness).to eq("This is madness!")
         end
       end
@@ -1179,7 +1191,11 @@ RSpec.shared_examples "a Celluloid Actor" do
           end
 
           it "does not crash the actor" do
-            subject.madness(:Sparta) rescue ArgumentError
+            begin
+              subject.madness(:Sparta)
+            rescue
+              ArgumentError
+            end
             expect(subject.madness).to eq("This is madness!")
           end
         end

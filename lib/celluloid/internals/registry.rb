@@ -21,7 +21,7 @@ module Celluloid
         else
           actor_singleton = class << actor; self; end
           unless actor_singleton.ancestors.include? Proxy::Abstract
-            fail TypeError, "not an actor"
+            raise TypeError, "not an actor"
           end
 
           #           if actor.class.ancestors.include? Supervision::Container
@@ -34,13 +34,17 @@ module Celluloid
         end
       end
 
-      def add(name, actor, branch=:services)
+      def add(name, actor, branch = :services)
         set(name, actor)
         @registry.synchronize do
           unless @branches.key? branch
             @branches[branch] = []
             self.class.instance_eval do
-              remove_method(branch) rescue nil
+              begin
+                remove_method(branch)
+              rescue
+                nil
+              end
               define_method(branch) { @branches[branch] }
             end
             @branches[branch] << name
@@ -59,12 +63,12 @@ module Celluloid
 
       def branch(name)
         @registry.synchronize do
-          @index.select { |a, b| b == name }
+          @index.select { |_a, b| b == name }
         end
       end
 
-      alias_method :get, :[]
-      alias_method :set, :[]=
+      alias get []
+      alias set []=
 
       def delete(name)
         @registry.synchronize do

@@ -68,7 +68,7 @@ RSpec.shared_examples "a Celluloid Stack" do
 
       # Pool somehow doesn't create extra tasks
       # 5 is on JRuby-head
-      expected = (Celluloid.group_class == Celluloid::Group::Pool) ? [3, 4] : [3, 4, 5, 6]
+      expected = Celluloid.group_class == Celluloid::Group::Pool ? [3, 4] : [3, 4, 5, 6]
       expect(expected).to include(subject.threads.size)
     end
 

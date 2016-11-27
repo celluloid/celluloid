@@ -39,7 +39,7 @@ module Specs
     end
 
     def thread_name(thread)
-      (RUBY_PLATFORM == "java") ? thread.to_java.getNativeThread.get_name : ""
+      RUBY_PLATFORM == "java" ? thread.to_java.getNativeThread.get_name : ""
     end
 
     def assert_no_loose_threads!(location)
@@ -61,7 +61,7 @@ module Specs
         sleep
       end
 
-      fail Celluloid::ThreadLeak, "Aborted due to runaway threads (#{location})\n"\
+      raise Celluloid::ThreadLeak, "Aborted due to runaway threads (#{location})\n"\
         "List: (#{loose.map(&:inspect)})\n:#{backtraces.join("\n")}"
     end
   end

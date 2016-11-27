@@ -17,7 +17,7 @@ RSpec.describe "Leaks", actor_system: :global, leaktest: true,
     end
   end
 
-  def wait_for_release(weak, _what, count=1000)
+  def wait_for_release(weak, _what, count = 1000)
     trash = []
     count.times do |step|
       GC.start

@@ -5,7 +5,7 @@ RSpec.describe Celluloid::Internals::CPUCounter do
     let(:num_cores) { 1024 }
 
     before do
-      allow(described_class).to receive(:`) { fail "backtick stub called" }
+      allow(described_class).to receive(:`) { raise "backtick stub called" }
       allow(::IO).to receive(:open).and_raise("IO.open stub called!")
       described_class.instance_variable_set(:@cores, nil)
     end

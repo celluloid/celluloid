@@ -11,7 +11,7 @@ module Celluloid
 
       def get(&block)
         assert_active
-        fail ArgumentError.new("No block sent to Spawner.get()") unless block_given?
+        raise ArgumentError, "No block sent to Spawner.get()" unless block_given?
         instantiate block
       end
 

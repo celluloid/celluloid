@@ -22,7 +22,7 @@ class Celluloid::Proxy::Cell < Celluloid::Proxy::Sync
     ::Celluloid::Internals::Method.new(self, name)
   end
 
-  alias_method :sync, :method_missing
+  alias sync method_missing
 
   # Obtain an async proxy or explicitly invoke a named async method
   def async(method_name = nil, *args, &block)

@@ -1,4 +1,5 @@
 require "timeout"
+require "celluloid/autostart"
 
 desc "Run Celluloid benchmarks"
 task :benchmark do

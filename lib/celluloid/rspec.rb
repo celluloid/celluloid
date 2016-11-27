@@ -4,23 +4,23 @@ module Specs
   CHECK_LOOSE_THREADS = false
   ALLOW_RETRIES = 3 unless defined? ALLOW_RETRIES
 
-  INCLUDE_SUPPORT = [
-    "logging",
-    "sleep_and_wait",
-    "reset_class_variables",
-    "crash_checking",
-    "loose_threads",
-    "stubbing",
-    "coverage",
-    "includer",
-    "configure_rspec"
-  ]
+  INCLUDE_SUPPORT = %w(
+    logging
+    sleep_and_wait
+    reset_class_variables
+    crash_checking
+    loose_threads
+    stubbing
+    coverage
+    includer
+    configure_rspec
+  ).freeze
 
   INCLUDE_PATHS = [
     "./spec/support/*.rb",
     "./spec/support/examples/*.rb",
     "./spec/shared/*.rb"
-  ]
+  ].freeze
 
   MAX_EXECUTION = 13
   MAX_ATTEMPTS = 20
@@ -34,7 +34,7 @@ module Specs
     "rspec-retry",
     "rubysl-thread",
     "rubysl-timeout"
-  ]
+  ].freeze
 end
 
 $CELLULOID_DEBUG = true
@@ -47,9 +47,9 @@ Celluloid.shutdown_timeout = 1
 
 # Load shared examples and test support code for other gems to use.
 
-Specs::INCLUDE_SUPPORT.each { |f|
+Specs::INCLUDE_SUPPORT.each do |f|
   require "#{File.expand_path('../../../spec/support', __FILE__)}/#{f}.rb"
-}
+end
 
 Specs.reset_probe(nil)
 

@@ -29,7 +29,7 @@ module Celluloid
       end
 
       def cleanup
-        exception = DeadActorError.new("attempted to call a dead actor: #{self.method}")
+        exception = DeadActorError.new("attempted to call a dead actor: #{method}")
         respond Internals::Response::Error.new(self, exception)
       end
 
@@ -46,7 +46,7 @@ module Celluloid
       end
 
       def wait
-        while true
+        loop do
           message = Celluloid.mailbox.receive do |msg|
             msg.respond_to?(:call) && msg.call == self
           end

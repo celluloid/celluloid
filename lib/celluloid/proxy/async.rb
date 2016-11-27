@@ -7,7 +7,7 @@ class Celluloid::Proxy::Async < Celluloid::Proxy::AbstractCall
     end
     if block_given?
       # FIXME: nicer exception
-      fail "Cannot use blocks with async yet"
+      raise "Cannot use blocks with async yet"
     end
     @mailbox << ::Celluloid::Call::Async.new(meth, args, block)
     self

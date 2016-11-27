@@ -16,7 +16,7 @@ RSpec.describe Celluloid::Mailbox::Evented do
       timeout_interval = Specs::TIMER_QUANTUM + 0.1
       started_at = Time.now
       expect do
-        Kernel.send(:timeout, timeout_interval) do
+        ::Timeout.timeout(timeout_interval) do
           subject.receive { false }
         end
       end.to raise_exception(Timeout::Error)
@@ -26,12 +26,12 @@ RSpec.describe Celluloid::Mailbox::Evented do
   end
 
   it "discard messages when reactor wakeup fails" do
-    expect(Celluloid::Internals::Logger).to receive(:crash).with('reactor crashed', RuntimeError)
+    expect(Celluloid::Internals::Logger).to receive(:crash).with("reactor crashed", RuntimeError)
     expect(Celluloid.logger).to receive(:debug).with("Discarded message (mailbox is dead): first")
 
     bad_reactor = Class.new do
       def wakeup
-        fail
+        raise
       end
     end
     mailbox = Celluloid::Mailbox::Evented.new(bad_reactor)

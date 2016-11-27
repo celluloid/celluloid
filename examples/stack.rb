@@ -17,7 +17,7 @@ class Stack
   def push(x)
     @ary.push x
   end
-  alias_method :<<, :push
+  alias << push
 
   def pop
     @ary.pop

@@ -1,7 +1,7 @@
 class Celluloid::Proxy::Block
   attr_writer :execution
   attr_reader :call, :block
-  
+
   def initialize(mailbox, call, block)
     @mailbox = mailbox
     @call = call
@@ -18,7 +18,7 @@ class Celluloid::Proxy::Block
           task.suspend(:invokeblock)
         else
           # FIXME: better exception
-          fail "No task to suspend"
+          raise "No task to suspend"
         end
       end
     else

@@ -9,7 +9,11 @@ module Celluloid
         ivar_name = "@#{name}".to_sym
 
         singleton = class << ancestors.first; self; end
-        singleton.send(:remove_method, name) rescue nil
+        begin
+          singleton.send(:remove_method, name)
+        rescue
+          nil
+        end
         singleton.send(:define_method, name) do |value = nil, *extra|
           if value
             value = value ? [value, *send(name), *extra].uniq : [] if multi
