@@ -33,7 +33,7 @@ module Celluloid
           thread.uuid_counter += 1
         end
 
-        "#{PREFIX}-#{sprintf('%012x', counter)}".freeze
+        "#{PREFIX}-#{format('%012x', counter)}".freeze
       end
     end
   end

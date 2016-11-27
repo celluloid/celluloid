@@ -10,7 +10,7 @@ module Celluloid
     end
 
     def assert_active
-      fail Celluloid::NotActive unless active?
+      raise Celluloid::NotActive unless active?
     end
 
     def assert_inactive
@@ -18,7 +18,7 @@ module Celluloid
       if RUBY_PLATFORM == "java"
         Celluloid.logger.warn "Group is still active"
       else
-        fail Celluloid::StillActive
+        raise Celluloid::StillActive
       end
     end
 
@@ -40,7 +40,11 @@ module Celluloid
     def purge(thread)
       @mutex.synchronize do
         @group.delete(thread)
-        thread.kill rescue nil
+        begin
+          thread.kill
+        rescue
+          nil
+        end
       end
     end
 
@@ -53,15 +57,15 @@ module Celluloid
     end
 
     def get
-      fail NotImplementedError
+      raise NotImplementedError
     end
 
     def create
-      fail NotImplementedError
+      raise NotImplementedError
     end
 
     def shutdown
-      fail NotImplementedError
+      raise NotImplementedError
     end
   end
 end

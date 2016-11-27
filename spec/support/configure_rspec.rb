@@ -18,7 +18,7 @@ RSpec.configure do |config|
   config.before(:suite) do
     Specs.stub_out_class_method(Celluloid::Internals::Logger, :crash) do |*args|
       _name, ex = *args
-      fail "Unstubbed Logger.crash() was called:\n  crash(\n    #{args.map(&:inspect).join(",\n    ")})"\
+      raise "Unstubbed Logger.crash() was called:\n  crash(\n    #{args.map(&:inspect).join(",\n    ")})"\
         "\nException backtrace: \n  (#{ex.class}) #{ex.backtrace * "\n  (#{ex.class}) "}"
     end
   end
@@ -41,7 +41,7 @@ RSpec.configure do |config|
         "\n** Crash: #{msg.inspect}(#{ex.inspect})\n  Backtrace:\n    (crash) #{call_stack * "\n    (crash) "}"\
           "\n  Exception Backtrace (#{ex.inspect}):\n    (ex) #{ex.backtrace * "\n    (ex) "}"
       end.join("\n")
-      fail "Actor crashes occured (please stub/mock if these are expected): #{crashes}"
+      raise "Actor crashes occured (please stub/mock if these are expected): #{crashes}"
     end
     @fake_logger = nil
     Specs.assert_no_loose_threads!("after example: #{ex.description}") if Specs::CHECK_LOOSE_THREADS

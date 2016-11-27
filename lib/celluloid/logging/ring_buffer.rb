@@ -28,7 +28,7 @@ module Celluloid
         value
       end
     end
-    alias_method :<<, :push
+    alias << push
 
     def shift
       @mutex.synchronize do
@@ -54,7 +54,8 @@ module Celluloid
 
     def remove_element
       return nil if empty?
-      value, @buffer[@start] = @buffer[@start], nil
+      value = @buffer[@start]
+      @buffer[@start] = nil
       @start = (@start + 1) % @size
       @count -= 1
       value

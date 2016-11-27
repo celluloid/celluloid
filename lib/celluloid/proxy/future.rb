@@ -2,12 +2,12 @@
 class Celluloid::Proxy::Future < Celluloid::Proxy::AbstractCall
   def method_missing(meth, *args, &block)
     unless @mailbox.alive?
-      fail ::Celluloid::DeadActorError, "attempted to call a dead actor: #{meth}"
+      raise ::Celluloid::DeadActorError, "attempted to call a dead actor: #{meth}"
     end
 
     if block_given?
       # FIXME: nicer exception
-      fail "Cannot use blocks with futures yet"
+      raise "Cannot use blocks with futures yet"
     end
 
     future = ::Celluloid::Future.new

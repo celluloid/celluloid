@@ -5,27 +5,17 @@ RSpec.describe Celluloid::Call::Sync, actor_system: :global do
   let(:logger) { Specs::FakeLogger.current }
 
   context "when obj does not respond to a method" do
-    # bypass this until rubinius/rubinius#3373 is resolved
-    # under Rubinius, `method` calls `inspect` on an object when a method is not found
-    unless RUBY_ENGINE == "rbx"
-      it "raises a NoMethodError" do
-        allow(logger).to receive(:crash).with("Actor crashed!", NoMethodError)
+    it "raises a NoMethodError" do
+      allow(logger).to receive(:crash).with("Actor crashed!", NoMethodError)
 
-        expect do
-          actor.the_method_that_wasnt_there
-        end.to raise_exception(NoMethodError)
-      end
+      expect do
+        actor.the_method_that_wasnt_there
+      end.to raise_exception(NoMethodError)
     end
 
     context "when obj raises during inspect" do
       it "should emulate obj.inspect" do
         allow(logger).to receive(:crash).with("Actor crashed!", NoMethodError)
-
-        if RUBY_ENGINE == "rbx"
-          expected = /undefined method `no_such_method' on an instance of CallExampleActor/
-        else
-          expected = /undefined method `no_such_method' for #\<CallExampleActor:0x[a-f0-9]+\>/
-        end
       end
     end
   end

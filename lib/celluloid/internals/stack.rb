@@ -9,7 +9,7 @@ module Celluloid
         @threads = []
       end
 
-      def snapshot(backtrace=nil)
+      def snapshot(backtrace = nil)
         @group.each do |thread|
           if thread.role == :actor
             @actors << snapshot_actor(thread.actor, backtrace) if thread.actor
@@ -19,7 +19,7 @@ module Celluloid
         end
       end
 
-      def snapshot_actor(actor, backtrace=nil)
+      def snapshot_actor(actor, backtrace = nil)
         state = ActorState.new
         state.id = actor.object_id
 
@@ -45,12 +45,14 @@ module Celluloid
         state
       end
 
-      def snapshot_thread(thread, backtrace=nil)
-        backtrace = begin
-                      thread.backtrace
-                    rescue NoMethodError # for Rubinius < 2.5.2.c145
-                      []
-                    end if backtrace
+      def snapshot_thread(thread, backtrace = nil)
+        if backtrace
+          backtrace = begin
+                        thread.backtrace
+                      rescue NoMethodError # for Rubinius < 2.5.2.c145
+                        []
+                      end
+        end
         ThreadState.new(thread.object_id, backtrace, thread.role)
       end
 

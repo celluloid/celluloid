@@ -2,21 +2,133 @@ AllCops:
   DisplayCopNames: true
 
 #
-# Style
+# Lint
 #
 
-LineLength:
-  Max: 128
+Lint/AssignmentInCondition:
+  Enabled: false # TODO: enable
 
-Style/StringLiterals:
-  EnforcedStyle: double_quotes
+Lint/EmptyWhen:
+  Enabled: false
+
+Lint/Loop:
+  Enabled: false # TODO: enable
+
+Lint/HandleExceptions:
+  Enabled: false # TODO: enable
+
+Lint/NonLocalExitFromIterator:
+  Enabled: false # TODO: enable
+
+Lint/RescueException:
+  Enabled: false # TODO: explicitly mark cases where we want to rescue Exception
+
+Lint/ShadowedException:
+  Enabled: false # TODO; enable
+
+Lint/UselessAssignment:
+  Enabled: false # TODO: enable
 
 #
 # Metrics
 #
 
+Metrics/AbcSize:
+  Enabled: false # TODO: enable
+
+Metrics/BlockNesting:
+  Enabled: false # TODO: enable
+
 Metrics/ClassLength:
-  Max: 200
+  Max: 250
+
+Metrics/CyclomaticComplexity:
+  Enabled: false # TODO: enable
+
+Metrics/LineLength:
+  Max: 200 # TODO: decrease
 
 Metrics/MethodLength:
-  Max: 50
+  Max: 100
+
+Metrics/ModuleLength:
+  Max: 250
+
+Metrics/ParameterLists:
+  Enabled: false # TODO: enable
+
+Metrics/PerceivedComplexity:
+  Enabled: false # TODO: enable
+
+#
+# Style
+#
+
+Style/AccessorMethodName:
+  Enabled: false # TODO: enable
+
+Style/CaseEquality:
+  Enabled: false
+
+Style/ClassAndModuleChildren:
+  Enabled: false
+
+Style/ClassVars:
+  Enabled: false # TODO: enable
+
+Style/Documentation:
+  Enabled: false # TODO: enable
+
+Style/DoubleNegation:
+  Enabled: false # TODO: enable(?)
+
+Style/For:
+  Enabled: false # TODO: enable
+
+Style/FrozenStringLiteralComment:
+  Enabled: false # TODO: enable
+
+Style/GlobalVars:
+  Enabled: false # TODO: enable
+
+Style/GuardClause:
+  Enabled: false # TODO: enable
+
+Style/IfInsideElse:
+  Enabled: false # TODO: enable
+
+Style/MethodMissing:
+  Enabled: false # TODO: enable
+
+Style/ModuleFunction:
+  Enabled: false
+
+Style/NumericPredicate:
+  Enabled: false
+
+Style/RegexpLiteral:
+  Enabled: false # TODO: enable
+
+Style/RescueModifier:
+  Enabled: false # TODO: enable
+
+Style/SafeNavigation:
+  Enabled: false
+
+Style/Semicolon:
+  Enabled: false
+
+Style/SingleLineBlockParams:
+  Enabled: false
+
+Style/SpecialGlobalVars:
+  Enabled: false # TODO: enable
+
+Style/StringLiterals:
+  EnforcedStyle: double_quotes
+
+Style/StructInheritance:
+  Enabled: false # TODO: enable
+
+Style/TernaryParentheses:
+  Enabled: false

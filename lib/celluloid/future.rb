@@ -50,7 +50,7 @@ module Celluloid
     # Execute the given method in future context
     def execute(receiver, method, args, block)
       @mutex.synchronize do
-        fail "already calling" if @call
+        raise "already calling" if @call
         @call = Call::Sync.new(self, method, args, block)
       end
 
@@ -93,12 +93,12 @@ module Celluloid
       end
 
       if result
-        (result.respond_to?(:value)) ? result.value : result
+        result.respond_to?(:value) ? result.value : result
       else
-        fail TimedOut, "Timed out"
+        raise TimedOut, "Timed out"
       end
     end
-    alias_method :call, :value
+    alias call value
 
     # Signal this future with the given result value
     def signal(value)
@@ -106,7 +106,7 @@ module Celluloid
       result = Result.new(value, self)
 
       @mutex.synchronize do
-        fail "the future has already happened!" if @ready
+        raise "the future has already happened!" if @ready
 
         if @forwards
           @forwards.is_a?(Array) ? @forwards.each { |f| f << result } : @forwards << result
@@ -116,7 +116,7 @@ module Celluloid
         @ready = true
       end
     end
-    alias_method :<<, :signal
+    alias << signal
 
     def cancel(error)
       response = Internals::Response::Error.new(@call, error)
@@ -127,7 +127,7 @@ module Celluloid
     end
 
     # Inspect this Celluloid::Future
-    alias_method :inspect, :to_s
+    alias inspect to_s
 
     # Wrapper for result values to distinguish them in mailboxes
     class Result

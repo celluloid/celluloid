@@ -16,9 +16,9 @@ class Celluloid::Proxy::Abstract < BasicObject
     }
     # rubinius bug?  These methods disappear when we include hacked kernel
     define_method :==, ::BasicObject.instance_method(:==) unless instance_methods.include?(:==)
-    alias_method(:equal?, :==) unless instance_methods.include?(:equal?)
+    alias equal? == unless instance_methods.include?(:equal?)
   end
-  
+
   def __class__
     @class ||= ::Celluloid::Proxy.class_of(self)
   end
@@ -26,25 +26,25 @@ end
 
 class Celluloid::Proxy::AbstractCall < Celluloid::Proxy::Abstract
   attr_reader :mailbox
-  
+
   def initialize(mailbox, klass)
     @mailbox = mailbox
     @klass = klass
   end
-  
+
   def eql?(other)
-    self.__class__.eql?(::Celluloid::Proxy.class_of(other)) and @mailbox.eql?(other.mailbox)
+    __class__.eql?(::Celluloid::Proxy.class_of(other)) && @mailbox.eql?(other.mailbox)
   end
 
   def hash
     @mailbox.hash
   end
-  
+
   def __klass__
     @klass
   end
-  
+
   def inspect
-    "#<#{self.__class__}(#{@klass})>"
+    "#<#{__class__}(#{@klass})>"
   end
 end

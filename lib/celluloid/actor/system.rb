@@ -10,15 +10,15 @@ module Celluloid
       ROOT_SERVICES = [
         {
           as: :notifications_fanout,
-          type: Celluloid::Notifications::Fanout,
+          type: Celluloid::Notifications::Fanout
         },
         {
           as: :public_services,
           type: Celluloid::Supervision::Service::Public,
           accessors: [:services],
-          supervise: [],
-        },
-      ]
+          supervise: []
+        }
+      ].freeze
 
       attr_reader :registry, :group
 
@@ -103,7 +103,7 @@ module Celluloid
       def shutdown
         actors = running
         Timeout.timeout(shutdown_timeout) do
-          Internals::Logger.debug "Terminating #{actors.size} #{(actors.size > 1) ? 'actors' : 'actor'}..." if actors.size > 0
+          Internals::Logger.debug "Terminating #{actors.size} #{actors.size > 1 ? 'actors' : 'actor'}..." unless actors.empty?
 
           # Actors cannot self-terminate, you must do it for them
           actors.each do |actor|

@@ -1,6 +1,6 @@
 module Celluloid
   class Error < StandardError; end
-  class Interruption < Exception; end
+  class Interruption < RuntimeError; end
   class TimedOut < Celluloid::Interruption; end # Distinguished from `Timeout`
   class StillActive < Celluloid::Error; end
   class NotActive < Celluloid::Error; end

@@ -10,7 +10,7 @@ RSpec.describe "Blocks", actor_system: :global do
     def ask_for_something(other)
       sender_actor = current_actor
       $data << [:outside, @name, current_actor.name]
-      other.do_something_and_callback do |value|
+      other.do_something_and_callback do |_value|
         $data << [:yielded, @name, current_actor.name]
         $data << receive_result(:self)
         $data << current_actor.receive_result(:current_actor)
@@ -35,7 +35,7 @@ RSpec.describe "Blocks", actor_system: :global do
       sender_actor = current_actor
       defer do
         $data << [:outside, @name, current_actor.name]
-        other.do_something_and_callback do |value|
+        other.do_something_and_callback do |_value|
           $data << [:yielded, @name, current_actor.name]
           $data << receive_result(:self)
           $data << current_actor.receive_result(:current_actor)
@@ -70,7 +70,7 @@ RSpec.describe "Blocks", actor_system: :global do
       [:self, "one", "one"],
       [:current_actor, "one", "one"],
       [:sender, "one", "one"],
-      :pete_the_polyglot_alien,
+      :pete_the_polyglot_alien
     ]
 
     expect($data).to eq(expected)
@@ -79,7 +79,7 @@ RSpec.describe "Blocks", actor_system: :global do
   execute_deferred = proc do
     a1 = MyBlockActor.new("one")
     expect(a1.deferred_excecution(:pete_the_polyglot_alien) { |v| v })
-    .to eq(:pete_the_polyglot_alien)
+      .to eq(:pete_the_polyglot_alien)
   end
 
   # unless RUBY_ENGINE == 'jruby'
@@ -105,7 +105,7 @@ RSpec.describe "Blocks", actor_system: :global do
       [:self, "one", "one"],
       [:current_actor, "one", "one"],
       [:sender, "one", "one"],
-      :pete_the_polyglot_alien,
+      :pete_the_polyglot_alien
     ]
 
     expect($data).to eq(expected)

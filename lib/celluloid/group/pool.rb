@@ -12,7 +12,7 @@ module Celluloid
         super
         @mutex = Mutex.new
         @idle_threads = []
-        @group  = []
+        @group = []
         @busy_size = 0
         @idle_size = 0
 

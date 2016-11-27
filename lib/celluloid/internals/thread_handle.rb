@@ -23,18 +23,18 @@ module Celluloid
 
       # Is the thread running?
       def alive?
-        @mutex.synchronize { @thread.alive? if @thread }
+        @mutex.synchronize { @thread && @thread.alive? }
       end
 
       # Forcibly kill the thread
       def kill
-        !!@mutex.synchronize { @thread.kill if @thread }
+        !!@mutex.synchronize { @thread && @thread.kill }
         self
       end
 
       # Join to a running thread, blocking until it terminates
       def join(limit = nil)
-        fail ThreadError, "Target thread must not be current thread" if @thread == Thread.current
+        raise ThreadError, "Target thread must not be current thread" if @thread == Thread.current
         @mutex.synchronize { @join.wait(@mutex, limit) if @thread }
         self
       end

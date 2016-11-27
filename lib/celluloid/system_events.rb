@@ -18,7 +18,7 @@ module Celluloid
       end
 
       def handler(&block)
-        fail ArgumentError, "SystemEvent handlers must be defined with a block." unless block
+        raise ArgumentError, "SystemEvent handlers must be defined with a block." unless block
         method = begin
           handler = name
                     .split("::").last
@@ -38,7 +38,7 @@ module Celluloid
       def initialize(actor, type)
         @actor = actor
         @type = type.to_sym
-        fail ArgumentError, "type must be link or unlink" unless [:link, :unlink].include?(@type)
+        raise ArgumentError, "type must be link or unlink" unless [:link, :unlink].include?(@type)
       end
     end
   end
@@ -97,7 +97,7 @@ module Celluloid
 
   # Request for an actor to terminate
   class TerminationRequest < SystemEvent
-    handler do |event|
+    handler do |_event|
       terminate
     end
   end
@@ -110,9 +110,7 @@ module Celluloid
     end
     attr_reader :task, :value
 
-    handler do |event|
-      event.call
-    end
+    handler(&:call)
 
     def call
       @task.resume(@value)

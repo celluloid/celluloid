@@ -7,7 +7,7 @@ module Celluloid
     include Celluloid
     include Celluloid::Notifications
 
-    NOTIFICATIONS_TOPIC_BASE = "celluloid.events.%s"
+    NOTIFICATIONS_TOPIC_BASE = "celluloid.events.%s".freeze
     EVENTS_BUFFER = Queue.new
 
     class << self

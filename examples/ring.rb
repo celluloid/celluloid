@@ -28,7 +28,7 @@ class Ring
 
   # Go around the ring the given number of times
   def run(n)
-    fail ArgumentError, "I can't go around a negative number of times" if n < 0
+    raise ArgumentError, "I can't go around a negative number of times" if n < 0
 
     async.around n
     wait :done
