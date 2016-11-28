@@ -1,3 +1,7 @@
+# !!! DO NOT INTRODUCE ADDITIONAL GLOBAL VARIABLES !!!
+# TODO: remove use of global variables
+# rubocop:disable Style/GlobalVars
+
 RSpec.describe "Blocks", actor_system: :global do
   class MyBlockActor
     include Celluloid

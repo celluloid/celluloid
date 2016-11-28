@@ -1,6 +1,9 @@
 require "celluloid"
 
+# !!! DO NOT INTRODUCE ADDITIONAL GLOBAL VARIABLES !!!
+# rubocop:disable Style/GlobalVars
 $CELLULOID_MONITORING = true
+# rubocop:enable Style/GlobalVars
 
 module Celluloid
   class Probe
@@ -41,7 +44,10 @@ module Celluloid
       private
 
       def trigger_event(name, *args)
+        # !!! DO NOT INTRODUCE ADDITIONAL GLOBAL VARIABLES !!!
+        # rubocop:disable Style/GlobalVars
         return unless $CELLULOID_MONITORING
+        # rubocop:enable Style/GlobalVars
 
         EVENTS_BUFFER << [name, args]
         probe_actor = Actor[:probe_actor]

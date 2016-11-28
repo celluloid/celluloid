@@ -132,7 +132,11 @@ module Celluloid
       end
 
       @proxy = Proxy::Actor.new(@mailbox, @thread)
+
+      # !!! DO NOT INTRODUCE ADDITIONAL GLOBAL VARIABLES !!!
+      # rubocop:disable Style/GlobalVars
       Celluloid::Probe.actor_created(self) if $CELLULOID_MONITORING
+      # rubocop:enable Style/GlobalVars
     end
 
     def behavior_proxy
@@ -194,7 +198,10 @@ module Celluloid
           end
 
           if message.instance_of? LinkingResponse
+            # !!! DO NOT INTRODUCE ADDITIONAL GLOBAL VARIABLES !!!
+            # rubocop:disable Style/GlobalVars
             Celluloid::Probe.actors_linked(self, receiver) if $CELLULOID_MONITORING
+            # rubocop:enable Style/GlobalVars
             system_events.each { |ev| @mailbox << ev }
             return
           elsif message.is_a? SystemEvent
@@ -279,11 +286,13 @@ module Celluloid
 
     # Handle standard low-priority messages
     def handle_message(message)
-      unless @handlers.handle_message(message)
-        unless @receivers.handle_message(message)
-          Internals::Logger.debug "Discarded message (unhandled): #{message}" if $CELLULOID_DEBUG
-        end
+      # !!! DO NOT INTRODUCE ADDITIONAL GLOBAL VARIABLES !!!
+      # rubocop:disable Style/GlobalVars
+      if !@handlers.handle_message(message) && !@receivers.handle_message(message) && $CELLULOID_DEBUG
+        Internals::Logger.debug "Discarded message (unhandled): #{message}"
       end
+      # rubocop:enable Style/GlobalVars
+
       message
     end
 
@@ -311,7 +320,11 @@ module Celluloid
 
     # Clean up after this actor
     def cleanup(exit_event)
+      # !!! DO NOT INTRODUCE ADDITIONAL GLOBAL VARIABLES !!!
+      # rubocop:disable Style/GlobalVars
       Celluloid::Probe.actor_died(self) if $CELLULOID_MONITORING
+      # rubocop:enable Style/GlobalVars
+
       @mailbox.shutdown
       @links.each do |actor|
         actor.mailbox << exit_event if actor.mailbox.alive?

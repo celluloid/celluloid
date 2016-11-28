@@ -9,9 +9,9 @@ branches:
     - master
 
 rvm:
+  - jruby-9.1.6.0
   - 2.2.6
   - 2.3.3
-  - jruby-9.1.6.0
 
 matrix:
   fast_finish: true

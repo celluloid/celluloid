@@ -3,7 +3,7 @@ module Celluloid
     attr_accessor :group
 
     def initialize
-      @pid = $$
+      @pid = $PROCESS_ID
       @mutex = Mutex.new
       @group = []
       @running = true
@@ -27,7 +27,7 @@ module Celluloid
     end
 
     def forked?
-      @pid != $$
+      @pid != $PROCESS_ID
     end
 
     def to_a

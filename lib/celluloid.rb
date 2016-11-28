@@ -1,13 +1,19 @@
+# TODO: eliminate use of global variables
+require "English"
+
 require "logger"
+require "set"
 require "thread"
 require "timeout"
-require "set"
 
+# !!! DO NOT INTRODUCE ADDITIONAL GLOBAL VARIABLES !!!
+# rubocop:disable Style/GlobalVars
 $CELLULOID_DEBUG = false
 $CELLULOID_MONITORING = false
 
 # TODO: gut this
 $CELLULOID_BACKPORTED = false
+# rubocop:enable Style/GlobalVars
 
 require "celluloid/version"
 
@@ -170,7 +176,7 @@ module Celluloid
       return if defined?(@shutdown_registered) && @shutdown_registered
       # Terminate all actors at exit, unless the exit is abnormal.
       at_exit do
-        Celluloid.shutdown unless $!
+        Celluloid.shutdown unless $ERROR_INFO
       end
       @shutdown_registered = true
     end
@@ -457,7 +463,10 @@ end
 require "celluloid/exceptions"
 
 Celluloid.logger = Logger.new(STDERR).tap do |logger|
+  # !!! DO NOT INTRODUCE ADDITIONAL GLOBAL VARIABLES !!!
+  # rubocop:disable Style/GlobalVars
   logger.level = Logger::INFO unless $CELLULOID_DEBUG
+  # rubocop:enable Style/GlobalVars
 end
 
 Celluloid.shutdown_timeout = 10
