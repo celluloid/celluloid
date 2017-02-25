@@ -169,6 +169,8 @@ module Celluloid
 
     def running?
       actor_system && actor_system.running?
+    rescue Error
+      false
     end
 
     # de TODO Anticipate outside process finalizer that would by-pass this.
