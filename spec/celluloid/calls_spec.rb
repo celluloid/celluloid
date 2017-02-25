@@ -9,7 +9,7 @@ RSpec.describe Celluloid::Call::Sync, actor_system: :global do
       allow(logger).to receive(:crash).with("Actor crashed!", NoMethodError)
 
       expect do
-        actor.the_method_that_wasnt_there
+        actor.the_method_that_was_not_there
       end.to raise_exception(NoMethodError)
     end
 

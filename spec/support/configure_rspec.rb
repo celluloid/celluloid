@@ -41,7 +41,7 @@ RSpec.configure do |config|
         "\n** Crash: #{msg.inspect}(#{ex.inspect})\n  Backtrace:\n    (crash) #{call_stack * "\n    (crash) "}"\
           "\n  Exception Backtrace (#{ex.inspect}):\n    (ex) #{ex.backtrace * "\n    (ex) "}"
       end.join("\n")
-      raise "Actor crashes occured (please stub/mock if these are expected): #{crashes}"
+      raise "Actor crashes occurred (please stub/mock if these are expected): #{crashes}"
     end
     @fake_logger = nil
     Specs.assert_no_loose_threads!("after example: #{ex.description}") if Specs::CHECK_LOOSE_THREADS
