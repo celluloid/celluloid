@@ -947,7 +947,7 @@ RSpec.shared_examples "a Celluloid Actor" do
       expect(actor).to be_sleeping
 
       future.value
-      # I got 0.558 (in a slighly busy MRI) which is outside 0.05 of 0.5, so let's use (0.05 * 2)
+      # I got 0.558 (in a slightly busy MRI) which is outside 0.05 of 0.5, so let's use (0.05 * 2)
       expect(Time.now - started_at).to be_within(Specs::TIMER_QUANTUM * 2).of interval
     end
 

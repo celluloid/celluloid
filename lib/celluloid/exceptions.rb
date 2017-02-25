@@ -9,7 +9,7 @@ module Celluloid
   class NotTaskError < Celluloid::Error; end # Asked to do task-related things outside a task
   class DeadTaskError < Celluloid::Error; end # Trying to resume a dead task
   class TaskTerminated < Celluloid::Interruption; end # Kill a running task after terminate
-  class TaskTimeout < Celluloid::TimedOut; end # A timeout occured before the given request could complete
+  class TaskTimeout < Celluloid::TimedOut; end # A timeout occurred before the given request could complete
   class ConditionError < Celluloid::Error; end
   class AbortError < Celluloid::Error # The sender made an error, not the current actor
     attr_reader :cause
