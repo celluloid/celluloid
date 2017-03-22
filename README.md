@@ -1,13 +1,18 @@
-# ![Celluloid](https://raw.github.com/celluloid/celluloid-logos/master/celluloid/celluloid.png)
+# ![Celluloid][celluloid-logo-image-raw]
 
-[![Gem Version][gem-image]][gem-link] [![Build Status][build-image]][build-link] [![Code Climate][codeclimate-image]][codeclimate-link] [![Coverage Status][coverage-image]][coverage-link] [![MIT licensed][license-image]][license-link]
+[![Gem Version][gem-image]][gem-link]
+[![Build Status][build-image]][build-link]
+[![Code Climate][codeclimate-image]][codeclimate-link]
+[![Coverage Status][coverage-image]][coverage-link]
+[![MIT licensed][license-image]][license-link]
 
+[celluloid-logo-image-raw]: https://raw.github.com/celluloid/celluloid-logos/master/celluloid/celluloid.png
 [gem-image]: https://badge.fury.io/rb/celluloid.svg
 [gem-link]: http://rubygems.org/gems/celluloid
 [build-image]: https://secure.travis-ci.org/celluloid/celluloid.svg?branch=master
 [build-link]: http://travis-ci.org/celluloid/celluloid
 [codeclimate-image]: https://codeclimate.com/github/celluloid/celluloid.svg
-[codeclimate-link]: https://codeclimate.com/github/celluloid/celluloid)
+[codeclimate-link]: https://codeclimate.com/github/celluloid/celluloid
 [coverage-image]: https://coveralls.io/repos/celluloid/celluloid/badge.svg?branch=master
 [coverage-link]: https://coveralls.io/r/celluloid/celluloid
 [license-image]: https://img.shields.io/badge/license-MIT-blue.svg
