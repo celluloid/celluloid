@@ -467,10 +467,11 @@ RSpec.shared_examples "a Celluloid Actor" do
     end
 
     it "crashes the sender if we pass neither String nor Exception" do
+      number = 10
       allow(logger).to receive(:crash).with("Actor crashed!", TypeError)
       expect do
-        actor.crash_with_abort_raw 10
-      end.to raise_exception(TypeError, "Exception object/String expected, but Fixnum received")
+        actor.crash_with_abort_raw number
+      end.to raise_exception(TypeError, "Exception object/String expected, but #{number.class} received")
 
       Specs.sleep_and_wait_until { !actor.alive? }
       expect(actor).not_to be_alive
