@@ -2,7 +2,7 @@ RSpec.shared_examples "a Celluloid Actor" do
   around do |ex|
     Celluloid.boot
     ex.run
-    Celluloid.shutdown
+    Celluloid.shutdown if Celluloid.running?
   end
 
   let(:task_klass) { Celluloid.task_class }
@@ -10,6 +10,12 @@ RSpec.shared_examples "a Celluloid Actor" do
   let(:actor) { actor_class.new "Troy McClure" }
 
   let(:logger) { Specs::FakeLogger.current }
+
+  it "doesn't raise an error when rebooting" do
+    Celluloid.shutdown
+
+    expect { Celluloid.boot }.to change { Celluloid.running? }.from(false).to(true)
+  end
 
   it "returns the actor's class, not the proxy's" do
     expect(actor.class).to eq(actor_class)
