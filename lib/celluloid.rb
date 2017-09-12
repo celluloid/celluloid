@@ -186,6 +186,7 @@ module Celluloid
     # Shut down all running actors
     def shutdown
       actor_system.shutdown
+      @actor_system = nil
     end
 
     def version
