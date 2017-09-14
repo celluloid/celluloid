@@ -2,7 +2,9 @@
 
 * Release notes coming soon!
 
-## 0.17.3 (2016-01-18)
+## [0.17.3] (2016-01-18)
+
+[0.17.3]: https://github.com/celluloid/celluloid/compare/v0.17.2...v0.17.3 
 
 * [#701](https://github.com/celluloid/celluloid/pull/701)
   Conditions in loose threads loop does not take into account the difference between
@@ -37,22 +39,30 @@
 * [#666](https://github.com/celluloid/celluloid/pull/666)
   Don't catch IOError.
 
-## 0.17.2 (2015-09-30)
+## [0.17.2] (2015-09-30)
+
+[0.17.2]: https://github.com/celluloid/celluloid/compare/v0.17.1.2...v0.17.2
 
 * Revamped test suite, using shared RSpec configuration layer provided by Celluloid itself.
 * Updated gem dependencies provided by Celluloid::Sync... extraneous gems removed, or marked as development dependencies.
 * Clean up deprecation notes.
 
-## 0.17.1.2 (2015-08-21)
+## [0.17.1.2] (2015-08-21)
+
+[0.17.1.2]: https://github.com/celluloid/celluloid/compare/v0.17.1.1...v0.17.1.2
 
 * Fixes to posted markdown content.
 * Pull in new gem dependencies.
 
-## 0.17.1.1 (2015-08-07)
+## [0.17.1.1] (2015-08-07)
+
+[0.17.1.1]: https://github.com/celluloid/celluloid/compare/v0.17.1...v0.17.1.1
 
 * Revert "no task to suspend" code from #232.
 
-## 0.17.1 (2015-08-06)
+## [0.17.1] (2015-08-06)
+
+[0.17.1]: https://github.com/celluloid/celluloid/compare/v0.17.0...v0.17.1
 
 * `Celluloid::ActorSystem` moved to `Celluloid::Actor::System`, and from `celluloid/actor_system.rb` to `celluloid/actor/system.rb`
 * Added extensible API for defining new SystemEvents, and having them handled... without everyone changing `Actor#handle_system_event`.
@@ -60,7 +70,9 @@
 * General round-up of all "errors" emitted throughout Celluloid, to either be derived from `Celluloid::Error` or `Celluloid::Interruption`.
 * Added ability to pass a block to `Condition#wait` which runs a `{ |value| ... }` type block if present, once the value is obtained by waiting.
 
-## 0.17.0 (2015-07-04)
+## [0.17.0] (2015-07-04)
+
+[0.17.0]: https://github.com/celluloid/celluloid/compare/v0.16.0...v0.17.0
 
 * Fix $CELLULOID_TEST warnings
 * Massive overhaul of test suite, end-to-end.
@@ -91,7 +103,9 @@
 * Implement `Group::Manager` as base for future `Group::Unlocker` and other such systems traversing `ActorSystem#group` regularly.
 * Reduce number of supervisors instantiated by `ActorSystem` by consolidating them down to `Service::Root` container instances.
 
-## 0.16.0 (2014-09-04)
+## [0.16.0] (2014-09-04)
+
+[0.16.0]: https://github.com/celluloid/celluloid/compare/v0.15.2...v0.16.0
 
 * Factor apart Celluloid::Cell (concurrent objects) from Celluloid::Actor
 * Introduce Celluloid::ActorSystem as an abstraction around the backend
@@ -110,15 +124,21 @@
 * Better thread names on JRuby for easier debugging
 * Thread safety fixes to internal thread pool
 
-## 0.15.2 (2013-10-06)
+## [0.15.2] (2013-10-06)
+
+[0.15.2]: https://github.com/celluloid/celluloid/compare/v0.15.1...v0.15.2
 
 * require 'celluloid/test' for at_exit-free testing
 
-## 0.15.1 (2013-09-06)
+## [0.15.1] (2013-09-06)
+
+[0.15.1]: https://github.com/celluloid/celluloid/compare/v0.15.0...v0.15.1
 
 * Only raise on nested tasks if $CELLULOID_DEBUG is set
 
-## 0.15.0 (2013-09-04)
+## [0.15.0] (2013-09-04)
+
+[0.15.0]: https://github.com/celluloid/celluloid/compare/v0.14.0...v0.15.0
 
 * Remove legacy support for "bang"-method based async invocation
 * Generic timeout support with Celluloid#timeout
@@ -134,7 +154,9 @@
 * Reimplement signal system on top of Conditions
 * Add metadata like the current method to Celluloid::StackDumps
 
-## 0.14.0 (2013-05-07)
+## [0.14.0] (2013-05-07)
+
+[0.14.0]: https://github.com/celluloid/celluloid/compare/v0.13.0...v0.14.0
 
 * Use a Thread-subclass for Celluloid
   * Implement actor-local variables
@@ -149,7 +171,9 @@
 * Execute blocks on the sender by default
 * Fix CPU counter on windows
 
-## 0.13.0
+## [0.13.0]
+
+[0.13.0]: https://github.com/celluloid/celluloid/compare/v0.12.4...v0.13.0
 
 * API change: Require Celluloid with: require 'celluloid/autostart' to
   automatically start support actors and configure at_exit handler which
@@ -164,7 +188,9 @@
 * Celluloid#call_chain_id provides UUIDs for calls across actors
 * Give all thread locals a :celluloid_* prefix
 
-## 0.12.4
+## [0.12.4]
+
+[0.12.4]: https://github.com/celluloid/celluloid/compare/v0.12.3...v0.12.4
 
 * Bugfix: Clear dead/crashed actors out of links
 * Bugfix: Exclusive mode was broken
@@ -175,16 +201,23 @@
 * Use #public_send to dispatch Celluloid methods
 * #idle_size and #busy_size for Celluloid::PoolManager
 
-## 0.12.3
+## [0.12.3]
+
+[0.12.3]: https://github.com/celluloid/celluloid/compare/v0.12.2...v0.12.3
+
 
 * Bugfix: Ensure exclusive mode works correctly for per-method case
 * Bugfix: Exit handlers were not being inherited correctly
 
-## 0.12.2
+## [0.12.2]
+
+[0.12.2]: https://github.com/celluloid/celluloid/compare/v0.12.1...v0.12.2
 
 * Disable IncidentReporter by default
 
-## 0.12.1
+## [0.12.1]
+
+[0.12.1]: https://github.com/celluloid/celluloid/compare/v0.12.0...v0.12.1
 
 * Fix bug in unsetting of exclusive mode
 * New incident report system for providing better debugging reports
@@ -195,7 +228,9 @@
 * Remove Celluloid#alive? as it cannot be called in any manner that will ever
   return anything but true, rendering it useless
 
-## 0.12.0
+## [0.12.0]
+
+[0.12.0]: https://github.com/celluloid/celluloid/compare/v0.11.1...v0.12.0
 
 * Alternative async syntax: actor.async.method in lieu of actor.method!
   Original syntax still available but will be removed in Celluloid 1.0
@@ -219,7 +254,9 @@
   defined by use_mailbox. This is now fixed.
 * `exclusive` class method without arguments makes the whole actor exclusive
 
-## 0.11.1
+## [0.11.1]
+
+[0.11.1]: https://github.com/celluloid/celluloid/compare/v0.11.0...v0.11.1
 
 * 'exclusive' class method marks methods as always exclusive and runs them
   outside of a Fiber (useful if you need more stack than Fibers provide)
@@ -229,7 +266,9 @@
 * Celluloid::Timers extracted into the timers gem, which Celluloid now
   uses for its own timers
 
-## 0.11.0
+## [0.11.0]
+
+[0.11.0]: https://github.com/celluloid/celluloid/compare/v0.10.0...v0.11.0
 
 * Celluloid::Application constant permanently removed
 * Celluloid::Pool removed in favor of Celluloid.pool
@@ -244,21 +283,27 @@
 * abort can now accept a string instead of an exception object and will raise
   RuntimeError in the caller's context
 
-## 0.10.0
+## [0.10.0]
+
+[0.10.0]: https://github.com/celluloid/celluloid/compare/v0.9.1...v0.10.0
 
 * Celluloid::Actor.current is now the de facto way to obtain the current actor
 * #terminate now uses system messages, making termination take priority over
   other pending methods
 * #terminate! provides asynchronous termination
 
-## 0.9.1
+## [0.9.1]
+
+[0.9.1]: https://github.com/celluloid/celluloid/compare/v0.9.0...v0.9.1
 
 * Recurring timers with Celluloid#every(n) { ... }
 * Obtain UUIDs with Celluloid.uuid
 * Obtain the number of CPU cores available with Celluloid.cores
 * Celluloid::Pool defaults to one actor per CPU core max by default
 
-## 0.9.0
+## [0.9.0]
+
+[0.9.0]: https://github.com/celluloid/celluloid/compare/v0.8.0...v0.9.0
 
 * Celluloid::Pool supervises pools of actors
 * Graceful shutdown which calls #terminate on all actors
@@ -268,7 +313,9 @@
 * Celluloid.exception_handler { |ex| ... } defines a callback for notifying
   exceptions (for use with Airbrake, exception_notifier, etc.)
 
-## 0.8.0
+## [0.8.0]
+
+[0.8.0]: https://github.com/celluloid/celluloid/compare/v0.7.2...v0.8.0
 
 * Celluloid::Application is now Celluloid::Group
 * Futures no longer use a thread unless created with a block
@@ -280,19 +327,25 @@
 * Celluloid::FSMs are no longer actors themselves
 * Benchmarks using benchmark_suite
 
-## 0.7.2
+## [0.7.2]
+
+[0.7.2]: https://github.com/celluloid/celluloid/compare/v0.7.1...v0.7.2
 
 * Workaround fiber problems on JRuby 1.6.5.1 in addition to 1.6.5
 * Fix class displayed when inspecting dead actors
 
-## 0.7.1
+## [0.7.1]
+
+[0.7.1]: https://github.com/celluloid/celluloid/compare/v0.7.0...v0.7.1
 
 * More examples!
 * Cancel all pending tasks when actors crash
 * Log all errors that occur during signaling failures
 * Work around thread-local issues on rbx (see 52325ecd)
 
-## 0.7.0
+## [0.7.0]
+
+[0.7.0]: https://github.com/celluloid/celluloid/compare/v0.6.2...v0.7.0
 
 * Celluloid::Task abstraction replaces Celluloid::Fiber
 * Celluloid#tasks API to introspect on running tasks
@@ -307,13 +360,17 @@
 * Celluloid.receive and Celluloid#receive now accept an optional timeout
 * Celluloid::Mailbox#receive now accepts an optional timeout
 
-## 0.6.2
+## [0.6.2]
+
+[0.6.2]: https://github.com/celluloid/celluloid/compare/v0.6.1...v0.6.2
 
 * List all registered actors with Celluloid::Actor.registered
 * All logging now handled through Celluloid::Logger
 * Rescue DeadActorError in Celluloid::ActorProxy#inspect
 
-## 0.6.1
+## [0.6.1]
+
+[0.6.1]: https://github.com/celluloid/celluloid/compare/v0.6.0...v0.6.1
 
 * Celluloid#links obtains Celluloid::Links for a given actor
 * The #class method is now proxied to actors
@@ -321,7 +378,9 @@
 * Use Thread.mailbox instead of Thread.current.mailbox to obtain the mailbox
   for the current thread
 
-## 0.6.0
+## [0.6.0]
+
+[0.6.0]: https://github.com/celluloid/celluloid/compare/v0.5.0...v0.6.0
 
 * Celluloid::Application classes for describing the structure of applications
   built with Celluloid
@@ -335,7 +394,9 @@
 * Add Celluloid.fiber and Celluloid.resume_fiber to allow extension APIs to
   participate in the Celluloid fiber protocol
 
-## 0.5.0
+## [0.5.0]
+
+[0.5.0]: https://github.com/celluloid/celluloid/compare/v0.4.0...v0.5.0
 
 * "include Celluloid::Actor" no longer supported. Use "include Celluloid"
 * New Celluloid::IO module for actors that multiplex IO operations
@@ -351,15 +412,21 @@
 * Magically skip ahead a few version numbers to impart the magnitude of this
   release. It's my versioning scheme and I can do what I wanna.
 
-## 0.4.0
+## [0.4.0]
+
+[0.4.0]: https://github.com/celluloid/celluloid/compare/v0.3.0...v0.4.0
 
 * This version was mysteriously lost to the sands of time
 
-## 0.3.0
+## [0.3.0]
+
+[0.3.0]: https://github.com/celluloid/celluloid/compare/v0.2.2...v0.3.0
 
 * This version was also mysteriously lost to the sands of time
 
-## 0.2.2
+## [0.2.2]
+
+[0.2.2]: https://github.com/celluloid/celluloid/compare/v0.2.1...v0.2.2
 
 * AbortErrors now reraise in caller scope and get a caller-focused backtrace
 * Log failed async calls instead of just letting them fail silently
@@ -367,11 +434,15 @@
 * Actors can now make async calls to themselves
 * Resolve crashes that occur when sending responses to exited/dead callers
 
-## 0.2.1
+## [0.2.1]
+
+[0.2.1]: https://github.com/celluloid/celluloid/compare/v0.2.0...v0.2.1
 
 * Hack around a bug of an indeterminate cause (2baba3d2)
 
-## 0.2.0
+## [0.2.0]
+
+[0.2.0]: https://github.com/celluloid/celluloid/compare/v0.1.0...v0.2.0
 
 * Support for future method calls with MyActor#future
 * Initial signaling support via MyActor#signal and MyActor#wait
@@ -380,7 +451,9 @@
 * Add an underscore prefix to all of Celluloid's instance variables so they don't
   clash with user-defined ones.
 
-## 0.1.0
+## [0.1.0]
+
+[0.1.0]: https://github.com/celluloid/celluloid/compare/v0.0.3...v0.1.0
 
 * Fiber-based reentrant actors. Requires Ruby 1.9
 * MyActor.new (where MyActor includes Celluloid::Actor) is now identical to .spawn
@@ -390,7 +463,9 @@
 * Synchronization now based on ConditionVariables instead of Celluloid::Waker
 * Determine if you're in actor scope with Celluloid.actor?
 
-## 0.0.3
+## [0.0.3]
+
+[0.0.3]: https://github.com/celluloid/celluloid/compare/v0.0.1...v0.0.3
 
 * Remove self-referential dependency in gemspec
 
