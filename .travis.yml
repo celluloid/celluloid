@@ -1,7 +1,6 @@
 script: rake ci
 language: ruby
 rvm:
-  - rbx-2
   - jruby
   - 2.2.2
   - 2.2.0

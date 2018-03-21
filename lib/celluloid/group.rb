@@ -3,6 +3,7 @@ module Celluloid
     attr_accessor :group
 
     def initialize
+      @pid = $$
       @mutex = Mutex.new
       @group = []
       @running = true
@@ -25,7 +26,12 @@ module Celluloid
       to_a.each { |thread| yield thread }
     end
 
+    def forked?
+      @pid != $$
+    end
+
     def to_a
+      return [] if forked?
       res = nil
       @mutex.synchronize { res = @group.dup }
       res
