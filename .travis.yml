@@ -9,7 +9,7 @@ branches:
     - master
 
 rvm:
-  - jruby-9.1.17.0
+  - jruby-9.2.0.0
   - 2.2.7
   - 2.3.4
 
