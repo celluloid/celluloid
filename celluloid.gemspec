@@ -18,6 +18,15 @@ Gem::Specification.new do |spec|
     Celluloid enables people to build concurrent programs out of concurrent objects just as easily
     as they build sequential programs out of sequential objects
   DESCRIPTION
+  spec.metadata = {
+    "bug_tracker_uri" => "https://github.com/celluloid/celluloid/issues",
+    "changelog_uri" => "https://github.com/celluloid/celluloid/blob/master/CHANGES.md",
+    "documentation_uri" => "https://www.rubydoc.info/gems/celluloid",
+    "homepage_uri" => "https://celluloid.io/",
+    "mailing_list_uri" => "http://groups.google.com/group/celluloid-ruby",
+    "source_code_uri" => "https://github.com/celluloid/celluloid",
+    "wiki_uri" => "https://github.com/celluloid/celluloid/wiki"
+  }
 
   spec.require_path = "lib"
   spec.files        = Dir["*.md", "*.txt", "lib/**/*", "spec/**/*", "examples/*"]
