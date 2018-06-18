@@ -36,6 +36,11 @@ Lint/UselessAssignment:
 Metrics/AbcSize:
   Enabled: false # TODO: enable
 
+Metrics/BlockLength:
+  Exclude:
+    - "celluloid.gemspec"
+    - "spec/**/*"
+
 Metrics/BlockNesting:
   Enabled: false # TODO: enable
 
