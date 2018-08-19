@@ -2,21 +2,17 @@
 
 [![Gem Version][gem-image]][gem-link]
 [![Build Status][build-image]][build-link]
-[![Code Climate][codeclimate-image]][codeclimate-link]
-[![Coverage Status][coverage-image]][coverage-link]
 [![MIT licensed][license-image]][license-link]
+![Maintained: no][maintained-image]
 
 [celluloid-logo-image-raw]: https://raw.github.com/celluloid/celluloid-logos/master/celluloid/celluloid.png
 [gem-image]: https://badge.fury.io/rb/celluloid.svg
 [gem-link]: http://rubygems.org/gems/celluloid
 [build-image]: https://secure.travis-ci.org/celluloid/celluloid.svg?branch=master
 [build-link]: http://travis-ci.org/celluloid/celluloid
-[codeclimate-image]: https://codeclimate.com/github/celluloid/celluloid.svg
-[codeclimate-link]: https://codeclimate.com/github/celluloid/celluloid
-[coverage-image]: https://coveralls.io/repos/celluloid/celluloid/badge.svg?branch=master
-[coverage-link]: https://coveralls.io/r/celluloid/celluloid
 [license-image]: https://img.shields.io/badge/license-MIT-blue.svg
 [license-link]: https://github.com/celluloid/celluloid/blob/master/LICENSE.txt
+[maintained-image]: https://img.shields.io/maintenance/no/2016.svg
 
 _NOTE: This is the 0.18.x **development** branch of Celluloid. For the 0.17.x
 **stable** branch, please see:_
