@@ -10,9 +10,6 @@ require "timeout"
 # rubocop:disable Style/GlobalVars
 $CELLULOID_DEBUG = false
 $CELLULOID_MONITORING = false
-
-# TODO: gut this
-$CELLULOID_BACKPORTED = false
 # rubocop:enable Style/GlobalVars
 
 require "celluloid/version"

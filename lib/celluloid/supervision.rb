@@ -15,5 +15,3 @@ require "celluloid/supervision/configuration"
 require "celluloid/supervision/configuration/instance"
 
 require "celluloid/supervision/service"
-
-require "celluloid/supervision/deprecate" unless $CELLULOID_BACKPORTED == false
