@@ -3,7 +3,7 @@
 [![Gem Version][gem-image]][gem-link]
 [![Build Status][build-image]][build-link]
 [![MIT licensed][license-image]][license-link]
-![Maintained: no][maintained-image]
+[![Maintained: no][maintained-image]][maintained-link]
 
 [celluloid-logo-image-raw]: https://raw.github.com/celluloid/celluloid-logos/master/celluloid/celluloid.png
 [gem-image]: https://badge.fury.io/rb/celluloid.svg
@@ -13,6 +13,7 @@
 [license-image]: https://img.shields.io/badge/license-MIT-blue.svg
 [license-link]: https://github.com/celluloid/celluloid/blob/master/LICENSE.txt
 [maintained-image]: https://img.shields.io/maintenance/no/2016.svg
+[maintained-link]: https://github.com/celluloid/celluloid/issues/779
 
 _NOTE: This is the 0.18.x **development** branch of Celluloid. For the 0.17.x
 **stable** branch, please see:_
