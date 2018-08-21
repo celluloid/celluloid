@@ -1,9 +1,9 @@
-![Celluloid Supervision](https://raw.github.com/celluloid/celluloid-logos/master/celluloid-supervision/celluloid-supervision.png)
+# celluloid-supervision
 
 [![Gem Version](https://badge.fury.io/rb/celluloid-supervision.svg)](http://rubygems.org/gems/celluloid-supervision)
+[![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/celluloid/celluloid-supervision/blob/master/LICENSE.txt)
 [![Build Status](https://secure.travis-ci.org/celluloid/celluloid-supervision.svg?branch=master)](http://travis-ci.org/celluloid/celluloid-supervision)
-[![Code Climate](https://codeclimate.com/github/celluloid/celluloid-supervision.svg)](https://codeclimate.com/github/celluloid/celluloid-supervision)
-[![Coverage Status](https://coveralls.io/repos/celluloid/celluloid-supervision/badge.svg?branch=master)](https://coveralls.io/r/celluloid/celluloid-supervision)
+[![Maintained: no](https://img.shields.io/maintenance/no/2016.svg)](https://github.com/celluloid/celluloid/issues/779)
 
 Supervisors; with Supervision Containers (Groups), Configurations, and Trees for [Celluloid](https://github.com/celluloid/celluloid).
 
