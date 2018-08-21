@@ -34,6 +34,4 @@ Gem::Specification.new do |spec|
   spec.required_rubygems_version = ">= 2.0.0"
 
   spec.add_runtime_dependency "timers", "~> 4"
-  spec.add_runtime_dependency "celluloid-pool",        "~> 0.20"
-  spec.add_runtime_dependency "celluloid-supervision", "~> 0.20"
 end
