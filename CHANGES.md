@@ -1,3 +1,10 @@
+0.17.4 (2018-03-20)
+-----
+* [#773](https://github.com/celluloid/celluloid/pull/773)
+  Fix the errant 'Couldn't cleanly terminate all actors in 10 seconds!' message
+  after forking.  Fixes celluloid/celluloid#696.
+  ([@digitalextremist])
+
 0.17.3 (2016-01-18)
 -----
 * [#701](https://github.com/celluloid/celluloid/pull/701)
