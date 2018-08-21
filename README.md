@@ -1,8 +1,8 @@
 # ![Celluloid][celluloid-logo-image-raw]
 
 [![Gem Version][gem-image]][gem-link]
-[![Build Status][build-image]][build-link]
 [![MIT licensed][license-image]][license-link]
+[![Build Status][build-image]][build-link]
 [![Maintained: no][maintained-image]][maintained-link]
 
 [celluloid-logo-image-raw]: https://raw.github.com/celluloid/celluloid-logos/master/celluloid/celluloid.png
