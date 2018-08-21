@@ -1,5 +1,3 @@
-require "thread"
-
 module Celluloid
   class MailboxDead < Celluloid::Error; end # you can't receive from the dead
   class MailboxShutdown < Celluloid::Error; end # raised if the mailbox can no longer be used

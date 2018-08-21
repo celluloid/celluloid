@@ -1,5 +1,3 @@
-require "thread"
-
 module Celluloid
   class Group
     class Pool < Group

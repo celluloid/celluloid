@@ -28,7 +28,7 @@ module Celluloid
 
       # Forcibly kill the thread
       def kill
-        !!@mutex.synchronize { @thread && @thread.kill }
+        @mutex.synchronize { @thread && @thread.kill }
         self
       end
 

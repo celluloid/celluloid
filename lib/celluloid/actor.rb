@@ -287,11 +287,9 @@ module Celluloid
     # Handle standard low-priority messages
     def handle_message(message)
       # !!! DO NOT INTRODUCE ADDITIONAL GLOBAL VARIABLES !!!
-      # rubocop:disable Style/GlobalVars
-      if !@handlers.handle_message(message) && !@receivers.handle_message(message) && $CELLULOID_DEBUG
-        Internals::Logger.debug "Discarded message (unhandled): #{message}"
-      end
-      # rubocop:enable Style/GlobalVars
+      # rubocop:disable Metrics/LineLength, Style/GlobalVars
+      Internals::Logger.debug "Discarded message (unhandled): #{message}" if !@handlers.handle_message(message) && !@receivers.handle_message(message) && $CELLULOID_DEBUG
+      # rubocop:enable Metrics/LineLength, Style/GlobalVars
 
       message
     end

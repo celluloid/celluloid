@@ -55,9 +55,7 @@ module Celluloid
       meth = call.method
       meth = call.arguments.first if meth == :__send__
       if @receiver_block_executions && meth
-        if @receiver_block_executions.include?(meth.to_sym)
-          call.execute_block_on_receiver
-        end
+        call.execute_block_on_receiver if @receiver_block_executions.include?(meth.to_sym)
       end
 
       task(:call, meth, { call: call, subject: @subject },

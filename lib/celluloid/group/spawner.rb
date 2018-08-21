@@ -1,5 +1,3 @@
-require "thread"
-
 module Celluloid
   class Group
     class Spawner < Group
@@ -52,9 +50,7 @@ module Celluloid
             Internals::Logger.crash("thread crashed", ex)
             Thread.current[:celluloid_thread_state] = :error
           ensure
-            unless Thread.current[:celluloid_thread_state] == :error
-              Thread.current[:celluloid_thread_state] = :finished
-            end
+            Thread.current[:celluloid_thread_state] = :finished unless Thread.current[:celluloid_thread_state] == :error
             @mutex.synchronize { @group.delete Thread.current }
             Thread.exit
           end

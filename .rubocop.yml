@@ -1,9 +1,13 @@
 AllCops:
   DisplayCopNames: true
+  TargetRubyVersion: 2.2.6
 
 #
 # Lint
 #
+
+Lint/AmbiguousBlockAssociation:
+  Enabled: false # TODO: enable
 
 Lint/AssignmentInCondition:
   Enabled: false # TODO: enable
@@ -24,7 +28,10 @@ Lint/RescueException:
   Enabled: false # TODO: explicitly mark cases where we want to rescue Exception
 
 Lint/ShadowedException:
-  Enabled: false # TODO; enable
+  Enabled: false # TODO: enable
+
+Lint/UnderscorePrefixedVariableName:
+  Enabled: false # TODO: enable
 
 Lint/UselessAssignment:
   Enabled: false # TODO: enable
@@ -51,7 +58,7 @@ Metrics/CyclomaticComplexity:
   Enabled: false # TODO: enable
 
 Metrics/LineLength:
-  Max: 200 # TODO: decrease
+  Max: 128 # TODO: decrease
 
 Metrics/MethodLength:
   Max: 100
@@ -66,11 +73,31 @@ Metrics/PerceivedComplexity:
   Enabled: false # TODO: enable
 
 #
+# Naming
+#
+
+Naming/AccessorMethodName:
+  Enabled: false # TODO: enable
+
+Naming/MemoizedInstanceVariableName:
+  Enabled: false # TODO: enable
+
+Naming/UncommunicativeMethodParamName:
+  Enabled: false # TODO: enable(?)
+
+#
+# Performance
+#
+
+Performance/TimesMap:
+  Enabled: false # TODO: enable
+
+#
 # Style
 #
 
-Style/AccessorMethodName:
-  Enabled: false # TODO: enable
+Style/AccessModifierDeclarations:
+  Enabled: false # TODO: enable(?)
 
 Style/CaseEquality:
   Enabled: false
@@ -79,6 +106,9 @@ Style/ClassAndModuleChildren:
   Enabled: false
 
 Style/ClassVars:
+  Enabled: false # TODO: enable
+
+Style/CommentedKeyword:
   Enabled: false # TODO: enable
 
 Style/Documentation:
@@ -90,6 +120,9 @@ Style/DoubleNegation:
 Style/For:
   Enabled: false # TODO: enable
 
+Style/FormatStringToken:
+  Enabled: false # TODO: enable
+
 Style/FrozenStringLiteralComment:
   Enabled: false # TODO: enable
 
@@ -99,7 +132,10 @@ Style/GuardClause:
 Style/IfInsideElse:
   Enabled: false # TODO: enable
 
-Style/MethodMissing:
+Style/MethodMissingSuper:
+  Enabled: false # TODO: enable
+
+Style/MissingRespondToMissing:
   Enabled: false # TODO: enable
 
 Style/ModuleFunction:
@@ -112,6 +148,9 @@ Style/RegexpLiteral:
   Enabled: false # TODO: enable
 
 Style/RescueModifier:
+  Enabled: false # TODO: enable
+
+Style/RescueStandardError:
   Enabled: false # TODO: enable
 
 Style/SafeNavigation:

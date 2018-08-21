@@ -207,7 +207,9 @@ RSpec.shared_examples "a Celluloid Actor" do
     end
 
     it "warns about suspending the initialize" do
+      # rubocop:disable Metrics/LineLength
       expect(logger).to receive(:warn).with(/Dangerously suspending task: type=:call, meta={:dangerous_suspend=>true, :method_name=>:initialize}, status=:sleeping/)
+      # rubocop:enable Metrics/LineLength
 
       actor.terminate
       Specs.sleep_and_wait_until { !actor.alive? }
@@ -238,7 +240,9 @@ RSpec.shared_examples "a Celluloid Actor" do
     it "warns about suspending the finalizer" do
       allow(logger).to receive(:warn)
       allow(logger).to receive(:crash).with(/finalizer crashed!/, Celluloid::TaskTerminated)
+      # rubocop:disable Metrics/LineLength
       expect(logger).to receive(:warn).with(/Dangerously suspending task: type=:finalizer, meta={:dangerous_suspend=>true, :method_name=>:cleanup}, status=:sleeping/)
+      # rubocop:enable Metrics/LineLength
       actor.terminate
       Specs.sleep_and_wait_until { !actor.alive? }
     end
@@ -555,7 +559,9 @@ RSpec.shared_examples "a Celluloid Actor" do
 
       context "when terminated" do
         it "logs a debug" do
+          # rubocop:disable Metrics/LineLength
           expect(logger).to receive(:debug).with(/^Terminating task: type=:call, meta={:dangerous_suspend=>false, :method_name=>:sleepy}, status=:sleeping/)
+          # rubocop:enable Metrics/LineLength
           actor.terminate
           Specs.sleep_and_wait_until { !actor.alive? }
         end
@@ -806,14 +812,14 @@ RSpec.shared_examples "a Celluloid Actor" do
       subject.async.exclusive_with_block_log_task(:one)
       subject.async.log_task(:two)
       sleep Specs::TIMER_QUANTUM * 2
-      expect(subject.tasks).to eq([:one, :two])
+      expect(subject.tasks).to eq(%i[one two])
     end
 
     it "executes methods in the proper order with a class-level annotation" do
       subject.async.exclusive_log_task :one
       subject.async.log_task :two
       sleep Specs::TIMER_QUANTUM * 2
-      expect(subject.tasks).to eq([:one, :two])
+      expect(subject.tasks).to eq(%i[one two])
     end
 
     it "knows when it's in exclusive mode" do
@@ -859,7 +865,7 @@ RSpec.shared_examples "a Celluloid Actor" do
       end
 
       it "executes in an exclusive order" do
-        expect(actor.tasks).to eq(%w(donuts coffee))
+        expect(actor.tasks).to eq(%w[donuts coffee])
       end
     end
   end
@@ -1139,7 +1145,7 @@ RSpec.shared_examples "a Celluloid Actor" do
     context "when it includes method checking" do
       module MethodChecking
         def method_missing(meth, *args)
-          return super if [:__send__, :respond_to?, :method, :class, :__class__].include? meth
+          return super if %i[__send__ respond_to? method class __class__].include? meth
 
           unmet_requirement = nil
 
@@ -1169,7 +1175,7 @@ RSpec.shared_examples "a Celluloid Actor" do
           end
 
           def this_is_not_madness(word1, word2, word3, *_args)
-            raise "This is madness!" unless [word1, word2, word3] == [:this, :is, :Sparta]
+            raise "This is madness!" unless [word1, word2, word3] == %i[this is Sparta]
           end
 
           proxy_class klass
@@ -1194,7 +1200,8 @@ RSpec.shared_examples "a Celluloid Actor" do
       context "when invoking a existing method with incorrect args" do
         context "with too many arguments" do
           it "raises an ArgumentError" do
-            expect { subject.madness(:Sparta) }.to raise_error(ArgumentError, "wrong number of arguments (1 for 0)")
+            expect { subject.madness(:Sparta) }
+              .to raise_error(ArgumentError, "wrong number of arguments (1 for 0)")
           end
 
           it "does not crash the actor" do
@@ -1209,7 +1216,8 @@ RSpec.shared_examples "a Celluloid Actor" do
 
         context "with not enough mandatory arguments" do
           it "raises an ArgumentError" do
-            expect { subject.this_is_not_madness(:this, :is) }.to raise_error(ArgumentError, "wrong number of arguments (2 for 3+)")
+            expect { subject.this_is_not_madness(:this, :is) }
+              .to raise_error(ArgumentError, "wrong number of arguments (2 for 3+)")
           end
         end
       end

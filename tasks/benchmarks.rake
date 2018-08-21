@@ -5,7 +5,7 @@ desc "Run Celluloid benchmarks"
 task :benchmark do
   begin
     Timeout.timeout(120) do
-      glob = File.expand_path("../../benchmarks/*.rb", __FILE__)
+      glob = File.expand_path("../benchmarks/*.rb", __dir__)
       Dir[glob].each { |benchmark| load benchmark }
     end
   rescue ::Exception, Timeout::Error => ex

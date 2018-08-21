@@ -34,7 +34,7 @@ RSpec.describe Celluloid::Internals::CPUCounter do
       context "when /sys/devices/system/cpu/present exists" do
         before do
           expect(::IO).to receive(:read).with("/sys/devices/system/cpu/present")
-            .and_return("dunno-whatever-#{num_cores - 1}")
+                                        .and_return("dunno-whatever-#{num_cores - 1}")
         end
         it { is_expected.to eq num_cores }
       end
@@ -42,7 +42,7 @@ RSpec.describe Celluloid::Internals::CPUCounter do
       context "when /sys/devices/system/cpu/present does NOT exist" do
         before do
           expect(::IO).to receive(:read).with("/sys/devices/system/cpu/present")
-            .and_raise(Errno::ENOENT)
+                                        .and_raise(Errno::ENOENT)
         end
 
         context "when /sys/devices/system/cpu/cpu* files exist" do
@@ -50,7 +50,7 @@ RSpec.describe Celluloid::Internals::CPUCounter do
             cpu_entries = (1..num_cores).map { |n| "cpu#{n}" }
             cpu_entries << "non-cpu-entry-to-ignore"
             expect(Dir).to receive(:[]).with("/sys/devices/system/cpu/cpu*")
-              .and_return(cpu_entries)
+                                       .and_return(cpu_entries)
           end
           it { is_expected.to eq num_cores }
         end
@@ -59,7 +59,7 @@ RSpec.describe Celluloid::Internals::CPUCounter do
       context "when /sys/devices/system/cpu/cpu* files DO NOT exist" do
         before do
           expect(Dir).to receive(:[]).with("/sys/devices/system/cpu/cpu*")
-            .and_return([])
+                                     .and_return([])
         end
       end
     end
@@ -101,7 +101,7 @@ RSpec.describe Celluloid::Internals::CPUCounter do
       context "when sysctl succeeds" do
         before do
           expect(described_class).to receive(:`).with("sysctl -n hw.ncpu 2>/dev/null")
-            .and_return(num_cores.to_s)
+                                                .and_return(num_cores.to_s)
           `true`
         end
         it { is_expected.to eq num_cores }

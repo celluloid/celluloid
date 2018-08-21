@@ -1,9 +1,7 @@
 # A proxy which creates future calls to an actor
 class Celluloid::Proxy::Future < Celluloid::Proxy::AbstractCall
   def method_missing(meth, *args, &block)
-    unless @mailbox.alive?
-      raise ::Celluloid::DeadActorError, "attempted to call a dead actor: #{meth}"
-    end
+    raise ::Celluloid::DeadActorError, "attempted to call a dead actor: #{meth}" unless @mailbox.alive?
 
     if block_given?
       # FIXME: nicer exception

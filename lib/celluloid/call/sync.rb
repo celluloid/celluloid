@@ -4,7 +4,14 @@ module Celluloid
     class Sync < Call
       attr_reader :sender, :task, :chain_id
 
-      def initialize(sender, method, arguments = [], block = nil, task = Thread.current[:celluloid_task], chain_id = Internals::CallChain.current_id)
+      def initialize(
+          sender,
+          method,
+          arguments = [],
+          block = nil,
+          task = Thread.current[:celluloid_task],
+          chain_id = Internals::CallChain.current_id
+        )
         super(method, arguments, block)
         @sender   = sender
         @task     = task

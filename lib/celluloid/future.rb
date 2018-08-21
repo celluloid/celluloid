@@ -1,5 +1,3 @@
-require "thread"
-
 module Celluloid
   # Celluloid::Future objects allow methods and blocks to run in the
   # background, their values requested later

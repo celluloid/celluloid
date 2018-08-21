@@ -40,7 +40,9 @@ module Celluloid
       end
 
       def backtrace
+        # rubocop:disable Metrics/LineLength
         ["#{self.class} backtrace unavailable. Please try `Celluloid.task_class = Celluloid::Task::Threaded` if you need backtraces here."]
+        # rubocop:enable Metrics/LineLength
       end
     end
   end

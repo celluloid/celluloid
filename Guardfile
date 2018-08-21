@@ -5,7 +5,7 @@ guard "rspec", cmd: "bundle exec rspec" do
   {
     "actor_examples" => "actor",
     "example_actor_class" => "actor",
-    "mailbox_examples" => %w(mailbox evented_mailbox),
+    "mailbox_examples" => %w[mailbox evented_mailbox],
     "task_examples" => ["tasks/task_fiber", "tasks/task_thread"]
   }.each do |examples, spec|
     watch("spec/support/#{examples}.rb") do

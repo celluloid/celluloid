@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-$LOAD_PATH.push File.expand_path("../../lib", __FILE__)
+$LOAD_PATH.push File.expand_path("../lib", __dir__)
 require "celluloid/autostart"
 
 # This example builds on basic_usage.rb to show two things about #async: the

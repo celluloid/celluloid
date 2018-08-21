@@ -5,8 +5,7 @@ class MockActor
     @tasks = []
   end
 
-  def setup_thread
-  end
+  def setup_thread; end
 end
 
 RSpec.shared_examples "a Celluloid Task" do
