@@ -1,4 +1,4 @@
-0.17.4 (2018-03-20)
+0.17.4 (unreleased)
 -----
 * [#773](https://github.com/celluloid/celluloid/pull/773)
   Fix the errant 'Couldn't cleanly terminate all actors in 10 seconds!' message
@@ -397,5 +397,6 @@
 -----
 * Initial release
 
+[@digitalextremist]: https://github.com/digitalextremist
 [@ioquatix]: https://github.com/ioquatix
 [@TiagoCardoso1983]: https://github.com/TiagoCardoso1983
