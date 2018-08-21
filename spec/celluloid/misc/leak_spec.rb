@@ -13,8 +13,7 @@ RSpec.describe "Leaks", actor_system: :global, leaktest: true,
       []
     end
 
-    def terminate
-    end
+    def terminate; end
   end
 
   def wait_for_release(weak, _what, count = 1000)

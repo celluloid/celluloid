@@ -1,19 +1,19 @@
 # collect together all instances of the `supervise` method
 module Celluloid
   class << self
-    def supervise(config={}, &block)
+    def supervise(config = {}, &block)
       supervisor = Supervision.router(config)
       supervisor.supervise(config, &block)
     end
   end
   module ClassMethods
-    def supervise(config={}, &block)
+    def supervise(config = {}, &block)
       Celluloid.supervise(config.merge(type: self), &block)
     end
   end
   module Supervision
     class << self
-      def router(_config={})
+      def router(_config = {})
         # TODO: Actually route.
         Celluloid.services # for now, hardcode .services
       end

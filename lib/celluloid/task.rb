@@ -85,7 +85,9 @@ module Celluloid
       if running?
         deliver(value)
       else
+        # rubocop:disable Metrics/LineLength
         Internals::Logger.warn "Attempted to resume a dead task: type=#{@type.inspect}, meta=#{@meta.inspect}, status=#{@status.inspect}"
+        # rubocop:enable Metrics/LineLength
       end
       nil
     end
@@ -132,8 +134,7 @@ module Celluloid
       @exclusive
     end
 
-    def backtrace
-    end
+    def backtrace; end
 
     # Is the current task still running?
     def running?
@@ -171,7 +172,9 @@ module Celluloid
 
     def thread_metadata
       method = @meta && @meta[:method_name] || "<no method>"
-      klass = Thread.current[:celluloid_actor] && Thread.current[:celluloid_actor].behavior.subject.bare_object.class || "<no actor>"
+      klass = Thread.current[:celluloid_actor] &&
+              Thread.current[:celluloid_actor].behavior.subject.bare_object.class ||
+              "<no actor>"
       format("[Celluloid] %s#%s", klass, method)
     end
   end

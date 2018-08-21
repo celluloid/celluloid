@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-$LOAD_PATH.push File.expand_path("../../lib", __FILE__)
+$LOAD_PATH.push File.expand_path("../lib", __dir__)
 require "celluloid/current"
 
 class TimerExample

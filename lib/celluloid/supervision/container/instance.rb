@@ -37,13 +37,7 @@ module Celluloid
         rescue Celluloid::TaskTimeout => ex
           Internals::Logger.error("TaskTimeout at start of supervised instance of #{@type}")
           raise ex
-          #           TODO: Implement timeout/retry.
-          #           unless ( @retry += 1 ) <= INSTANCE_RETRY_LIMIT
-          #             raise ex
-          #           end
-          #           Internals::Logger.warn("TaskTimeout at start of supervised actor. Retrying in #{INSTANCE_RETRY_WAIT} seconds. ( Attempt #{@retry} of #{INSTANCE_RETRY_LIMIT} )")
-          #           sleep INSTANCE_RETRY_WAIT
-          #           retry
+          # TODO: Implement timeout/retry(?)
         rescue => ex
           Internals::Logger.error("Error ( #{ex.class} ) at start of supervised instance of #{@type}")
           raise ex
@@ -77,12 +71,12 @@ module Celluloid
             #       Do we provide access by Celluloid.accessor
             #       Do we provide access by Celluloid.actor_system.accessor
             @configuration[:accessors].each do |name|
-              Celluloid.instance_exec(@configuration[:as], name) do |actor, where|
+              Celluloid.instance_exec(@configuration[:as], name) do |actor, _where|
                 define_method(name) do
                   Celluloid.actor_system[actor]
                 end
               end
-              Celluloid::Actor::System.instance_exec(@configuration[:as], name) do |actor, where|
+              Celluloid::Actor::System.instance_exec(@configuration[:as], name) do |actor, _where|
                 define_method(name) do
                   Celluloid.actor_system[actor]
                 end

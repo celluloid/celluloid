@@ -18,7 +18,7 @@ RSpec.describe Celluloid::Supervision::Service::Root, actor_system: :global do
 
   context("makes public services available") do
     it("properly") do
-      expect(Celluloid.services.respond_to? :supervise).to be_truthy
+      expect(Celluloid.services.respond_to?(:supervise)).to be_truthy
     end
     it("and accepts one-off actor supervision") do
       RootTestingActor.supervise as: :tester

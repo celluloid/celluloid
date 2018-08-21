@@ -1,7 +1,3 @@
-# !!! DO NOT INTRODUCE ADDITIONAL GLOBAL VARIABLES !!!
-# TODO: remove use of global variables
-# rubocop:disable Style/GlobalVars
-
 RSpec.describe "Blocks", actor_system: :global do
   class MyBlockActor
     include Celluloid
@@ -13,12 +9,12 @@ RSpec.describe "Blocks", actor_system: :global do
 
     def ask_for_something(other)
       sender_actor = current_actor
-      $data << [:outside, @name, current_actor.name]
+      @data << [:outside, @name, current_actor.name]
       other.do_something_and_callback do |_value|
-        $data << [:yielded, @name, current_actor.name]
-        $data << receive_result(:self)
-        $data << current_actor.receive_result(:current_actor)
-        $data << sender_actor.receive_result(:sender)
+        @data << [:yielded, @name, current_actor.name]
+        @data << receive_result(:self)
+        @data << current_actor.receive_result(:current_actor)
+        @data << sender_actor.receive_result(:sender)
         :pete_the_polyglot_alien
       end
     end
@@ -38,20 +34,20 @@ RSpec.describe "Blocks", actor_system: :global do
     def defer_for_something(other, &_block)
       sender_actor = current_actor
       defer do
-        $data << [:outside, @name, current_actor.name]
+        @data << [:outside, @name, current_actor.name]
         other.do_something_and_callback do |_value|
-          $data << [:yielded, @name, current_actor.name]
-          $data << receive_result(:self)
-          $data << current_actor.receive_result(:current_actor)
-          $data << sender_actor.receive_result(:sender)
+          @data << [:yielded, @name, current_actor.name]
+          @data << receive_result(:self)
+          @data << current_actor.receive_result(:current_actor)
+          @data << sender_actor.receive_result(:sender)
           :pete_the_polyglot_alien
         end
       end
     end
 
     def do_something_and_callback
-      $data << [:something, @name, current_actor.name]
-      $data << yield(:foo)
+      @data << [:something, @name, current_actor.name]
+      @data << yield(:foo)
     end
 
     def receive_result(result)
@@ -60,7 +56,7 @@ RSpec.describe "Blocks", actor_system: :global do
   end
 
   it "work between actors" do
-    $data = []
+    @data = []
 
     a1 = MyBlockActor.new("one")
     a2 = MyBlockActor.new("two")
@@ -77,7 +73,7 @@ RSpec.describe "Blocks", actor_system: :global do
       :pete_the_polyglot_alien
     ]
 
-    expect($data).to eq(expected)
+    expect(@data).to eq(expected)
   end
 
   execute_deferred = proc do
@@ -94,7 +90,7 @@ RSpec.describe "Blocks", actor_system: :global do
   end
 
   xit "can execute deferred blocks with another actor" do
-    $data = []
+    @data = []
     a1 = MyBlockActor.new("one")
     a2 = MyBlockActor.new("two")
     a1.defer_for_something a2
@@ -108,6 +104,6 @@ RSpec.describe "Blocks", actor_system: :global do
       :pete_the_polyglot_alien
     ]
 
-    expect($data).to eq(expected)
+    expect(@data).to eq(expected)
   end
 end

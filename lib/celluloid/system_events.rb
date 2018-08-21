@@ -41,7 +41,7 @@ module Celluloid
       def initialize(actor, type)
         @actor = actor
         @type = type.to_sym
-        raise ArgumentError, "type must be link or unlink" unless [:link, :unlink].include?(@type)
+        raise ArgumentError, "type must be link or unlink" unless %i[link unlink].include?(@type)
       end
     end
   end

@@ -3,7 +3,6 @@ require "English"
 
 require "logger"
 require "set"
-require "thread"
 require "timeout"
 
 # !!! DO NOT INTRODUCE ADDITIONAL GLOBAL VARIABLES !!!
@@ -36,7 +35,9 @@ module Celluloid
       if Thread.current.celluloid?
         Thread.current[:celluloid_actor_system] || raise(Error, "actor system not running")
       else
-        Thread.current[:celluloid_actor_system] || @actor_system || raise(Error, "Celluloid is not yet started; use Celluloid.boot")
+        Thread.current[:celluloid_actor_system] ||
+          @actor_system ||
+          raise(Error, "Celluloid is not yet started; use Celluloid.boot")
       end
     end
 
@@ -55,7 +56,7 @@ module Celluloid
       klass.property :exclusive_actor, default: false
       klass.property :exclusive_methods, multi: true
       klass.property :execute_block_on_receiver,
-                     default: [:after, :every, :receive],
+                     default: %i[after every receive],
                      multi: true
 
       klass.property :finalizer

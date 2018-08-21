@@ -62,7 +62,7 @@ RSpec.shared_examples "a Celluloid Mailbox" do
     subject << :first
     subject << :second
     subject << :third
-    expect(subject.to_a).to match_array([:first, :second])
+    expect(subject.to_a).to match_array(%i[first second])
   end
 
   it "logs discarded messages" do

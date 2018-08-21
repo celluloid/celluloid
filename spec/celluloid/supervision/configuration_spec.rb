@@ -9,7 +9,7 @@ RSpec.describe Celluloid::Supervision::Configuration, actor_system: :global do
   let(:succeeding) do
     {
       as: :testing,
-      type: TestActor,
+      type: TestActor
     }
   end
 
@@ -17,7 +17,7 @@ RSpec.describe Celluloid::Supervision::Configuration, actor_system: :global do
     {
       as: :testing,
       type: TestActor,
-      args: [:fail],
+      args: [:fail]
     }
   end
 
@@ -35,7 +35,7 @@ RSpec.describe Celluloid::Supervision::Configuration, actor_system: :global do
   context("metaprogramming") do
     context("Celluloid.services accessor") do
       it("is dynamically added, and available") do
-        expect(Celluloid.services.respond_to? :supervise).to be_truthy
+        expect(Celluloid.services.respond_to?(:supervise)).to be_truthy
       end
       it("allows supervision") do
         Celluloid.services.supervise(type: TestActor, as: :test_actor)

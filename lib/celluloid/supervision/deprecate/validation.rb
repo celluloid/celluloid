@@ -11,14 +11,14 @@ module Celluloid
         undef parse rescue nil
         def parse(args)
           return args if args.is_a? Configuration::Instance
-          options = {args: []}
-          return {type: args} if args.is_a? Class
+          options = { args: [] }
+          return { type: args } if args.is_a? Class
           if args.is_a? Hash
             return args
           elsif args.is_a? Array
             if args.length == 1
               return args[0] if args.first.is_a? Configuration::Instance
-              return {type: args.first} if args.first.is_a? Class
+              return { type: args.first } if args.first.is_a? Class
               if args.first.is_a?(Hash) && args = args.pop
                 return args
               end
@@ -37,14 +37,14 @@ module Celluloid
         # Since :type, :as, etc are used by the supervision group/member to initialize,
         # those will not appear in the resulting actor's initialize call.
         undef options rescue nil
-        def options(args, options={})
+        def options(args, options = {})
           return args.merge!(options) if args.is_a? Configuration::Instance
           # Not a Supervision:Configuration?
           # Try to guess its structure and build one:
           options = parse(args).merge(options)
           options[:configuration] = Container::Behavior.configure(options)
           options[:args].compact! if options[:args].is_a? Array
-          options.select! { |k, v| !v.nil? }
+          options.reject! { |_k, v| v.nil? }
           Configuration.valid? options, true
           options
         end

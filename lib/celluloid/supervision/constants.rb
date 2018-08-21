@@ -23,10 +23,10 @@ module Celluloid
 
         mandatory: [:type],
 
-        optional: [
-          :as,
-          :args,
-          :block,
+        optional: %i[
+          as
+          args
+          block
         ],
 
         # TODO: Move these into Behaviors.
@@ -36,15 +36,15 @@ module Celluloid
           # de :supervises   # Supervision::Tree
         ],
 
-        meta: [
-          :registry,
-          :branch,
-          :method,
-        ],
+        meta: %i[
+          registry
+          branch
+          method
+        ]
       }
 
       @@arity = {
-        type: :args,
+        type: :args
       }
 
       @@aliases = {
@@ -59,14 +59,14 @@ module Celluloid
       class << self
         def save_defaults
           @@defaults = {
-            parameters: @@parameters.inject({}) { |p, (k, v)| p[k] = v.dup; p },
+            parameters: @@parameters.each_with_object({}) { |(k, v), p| p[k] = v.dup; },
             aliases: @@aliases.dup,
-            arity: @@arity.dup,
+            arity: @@arity.dup
           }
         end
 
         def resync_parameters
-          @@parameters = @@defaults[:parameters].inject({}) { |p, (k, v)| p[k] = v.dup; p }
+          @@parameters = @@defaults[:parameters].each_with_object({}) { |(k, v), p| p[k] = v.dup; }
           @@aliases = @@defaults[:aliases].dup
           @@arity = @@defaults[:arity].dup
         end
@@ -106,18 +106,18 @@ module Celluloid
 
       ################ These are applied inside Supervision::Member ################
 
-      REMOVE_AT_EXPORT = [
-        :configuration,
-        :behavior,
-      ]
+      REMOVE_AT_EXPORT = %i[
+        configuration
+        behavior
+      ].freeze
 
-      INJECTIONS = [
-        :configuration,
-        :before_initialization,
-        :after_initialization,
-        :before_start,
-        :before_restart,
-      ]
+      INJECTIONS = %i[
+        configuration
+        before_initialization
+        after_initialization
+        before_start
+        before_restart
+      ].freeze
     end
   end
 end

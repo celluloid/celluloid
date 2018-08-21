@@ -4,7 +4,7 @@ require "rubygems"
 require "bundler/setup"
 require "celluloid"
 require "benchmark/ips"
-require File.expand_path("../../examples/ring", __FILE__)
+require File.expand_path("../examples/ring", __dir__)
 
 # 512-node ring
 ring = Ring.new 512

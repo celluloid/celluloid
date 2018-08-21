@@ -17,8 +17,7 @@ class TestEventedMailbox < Celluloid::Mailbox::Evented
       end
     end
 
-    def shutdown
-    end
+    def shutdown; end
   end
 
   def initialize

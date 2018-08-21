@@ -9,9 +9,9 @@ RSpec.describe Celluloid::Supervision::Container::Behavior do
       supervises: [
         {
           as: :testing_behaved_instances,
-          type: WellBehaved,
-        },
-      ],
+          type: WellBehaved
+        }
+      ]
     }
   end
 
@@ -21,9 +21,9 @@ RSpec.describe Celluloid::Supervision::Container::Behavior do
       supervises: [
         {
           as: :testing_behaved_instances,
-          type: WellBehaved,
-        },
-      ],
+          type: WellBehaved
+        }
+      ]
     }
   end
 
@@ -34,9 +34,9 @@ RSpec.describe Celluloid::Supervision::Container::Behavior do
       supervises: [
         {
           as: :testing_behaved_instances,
-          type: WellBehaved,
-        },
-      ],
+          type: WellBehaved
+        }
+      ]
     }
   end
 

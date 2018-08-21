@@ -28,14 +28,14 @@ module Celluloid
 
           def parameter(identifier, options)
             found = nil
-            p = Configuration.aliases.inject([identifier]) { |invoke, (a, i)| invoke << a if i == identifier; invoke }
+            p = Configuration.aliases.each_with_object([identifier]) { |(a, i), invoke| invoke << a if i == identifier; }
             case p.count { |parameter| found = parameter; options.key?(parameter) }
             when 1
               found
             when 0
 
             else
-              fail Error::Mutant.new("More than one kind of identifiable behavior parameter.")
+              raise Error::Mutant, "More than one kind of identifiable behavior parameter."
             end
           end
 
@@ -48,7 +48,7 @@ module Celluloid
             @@behaviors.map do |identifier, injector|
               if identifier = parameter(identifier, options)
                 if behavior
-                  fail Error::Mutant.new("More than one type of behavior expected.")
+                  raise Error::Mutant, "More than one type of behavior expected."
                 else
                   if @@injections[injector].include?(:configuration)
                     injection = @@injections[behavior = injector][:configuration]

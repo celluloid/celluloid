@@ -9,7 +9,7 @@ module Celluloid
               as: :root_supervisor,
               accessors: [:root],
               branch: :root,
-              type: self,
+              type: self
             })
           end
 

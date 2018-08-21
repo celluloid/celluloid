@@ -4,7 +4,7 @@ module Specs
   CHECK_LOOSE_THREADS = false
   ALLOW_RETRIES = 3 unless defined? ALLOW_RETRIES
 
-  INCLUDE_SUPPORT = %w(
+  INCLUDE_SUPPORT = %w[
     logging
     sleep_and_wait
     reset_class_variables
@@ -14,7 +14,7 @@ module Specs
     coverage
     includer
     configure_rspec
-  ).freeze
+  ].freeze
 
   INCLUDE_PATHS = [
     "./spec/support/*.rb",
@@ -51,10 +51,10 @@ Celluloid.shutdown_timeout = 1
 # Load shared examples and test support code for other gems to use.
 
 Specs::INCLUDE_SUPPORT.each do |f|
-  require "#{File.expand_path('../../../spec/support', __FILE__)}/#{f}.rb"
+  require "#{File.expand_path('../../spec/support', __dir__)}/#{f}.rb"
 end
 
 Specs.reset_probe(nil)
 
-Dir["#{File.expand_path('../../../spec/support/examples', __FILE__)}/*.rb"].map { |f| require f }
-Dir["#{File.expand_path('../../../spec/shared', __FILE__)}/*.rb"].map { |f| require f }
+Dir["#{File.expand_path('../../spec/support/examples', __dir__)}/*.rb"].map { |f| require f }
+Dir["#{File.expand_path('../../spec/shared', __dir__)}/*.rb"].map { |f| require f }

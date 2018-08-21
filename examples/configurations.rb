@@ -22,7 +22,7 @@ class FooBar
 
   finalizer :ceasing
 
-  def initialize(i=0)
+  def initialize(i = 0)
     @i = i
     puts "Created FooBar: #{@i}"
   end
@@ -35,9 +35,9 @@ end
 puts "\nInstantiated in bulk, using #deploy"
 
 config = Celluloid::Supervision::Configuration.define([
-  {type: FooBar, as: :foobar},
-  {type: Hello, as: :hello, args: ["World"]},
-])
+                                                        { type: FooBar, as: :foobar },
+                                                        { type: Hello, as: :hello, args: ["World"] }
+                                                      ])
 
 config.deploy
 puts "...shut it down"
@@ -46,9 +46,9 @@ config.shutdown
 puts "\nInstantiated in bulk, using .deploy"
 
 config = Celluloid::Supervision::Configuration.deploy([
-  {type: FooBar, as: :foobar, args: [1]},
-  {type: Hello, as: :hello, args: ["World"]},
-])
+                                                        { type: FooBar, as: :foobar, args: [1] },
+                                                        { type: Hello, as: :hello, args: ["World"] }
+                                                      ])
 
 puts "...shut it down"
 config.shutdown

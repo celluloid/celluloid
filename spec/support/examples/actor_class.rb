@@ -89,11 +89,7 @@ module ExampleActorClass
       end
 
       def respond_to?(method_name, include_private = false)
-        if delegates?(method_name)
-          delegates?(method_name)
-        else
-          super
-        end
+        delegates?(method_name) || super
       end
 
       def method(method_name)
@@ -114,8 +110,7 @@ module ExampleActorClass
       private :zomg_private
       attr_reader :private_called
 
-      def my_finalizer
-      end
+      def my_finalizer; end
 
       private
 

@@ -1,5 +1,3 @@
-require "thread"
-
 module Celluloid
   module Internals
     # The Registry allows us to refer to specific actors by human-meaningful names
@@ -20,9 +18,7 @@ module Celluloid
           end
         else
           actor_singleton = class << actor; self; end
-          unless actor_singleton.ancestors.include? Proxy::Abstract
-            raise TypeError, "not an actor"
-          end
+          raise TypeError, "not an actor" unless actor_singleton.ancestors.include? Proxy::Abstract
 
           #           if actor.class.ancestors.include? Supervision::Container
           #             puts "Supervisor: #{actor.links.inspect}"

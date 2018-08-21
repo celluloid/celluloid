@@ -2,11 +2,11 @@ module Celluloid
   module Supervision
     class Configuration
       class << self
-        def deploy(options={})
+        def deploy(options = {})
           define(options).deploy
         end
 
-        def define(options={})
+        def define(options = {})
           new(options)
         end
       end
@@ -25,7 +25,7 @@ module Celluloid
 
       attr_accessor :instances
 
-      def initialize(options={})
+      def initialize(options = {})
         @instances = [Instance.new]
         @branch = :services
         @i = 0 # incrementer of instances in this branch
@@ -39,9 +39,7 @@ module Celluloid
         end
         @supervisor ||= :"Celluloid.services"
 
-        if (@configuration.is_a?(Hash) || @configuration.is_a?(Array)) && @configuration.any?
-          define(@configuration)
-        end
+        define(@configuration) if (@configuration.is_a?(Hash) || @configuration.is_a?(Array)) && @configuration.any?
       end
 
       def provider
@@ -55,11 +53,11 @@ module Celluloid
                       elsif @supervisor.respond_to? :supervise
                         @supervisor
                       else
-                        fail Error::InvalidSupervisor
+                        raise Error::InvalidSupervisor
                       end
       end
 
-      def deploy(options={})
+      def deploy(options = {})
         define(options) if options.any?
         @instances.each do |instance|
           provider.add instance.merge(branch: @branch)
@@ -106,7 +104,7 @@ module Celluloid
         if values.is_a?(Configuration) || values.is_a?(Hash)
           current_instance.merge!(values)
         else
-          fail Error::Invalid
+          raise Error::Invalid
         end
       end
 
@@ -114,7 +112,7 @@ module Celluloid
         if values.is_a?(Configuration) || values.is_a?(Hash)
           current_instance.merge(values)
         else
-          fail Error::Invalid
+          raise Error::Invalid
         end
       end
 
@@ -127,7 +125,7 @@ module Celluloid
         @instances.map(&:name).include? name
       end
 
-      def define(configuration, fail=false)
+      def define(configuration, fail = false)
         if configuration.is_a? Array
           configuration.each { |c| define(c, fail) }
         else
@@ -146,7 +144,7 @@ module Celluloid
       def increment
         @i += 1
       end
-      alias_method :another, :increment
+      alias another increment
 
       def add(options)
         define(options)

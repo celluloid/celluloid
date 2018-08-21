@@ -17,10 +17,10 @@ module Celluloid
 
         def top(options)
           {
-            as: (options.delete(:as)),
+            as: options.delete(:as),
             type: (options.delete(:type) || self),
             branch: (options.delete(:branch) || :services),
-            supervise: options.delete(:supervise) || [],
+            supervise: options.delete(:supervise) || []
           }
         end
 
@@ -30,7 +30,7 @@ module Celluloid
         end
 
         # Start this application (and watch it with a supervisor)
-        def run!(options={})
+        def run!(options = {})
           container = new(options) do |g|
             blocks.each do |block|
               block.call(g)
@@ -40,7 +40,7 @@ module Celluloid
         end
 
         # Run the application in the foreground with a simple watchdog
-        def run(options={})
+        def run(options = {})
           loop do
             supervisor = run!(options)
 
@@ -57,8 +57,8 @@ module Celluloid
       attr_accessor :registry
 
       # Start the container.
-      def initialize(options={})
-        options = {registry: options} if options.is_a? Internals::Registry
+      def initialize(options = {})
+        options = { registry: options } if options.is_a? Internals::Registry
         @state = :initializing
         @actors = [] # instances in the container
         @registry = options.delete(:registry) || Celluloid.actor_system.registry
@@ -88,8 +88,7 @@ module Celluloid
         end
       end
 
-      def remove_accessors
-      end
+      def remove_accessors; end
 
       def remove(actor)
         actor = Celluloid::Actor[actor] if actor.is_a? Symbol
@@ -115,7 +114,7 @@ module Celluloid
       def restart_actor(actor, reason)
         return if @state == :shutdown
         instance = find(actor)
-        fail "a container instance went missing. This shouldn't be!" unless instance
+        raise "a container instance went missing. This shouldn't be!" unless instance
 
         if reason
           exclusive { instance.restart }

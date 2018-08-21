@@ -1,7 +1,6 @@
 module Celluloid
   module Supervision
     class Container
-
       class Tree
         include Behavior
 
@@ -15,7 +14,7 @@ module Celluloid
           elsif @configuration[:supervise].is_a?(Celluloid::Supervision::Configuration)
             @configuration
           else
-            fail ArgumentError.new("No actors given to Tree to supervise.")
+            raise ArgumentError, "No actors given to Tree to supervise."
           end
         end
       end

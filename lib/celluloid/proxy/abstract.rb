@@ -8,7 +8,7 @@ end
 # Base class of Celluloid proxies
 class Celluloid::Proxy::Abstract < BasicObject
   # Needed for storing proxies in data structures
-  needed = [:object_id, :__id__, :hash, :eql?, :private_methods] - instance_methods
+  needed = %i[object_id __id__ hash eql? private_methods] - instance_methods
   if needed.any?
     include ::Kernel.dup.module_eval {
       undef_method(*(instance_methods - needed))

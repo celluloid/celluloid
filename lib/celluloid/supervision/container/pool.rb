@@ -12,7 +12,7 @@ module Celluloid
 
         attr_reader :size, :actors
 
-        def initialize(options={})
+        def initialize(options = {})
           @idle = []
           @busy = []
           @klass = options[:actors]

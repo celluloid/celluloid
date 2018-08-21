@@ -4,7 +4,7 @@ module Celluloid
       class Instance
         attr_accessor :configuration
 
-        def initialize(configuration={})
+        def initialize(configuration = {})
           @state = :initializing # :ready
           resync_accessors
           @configuration = configuration
@@ -12,18 +12,18 @@ module Celluloid
         end
 
         def export
-          @configuration.select { |k, v| !REMOVE_AT_EXPORT.include? k }
+          @configuration.reject { |k, _v| REMOVE_AT_EXPORT.include? k }
         end
 
-        def ready?(fail=false)
+        def ready?(fail = false)
           unless @state == :ready
             @state = :ready if Configuration.valid? @configuration, fail
           end
           @state == :ready
         end
 
-        def define(instance, fail=false)
-          fail Configuration::Error::AlreadyDefined if ready? fail
+        def define(instance, fail = false)
+          raise Configuration::Error::AlreadyDefined if ready? fail
           invoke_injection(:before_configuration)
           @configuration = Configuration.options(instance)
           ready?
@@ -80,7 +80,7 @@ module Celluloid
           elsif values.is_a? Hash
             @configuration.merge(values)
           else
-            fail Error::Invalid
+            raise Error::Invalid
           end
         end
 
@@ -91,12 +91,12 @@ module Celluloid
         def set(key, value)
           @configuration[key] = value
         end
-        alias_method :[]=, :set
+        alias []= set
 
         def get(key)
           @configuration[key]
         end
-        alias_method :[], :get
+        alias [] get
 
         def delete(k)
           @configuration.delete(k)

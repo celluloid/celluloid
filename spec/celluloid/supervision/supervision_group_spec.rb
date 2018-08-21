@@ -68,12 +68,12 @@ RSpec.describe "Celluloid::SupervisionGroup", actor_system: :global do
   context "with multiple args" do
     subject do
       Class.new(Celluloid::SupervisionGroup) do
-        supervise MyActor, as: :example, args: [:foo, :bar]
+        supervise MyActor, as: :example, args: %i[foo bar]
       end.run!
     end
 
     it "passes them" do
-      expect(Celluloid::Actor[:example].args).to eq([:foo, :bar])
+      expect(Celluloid::Actor[:example].args).to eq(%i[foo bar])
     end
   end
 

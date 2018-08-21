@@ -13,7 +13,7 @@ class Subordinate
     when :idle
       @state = :working
     else
-      fail SubordinateDead, "the spec purposely crashed me :("
+      raise SubordinateDead, "the spec purposely crashed me :("
     end
   end
 end
