@@ -1,0 +1,41 @@
+script: rake ci
+language: ruby
+rvm:
+  - rbx-2
+  - jruby
+  - 2.2.2
+  - 2.2.0
+  - 2.1.4
+  - 2.0.0
+  - 1.9.3
+  - ruby-head
+  - jruby-head
+
+matrix:
+  fast_finish: true
+  allow_failures:
+    - rvm: 1.9.3
+    - rvm: ruby-head
+    - rvm: jruby-head
+    - env: CELLULOID_BACKPORTED=true
+    - env: CELLULOID_BACKPORTED=false CELLULOID_TASK_CLASS=Threaded
+    - env: CELLULOID_BACKPORTED=true CELLULOID_TASK_CLASS=Threaded
+
+env:
+  global:
+    - NUMBER_OF_PROCESSORS=4 CELLULOID_CONFIG_FILE=.env-ci
+  matrix:
+    - CELLULOID_BACKPORTED=true
+    - CELLULOID_BACKPORTED=false
+    - CELLULOID_BACKPORTED=false CELLULOID_TASK_CLASS=Threaded
+    - CELLULOID_BACKPORTED=true CELLULOID_TASK_CLASS=Threaded
+
+notifications:
+  irc: "irc.freenode.org#celluloid"
+
+before_install:
+  # Only use 1 job until Travis fixes the rbx --jobs issue.
+  - if [ "$TRAVIS_RUBY_VERSION" == "rbx-2" ] ; then export BUNDLE_JOBS=1 ; else export BUNDLE_JOBS=4; fi
+
+sudo: false
+install: bundle install --without=development
