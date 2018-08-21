@@ -2,8 +2,9 @@ RSpec.describe "Blocks", actor_system: :global do
   class MyBlockActor
     include Celluloid
 
-    def initialize(name)
+    def initialize(name, data)
       @name = name
+      @data = data
     end
     attr_reader :name
 
@@ -56,10 +57,10 @@ RSpec.describe "Blocks", actor_system: :global do
   end
 
   it "work between actors" do
-    @data = []
+    data = []
 
-    a1 = MyBlockActor.new("one")
-    a2 = MyBlockActor.new("two")
+    a1 = MyBlockActor.new("one", data)
+    a2 = MyBlockActor.new("two", data)
 
     a1.ask_for_something a2
 
@@ -73,11 +74,11 @@ RSpec.describe "Blocks", actor_system: :global do
       :pete_the_polyglot_alien
     ]
 
-    expect(@data).to eq(expected)
+    expect(data).to eq(expected)
   end
 
   execute_deferred = proc do
-    a1 = MyBlockActor.new("one")
+    a1 = MyBlockActor.new("one", [])
     expect(a1.deferred_excecution(:pete_the_polyglot_alien) { |v| v })
       .to eq(:pete_the_polyglot_alien)
   end
@@ -85,14 +86,14 @@ RSpec.describe "Blocks", actor_system: :global do
   xit("can be deferred", &execute_deferred)
 
   xit "can execute deferred blocks referencing current_actor" do
-    a1 = MyBlockActor.new("one")
+    a1 = MyBlockActor.new("one", [])
     expect(a1.deferred_current_actor { |v| v }).to be("one")
   end
 
   xit "can execute deferred blocks with another actor" do
-    @data = []
-    a1 = MyBlockActor.new("one")
-    a2 = MyBlockActor.new("two")
+    data = []
+    a1 = MyBlockActor.new("one", data)
+    a2 = MyBlockActor.new("two", data)
     a1.defer_for_something a2
     expected = [
       [:outside, "one", "one"],
@@ -104,6 +105,6 @@ RSpec.describe "Blocks", actor_system: :global do
       :pete_the_polyglot_alien
     ]
 
-    expect(@data).to eq(expected)
+    expect(data).to eq(expected)
   end
 end
