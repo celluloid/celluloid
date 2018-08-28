@@ -1,6 +1,6 @@
-## 0.18.0.pre (Final release TBD)
+## 0.18.0.pre2 (Final release TBD)
 
-* Release notes coming soon!
+* TODO (before 0.18.0 final): release notes
 
 ## [0.17.3] (2016-01-18)
 
