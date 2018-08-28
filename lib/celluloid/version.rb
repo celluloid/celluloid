@@ -1,3 +1,3 @@
 module Celluloid
-  VERSION = "0.18.0.pre".freeze
+  VERSION = "0.18.0.pre2".freeze
 end
