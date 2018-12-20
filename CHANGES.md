@@ -1,4 +1,4 @@
-0.17.4 (unreleased)
+0.17.4 (2018-12-20)
 -----
 * [#773](https://github.com/celluloid/celluloid/pull/773)
   Fix the errant 'Couldn't cleanly terminate all actors in 10 seconds!' message
