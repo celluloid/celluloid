@@ -4,6 +4,7 @@
 [![MIT licensed][license-image]][license-link]
 [![Build Status][build-image]][build-link]
 [![Maintained: no][maintained-image]][maintained-link]
+[![Gitter Chat][gitter-image]][gitter-link]
 
 [celluloid-logo-image-raw]: https://raw.github.com/celluloid/celluloid-logos/master/celluloid/celluloid.png
 [gem-image]: https://badge.fury.io/rb/celluloid.svg
@@ -14,6 +15,8 @@
 [license-link]: https://github.com/celluloid/celluloid/blob/master/LICENSE.txt
 [maintained-image]: https://img.shields.io/maintenance/no/2016.svg
 [maintained-link]: https://github.com/celluloid/celluloid/issues/779
+[gitter-image]: https://badges.gitter.im/badge.svg
+[gitter-link]: https://gitter.im/crypto-rb/Lobby
 
 _NOTE: This is the 0.18.x **development** branch of Celluloid. For the 0.17.x
 **stable** branch, please see:_
@@ -98,8 +101,8 @@ Yes, many users are now running Celluloid in production.
 
 ## Discussion
 
-Like Celluloid? [Join the mailing list/Google Group](http://groups.google.com/group/celluloid-ruby)
-or visit us on IRC at #celluloid on freenode
+- [Gitter Chat][gitter-link]
+- [Google Group](https://groups.google.com/group/celluloid-ruby)
 
 ## Documentation
 
@@ -198,7 +201,7 @@ dropped.
 
 ## License
 
-Copyright (c) 2011-2016 Tony Arcieri, Donovan Keme.
+Copyright (c) 2011-2018 Tony Arcieri, Donovan Keme.
 
 Distributed under the MIT License. See [LICENSE.txt](https://github.com/celluloid/celluloid/blob/master/LICENSE.txt)
 for further details.
