@@ -16,7 +16,7 @@
 [maintained-image]: https://img.shields.io/maintenance/no/2016.svg
 [maintained-link]: https://github.com/celluloid/celluloid/issues/779
 [gitter-image]: https://badges.gitter.im/badge.svg
-[gitter-link]: https://gitter.im/crypto-rb/Lobby
+[gitter-link]: https://gitter.im/celluloid/celluloid
 
 _NOTE: This is the 0.18.x **development** branch of Celluloid. For the 0.17.x
 **stable** branch, please see:_
