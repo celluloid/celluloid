@@ -27,6 +27,15 @@ programs using object-oriented concepts.
 
 ### Proudly supported by the best cloud infrastructure provider in the world: [`DigitalOcean`](https://digitalocean.com)
 
+## Revamp
+
+The codebase is being refactored to pursue a stable release with no deprecation warnings, and with this cleaned up:
+
+# ![Diagram][celluloid-diagram]
+*Diagram meticulously developed by [Emese Padányi](https://github.com/emesepadanyi)*
+
+[celluloid-diagram]: https://raw.githubusercontent.com/celluloid/celluloid/master/documentation/ClassDiagram-class_diagram.png
+
 ## Discussion
 
 - [Gitter Chat][gitter-link]
@@ -61,12 +70,11 @@ See also: [Projects Using Celluloid](https://github.com/celluloid/celluloid/wiki
 
 [reel]: https://github.com/celluloid/reel/
 [dcell]: https://github.com/celluloid/dcell/
-[ecell]: https://github.com/celluloid/ecell/
+[ecell]: https://github.com/abstractive/ecell/
 [celluloid-io]: https://github.com/celluloid/celluloid-io/
 [celluloid-zmq]: https://github.com/celluloid/celluloid-zmq/
 [celluloid-dns]: https://github.com/celluloid/celluloid-dns/
-[celluloid-smtp]: https://github.com/celluloid/celluloid-smtp/
-[lattice]: https://github.com/celluloid/lattice/
+[celluloid-smtp]: https://github.com/abstractive/celluloid-smtp/
 [nio4r]: https://github.com/celluloid/nio4r/
 [timers]: https://github.com/celluloid/timers/
 
