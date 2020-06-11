@@ -21,18 +21,11 @@
 Celluloid is a framework for building asynchronous and multithreaded Ruby
 programs using object-oriented concepts.
 
-## UNMAINTAINED
+## Revival Process Underway
 
-**THIS GEM IS NOT ACTIVELY MAINTAINED**.
+`Celluloid` is in the process of being refactored and released back into the wild during `Google Summer of Code`. The next era will not have one individual active maintainer, but a team of collaborators. Going forward, previously dormant maintainer [Donovan Keme](https://github.com/digitalextremist) is returning to support future primary maintainer [Emese Padányi](https://github.com/emesepadanyi) during `GSoC 2020`. Her plan extends past the Summer program, and aims to revive the community and codebase of `Celluloid` together. Backing this process are [Harsh Deep](https://github.com/harsh183) and `GSoC` alumni [Dilum Navanjana](https://github.com/dilumn). We welcome your collaboration and contributions in this massive work.
 
-Celluloid is not actively maintained. We are attempting to organize a maintenance
-plan for the future of the project, however do not expect significant new
-developments, bugfixes, features, or releases.
-
-If you are interested in helping out as part of a volunteer maintenance effort,
-please see this issue:
-
-[celluloid/celluloid#779](https://github.com/celluloid/celluloid/issues/779)
+### Proudly supported by the best cloud infrastructure provider in the world: [`DigitalOcean`](https://digitalocean.com)
 
 ## Discussion
 
