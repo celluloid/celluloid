@@ -25,16 +25,14 @@ programs using object-oriented concepts.
 
 `Celluloid` is in the process of being refactored and released back into the wild during `Google Summer of Code`. The next era will not have one individual active maintainer, but a team of collaborators. Going forward, previously dormant maintainer [Donovan Keme](https://github.com/digitalextremist) is returning to support future primary maintainer [Emese Padányi](https://github.com/emesepadanyi) during `GSoC 2020`. Her plan extends past the Summer program, and aims to revive the community and codebase of `Celluloid` together. Backing this process are [Harsh Deep](https://github.com/harsh183) and `GSoC` alumni [Dilum Navanjana](https://github.com/dilumn). We welcome your collaboration and contributions in this massive work.
 
-### Proudly supported by the best cloud infrastructure provider in the world: [`DigitalOcean`](https://digitalocean.com)
-
-## Revamp
-
 The codebase is being refactored to pursue a stable release with no deprecation warnings, and with this cleaned up:
 
 # ![Diagram][celluloid-diagram]
 *Diagram meticulously developed by [Emese Padányi](https://github.com/emesepadanyi)*
 
 [celluloid-diagram]: https://raw.githubusercontent.com/celluloid/celluloid/master/documentation/ClassDiagram-class_diagram.png
+
+### Proudly supported by the best cloud infrastructure provider in the world: [`DigitalOcean`](https://digitalocean.com)
 
 ## Discussion
 
