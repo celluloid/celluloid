@@ -62,7 +62,6 @@ See also: [Projects Using Celluloid](https://github.com/celluloid/celluloid/wiki
 * [Celluloid::ZMQ][celluloid-zmq]: "Evented" 0MQ support for `Celluloid` actors
 * [Celluloid::DNS][celluloid-dns]: An "evented" DNS server based on `Celluloid::IO`
 * [Celluloid::SMTP][celluloid-smtp]: An "evented" SMTP server based on `Celluloid::IO`
-* [Lattice][lattice]: A concurrent realtime web framework based on `Celluloid::IO`
 * [nio4r][nio4r]: "New IO for Ruby": high performance IO selectors
 * [Timers][timers]: A generic Ruby timer library for event-based systems
 
