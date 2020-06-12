@@ -7,7 +7,6 @@ require "timeout"
 
 # !!! DO NOT INTRODUCE ADDITIONAL GLOBAL VARIABLES !!!
 # rubocop:disable Style/GlobalVars
-$CELLULOID_DEBUG = false
 $CELLULOID_MONITORING = false
 # rubocop:enable Style/GlobalVars
 
@@ -464,10 +463,7 @@ end
 require "celluloid/exceptions"
 
 Celluloid.logger = Logger.new(STDERR).tap do |logger|
-  # !!! DO NOT INTRODUCE ADDITIONAL GLOBAL VARIABLES !!!
-  # rubocop:disable Style/GlobalVars
-  logger.level = Logger::INFO unless $CELLULOID_DEBUG
-  # rubocop:enable Style/GlobalVars
+  logger.level = Logger::INFO
 end
 
 Celluloid.shutdown_timeout = 10

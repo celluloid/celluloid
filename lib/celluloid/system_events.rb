@@ -5,10 +5,7 @@ module Celluloid
       if handler = SystemEvent.handle(event.class)
         send(handler, event)
       else
-        # !!! DO NOT INTRODUCE ADDITIONAL GLOBAL VARIABLES !!!
-        # rubocop:disable Style/GlobalVars
-        Internals::Logger.debug "Discarded message (unhandled): #{message}" if $CELLULOID_DEBUG
-        # rubocop:enable Style/GlobalVars
+        Internals::Logger.debug "Discarded message (unhandled): #{message}"
       end
     end
   end

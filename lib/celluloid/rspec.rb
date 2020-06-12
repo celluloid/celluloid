@@ -39,8 +39,6 @@ end
 
 # !!! DO NOT INTRODUCE ADDITIONAL GLOBAL VARIABLES !!!
 # rubocop:disable Style/GlobalVars
-$CELLULOID_DEBUG = true
-
 # Require but disable, so it has to be explicitly enabled in tests
 require "celluloid/probe"
 $CELLULOID_MONITORING = false

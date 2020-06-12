@@ -157,10 +157,7 @@ module Celluloid
     end
 
     def dead_letter(message)
-      # !!! DO NOT INTRODUCE ADDITIONAL GLOBAL VARIABLES !!!
-      # rubocop:disable Style/GlobalVars
-      Internals::Logger.debug "Discarded message (mailbox is dead): #{message}" if $CELLULOID_DEBUG
-      # rubocop:enable Style/GlobalVars
+      Internals::Logger.debug "Discarded message (mailbox is dead): #{message}"
     end
 
     def mailbox_full

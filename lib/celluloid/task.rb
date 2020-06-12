@@ -63,14 +63,11 @@ module Celluloid
 
       @status = status
 
-      # !!! DO NOT INTRODUCE ADDITIONAL GLOBAL VARIABLES !!!
-      # rubocop:disable Style/GlobalVars
-      if $CELLULOID_DEBUG && @dangerous_suspend
+      if Internals::Logger.level == Logger::DEBUG && @dangerous_suspend
         Internals::Logger.with_backtrace(caller[2...8]) do |logger|
           logger.warn "Dangerously suspending task: type=#{@type.inspect}, meta=#{@meta.inspect}, status=#{@status.inspect}"
         end
       end
-      # rubocop:enable Style/GlobalVars
 
       value = signal
 
@@ -111,15 +108,12 @@ module Celluloid
       raise "Cannot terminate an exclusive task" if exclusive?
 
       if running?
-        # !!! DO NOT INTRODUCE ADDITIONAL GLOBAL VARIABLES !!!
-        # rubocop:disable Style/GlobalVars
-        if $CELLULOID_DEBUG
+        if Internals::Logger.level == Logger::DEBUG
           Internals::Logger.with_backtrace(backtrace) do |logger|
             type = @dangerous_suspend ? :warn : :debug
             logger.send(type, "Terminating task: type=#{@type.inspect}, meta=#{@meta.inspect}, status=#{@status.inspect}")
           end
         end
-        # rubocop:enable Style/GlobalVars
 
         exception = TaskTerminated.new("task was terminated")
         exception.set_backtrace(caller)
@@ -147,14 +141,11 @@ module Celluloid
     end
 
     def guard(message)
-      # !!! DO NOT INTRODUCE ADDITIONAL GLOBAL VARIABLES !!!
-      # rubocop:disable Style/GlobalVars
       if @guard_warnings
-        Internals::Logger.warn message if $CELLULOID_DEBUG
+        Internals::Logger.warn message if Internals::Logger.level == Logger::DEBUG
       else
-        raise message if $CELLULOID_DEBUG
+        raise message if Internals::Logger.level == Logger::DEBUG
       end
-      # rubocop:enable Style/GlobalVars
     end
 
     private
