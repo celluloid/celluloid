@@ -71,12 +71,6 @@ module Celluloid
         end
       end
 
-      # Note a deprecation
-      def deprecate(message)
-        trace = caller.join("\n\t")
-        warn "DEPRECATION WARNING: #{message}\n\t#{trace}"
-      end
-
       # Define an exception handler
       # NOTE: These should be defined at application start time
       def exception_handler(&block)
