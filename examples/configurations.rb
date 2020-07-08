@@ -1,4 +1,4 @@
-require "celluloid/current"
+require "celluloid"
 
 puts "Use Supervision::Configuration objects!"
 
