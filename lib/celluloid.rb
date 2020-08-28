@@ -247,7 +247,7 @@ module Celluloid
     end
 
     def pool
-      raise NoMethodError, "Missing require for 'celluloid/pool'"
+      raise NoMethodError, "Missing require for \"celluloid/pool\". Add 'require \"celluloid/pool\" for expected behavior."
     end
   end
 
@@ -496,7 +496,7 @@ require "celluloid/group/pool"
 
 require "celluloid/task"
 require "celluloid/task/fibered"
-require "celluloid/task/threaded"   # TODO: Find way to only load this if being used.
+require "celluloid/task/threaded"         # TODO: Find way to only load this if being used.
 
 require "celluloid/actor"
 require "celluloid/cell"
