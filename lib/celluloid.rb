@@ -245,6 +245,10 @@ module Celluloid
     def ===(other)
       other.is_a? self
     end
+
+    def pool
+      raise NoMethodError, "Missing require for 'celluloid/pool'"
+    end
   end
 
   # These are methods we don't want added to the Celluloid singleton but to be
@@ -488,7 +492,6 @@ require "celluloid/mailbox/evented"
 
 require "celluloid/group"
 require "celluloid/group/spawner"
-require "celluloid/group/pool"      # TODO: Find way to only load this if being used.
 
 require "celluloid/task"
 require "celluloid/task/fibered"
