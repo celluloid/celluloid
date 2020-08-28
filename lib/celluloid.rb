@@ -492,6 +492,7 @@ require "celluloid/mailbox/evented"
 
 require "celluloid/group"
 require "celluloid/group/spawner"
+require "celluloid/group/pool"
 
 require "celluloid/task"
 require "celluloid/task/fibered"
