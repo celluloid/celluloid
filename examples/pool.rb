@@ -12,9 +12,7 @@ class PrimeWorker
 
   # Checks if a number is prime
   def prime(number)
-    if Prime.prime?(number)
-      puts number
-    end
+    puts number if Prime.prime?(number)
   end
 end
 
