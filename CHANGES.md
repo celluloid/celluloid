@@ -1,4 +1,4 @@
-## 0.18.0 (TBD)
+## 0.18.0 (2020-12-05)
 
 [0.18.0]: https://github.com/celluloid/celluloid/compare/v0.17.3...v0.18.0
 
