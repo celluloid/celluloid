@@ -5,6 +5,7 @@ require "celluloid/autostart"
 
 # This is required for pool to work as Celluloid doesn't load it by default
 require "celluloid/pool"
+
 require "prime"
 
 class PrimeWorker
