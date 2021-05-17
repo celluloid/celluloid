@@ -16,7 +16,7 @@ module Celluloid
     def assert_inactive
       return unless active?
       if RUBY_PLATFORM == "java"
-        Celluloid.logger.warn "Group is still active"
+        Internals::Logger.warn "Group is still active"
       else
         raise Celluloid::StillActive
       end

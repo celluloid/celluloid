@@ -7,10 +7,7 @@ module Celluloid
         end
 
         def debug(string)
-          # !!! DO NOT INTRODUCE ADDITIONAL GLOBAL VARIABLES !!!
-          # rubocop:disable Style/GlobalVars
-          Celluloid.logger.debug(decorate(string)) if $CELLULOID_DEBUG
-          # rubocop:enable Style/GlobalVars
+          Celluloid.logger.debug(decorate(string))
         end
 
         def info(string)
@@ -40,10 +37,7 @@ module Celluloid
 
       # Send a debug message
       def debug(string)
-        # !!! DO NOT INTRODUCE ADDITIONAL GLOBAL VARIABLES !!!
-        # rubocop:disable Style/GlobalVars
-        Celluloid.logger.debug(string) if Celluloid.logger && $CELLULOID_DEBUG
-        # rubocop:enable Style/GlobalVars
+        Celluloid.logger.debug(string) if Celluloid.logger
       end
 
       # Send a info message
@@ -77,12 +71,6 @@ module Celluloid
         end
       end
 
-      # Note a deprecation
-      def deprecate(message)
-        trace = caller.join("\n\t")
-        warn "DEPRECATION WARNING: #{message}\n\t#{trace}"
-      end
-
       # Define an exception handler
       # NOTE: These should be defined at application start time
       def exception_handler(&block)
@@ -98,6 +86,11 @@ module Celluloid
                else
                  "EMPTY BACKTRACE\n\t"
                end
+      end
+
+      # return level of logging
+      def level
+        return Celluloid.logger.level if Celluloid.logger
       end
     end
   end

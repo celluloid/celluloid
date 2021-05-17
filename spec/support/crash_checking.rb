@@ -33,6 +33,16 @@ module Specs
       @real_logger.warn(*args)
     end
 
+    def error(*args)
+      check
+      @real_logger.error(*args)
+    end
+
+    def level
+      check
+      @real_logger.level
+    end
+
     def with_backtrace(_backtrace)
       check
       yield self
