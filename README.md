@@ -5,6 +5,8 @@
 [![Build Status][build-image]][build-link]
 [![Maintained: no][maintained-image]][maintained-link]
 [![Gitter Chat][gitter-image]][gitter-link]
+[![Backers on Open Collective][ocbacker-image]][ocbacker-link]
+[![Sponsors on Open Collective][ocsponsor-image]][ocsponsor-link]
 
 [celluloid-logo-image-raw]: https://raw.github.com/celluloid/celluloid-logos/master/celluloid/celluloid.png
 [gem-image]: https://badge.fury.io/rb/celluloid.svg
@@ -17,6 +19,10 @@
 [maintained-link]: https://github.com/celluloid/celluloid/issues/779
 [gitter-image]: https://badges.gitter.im/badge.svg
 [gitter-link]: https://gitter.im/celluloid/celluloid
+[ocbacker-image]: https://opencollective.com/celluloid/backers/badge.svg
+[ocbacker-link]: #backers
+[ocsponsor-image]: https://opencollective.com/celluloid/sponsors/badge.svg
+[ocsponsor-link]: #sponsors
 
 Celluloid is a framework for building asynchronous and multithreaded Ruby
 programs using object-oriented concepts.
@@ -80,6 +86,35 @@ See also: [Projects Using Celluloid](https://github.com/celluloid/celluloid/wiki
 - Fork this repository on github
 - Make your changes and send us a pull request
 - Pull requests will be reviewed for inclusion in the project
+
+## Contributors
+
+This project exists thanks to all the people who contribute. <a href="https://github.com/celluloid/celluloid/graphs/contributors"><img src="https://opencollective.com/celluloid/contributors.svg?width=890&button=false" /></a>
+
+
+## Backers
+
+Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/celluloid#backer)]
+
+<a href="https://opencollective.com/celluloid#backers" target="_blank"><img src="https://opencollective.com/celluloid/backers.svg?width=890"></a>
+
+
+## Sponsors
+
+Support this project by becoming a sponsor. Your logo will show up here with a link to your website. [[Become a sponsor](https://opencollective.com/celluloid#sponsor)]
+
+<a href="https://opencollective.com/celluloid/sponsor/0/website" target="_blank"><img src="https://opencollective.com/celluloid/sponsor/0/avatar.svg"></a>
+<a href="https://opencollective.com/celluloid/sponsor/1/website" target="_blank"><img src="https://opencollective.com/celluloid/sponsor/1/avatar.svg"></a>
+<a href="https://opencollective.com/celluloid/sponsor/2/website" target="_blank"><img src="https://opencollective.com/celluloid/sponsor/2/avatar.svg"></a>
+<a href="https://opencollective.com/celluloid/sponsor/3/website" target="_blank"><img src="https://opencollective.com/celluloid/sponsor/3/avatar.svg"></a>
+<a href="https://opencollective.com/celluloid/sponsor/4/website" target="_blank"><img src="https://opencollective.com/celluloid/sponsor/4/avatar.svg"></a>
+<a href="https://opencollective.com/celluloid/sponsor/5/website" target="_blank"><img src="https://opencollective.com/celluloid/sponsor/5/avatar.svg"></a>
+<a href="https://opencollective.com/celluloid/sponsor/6/website" target="_blank"><img src="https://opencollective.com/celluloid/sponsor/6/avatar.svg"></a>
+<a href="https://opencollective.com/celluloid/sponsor/7/website" target="_blank"><img src="https://opencollective.com/celluloid/sponsor/7/avatar.svg"></a>
+<a href="https://opencollective.com/celluloid/sponsor/8/website" target="_blank"><img src="https://opencollective.com/celluloid/sponsor/8/avatar.svg"></a>
+<a href="https://opencollective.com/celluloid/sponsor/9/website" target="_blank"><img src="https://opencollective.com/celluloid/sponsor/9/avatar.svg"></a>
+
+
 
 ## License
 
