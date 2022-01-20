@@ -207,6 +207,7 @@ RSpec.shared_examples "a Celluloid Actor" do
     end
 
     it "warns about suspending the initialize" do
+      allow(logger).to receive(:level).and_return(Logger::DEBUG)
       # rubocop:disable Metrics/LineLength
       expect(logger).to receive(:warn).with(/Dangerously suspending task: type=:call, meta={:dangerous_suspend=>true, :method_name=>:initialize}, status=:sleeping/)
       # rubocop:enable Metrics/LineLength
@@ -241,6 +242,7 @@ RSpec.shared_examples "a Celluloid Actor" do
       allow(logger).to receive(:warn)
       allow(logger).to receive(:crash).with(/finalizer crashed!/, Celluloid::TaskTerminated)
       # rubocop:disable Metrics/LineLength
+      allow(logger).to receive(:level).and_return(Logger::DEBUG)
       expect(logger).to receive(:warn).with(/Dangerously suspending task: type=:finalizer, meta={:dangerous_suspend=>true, :method_name=>:cleanup}, status=:sleeping/)
       # rubocop:enable Metrics/LineLength
       actor.terminate
@@ -559,6 +561,7 @@ RSpec.shared_examples "a Celluloid Actor" do
 
       context "when terminated" do
         it "logs a debug" do
+          allow(logger).to receive(:level).and_return(Logger::DEBUG)
           # rubocop:disable Metrics/LineLength
           expect(logger).to receive(:debug).with(/^Terminating task: type=:call, meta={:dangerous_suspend=>false, :method_name=>:sleepy}, status=:sleeping/)
           # rubocop:enable Metrics/LineLength

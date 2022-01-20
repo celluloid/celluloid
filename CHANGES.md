@@ -1,6 +1,150 @@
-## 0.18.0.pre2 (Final release TBD)
+## 0.18.0 (2020-12-05)
 
-* TODO (before 0.18.0 final): release notes
+[0.18.0]: https://github.com/celluloid/celluloid/compare/v0.17.3...v0.18.0
+
+* [#804](https://github.com/celluloid/celluloid/pull/804)
+  Remove deprecation warnings
+
+* [#802](https://github.com/celluloid/celluloid/pull/802)
+  Remove lattice link itself.
+
+* [#797](https://github.com/celluloid/celluloid/pull/797)
+  Update Ruby versions in CI script
+
+* [#801](https://github.com/celluloid/celluloid/pull/801)
+  Associate Open Collective sponsorship option
+
+* [#800](https://github.com/celluloid/celluloid/pull/800)
+  Streamline README
+
+* [#799](https://github.com/celluloid/celluloid/pull/799)
+  Update links, add diagram preview.
+
+* [#796](https://github.com/celluloid/celluloid/pull/796)
+  Create Class Diagram in Draw.io
+
+* [#798](https://github.com/celluloid/celluloid/pull/798)
+  Pertinent Newsflash
+
+* [#792](https://github.com/celluloid/celluloid/pull/792)
+  CI: 2.5.5, 2.6.2
+
+* [#788](https://github.com/celluloid/celluloid/pull/788)
+  Travis: Include Ruby 2.5, 2.6
+
+* [#787](https://github.com/celluloid/celluloid/pull/787)
+  Travis config: drop old configuration sudo: false
+
+* [#786](https://github.com/celluloid/celluloid/pull/786)
+  Travis: use jruby-9.2.5.0
+
+* [#783](https://github.com/celluloid/celluloid/pull/783)
+  v0.18.0.pre2
+
+* [#782](https://github.com/celluloid/celluloid/pull/782)
+  Merge 'celluloid-supervision' back into the tree
+
+* [#781](https://github.com/celluloid/celluloid/pull/781)
+  .gitmodules: No longer used
+
+* [#780](https://github.com/celluloid/celluloid/pull/780)
+  README.md: Link to unmaintained issue
+
+* [#778](https://github.com/celluloid/celluloid/pull/778)
+  README.md: Add "maintained: no! (as of 2016)" badge
+
+* [#777](https://github.com/celluloid/celluloid/pull/777)
+  gemspec: Metadata with supported links
+
+* [#776](https://github.com/celluloid/celluloid/pull/776)
+  Travis: use jruby-9.2.0.0
+
+* [#775](https://github.com/celluloid/celluloid/pull/775)
+  Travis: jruby-9.1.17.0
+
+* [#769](https://github.com/celluloid/celluloid/pull/769)
+  Travis: jruby-9.1.15.0
+
+* [#768](https://github.com/celluloid/celluloid/pull/768)
+  Travis: use latest JRuby
+
+* [#767](https://github.com/celluloid/celluloid/pull/767)
+  CHANGES: Add GitHub compare link on each heading
+
+* [#766](https://github.com/celluloid/celluloid/pull/766)
+  Fix celluloid/celluloid#758
+
+* [#765](https://github.com/celluloid/celluloid/pull/765)
+  Travis: jruby-9.1.13.0
+
+* [#761](https://github.com/celluloid/celluloid/pull/761)
+  Travis: jruby-9.1.12.0
+
+* [#760](https://github.com/celluloid/celluloid/pull/760)
+  Travis: jruby-9.1.10.0
+
+* [#759](https://github.com/celluloid/celluloid/pull/759)
+  Travis: jruby-9.1.9.0
+
+* [#757](https://github.com/celluloid/celluloid/pull/757)
+  parameterize error message so old and new Rubies match text
+
+* [#756](https://github.com/celluloid/celluloid/pull/756)
+  Travis: latest stable rubies
+
+* [#754](https://github.com/celluloid/celluloid/pull/754)
+  README: Fix badge rendering in Markdown
+
+* [#753](https://github.com/celluloid/celluloid/pull/753)
+  Travis: use jruby-9.1.8.0
+
+* [#752](https://github.com/celluloid/celluloid/pull/752)
+  Misspellings
+
+* [#749](https://github.com/celluloid/celluloid/pull/749)
+  Return false from Celluloid.running? if Celluloid.boot hasn't been called
+
+* [#751](https://github.com/celluloid/celluloid/pull/751)
+  Travis: Use JRuby 9.1.7.0
+
+* [#740](https://github.com/celluloid/celluloid/pull/740)
+  Global variables: stop the bleeding
+
+* [#739](https://github.com/celluloid/celluloid/pull/739)
+  Remove hacks around old MRIs, JRuby, and rbx
+
+* [#738](https://github.com/celluloid/celluloid/pull/738)
+  Update to RuboCop 0.45.0 (with new rubocop.yml policy)
+
+* [#737](https://github.com/celluloid/celluloid/pull/737)
+  Simplify dependencies: merge 'essentials' and 'culture' repos
+
+* [#736](https://github.com/celluloid/celluloid/pull/736)
+  Remove $CELLULOID_BACKPORTED and $CELLULOID_MANAGED
+
+* [#735](https://github.com/celluloid/celluloid/pull/735)
+  Require Ruby 2.2.6+
+
+* [#729](https://github.com/celluloid/celluloid/pull/729)
+  Remove mysterious Fiber.yield
+
+* [#721](https://github.com/celluloid/celluloid/pull/721)
+  Instruction for cloning Celluloid via github
+
+* [#715](https://github.com/celluloid/celluloid/pull/715)
+  fix error response reference in Future#cancel
+
+* [#712](https://github.com/celluloid/celluloid/pull/712)
+  Add RBX-3 to the build
+
+* [#711](https://github.com/celluloid/celluloid/pull/711)
+  Added bundler cache
+
+* [#709](https://github.com/celluloid/celluloid/pull/709)
+  Fix autostart. Fixes https://github.com/celluloid/celluloid/issues/698
+
+* [#705](https://github.com/celluloid/celluloid/pull/705)
+  Adding method source code path to backtrace
 
 ## [0.17.3] (2016-01-18)
 

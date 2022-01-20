@@ -27,18 +27,18 @@
 Celluloid is a framework for building asynchronous and multithreaded Ruby
 programs using object-oriented concepts.
 
-## UNMAINTAINED
+## Revival Process Underway
 
-**THIS GEM IS NOT ACTIVELY MAINTAINED**.
+`Celluloid` is in the process of being refactored and released back into the wild during `Google Summer of Code`. The next era will not have one individual active maintainer, but a team of collaborators. Going forward, previously dormant maintainer [Donovan Keme](https://github.com/digitalextremist) is returning to support future primary maintainer [Emese Padányi](https://github.com/emesepadanyi) during `GSoC 2020`. Her plan extends past the Summer program, and aims to revive the community and codebase of `Celluloid` together. Backing this process are [Harsh Deep](https://github.com/harsh183) and `GSoC` alumni [Dilum Navanjana](https://github.com/dilumn). We welcome your collaboration and contributions in this massive work.
 
-Celluloid is not actively maintained. We are attempting to organize a maintenance
-plan for the future of the project, however do not expect significant new
-developments, bugfixes, features, or releases.
+The codebase is being refactored to pursue a stable release with no deprecation warnings, and with this cleaned up:
 
-If you are interested in helping out as part of a volunteer maintenance effort,
-please see this issue:
+# ![Diagram][celluloid-diagram]
+*Diagram meticulously developed by [Emese Padányi](https://github.com/emesepadanyi)*
 
-[celluloid/celluloid#779](https://github.com/celluloid/celluloid/issues/779)
+[celluloid-diagram]: https://raw.githubusercontent.com/celluloid/celluloid/master/documentation/ClassDiagram-class_diagram.png
+
+### Proudly supported by the best cloud infrastructure provider in the world: [`DigitalOcean`](https://digitalocean.com)
 
 ## Discussion
 
@@ -68,18 +68,16 @@ See also: [Projects Using Celluloid](https://github.com/celluloid/celluloid/wiki
 * [Celluloid::ZMQ][celluloid-zmq]: "Evented" 0MQ support for `Celluloid` actors
 * [Celluloid::DNS][celluloid-dns]: An "evented" DNS server based on `Celluloid::IO`
 * [Celluloid::SMTP][celluloid-smtp]: An "evented" SMTP server based on `Celluloid::IO`
-* [Lattice][lattice]: A concurrent realtime web framework based on `Celluloid::IO`
 * [nio4r][nio4r]: "New IO for Ruby": high performance IO selectors
 * [Timers][timers]: A generic Ruby timer library for event-based systems
 
 [reel]: https://github.com/celluloid/reel/
 [dcell]: https://github.com/celluloid/dcell/
-[ecell]: https://github.com/celluloid/ecell/
+[ecell]: https://github.com/abstractive/ecell/
 [celluloid-io]: https://github.com/celluloid/celluloid-io/
 [celluloid-zmq]: https://github.com/celluloid/celluloid-zmq/
 [celluloid-dns]: https://github.com/celluloid/celluloid-dns/
-[celluloid-smtp]: https://github.com/celluloid/celluloid-smtp/
-[lattice]: https://github.com/celluloid/lattice/
+[celluloid-smtp]: https://github.com/abstractive/celluloid-smtp/
 [nio4r]: https://github.com/celluloid/nio4r/
 [timers]: https://github.com/celluloid/timers/
 
