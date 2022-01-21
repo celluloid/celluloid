@@ -9,8 +9,8 @@
 [celluloid-logo-image-raw]: https://raw.github.com/celluloid/celluloid-logos/master/celluloid/celluloid.png
 [gem-image]: https://badge.fury.io/rb/celluloid.svg
 [gem-link]: http://rubygems.org/gems/celluloid
-[build-image]: https://secure.travis-ci.org/celluloid/celluloid.svg?branch=master
-[build-link]: http://travis-ci.org/celluloid/celluloid
+[build-image]: https://github.com/celluloid/celluloid/actions/workflows/github-actions.yml/badge.svg?branch=master
+[build-link]: https://github.com/celluloid/celluloid/actions/workflows/github-actions.yml
 [license-image]: https://img.shields.io/badge/license-MIT-blue.svg
 [license-link]: https://github.com/celluloid/celluloid/blob/master/LICENSE.txt
 [maintained-image]: https://img.shields.io/maintenance/no/2016.svg

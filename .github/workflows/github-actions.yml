@@ -1,4 +1,4 @@
-name: Rake CI
+name: Build
 on: [push, pull_request]
 jobs:
   test:
