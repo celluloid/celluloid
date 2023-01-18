@@ -152,13 +152,14 @@ module Celluloid
 
     def name_current_thread(new_name)
       return unless RUBY_PLATFORM == "java"
+      current_java_thread = java.lang.Thread.currentThread
       if new_name.nil?
         new_name = Thread.current[:celluloid_original_thread_name]
         Thread.current[:celluloid_original_thread_name] = nil
       else
-        Thread.current[:celluloid_original_thread_name] = Thread.current.to_java.getNativeThread.get_name
+        Thread.current[:celluloid_original_thread_name] = current_java_thread.get_name
       end
-      Thread.current.to_java.getNativeThread.set_name(new_name)
+      current_java_thread.set_name(new_name)
     end
 
     def thread_metadata
