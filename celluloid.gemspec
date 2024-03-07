@@ -29,8 +29,8 @@ Gem::Specification.new do |spec|
 
   spec.require_path = "lib"
   spec.files        = Dir["*.md", "*.txt", "lib/**/*", "spec/**/*", "examples/*"]
-  spec.required_ruby_version     = ">= 2.2.6"
-  spec.required_rubygems_version = ">= 2.0.0"
+  spec.required_ruby_version     = ">= 3.0"
+  spec.required_rubygems_version = ">= 3.0"
 
   spec.add_runtime_dependency "timers", "~> 4"
 end
