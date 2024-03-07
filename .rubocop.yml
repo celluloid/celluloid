@@ -1,6 +1,8 @@
+inherit_from: .rubocop_todo.yml
+
 AllCops:
   DisplayCopNames: true
-  TargetRubyVersion: 2.2.6
+  TargetRubyVersion: '3.0'
 
 #
 # Lint
@@ -18,7 +20,7 @@ Lint/EmptyWhen:
 Lint/Loop:
   Enabled: false # TODO: enable
 
-Lint/HandleExceptions:
+Lint/SuppressedException:
   Enabled: false # TODO: enable
 
 Lint/NonLocalExitFromIterator:
@@ -82,15 +84,8 @@ Naming/AccessorMethodName:
 Naming/MemoizedInstanceVariableName:
   Enabled: false # TODO: enable
 
-Naming/UncommunicativeMethodParamName:
+Naming/MethodParameterName:
   Enabled: false # TODO: enable(?)
-
-#
-# Performance
-#
-
-Performance/TimesMap:
-  Enabled: false # TODO: enable
 
 #
 # Style
@@ -132,7 +127,7 @@ Style/GuardClause:
 Style/IfInsideElse:
   Enabled: false # TODO: enable
 
-Style/MethodMissingSuper:
+Lint/MissingSuper:
   Enabled: false # TODO: enable
 
 Style/MissingRespondToMissing:
